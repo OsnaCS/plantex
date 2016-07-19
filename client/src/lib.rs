@@ -1,3 +1,7 @@
+//! This crate contains functionality for the client only. This is mainly
+//! graphics and input handling.
+//!
+
 extern crate base;
 #[macro_use]
 extern crate glium;
