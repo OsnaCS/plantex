@@ -3,11 +3,13 @@ use std::fmt;
 mod chunk;
 mod ground;
 mod hex_pillar;
+mod provider;
 mod world;
 
 pub use self::chunk::Chunk;
 pub use self::ground::*;
 pub use self::hex_pillar::*;
+pub use self::provider::Provider;
 pub use self::world::World;
 
 pub const HEX_INNER_RADIUS: f32 = 3.0;
