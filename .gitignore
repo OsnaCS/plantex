@@ -2,6 +2,8 @@
 # will have compiled files and executables
 /target/
 
-# Remove Cargo.lock from gitignore if creating an executable, leave it for libraries
-# More information here http://doc.crates.io/guide.html#cargotoml-vs-cargolock
-Cargo.lock
+# Sublime per user temporary workspace
+*.sublime-workspace
+
+# Backup files created by rustfmt
+*.rs.bk
