@@ -16,7 +16,13 @@ impl HexPillar {
     pub fn dummy() -> Self {
         HexPillar {
             sections: vec![PillarSection::new(GroundMaterial::Dirt, HeightType(0), HeightType(50))],
-            props: vec![],
+            props: vec![Prop {
+                            baseline: HeightType(50),
+                            prop: PropType::Plant(prop::Plant {
+                                height: 5.0,
+                                stem_width: 0.5,
+                            }),
+                        }],
         }
     }
 
