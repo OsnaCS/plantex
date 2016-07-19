@@ -1,0 +1,13 @@
+[package]
+authors = ["Lukas Kalbertodt <lukas.kalbertodt@gmail.com>"]
+license = "MIT/Apache-2.0"
+name = "client"
+publish = false
+version = "0.1.0"
+
+[dependencies]
+glium = "0.15.0"
+log = "0.3.6"
+
+[dependencies.base]
+path = "../base"

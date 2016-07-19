@@ -1,0 +1,27 @@
+[package]
+authors = ["Lukas Kalbertodt <lukas.kalbertodt@gmail.com>"]
+license = "MIT/Apache-2.0"
+name = "plantex"
+version = "0.1.0"
+
+[[bin]]
+name = "plantex"
+path = "plantex/main.rs"
+
+[[bin]]
+name = "plantex-server"
+path = "plantex-server/main.rs"
+
+[dependencies]
+cgmath = "0.10.0"
+env_logger = "0.3.4"
+log = "0.3.6"
+
+[dependencies.base]
+path = "base"
+
+[dependencies.client]
+path = "client"
+
+[dependencies.server]
+path = "server"

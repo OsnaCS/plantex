@@ -1,0 +1,9 @@
+[package]
+authors = ["Lukas Kalbertodt <lukas.kalbertodt@gmail.com>"]
+license = "MIT/Apache-2.0"
+name = "server"
+version = "0.1.0"
+publish = false
+
+[dependencies]
+base = { path = "../base" }

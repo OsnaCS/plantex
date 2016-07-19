@@ -1,0 +1,8 @@
+single_line_if_else = true
+reorder_imports = true
+wrap_comments = true
+
+# TODO: this should be deleted once
+#    https://github.com/DamnWidget/anaconda_rust/issues/15
+# is fixed
+skip_children = true
