@@ -39,7 +39,7 @@ pub type PillarIndexComponent = i32;
 /// which always represents a pillar position. So two different `AxialPoint`s
 /// could refer to two pillars in the same chunk, while two different
 /// `ChunkIndex`es always refer to two different chunks.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct ChunkIndex(pub math::AxialPoint);
 
 /// Represents one discrete height of a pillar section.
