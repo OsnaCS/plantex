@@ -31,9 +31,9 @@ pub const PILLAR_STEP_HEIGHT: f32 = 0.5;
 pub const CHUNK_SIZE: u16 = 16;
 
 /// This type is used to index into one dimension of the world. Thus we can
-/// "only" index `PillarIndexComponent::max_value() -
-/// PillarIndexComponent::min:value()`² many hex pillars.
-pub type PillarIndexComponent = i32;
+/// "only" index `(PillarIndexComponent::max_value() -
+/// PillarIndexComponent::min_value())`² many hex pillars.
+pub type PillarIndexComponent = math::AxialType;
 
 /// A new-type to index chunks. This is different from the `AxialPoint` type
 /// which always represents a pillar position. So two different `AxialPoint`s
