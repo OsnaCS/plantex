@@ -7,7 +7,8 @@ use math::*;
 /// Chunks are parallelograms (roughly) that are placed next to each other
 /// in the world.
 pub struct World {
-    chunks: HashMap<ChunkIndex, Chunk>,
+    // TODO: make it private after we can access it immutable via a method! (see #7)
+    pub chunks: HashMap<ChunkIndex, Chunk>,
 }
 
 impl World {

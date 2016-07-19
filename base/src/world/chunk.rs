@@ -27,6 +27,10 @@ impl Chunk {
             .collect();
         Chunk { pillars: pillars }
     }
+
+    pub fn pillars(&self) -> &[HexPillar] {
+        &self.pillars
+    }
 }
 
 impl ops::Index<AxialPoint> for Chunk {

@@ -12,6 +12,7 @@ pub mod render;
 pub mod event_manager;
 mod config;
 mod game;
+mod world;
 
 pub use config::Config;
 

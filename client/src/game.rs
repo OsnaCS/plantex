@@ -1,9 +1,11 @@
-use glium::{self, DisplayBuild, glutin};
-use glium::backend::glutin_backend::GlutinFacade;
-use super::Config;
-use render::Renderer;
-use event_manager::{EventManager, EventResponse};
 use base::world::Provider as WorldProvider;
+use base::world::World;
+use event_manager::{EventManager, EventResponse};
+use glium::backend::glutin_backend::GlutinFacade;
+use glium::{self, DisplayBuild, glutin};
+use render::Renderer;
+use super::Config;
+use world::WorldView;
 
 /// Main game function: contains the mai render loop and owns all important
 /// components. This function should remain rather small, all heavy lifting
@@ -13,9 +15,11 @@ pub fn run(config: &Config, _: &WorldProvider) -> Result<(), ()> {
     let context = try!(create_context(config));
     let renderer = Renderer::new(context.clone());
     let event_manager = EventManager::new(context.clone());
+    let world = World::dummy();
+    let world_view = WorldView::from_world(&world, &context);
 
     loop {
-        try!(renderer.render());
+        try!(renderer.render(&world_view));
 
         let event_resp = event_manager.poll_events();
         if event_resp == EventResponse::Quit {
