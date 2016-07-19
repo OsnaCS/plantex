@@ -1,4 +1,4 @@
-use super::{Chunk, HexPillar};
+use super::Chunk;
 use math::*;
 
 /// A type that can load a game world, specifically single chunks of it. This

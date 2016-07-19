@@ -1,3 +1,5 @@
+//! Types and constants to represent a game world.
+//!
 use std::fmt;
 
 mod chunk;
@@ -12,12 +14,24 @@ pub use self::hex_pillar::*;
 pub use self::provider::Provider;
 pub use self::world::World;
 
-pub const HEX_INNER_RADIUS: f32 = 3.0;
+/// Inner radius of the hexagons
+pub const HEX_INNER_RADIUS: f32 = 1.5;
+
+/// Outer radius of the hexagons (from center to corner)
 pub const HEX_OUTER_RADIUS: f32 = HEX_INNER_RADIUS * (::math::SQRT_3 / 2.0);
 
+/// The height of the hex pillars is discretized. So instead of saving a `f32`
+/// to represent the height, we have fixed steps of heights and we will just
+/// save a `u16` to represent the height.
 pub const PILLAR_STEP_HEIGHT: f32 = 0.5;
+
+/// How many hex pillars a chunk is long. So the number of hex pillars in a
+/// chunk is `CHUNK_SIZE`².
 pub const CHUNK_SIZE: u16 = 16;
 
+/// This type is used to index into one dimension of the world. Thus we can
+/// "only" index `ChunkIndex::max_value() - ChunkIndex::min:value()`² many
+// hex pillars.
 pub type ChunkIndex = i32;
 
 /// Represents one discrete height of a pillar section.
@@ -32,13 +46,8 @@ impl HeightType {
     }
 }
 
-impl fmt::Display for HeightType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{} -> {}]", self.0, self.to_real())
-    }
-}
 impl fmt::Debug for HeightType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        fmt::Display::fmt(self, f)
+        write!(f, "[{} -> {}]", self.0, self.to_real())
     }
 }
