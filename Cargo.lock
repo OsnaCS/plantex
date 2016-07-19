@@ -51,6 +51,7 @@ name = "base"
 version = "0.1.0"
 dependencies = [
  "cgmath 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits 0.1.33 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 

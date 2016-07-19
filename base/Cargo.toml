@@ -7,4 +7,5 @@ version = "0.1.0"
 
 [dependencies]
 cgmath = "0.10.0"
+log = "0.3.6"
 num-traits = "0.1.33"

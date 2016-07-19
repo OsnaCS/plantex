@@ -30,9 +30,9 @@ pub const PILLAR_STEP_HEIGHT: f32 = 0.5;
 pub const CHUNK_SIZE: u16 = 16;
 
 /// This type is used to index into one dimension of the world. Thus we can
-/// "only" index `ChunkIndex::max_value() - ChunkIndex::min:value()`² many
-// hex pillars.
-pub type ChunkIndex = i32;
+/// "only" index `ChunkIndexComponent::max_value() -
+/// ChunkIndexComponent::min:value()`² many hex pillars.
+pub type ChunkIndexComponent = i32;
 
 /// Represents one discrete height of a pillar section.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
