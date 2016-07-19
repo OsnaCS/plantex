@@ -12,7 +12,7 @@ mod world;
 pub use self::chunk::Chunk;
 pub use self::ground::*;
 pub use self::hex_pillar::*;
-pub use self::provider::Provider;
+pub use self::provider::*;
 pub use self::world::World;
 
 /// Inner radius of the hexagons

@@ -3,11 +3,12 @@ use glium::backend::glutin_backend::GlutinFacade;
 use super::Config;
 use render::Renderer;
 use event_manager::{EventManager, EventResponse};
+use base::world::Provider as WorldProvider;
 
 /// Main game function: contains the mai render loop and owns all important
 /// components. This function should remain rather small, all heavy lifting
 /// should be done in other functions.
-pub fn run(config: &Config) -> Result<(), ()> {
+pub fn run(config: &Config, _: &WorldProvider) -> Result<(), ()> {
     // Create OpenGL context, the renderer and the event manager
     let context = try!(create_context(config));
     let renderer = Renderer::new(context.clone());

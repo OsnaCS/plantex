@@ -14,9 +14,23 @@ pub trait Provider {
     ///
     /// This function may take some time to complete! To check whether a chunk
     /// can be loaded at all, prefer `is_chunk_loadable()`.
-    fn load_chunk(pos: ChunkIndex) -> Option<Chunk>;
+    fn load_chunk(&self, pos: ChunkIndex) -> Option<Chunk>;
 
     /// Determines whether or not the chunk at the given position can be
     /// loaded. This function is expected to return quickly.
-    fn is_chunk_loadable(pos: ChunkIndex) -> bool;
+    fn is_chunk_loadable(&self, pos: ChunkIndex) -> bool;
+}
+
+/// A dummy provider that always fails to provide a chunk.
+#[derive(Clone, Copy, Debug)]
+pub struct NullProvider;
+
+impl Provider for NullProvider {
+    fn load_chunk(&self, pos: ChunkIndex) -> Option<Chunk> {
+        None
+    }
+
+    fn is_chunk_loadable(&self, pos: ChunkIndex) -> bool {
+        false
+    }
 }

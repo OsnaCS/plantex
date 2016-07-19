@@ -12,6 +12,6 @@ mod game;
 pub use config::Config;
 
 
-pub fn start_game(config: Config) -> Result<(), ()> {
-    game::run(&config)
+pub fn start_game(config: Config, world_provider: &base::world::Provider) -> Result<(), ()> {
+    game::run(&config, world_provider)
 }
