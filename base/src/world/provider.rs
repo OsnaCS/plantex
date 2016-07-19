@@ -26,11 +26,11 @@ pub trait Provider {
 pub struct NullProvider;
 
 impl Provider for NullProvider {
-    fn load_chunk(&self, pos: ChunkIndex) -> Option<Chunk> {
+    fn load_chunk(&self, _: ChunkIndex) -> Option<Chunk> {
         None
     }
 
-    fn is_chunk_loadable(&self, pos: ChunkIndex) -> bool {
+    fn is_chunk_loadable(&self, _: ChunkIndex) -> bool {
         false
     }
 }
