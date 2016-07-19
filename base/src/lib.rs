@@ -10,4 +10,5 @@ extern crate log;
 
 pub mod gen;
 pub mod math;
+pub mod prop;
 pub mod world;
