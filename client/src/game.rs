@@ -4,13 +4,17 @@ use super::Config;
 use render::Renderer;
 use event_manager::{EventManager, EventResponse};
 
+/// Main game function: contains the mai render loop and owns all important
+/// components. This function should remain rather small, all heavy lifting
+/// should be done in other functions.
 pub fn run(config: &Config) -> Result<(), ()> {
+    // Create OpenGL context, the renderer and the event manager
     let context = try!(create_context(config));
     let renderer = Renderer::new(context.clone());
     let event_manager = EventManager::new(context.clone());
 
     loop {
-        renderer.render().expect("error while rendering");
+        try!(renderer.render());
 
         let event_resp = event_manager.poll_events();
         if event_resp == EventResponse::Quit {
@@ -42,9 +46,9 @@ fn create_context(config: &Config) -> Result<GlutinFacade, ()> {
             Err(())
         }
         Ok(context) => {
+            // Print some information about the acquired OpenGL context
             info!("OpenGL context was successfully built");
 
-            // print some information about the aquired OpenGL context
             let glium::Version(api, major, minor) = *context.get_opengl_version();
             info!("Version of context: {} {}.{}",
                   if api == glium::Api::Gl { "OpenGL" } else { "OpenGL ES" },
@@ -58,7 +62,7 @@ fn create_context(config: &Config) -> Result<GlutinFacade, ()> {
                   minor);
 
             if let Some(mem) = context.get_free_video_memory() {
-                let (mem, unit) = match mem {
+                let (mem, unit) = match () {
                     _ if mem < (1 << 12) => (mem, "B"),
                     _ if mem < (1 << 22) => (mem >> 10, "KB"),
                     _ if mem < (1 << 32) => (mem >> 20, "MB"),
