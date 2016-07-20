@@ -34,3 +34,28 @@ impl Provider for NullProvider {
         false
     }
 }
+
+/// A fallback provider that holds two chunk providers with one beeing primary
+/// and one fallback. If the chunk load from the primary fails the fallback
+/// is being called.
+#[derive(Clone, Debug, Copy)]
+pub struct FallbackProvider<P, F> {
+    primary: P,
+    fallback: F,
+}
+
+impl<P: Provider, F: Provider> Provider for FallbackProvider<P, F> {
+    fn load_chunk(&self, pos: ChunkIndex) -> Option<Chunk> {
+        if self.primary.is_chunk_loadable(pos) {
+            self.primary.load_chunk(pos)
+        } else if self.fallback.is_chunk_loadable(pos) {
+            self.fallback.load_chunk(pos)
+        } else {
+            NullProvider {}.load_chunk(pos)
+        }
+    }
+
+    fn is_chunk_loadable(&self, pos: ChunkIndex) -> bool {
+        self.primary.is_chunk_loadable(pos) || self.fallback.is_chunk_loadable(pos)
+    }
+}
