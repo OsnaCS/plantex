@@ -1,3 +1,7 @@
+//! This crate contains functionality for the client only. This is mainly
+//! graphics and input handling.
+//!
+
 extern crate base;
 #[macro_use]
 extern crate glium;
@@ -12,6 +16,6 @@ mod game;
 pub use config::Config;
 
 
-pub fn start_game(config: Config) -> Result<(), ()> {
-    game::run(&config)
+pub fn start_game(config: Config, world_provider: &base::world::Provider) -> Result<(), ()> {
+    game::run(&config, world_provider)
 }

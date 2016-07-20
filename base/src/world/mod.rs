@@ -1,6 +1,7 @@
 //! Types and constants to represent a game world.
 //!
 use std::fmt;
+use math;
 
 mod chunk;
 mod ground;
@@ -11,7 +12,7 @@ mod world;
 pub use self::chunk::Chunk;
 pub use self::ground::*;
 pub use self::hex_pillar::*;
-pub use self::provider::Provider;
+pub use self::provider::*;
 pub use self::world::World;
 
 /// Inner radius of the hexagons
@@ -30,9 +31,16 @@ pub const PILLAR_STEP_HEIGHT: f32 = 0.5;
 pub const CHUNK_SIZE: u16 = 16;
 
 /// This type is used to index into one dimension of the world. Thus we can
-/// "only" index `ChunkIndexComponent::max_value() -
-/// ChunkIndexComponent::min:value()`² many hex pillars.
-pub type ChunkIndexComponent = i32;
+/// "only" index `(PillarIndexComponent::max_value() -
+/// PillarIndexComponent::min_value())`² many hex pillars.
+pub type PillarIndexComponent = math::AxialType;
+
+/// A new-type to index chunks. This is different from the `AxialPoint` type
+/// which always represents a pillar position. So two different `AxialPoint`s
+/// could refer to two pillars in the same chunk, while two different
+/// `ChunkIndex`es always refer to two different chunks.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct ChunkIndex(pub math::AxialPoint);
 
 /// Represents one discrete height of a pillar section.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]

@@ -1,3 +1,7 @@
+//! This module reexports everything from the `cgmath` crate and defines a few
+//! own types, such as `AxialVector` and `AxialPoint`.
+//!
+
 extern crate cgmath;
 
 mod axial_point;

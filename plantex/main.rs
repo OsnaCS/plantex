@@ -1,3 +1,4 @@
+extern crate base;
 extern crate client;
 extern crate env_logger;
 #[macro_use]
@@ -17,7 +18,7 @@ fn main() {
 
 
     info!("~~~~~~~~~~ Plantex started ~~~~~~~~~~");
-    let res = client::start_game(client::Config::default());
+    let res = client::start_game(client::Config::default(), &base::world::NullProvider);
 
     // Check if any error occured
     if res.is_err() {
