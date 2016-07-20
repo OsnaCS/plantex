@@ -35,10 +35,15 @@ pub const CHUNK_SIZE: u16 = 16;
 /// PillarIndexComponent::min_value())`² many hex pillars.
 pub type PillarIndexComponent = math::AxialType;
 
-/// A new-type to index chunks. This is different from the `AxialPoint` type
-/// which always represents a pillar position. So two different `AxialPoint`s
+/// A new-type to index Pillars. Always represents a specific Pillar in
+/// absolute world coordinates.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct PillarIndex(pub math::AxialPoint);
+
+/// A new-type to index chunks. This is different from the 'PillarIndex' type
+/// which always represents a pillar position. So two different 'PillarIndices'
 /// could refer to two pillars in the same chunk, while two different
-/// `ChunkIndex`es always refer to two different chunks.
+/// 'ChunkIndices' always refer to two different chunks.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct ChunkIndex(pub math::AxialPoint);
 
