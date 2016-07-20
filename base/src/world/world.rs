@@ -50,6 +50,7 @@ impl World {
         out
     }
 
+    /// Returns the chunk in which the given pillar exists.
     pub fn chunk_from_pillar(&self, pos: PillarIndex) -> Option<&Chunk> {
         let tmp = AxialPoint::new(pos.0.q / (super::CHUNK_SIZE as i32),
                                   pos.0.r / (super::CHUNK_SIZE as i32));
@@ -57,6 +58,7 @@ impl World {
         self.chunk_at(chunk_pos)
     }
 
+    /// Returns the requested chunk.
     pub fn chunk_at(&self, pos: ChunkIndex) -> Option<&Chunk> {
         let out = self.chunks.get(&pos);
 
