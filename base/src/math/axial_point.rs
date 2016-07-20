@@ -1,6 +1,7 @@
 use std::fmt;
 use world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS};
 use super::{AxialType, DefaultFloat, Point2f};
+use std::ops::{Add, Div, Mul, Sub};
 
 /// A 2-dimensional point in axial coordinates. See [here][hex-blog] for more
 /// information.
@@ -49,5 +50,57 @@ impl fmt::Debug for AxialPoint {
             .field(&self.q)
             .field(&self.r)
             .finish()
+    }
+}
+
+impl Add<AxialPoint> for AxialPoint {
+    type Output = AxialPoint;
+
+    /// adds two Points together similar to vectors
+    /// Returns an AxialPoint
+    fn add(self, _rhs: AxialPoint) -> AxialPoint {
+        AxialPoint {
+            q: self.q + _rhs.q,
+            r: self.r + _rhs.r,
+        }
+    }
+}
+
+impl Sub<AxialPoint> for AxialPoint {
+    type Output = AxialPoint;
+
+    /// substracts two Points similar to vectors
+    /// Returns an AxialPoint
+    fn sub(self, _rhs: AxialPoint) -> AxialPoint {
+        AxialPoint {
+            q: self.q - _rhs.q,
+            r: self.r - _rhs.r,
+        }
+    }
+}
+
+impl Mul<AxialType> for AxialPoint {
+    type Output = AxialPoint;
+
+    /// Multiplies a point and a scalar
+    /// Returns an AxialPoint
+    fn mul(self, _rhs: AxialType) -> AxialPoint {
+        AxialPoint {
+            q: self.q * _rhs,
+            r: self.r * _rhs,
+        }
+    }
+}
+
+impl Div<AxialType> for AxialPoint {
+    type Output = AxialPoint;
+
+    /// Divides a point and a scalar
+    /// Returns an AxialPoint
+    fn div(self, _rhs: AxialType) -> AxialPoint {
+        AxialPoint {
+            q: self.q / _rhs,
+            r: self.r / _rhs,
+        }
     }
 }
