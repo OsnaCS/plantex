@@ -1,6 +1,8 @@
 use base::world::{self, Chunk};
 use base::math::*;
 use glium;
+use Camera;
+use render::ToArr;
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
@@ -28,7 +30,6 @@ impl ChunkView {
                               color: [0.0, 0.0, 1.0],
                           }];
         let vbuf = glium::VertexBuffer::new(facade, &buffer).unwrap();
-        let ibuf = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
         let prog = glium::Program::from_source(facade,
                                                include_str!("chunk_std.vert"),
                                                include_str!("chunk_std.frag"),
@@ -50,17 +51,23 @@ impl ChunkView {
         }
     }
 
-    pub fn draw<S>(&self, surface: &mut S)
+    pub fn draw<S>(&self, surface: &mut S, camera: &Camera)
         where S: glium::Surface
     {
 
         let ibuf = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
         for pillar_pos in &self.pillars_positions {
+            let uniforms = uniform!{
+                offset: [pillar_pos.x, pillar_pos.y],
+                proj_matrix: camera.proj_matrix().to_arr(),
+                view_matrix: camera.view_matrix().to_arr(),
+            };
+
             surface.draw(&self.vertices,
                       &ibuf,
                       &self.program,
-                      &uniform!{},
+                      &uniforms,
                       &Default::default())
                 .unwrap();
 

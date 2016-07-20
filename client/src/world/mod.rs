@@ -1,6 +1,7 @@
 use base::world::{ChunkIndex, World};
 use base::math::*;
 use glium;
+use Camera;
 
 mod chunk;
 
@@ -23,9 +24,9 @@ impl WorldView {
     }
 
 
-    pub fn draw<S>(&self, surface: &mut S)
+    pub fn draw<S>(&self, surface: &mut S, camera: &Camera)
         where S: glium::Surface
     {
-        self.chunk.draw(surface);
+        self.chunk.draw(surface, camera);
     }
 }

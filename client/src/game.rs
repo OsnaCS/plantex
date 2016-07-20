@@ -6,6 +6,7 @@ use glium::{self, DisplayBuild, glutin};
 use render::Renderer;
 use super::Config;
 use world::WorldView;
+use Camera;
 
 /// Main game function: contains the mai render loop and owns all important
 /// components. This function should remain rather small, all heavy lifting
@@ -17,9 +18,10 @@ pub fn run(config: &Config, _: &WorldProvider) -> Result<(), ()> {
     let event_manager = EventManager::new(context.clone());
     let world = World::dummy();
     let world_view = WorldView::from_world(&world, &context);
+    let camera = Camera {};
 
     loop {
-        try!(renderer.render(&world_view));
+        try!(renderer.render(&world_view, &camera));
 
         let event_resp = event_manager.poll_events();
         if event_resp == EventResponse::Quit {

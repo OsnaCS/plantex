@@ -1,31 +1,40 @@
 {
-    "folders":
-    [
-        {
-            "file_exclude_patterns":
-            [
-                "*.lock",
-                "LICENSE-*",
-                "*.rs.bk",
-                "*.sublime-*"
-            ],
-            "folder_exclude_patterns":
-            [
-                "target",
-                "ci"
-            ],
-            "path": "."
-        }
-    ],
-    "settings":
-    {
-        "rulers":
-        [
-            80,
-            100
-        ],
-        "tab_size": 4,
-        "translate_tabs_to_spaces": true,
-        "use_tab_stops": true
-    }
+	"build_systems":
+	[
+		{
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"name": "Anaconda Python Builder",
+			"selector": "source.python",
+			"shell_cmd": "\"python\" -u \"$file\""
+		}
+	],
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				"*.lock",
+				"LICENSE-*",
+				"*.rs.bk",
+				"*.sublime-*"
+			],
+			"folder_exclude_patterns":
+			[
+				"target",
+				"ci"
+			],
+			"path": "."
+		}
+	],
+	"settings":
+	{
+		"rulers":
+		[
+			80,
+			100
+		],
+		"tab_size": 4,
+		"translate_tabs_to_spaces": true,
+		"use_tab_stops": true
+	}
 }
