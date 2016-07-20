@@ -1,4 +1,5 @@
-use super::BaseNum;
+use super::{BaseNum, PartialOrd};
+use std::ops::{Div, Mul};
 
 /// A two-dimensional dimension.
 pub struct Dimension2<T> {
@@ -18,9 +19,23 @@ impl<T: BaseNum> Dimension2<T> {
         }
     }
 
-    // TODO: area()
-    // TODO: scale(scalar)
-    // TODO: aspect_ratio()
-    // TODO: fitting(other: Dimension2)
-    // TODO: filling(other: Dimension2)
+    pub fn area(&self) -> <T as Mul>::Output {
+        self.width * self.height
+    }
+    pub fn scale(&self, scale: T) -> Dimension2<T> {
+        Dimension2 {
+            width: self.width * scale,
+            height: self.height * scale,
+        }
+    }
+    pub fn aspect_ratio(&self) -> <T as Div>::Output {
+        //     assert!(self.height != 0);
+        self.width / self.height
+    }
+    pub fn fitting(&self, other: Dimension2<T>) -> Dimension2<T> {
+        let scale = PartialOrd::partial_min(other.width / self.width, other.height / self.height);
+        self.scale(scale)
+
+    }
+    pub fn filling(&self, other: Dimension2<T>) -> Dimension<T>
 }
