@@ -26,7 +26,7 @@ impl World {
         World { chunks: chunks }
     }
 
-    pub fn add_chunk(&mut self, index: ChunkIndex, provider: &ChunkProvider) {
+    pub fn replace_chunk(&mut self, index: ChunkIndex, provider: &ChunkProvider) {
         match provider.load_chunk(index) {
             Some(x) => {
                 self.chunks.insert(index, x);
@@ -34,6 +34,15 @@ impl World {
             }
             None => error!("Chunk {:?} not loadable!", index),
         }
+    }
+
+    pub fn add_chunk(&mut self, index: ChunkIndex, provider: &ChunkProvider) -> Result<(), ()> {
+        if self.chunks.get(&index).is_some() {
+            return Err(());
+        }
+
+        self.replace_chunk(index, provider);
+        Ok(())
     }
 
     /// Returns the hex pillar at the given world position, iff the
