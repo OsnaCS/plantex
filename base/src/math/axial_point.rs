@@ -1,8 +1,9 @@
 use std::fmt;
+use std::cmp::{max, min};
 use world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS};
 use super::{AxialType, DefaultFloat, Point2f};
 use std::ops::{Add, Div, Index, IndexMut, Mul, Rem, Sub};
-use math::cgmath::{Array, MetricSpace, VectorSpace, Zero};
+use math::cgmath::{Array, MetricSpace, Zero};
 
 /// A 2-dimensional point in axial coordinates. See [here][hex-blog] for more
 /// information.
@@ -61,10 +62,10 @@ impl Add<AxialPoint> for AxialPoint {
 
     /// adds two Points together similar to vectors
     /// Returns an AxialPoint
-    fn add(self, _rhs: AxialPoint) -> AxialPoint {
+    fn add(self, rhs: AxialPoint) -> AxialPoint {
         AxialPoint {
-            q: self.q + _rhs.q,
-            r: self.r + _rhs.r,
+            q: self.q + rhs.q,
+            r: self.r + rhs.r,
         }
     }
 }
@@ -74,10 +75,10 @@ impl Sub<AxialPoint> for AxialPoint {
 
     /// substracts two Points similar to vectors
     /// Returns an AxialPoint
-    fn sub(self, _rhs: AxialPoint) -> AxialPoint {
+    fn sub(self, rhs: AxialPoint) -> AxialPoint {
         AxialPoint {
-            q: self.q - _rhs.q,
-            r: self.r - _rhs.r,
+            q: self.q - rhs.q,
+            r: self.r - rhs.r,
         }
     }
 }
@@ -87,10 +88,10 @@ impl Mul<AxialType> for AxialPoint {
 
     /// Multiplies a point and a scalar
     /// Returns an AxialPoint
-    fn mul(self, _rhs: AxialType) -> AxialPoint {
+    fn mul(self, rhs: AxialType) -> AxialPoint {
         AxialPoint {
-            q: self.q * _rhs,
-            r: self.r * _rhs,
+            q: self.q * rhs,
+            r: self.r * rhs,
         }
     }
 }
@@ -100,10 +101,10 @@ impl Div<AxialType> for AxialPoint {
 
     /// Divides a point and a scalar
     /// Returns an AxialPoint
-    fn div(self, _rhs: AxialType) -> AxialPoint {
+    fn div(self, rhs: AxialType) -> AxialPoint {
         AxialPoint {
-            q: self.q / _rhs,
-            r: self.r / _rhs,
+            q: self.q / rhs,
+            r: self.r / rhs,
         }
     }
 }
@@ -132,7 +133,7 @@ impl Zero for AxialPoint {
 
 impl Index<usize> for AxialPoint {
     type Output = AxialType;
-    fn index<'a>(&'a self, index: usize) -> &'a AxialType {
+    fn index(&self, index: usize) -> &AxialType {
         match index {
             0 => &self.q,
             1 => &self.r,
@@ -142,7 +143,7 @@ impl Index<usize> for AxialPoint {
 }
 
 impl IndexMut<usize> for AxialPoint {
-    fn index_mut<'a>(&'a mut self, index: usize) -> &'a mut AxialType {
+    fn index_mut(&mut self, index: usize) -> &mut AxialType {
         match index {
             0 => &mut self.q,
             1 => &mut self.r,
@@ -169,10 +170,10 @@ impl Array for AxialPoint {
     }
 
     fn min(self) -> AxialType {
-        if self.q < self.r { self.q } else { self.r }
+        min(self.q, self.r)
     }
     fn max(self) -> AxialType {
-        if self.q < self.r { self.r } else { self.q }
+        max(self.q, self.r)
     }
 }
 
@@ -188,10 +189,4 @@ impl MetricSpace for AxialPoint {
     fn distance(self, other: AxialPoint) -> Self::Metric {
         self.distance2(other).sqrt()
     }
-}
-
-/// ********************Vector-Space****************************
-
-impl VectorSpace for AxialPoint {
-    type Scalar = i32;
 }
