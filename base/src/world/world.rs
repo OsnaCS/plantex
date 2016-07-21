@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use super::{Chunk, ChunkIndex, HexPillar, PillarIndex};
+use world::provider::ChunkProvider;
 use math::*;
 
 /// Represents a whole game world consisting of multiple `Chunk`s.
@@ -23,6 +24,16 @@ impl World {
         let mut chunks = HashMap::new();
         chunks.insert(ChunkIndex(AxialPoint::new(0, 0)), Chunk::dummy());
         World { chunks: chunks }
+    }
+
+    pub fn add_chunk(&mut self, index: ChunkIndex, provider: &ChunkProvider) {
+        match provider.load_chunk(index) {
+            Some(x) => {
+                self.chunks.insert(index, x);
+                info!("Chunk {:?} loaded", index);
+            }
+            None => error!("Chunk {:?} not loadable!", index),
+        }
     }
 
     /// Returns the hex pillar at the given world position, iff the
