@@ -34,7 +34,7 @@ impl Default for Config {
             window_mode: WindowMode::Windowed,
             window_title: format!("Plantex {}", env!("CARGO_PKG_VERSION")),
             vsync: false,
-            seed: 1,
+            seed: 42,
         }
     }
 }
