@@ -7,6 +7,7 @@ use render::Renderer;
 use super::Config;
 use world::WorldView;
 use Camera;
+use base::math::*;
 
 /// Main game function: contains the mai render loop and owns all important
 /// components. This function should remain rather small, all heavy lifting
@@ -24,7 +25,13 @@ pub fn run(config: &Config, provider: &ChunkProvider) -> Result<(), ()> {
     }
 
     let world_view = WorldView::from_world(&world, &context);
-    let camera = Camera {};
+    // Initital camera position
+    let camera = Camera {
+        position: Point3::new(0.0, 0.0, 60.0),
+        phi: 0.0,
+        theta: 0.0,
+        view_up_vector: Vector3::unit_z(),
+    };
 
     loop {
         try!(renderer.render(&world_view, &camera));
