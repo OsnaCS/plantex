@@ -1,6 +1,10 @@
 use std::fmt;
 use world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS};
 use super::{AxialType, DefaultFloat, Vector2f};
+use math::cgmath::Zero;
+use std::ops::{Add, Index, IndexMut, Mul};
+use math::cgmath::prelude::Array;
+use std::cmp;
 
 /// A 2-dimensional vector in axial coordinates. See [here][hex-blog] for more
 /// information.
@@ -52,5 +56,85 @@ impl fmt::Debug for AxialVector {
             .field(&self.q)
             .field(&self.r)
             .finish()
+    }
+}
+
+
+impl Zero for AxialVector {
+    fn zero() -> AxialVector {
+        AxialVector { q: 0, r: 0 }
+    }
+
+    fn is_zero(&self) -> bool {
+        self.q == 0 && self.r == 0
+    }
+}
+
+impl Add<AxialVector> for AxialVector {
+    type Output = AxialVector;
+
+    fn add(self, arg2: AxialVector) -> AxialVector {
+        AxialVector {
+            r: self.r + arg2.r,
+            q: self.q + arg2.q,
+        }
+    }
+}
+
+impl Mul<AxialType> for AxialVector {
+    type Output = AxialVector;
+
+    fn mul(self, arg2: AxialType) -> AxialVector {
+        AxialVector {
+            r: self.r * arg2,
+            q: self.q * arg2,
+        }
+    }
+}
+
+impl Array for AxialVector {
+    type Element = AxialType;
+
+    fn from_value(value: Self::Element) -> Self {
+        AxialVector::new(value, value)
+    }
+
+    fn sum(self) -> Self::Element {
+        self.q + self.r
+    }
+
+    fn product(self) -> Self::Element {
+        self.q * self.r
+    }
+
+    fn min(self) -> Self::Element {
+        cmp::min(self.q, self.r)
+    }
+
+    fn max(self) -> Self::Element {
+        cmp::max(self.q, self.r)
+    }
+}
+
+impl Index<usize> for AxialVector {
+    type Output = AxialType;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        let ret: &AxialType = match index {
+            0 => &self.q,
+            1 => &self.r,
+            _ => panic!("Illegal Index Argument: was {:?}", index),
+        };
+        ret
+    }
+}
+
+impl IndexMut<usize> for AxialVector {
+    fn index_mut(&mut self, index: usize) -> &mut AxialType {
+        match index {
+            0 => &mut self.q,
+            1 => &mut self.r,
+            _ => panic!("Illegal Index Argument: was {:?}", index),
+        }
     }
 }
