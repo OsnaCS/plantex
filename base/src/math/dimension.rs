@@ -33,15 +33,19 @@ impl<T: BaseNum> Dimension2<T> {
             height: self.height * scale,
         }
     }
+    /// calculates the aspectratio of a Dimension
     pub fn aspect_ratio(&self) -> <T as Div>::Output {
         assert!(!self.height.is_zero());
         self.width / self.height
     }
+    /// Shrinks a dimension until it fits into another dimension
     pub fn fitting(&self, other: Dimension2<T>) -> Dimension2<T> {
         let scale = PartialOrd::partial_min(other.width / self.width, other.height / self.height);
         self.scale(scale)
 
     }
+
+    /// Expands a dimension until it fills another dimension
     pub fn filling(&self, other: Dimension2<T>) -> Dimension2<T> {
         let scale = PartialOrd::partial_max(other.width / self.width, other.height / self.height);
         self.scale(scale)
@@ -62,6 +66,7 @@ fn test_area() {
     assert_eq!(test2.area(), 0);
     assert_eq!(test1.area(), 15);
 }
+#[test]
 fn test_scale() {
     let test1 = Dimension2 {
         width: 3,
@@ -76,6 +81,7 @@ fn test_scale() {
     assert_eq!(test1.scale(scale).width, 12);
     assert_eq!(test2.scale(scale1).width, 0);
 }
+#[test]
 fn test_aspect_ratio() {
     let test1 = Dimension2 {
         width: 3,
@@ -88,6 +94,7 @@ fn test_aspect_ratio() {
 
     assert_eq!(test1.aspect_ratio(), 3 / 5);
 }
+#[test]
 fn test_fitting() {
     let test1 = Dimension2 {
         width: 2.0,
@@ -100,6 +107,7 @@ fn test_fitting() {
     assert_eq!(test2.fitting(test1).width, 2.0);
     assert_eq!(test2.fitting(test1).height, 1.5);
 }
+#[test]
 fn test_filling() {
     let test1 = Dimension2 {
         width: 2.0,
