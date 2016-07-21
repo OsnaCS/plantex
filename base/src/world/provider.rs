@@ -35,7 +35,7 @@ impl Provider for NullProvider {
     }
 }
 
-/// A fallback provider that holds two chunk providers with one beeing primary
+/// A fallback provider that holds two chunk providers with one being primary
 /// and one fallback. If the chunk load from the primary fails the fallback
 /// is being called.
 #[derive(Clone, Debug, Copy)]
