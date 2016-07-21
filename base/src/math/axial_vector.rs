@@ -49,6 +49,14 @@ impl AxialVector {
     pub fn s(&self) -> AxialType {
         -self.q - self.r
     }
+
+    pub fn unit_q() -> AxialVector {
+        AxialVector { q: 1, r: 0 }
+    }
+
+    pub fn unit_r() -> AxialVector {
+        AxialVector { q: 0, r: 1 }
+    }
 }
 
 impl fmt::Debug for AxialVector {
@@ -260,3 +268,5 @@ impl IndexMut<usize> for AxialVector {
         }
     }
 }
+
+//  *************  Create Unit Vectors ***************
