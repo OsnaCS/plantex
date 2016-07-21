@@ -19,6 +19,6 @@ pub use config::Config;
 pub use camera::Camera;
 
 
-pub fn start_game(config: Config, world_provider: &base::world::Provider) -> Result<(), ()> {
+pub fn start_game(config: Config, world_provider: &base::world::ChunkProvider) -> Result<(), ()> {
     game::run(&config, world_provider)
 }

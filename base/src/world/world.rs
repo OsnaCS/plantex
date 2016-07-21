@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use super::{Chunk, ChunkIndex, HexPillar};
+use super::{Chunk, ChunkIndex, HexPillar, PillarIndex};
 use math::*;
 
 /// Represents a whole game world consisting of multiple `Chunk`s.
@@ -27,7 +27,7 @@ impl World {
 
     /// Returns the hex pillar at the given world position, iff the
     /// corresponding chunk is loaded.
-    pub fn pillar_at(&self, pos: ChunkIndex) -> Option<&HexPillar> {
+    pub fn pillar_at(&self, pos: PillarIndex) -> Option<&HexPillar> {
         // TODO: use `/` operator once it's implemented
         // let chunk_pos = pos / (super::CHUNK_SIZE as i32);
         let chunk_pos = AxialPoint::new(pos.0.q / (super::CHUNK_SIZE as i32),
@@ -45,6 +45,25 @@ impl World {
             debug!("chunk {:?} is not loaded (position request {:?})",
                    chunk_pos,
                    pos);
+        }
+
+        out
+    }
+
+    /// Returns the chunk in which the given pillar exists.
+    pub fn chunk_from_pillar(&self, pos: PillarIndex) -> Option<&Chunk> {
+        let tmp = AxialPoint::new(pos.0.q / (super::CHUNK_SIZE as i32),
+                                  pos.0.r / (super::CHUNK_SIZE as i32));
+        let chunk_pos = ChunkIndex(tmp);
+        self.chunk_at(chunk_pos)
+    }
+
+    /// Returns the requested chunk.
+    pub fn chunk_at(&self, pos: ChunkIndex) -> Option<&Chunk> {
+        let out = self.chunks.get(&pos);
+
+        if out.is_none() {
+            debug!("chunk {:?} is not loaded", pos);
         }
 
         out

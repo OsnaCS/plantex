@@ -10,6 +10,22 @@ Nothing to see here yet ...
                  [**`client`**](https://osnacs.github.io/plantex/client/index.html),
                  [**`server`**](https://osnacs.github.io/plantex/server/index.html)
 
+## Compile and run the application
+
+To compile both, the server and client executable, run:
+
+```bash
+$ cargo build
+```
+
+To compile and run the client, run:
+
+```bash
+$ cargo run --bin plantex
+```
+
+Use `plantex-server` to run the server. **Note**: if you want to build with optimizations (much better performance), add the `--release` flag!
+
 
 ## License
 
