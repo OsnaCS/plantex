@@ -18,9 +18,6 @@ fn main() {
 
 
     info!("~~~~~~~~~~ Plantex started ~~~~~~~~~~");
-    // deprecated code
-    // let res = client::start_game(client::Config::default(),
-    // &base::world::NullProvider);
     let res = client::start_game(client::Config::default(),
                                  &base::gen::world::WorldGenerator::with_seed(42));
 
