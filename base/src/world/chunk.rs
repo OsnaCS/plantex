@@ -36,12 +36,13 @@ impl Chunk {
 impl ops::Index<AxialPoint> for Chunk {
     type Output = HexPillar;
 
-    fn index(&self, pos: AxialPoint) -> &Self::Output {
+    fn index(&self, pos: AxialPoint) -> Option<&Self::Output> {
         let chunk_size: PillarIndexComponent = CHUNK_SIZE.into();
-        assert!(pos.q >= 0 && pos.q < chunk_size && pos.r >= 0 && pos.r < chunk_size,
-                "axial position to index `Chunk` are out of bounds: {:?}",
-                pos);
 
-        &self.pillars[(pos.r as usize) * (CHUNK_SIZE as usize) + (pos.q as usize)]
+        if pos.q >= 0 && pos.q < chunk_size && pos.r >= 0 && pos.r < chunk_size {
+            return None;
+        } else {
+            return Some(&self.pillars[(pos.r as usize) * (CHUNK_SIZE as usize) + (pos.q as usize)]);
+        }
     }
 }
