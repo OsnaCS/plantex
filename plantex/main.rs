@@ -18,7 +18,7 @@ fn main() {
 
 
     info!("~~~~~~~~~~ Plantex started ~~~~~~~~~~");
-    let res = client::start_game(client::Config::default(),
+    let res = client::start_game(client::Config::load_config(),
                                  &base::gen::WorldGenerator::with_seed(42));
 
     // Check if any error occured
