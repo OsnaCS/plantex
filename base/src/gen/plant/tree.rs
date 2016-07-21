@@ -1,7 +1,7 @@
 //! Generates random trees and tree-like plants.
 
 use prop::plant::Branch;
-use math::{Point3f, Vector3f, Vector1, InnerSpace};
+use math::{InnerSpace, Point3f, Vector1, Vector3f};
 use rand::{Rand, Rng};
 use rand::distributions::range::SampleRange;
 use rand::distributions::{self, IndependentSample};
@@ -12,9 +12,11 @@ use std::ops::Range;
 struct Params {
     /// Diameter of the first branch we create (the trunk).
     trunk_diameter: f32,
-    /// Trunk height. Note that branches going upward can increase plant height beyond this.
+    /// Trunk height. Note that branches going upward can increase plant height
+    /// beyond this.
     trunk_height: f32,
-    /// Trunk diameter at `trunk_height`. Should be smaller than `trunk_diameter`.
+    /// Trunk diameter at `trunk_height`. Should be smaller than
+    /// `trunk_diameter`.
     trunk_diameter_top: f32,
     /// Trunk height at which we start creating branches.
     min_branch_height: f32,
@@ -28,7 +30,8 @@ struct Params {
     branch_segment_angle: Range<f32>,
     /// Range of segment counts for branches.
     ///
-    /// Together with `branch_segment_length`, this defines the overall branch length.
+    /// Together with `branch_segment_length`, this defines the overall branch
+    /// length.
     branch_segment_count: Range<u32>,
     /// Range of segment lengths to use for branches.
     ///
@@ -38,7 +41,8 @@ struct Params {
 
 /// Describes parameter ranges to generate a random tree.
 ///
-/// We store a list of user-defined presets, one of which is selected to generate a tree.
+/// We store a list of user-defined presets, one of which is selected to
+/// generate a tree.
 #[derive(Clone)]
 struct Preset {
     trunk_diameter: Range<f32>,
@@ -52,19 +56,17 @@ struct Preset {
     branch_segment_length: Range<f32>,
 }
 
-static PRESETS: &'static [Preset] = &[
-    Preset {
-        trunk_diameter: 0.3 .. 0.5,
-        trunk_height: 3.0 .. 6.0,
-        trunk_diameter_top: 0.2 .. 0.4,
-        min_branch_height: 0.4 .. 0.6,
-        branch_diameter_factor: 0.3 .. 0.5,
-        branch_angle_deg: 70.0 .. 110.0,
-        branch_segment_angle: 2.0 .. 10.0,
-        branch_segment_count: 5 .. 20,
-        branch_segment_length: 0.05 .. 0.15,
-    },
-];
+static PRESETS: &'static [Preset] = &[Preset {
+                                          trunk_diameter: 0.3..0.5,
+                                          trunk_height: 3.0..6.0,
+                                          trunk_diameter_top: 0.2..0.4,
+                                          min_branch_height: 0.4..0.6,
+                                          branch_diameter_factor: 0.3..0.5,
+                                          branch_angle_deg: 70.0..110.0,
+                                          branch_segment_angle: 2.0..10.0,
+                                          branch_segment_count: 5..20,
+                                          branch_segment_length: 0.05..0.15,
+                                      }];
 
 pub struct TreeGen {
     params: Params,
@@ -86,11 +88,8 @@ impl TreeGen {
             let mut height = 0.0;
             while height < self.params.trunk_height {
                 // Current height as a fraction of the total height
-                let height_frac = if height == 0.0 {
-                    0.0
-                } else {
-                    self.params.trunk_height / height
-                };
+                let height_frac =
+                    if height == 0.0 { 0.0 } else { self.params.trunk_height / height };
                 let diam = diam_start.lerp(diam_end, height_frac);
 
                 add_point(height, diam.x);
@@ -154,8 +153,8 @@ fn range_sample<T: SampleRange + PartialOrd, R: Rng>(range: Range<T>, rng: &mut 
     distributions::Range::new(range.start, range.end).ind_sample(rng)
 }
 
-/// Approximation of real-world distance of branch segments, depending on the starting branch
-/// diameter.
+/// Approximation of real-world distance of branch segments, depending on the
+/// starting branch diameter.
 fn segment_dist(diameter: f32) -> f32 {
     diameter * 11.25
 }

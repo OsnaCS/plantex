@@ -15,9 +15,7 @@ pub enum NewPlant {
     /// A parameterized tree-like structure.
     Tree {
         /// The list of branches representing this tree.
-        branches: Vec<Branch>,
-
-        // FIXME: No texture representation, can't use glium.
+        branches: Vec<Branch>, // FIXME: No texture representation, can't use glium.
     },
 }
 
@@ -27,7 +25,7 @@ pub struct Branch {
     pub points: Vec<(Point3f, f32)>,
     /// The color of this branch.
     ///
-    /// Currently, a branch has a uniform color. The vector holds elements in range `0..1`
-    /// representing the RGB color channels.
+    /// Currently, a branch has a uniform color. The vector holds elements in
+    /// range `0..1` representing the RGB color channels.
     pub color: Vector3f,
 }

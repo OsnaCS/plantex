@@ -2,11 +2,12 @@ mod tree;
 
 use self::tree::TreeGen;
 
-use rand::{Rng, Rand};
+use rand::{Rand, Rng};
 
 /// Plant generation entry point.
 ///
-/// This struct will randomly generate a plant using a more specific plant generator
+/// This struct will randomly generate a plant using a more specific plant
+/// generator.
 pub enum PlantGenerator {
     Tree(TreeGen),
 }
