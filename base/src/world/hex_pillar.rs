@@ -26,6 +26,7 @@ impl HexPillar {
         }
     }
 
+    /// Creates the dummy pillar but with the given height.
     pub fn from_height(height: HeightType) -> Self {
         HexPillar {
             sections: vec![PillarSection::new(GroundMaterial::Dirt, HeightType(0), height)],

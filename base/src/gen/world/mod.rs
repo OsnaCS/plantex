@@ -23,7 +23,7 @@ impl WorldGenerator {
 
 impl ChunkProvider for WorldGenerator {
     fn load_chunk(&self, index: ChunkIndex) -> Option<Chunk> {
-        let mut pillars = Vec::<HexPillar>::new();
+        let mut pillars = Vec::new();
         let q = index.0.q * CHUNK_SIZE as i32;
         let r = index.0.r * CHUNK_SIZE as i32;
         for i in q..q + CHUNK_SIZE as i32 {
