@@ -16,7 +16,7 @@ pub use self::provider::*;
 pub use self::world::World;
 
 /// Outer radius of the hexagons (from center to corner)
-pub const HEX_OUTER_RADIUS: f32 = 5.0;
+pub const HEX_OUTER_RADIUS: f32 = 1.0;
 
 /// Inner radius of the hexagons
 pub const HEX_INNER_RADIUS: f32 = HEX_OUTER_RADIUS * (::math::SQRT_3 / 2.0);
@@ -24,7 +24,7 @@ pub const HEX_INNER_RADIUS: f32 = HEX_OUTER_RADIUS * (::math::SQRT_3 / 2.0);
 /// The height of the hex pillars is discretized. So instead of saving a `f32`
 /// to represent the height, we have fixed steps of heights and we will just
 /// save a `u16` to represent the height.
-pub const PILLAR_STEP_HEIGHT: f32 = 5.0;
+pub const PILLAR_STEP_HEIGHT: f32 = 0.5;
 
 /// How many hex pillars a chunk is long. So the number of hex pillars in a
 /// chunk is `CHUNK_SIZE`².

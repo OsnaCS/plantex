@@ -10,6 +10,7 @@ uniform mat4 view_matrix;
 uniform mat4 scale_matrix;
 
 void main() {
-    gl_Position = proj_matrix * view_matrix * scale_matrix * vec4(position.xy + offset, position.z, 1);
+    gl_Position = proj_matrix * view_matrix * scale_matrix * 
+    vec4(position.xy + offset, position.z, 1);
     x_color = color;
 }
