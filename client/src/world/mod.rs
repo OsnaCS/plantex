@@ -20,9 +20,9 @@ impl WorldView {
         where F: glium::backend::Facade
     {
         let mut pillars_pos = Vec::new();
-        for q in 0..world::CHUNK_SIZE{
+        for q in 0..world::CHUNK_SIZE {
             for r in 0..world::CHUNK_SIZE {
-                let pos =AxialPoint::new(q.into(), r.into()).to_real();
+                let pos = AxialPoint::new(q.into(), r.into()).to_real();
                 pillars_pos.push(pos);
             }
         }
@@ -31,9 +31,11 @@ impl WorldView {
             chunk: ChunkView::from_chunk(&world.chunks[&ChunkIndex(AxialPoint::new(0, 0))],
                                          AxialPoint::new(0, 0),
                                          facade),
-            plant_view: PlantView::from_dummy_plant(&world.chunks[&ChunkIndex(AxialPoint::new(0, 0))].pillars(),
-                                         pillars_pos,
-                                         facade),
+            plant_view: PlantView::from_dummy_plant(&world.chunks[&ChunkIndex(AxialPoint::new(0,
+                                                                                              0))]
+                                                        .pillars(),
+                                                    pillars_pos,
+                                                    facade),
         }
 
     }
