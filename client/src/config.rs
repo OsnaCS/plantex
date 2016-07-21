@@ -3,7 +3,7 @@ extern crate toml;
 extern crate regex;
 
 use base::math::*;
-use self::clap::{App, Arg};
+use self::clap::{App, Arg, ArgMatches};
 use self::regex::Regex;
 use std::error::Error as StdError;
 
@@ -21,27 +21,12 @@ pub struct Config {
                     * Chunkweite */
 }
 impl Config {
+    ///creates a new Config in three steps:
+    ///1. loads default config
+    ///2. Overrides from toml config file
+    ///3. Overrides from command line
     pub fn load_config() -> Result<Config, Box<StdError>> {
-        let conf = Config::default();
-        command_config(conf)
-    }
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Config {
-            resolution: Dimension2::new(800, 600),
-            window_mode: WindowMode::Windowed,
-            window_title: format!("Plantex {}", env!("CARGO_PKG_VERSION")),
-            vsync: false,
-            seed: 42,
-        }
-    }
-}
-
-
-fn command_config(mut toml_config: Config) -> Result<Config, Box<StdError>> {
-    let matches = App::new("Plantex")
+        let matches = App::new("Plantex")
         .version(env!("CARGO_PKG_VERSION"))
         .about("Game about Plants!")
         .arg(Arg::with_name("Resolution")
@@ -60,10 +45,53 @@ fn command_config(mut toml_config: Config) -> Result<Config, Box<StdError>> {
             .help("'Takes a specified seed to generate map'")
             .takes_value(true)
             .long("seed"))
+        .arg(Arg::with_name("File")
+            .help("Takes config file")
+            .takes_value(true)
+            .long("config-file"))
         .get_matches();
+
+        let conf = Config::default();
+        let t_conf = match config_toml(conf, &matches){
+            Ok(n) => n,
+            Err(e) => return Err(e),
+        };
+        let conf_final = match config_command(t_conf, &matches){
+            Ok(n) => n,
+            Err(e) => return Err(e),
+        };
+        Ok(conf_final)
+    }
+}
+
+impl Default for Config {
+    ///Returns default config from hard coded values
+    fn default() -> Self {
+        Config {
+            resolution: Dimension2::new(800, 600),
+            window_mode: WindowMode::Windowed,
+            window_title: format!("Plantex {}", env!("CARGO_PKG_VERSION")),
+            vsync: false,
+            seed: 42,
+        }
+    }
+}
+
+fn config_toml(mut default_config: Config, matches: &ArgMatches<>) -> Result<Config, Box<StdError>>{
+    if let Some(file) = matches.value_of("File"){
+        println!("Celebrate!!");
+    }
+
+    Ok(default_config)
+}
+
+
+fn config_command(mut toml_config: Config, matches: &ArgMatches<>) -> Result<Config, Box<StdError>> {
+
 
     if let Some(res) = matches.value_of("Resolution") {
         let reg_res = Regex::new(r"^([1-9]\d{1,4})x([1-9]\d{1,4})").unwrap();
+
 
         if reg_res.is_match(res) {
             for cap in reg_res.captures_iter(res) {
