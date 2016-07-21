@@ -3,22 +3,22 @@ extern crate toml;
 extern crate regex;
 
 use base::math::*;
-use self::clap::{App, Arg, Error as ClapError, ErrorKind as ClapErrorKind};
+use self::clap::{App, Arg};
 use self::regex::Regex;
-use std::io;
 use std::error::Error as StdError;
 
 pub struct Config {
     pub resolution: Dimension2u,
     pub window_mode: WindowMode,
     pub window_title: String,
-    pub vsync: bool, /* sichtweite
-                      * Vsync
-                      * kantenglättung
-                      * steuerung
-                      * frames
-                      * seed
-                      * Chunkweite */
+    pub vsync: bool,
+    pub seed: u64, /* sichtweite
+                    * Vsync
+                    * kantenglättung
+                    * steuerung
+                    * frames
+                    * seed
+                    * Chunkweite */
 }
 impl Config {
     pub fn load_config() -> Result<Config, Box<StdError>> {
@@ -34,6 +34,7 @@ impl Default for Config {
             window_mode: WindowMode::Windowed,
             window_title: format!("Plantex {}", env!("CARGO_PKG_VERSION")),
             vsync: false,
+            seed: 1,
         }
     }
 }
@@ -55,6 +56,10 @@ fn command_config(mut toml_config: Config) -> Result<Config, Box<StdError>> {
             .help("[on/off]")
             .takes_value(true)
             .long("vsync"))
+        .arg(Arg::with_name("Seed")
+            .help("'Takes a specified seed to generate map'")
+            .takes_value(true)
+            .long("seed"))
         .get_matches();
 
     if let Some(res) = matches.value_of("Resolution") {
@@ -77,6 +82,21 @@ fn command_config(mut toml_config: Config) -> Result<Config, Box<StdError>> {
             "Windowed" => toml_config.window_mode = WindowMode::Windowed,
             "FullScreen" => toml_config.window_mode = WindowMode::FullScreen,
             _ => return Err("invalid Window Mode in command line argument".into()),
+        }
+    }
+
+    if let Some(sync) = matches.value_of("Vsync") {
+        match sync {
+            "on" => toml_config.vsync = true,
+            "off" => toml_config.vsync = false,
+            _ => return Err("Vsync can only be set on or off on command line".into()),
+        }
+    }
+
+    if let Some(seed) = matches.value_of("Seed") {
+        match seed.parse::<u64>() {
+            Ok(n) => toml_config.seed = n,
+            Err(e) => return Err("Seed from command line is invalid".into()),
         }
     }
     Ok(toml_config)
