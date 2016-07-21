@@ -58,47 +58,29 @@ impl Camera {
     /// `factor` is a factor to scale the movement speed
     /// `factor` has to be positive for left movement
     /// `factor` has to be negative for right movement
-    pub fn move_left_right(&mut self, factor: f32) {
-        let mut lookatvector = self.get_look_at_vector();
-        lookatvector.z = 0.0;
-        lookatvector.normalize();
-        // Get the orthogonal 2d-vector, which is 90 degrees to the left
-        let mut move_dir = Vector3f::new(-lookatvector.y, lookatvector.x, 0.0);
-        move_dir *= factor;
-        self.move_by(move_dir);
-
-    }
-
+    // pub fn move_left_right(&mut self, factor: f32) {
+    //     let mut lookatvector = self.get_look_at_vector();
+    //     lookatvector.z = 0.0;
+    //     lookatvector.normalize();
+    //     // Get the orthogonal 2d-vector, which is 90 degrees to the left
+    // let mut move_dir = Vector3f::new(-lookatvector.y, lookatvector.x,
+    // 0.0);
+    //     move_dir *= factor;
+    //     self.move_by(move_dir);
+    //
+    // }
     /// method to call when upward or downward movement is needed
     /// `factor` is a factor to scale the movement speed
     /// `factor` has to be positive for upward movement
     /// `factor` has to be negative for downward movement
-    pub fn move_up_down(&mut self, factor: f32) {
-        self.move_by(Vector3f::new(0.0, 0.0, factor));
-    }
-
-    // Used in move_forward_backward
-    // pub fn move_backward(&self) {
-    //     let factor = -1.0;
-    //     let lookatvector = get_look_at_vector();
-    //     lookatvector.z = 0;
-    //     lookatvector.normalize();
-    //     lookatvector.mul_assign(factor);
-    //     self.move_by(lookatvector); //does the "self" have to be here?
+    // pub fn move_up_down(&mut self, factor: f32) {
+    //     self.move_by(Vector3f::new(0.0, 0.0, factor));
     // }
-    // später mehtoden wie move_forward
+
 
     pub fn change_dir(&mut self, theta_diff: f32, phi_diff: f32) {
         self.theta += theta_diff;
         self.phi += phi_diff;
         // new matrix will be calculated
     }
-
-
-    // pub fn view_matrix(&self) -> Matrix4<f32> {
-    //     let N: Vector3 = (self.position).sub(self.look_at_point);
-    //     let V: Vector3 = (N.cross(self.view_up_vector)).cross(N);
-    //     let U: Vector3 = V.cross(N);
-    //     Matrix4::new(U, V, N)
-    // }
 }
