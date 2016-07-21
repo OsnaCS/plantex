@@ -12,7 +12,7 @@ impl Camera {
 
     /// Returns view matrix
     pub fn view_matrix(&self) -> Matrix4<f32> {
-        Matrix4::look_at(Point3::new(0.0, 0.5, 10.0),
+        Matrix4::look_at(Point3::new(20.0, -20.0, 10.0),
                          Point3::new(50.0, 50.0, 2.0),
                          Vector3::unit_z())
     }

@@ -28,7 +28,7 @@ pub const PILLAR_STEP_HEIGHT: f32 = 0.5;
 
 /// How many hex pillars a chunk is long. So the number of hex pillars in a
 /// chunk is `CHUNK_SIZE`².
-pub const CHUNK_SIZE: u16 = 16;
+pub const CHUNK_SIZE: u16 = 32;
 
 /// This type is used to index into one dimension of the world. Thus we can
 /// "only" index `(PillarIndexComponent::max_value() -
