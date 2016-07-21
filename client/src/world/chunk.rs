@@ -6,8 +6,6 @@ use render::ToArr;
 use std::collections::VecDeque;
 use std::f32::consts;
 
-static mut counter: f32 = 0.0;
-
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
     vertices: glium::VertexBuffer<Vertex>,
@@ -92,39 +90,35 @@ impl ChunkView {
     pub fn draw<S>(&self, surface: &mut S, camera: &Camera)
         where S: glium::Surface
     {
-        unsafe {
-            for pillar_pos in &self.pillars_positions {
+        for pillar_pos in &self.pillars_positions {
 
-                let uniforms = uniform!{
+            let uniforms = uniform!{
               scale_matrix:[[1.0,0.0,0.0,0.0]
-                           ,[0.0,counter.cos(),counter.sin()*-1.0,0.0],
+                           ,[0.0,1.0,0.0,0.0],
                              //FIXME 1.0 heightvalue
-                            [0.0,counter.sin(),counter.cos(),0.0],
+                            [0.0,0.0,1.0,0.0],
                             [0.0,0.0,0.0,1.0f32]],
                 offset: [pillar_pos.x, pillar_pos.y],
                 proj_matrix: camera.proj_matrix().to_arr(),
                 view_matrix: camera.view_matrix().to_arr(),
             };
-                let params = glium::DrawParameters {
-                    depth: glium::Depth {
-                        write: true,
-                        test: glium::draw_parameters::DepthTest::IfLess,
-                        ..Default::default()
-                    },
-                    backface_culling:
-                        glium::draw_parameters::BackfaceCullingMode::CullCounterClockwise,
+            let params = glium::DrawParameters {
+                depth: glium::Depth {
+                    write: true,
+                    test: glium::draw_parameters::DepthTest::IfLess,
                     ..Default::default()
-                };
+                },
+                backface_culling: glium::draw_parameters::BackfaceCullingMode::CullCounterClockwise,
+                ..Default::default()
+            };
 
-                surface.draw(&self.vertices,
-                          &self.index_buffer,
-                          &self.program,
-                          &uniforms,
-                          &params)
-                    .unwrap();
+            surface.draw(&self.vertices,
+                      &self.index_buffer,
+                      &self.program,
+                      &uniforms,
+                      &params)
+                .unwrap();
 
-            }
-            counter += 0.01;
         }
     }
 }
