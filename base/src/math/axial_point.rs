@@ -3,7 +3,8 @@ use std::cmp::{max, min};
 use world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS};
 use super::{AxialType, DefaultFloat, Point2f};
 use std::ops::{Add, Div, Index, IndexMut, Mul, Rem, Sub};
-use math::cgmath::{Array, MetricSpace, Zero};
+use math::cgmath::{Array, EuclideanSpace, MetricSpace};
+use super::AxialVector;
 
 /// A 2-dimensional point in axial coordinates. See [here][hex-blog] for more
 /// information.
@@ -57,12 +58,12 @@ impl fmt::Debug for AxialPoint {
 
 /// ********************Basic Arithmetics************
 
-impl Add<AxialPoint> for AxialPoint {
+impl Add<AxialVector> for AxialPoint {
     type Output = AxialPoint;
 
-    /// adds two Points together similar to vectors
-    /// Returns an AxialPoint
-    fn add(self, rhs: AxialPoint) -> AxialPoint {
+    // adds two Points together similar to vectors
+    // Returns an AxialPoint
+    fn add(self, rhs: AxialVector) -> AxialPoint {
         AxialPoint {
             q: self.q + rhs.q,
             r: self.r + rhs.r,
@@ -70,13 +71,14 @@ impl Add<AxialPoint> for AxialPoint {
     }
 }
 
+
 impl Sub<AxialPoint> for AxialPoint {
-    type Output = AxialPoint;
+    type Output = AxialVector;
 
     /// substracts two Points similar to vectors
     /// Returns an AxialPoint
-    fn sub(self, rhs: AxialPoint) -> AxialPoint {
-        AxialPoint {
+    fn sub(self, rhs: AxialPoint) -> AxialVector {
+        AxialVector {
             q: self.q - rhs.q,
             r: self.r - rhs.r,
         }
@@ -117,15 +119,6 @@ impl Rem<AxialType> for AxialPoint {
             q: self.q % d,
             r: self.r % d,
         }
-    }
-}
-/// ********************Zero-Implementation************
-impl Zero for AxialPoint {
-    fn zero() -> AxialPoint {
-        AxialPoint { q: 0, r: 0 }
-    }
-    fn is_zero(&self) -> bool {
-        self.q == 0 && self.r == 0
     }
 }
 
@@ -186,7 +179,35 @@ impl MetricSpace for AxialPoint {
         (((self.q - other.q) * (self.q - other.q)) +
          ((self.r - other.r) * (self.r - other.r))) as f32
     }
+
     fn distance(self, other: AxialPoint) -> Self::Metric {
         self.distance2(other).sqrt()
+    }
+}
+
+/// ******************* EuclideanSpace**********************
+
+impl EuclideanSpace for AxialPoint {
+    type Scalar = i32;
+    type Diff = AxialVector;
+
+    fn origin() -> Self {
+        AxialPoint { q: 0, r: 0 }
+    }
+
+    fn from_vec(v: Self::Diff) -> Self {
+
+        AxialPoint { q: v.q, r: v.r }
+    }
+
+    fn to_vec(self) -> Self::Diff {
+        AxialVector {
+            q: self.q,
+            r: self.r,
+        }
+    }
+
+    fn dot(self, v: Self::Diff) -> Self::Scalar {
+        (self.q * v.q) + (self.r * v.r)
     }
 }
