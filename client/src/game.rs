@@ -1,6 +1,5 @@
 use base::world::{ChunkIndex, ChunkProvider, World};
-use base::math::AxialPoint;
-use event_manager::{EventManager, EventResponse};
+use event_manager::{CloseHandler, EventManager, EventResponse};
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::{self, DisplayBuild, glutin};
 use render::Renderer;
@@ -25,18 +24,13 @@ pub fn run(config: &Config, provider: &ChunkProvider) -> Result<(), ()> {
     }
 
     let world_view = WorldView::from_world(&world, &context);
-    // Initital camera position
-    let camera = Camera {
-        position: Point3::new(0.0, 0.0, 60.0),
-        phi: 0.0,
-        theta: 0.0,
-        view_up_vector: Vector3::unit_z(),
-    };
+
+    let camera = Camera::default();
 
     loop {
         try!(renderer.render(&world_view, &camera));
 
-        let event_resp = event_manager.poll_events();
+        let event_resp = event_manager.poll_events(&[&mut CloseHandler]);
         if event_resp == EventResponse::Quit {
             break;
         }
