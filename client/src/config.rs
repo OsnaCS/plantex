@@ -38,9 +38,11 @@ impl Default for Config {
 
 fn command_config(mut toml_config: Config) -> Config{
     let matches = App::new("Plantex")
+        .version(env!("CARGO_PKG_VERSION"))
+        .about("Game about Plants!")
 
         .arg(Arg::with_name("Resolution")
-            .help("sets the Resolution to use")
+            .help("(e.g. =1280x720) 'Sets Resolution to new value'")
             .takes_value(true)
             .long("resolution")
         )
