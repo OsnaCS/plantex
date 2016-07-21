@@ -121,9 +121,9 @@ impl ChunkView {
 }
 
 #[derive(Debug, Copy, Clone)]
-struct Vertex {
-    position: [f32; 3],
-    color: [f32; 3],
+pub struct Vertex {
+    pub position: [f32; 3],
+    pub color: [f32; 3],
 }
 
 implement_vertex!(Vertex, position, color);
