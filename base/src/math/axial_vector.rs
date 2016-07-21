@@ -2,8 +2,8 @@ use std::fmt;
 use world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS};
 use super::{AxialType, DefaultFloat, Vector2f};
 use math::cgmath::Zero;
-use std::ops::{Add, Index, IndexMut, Mul};
-use math::cgmath::prelude::Array;
+use std::ops::{Add, AddAssign, Div, Index, IndexMut, Mul, Neg, Rem, Sub};
+use math::cgmath::prelude::{Array, MetricSpace};
 use std::cmp;
 
 /// A 2-dimensional vector in axial coordinates. See [here][hex-blog] for more
@@ -59,16 +59,20 @@ impl fmt::Debug for AxialVector {
     }
 }
 
+// ********************* Basic Arithmetic (OPS) *********************
 
-impl Zero for AxialVector {
-    fn zero() -> AxialVector {
-        AxialVector { q: 0, r: 0 }
-    }
 
-    fn is_zero(&self) -> bool {
-        self.q == 0 && self.r == 0
+impl Neg for AxialVector {
+    type Output = AxialVector;
+
+    fn neg(self) -> Self::Output {
+        AxialVector {
+            q: -self.q,
+            r: -self.r,
+        }
     }
 }
+
 
 impl Add<AxialVector> for AxialVector {
     type Output = AxialVector;
@@ -81,6 +85,26 @@ impl Add<AxialVector> for AxialVector {
     }
 }
 
+impl AddAssign<AxialVector> for AxialVector {
+    fn add_assign(&mut self, arg2: AxialVector) {
+        self.r += arg2.r;
+        self.q += arg2.q;
+
+    }
+}
+
+impl Sub<AxialVector> for AxialVector {
+    type Output = AxialVector;
+
+    fn sub(self, arg2: AxialVector) -> AxialVector {
+        AxialVector {
+            r: self.r - arg2.r,
+            q: self.q - arg2.q,
+        }
+    }
+}
+
+
 impl Mul<AxialType> for AxialVector {
     type Output = AxialVector;
 
@@ -91,6 +115,64 @@ impl Mul<AxialType> for AxialVector {
         }
     }
 }
+
+
+impl Div<AxialType> for AxialVector {
+    type Output = AxialVector;
+
+    fn div(self, arg2: AxialType) -> AxialVector {
+        AxialVector {
+            r: self.r / arg2,
+            q: self.q / arg2,
+        }
+    }
+}
+
+
+impl Rem<AxialType> for AxialVector {
+    type Output = AxialVector;
+
+    fn rem(self, arg2: AxialType) -> AxialVector {
+        AxialVector {
+            r: self.r % arg2,
+            q: self.q % arg2,
+        }
+    }
+}
+
+
+// ************ Metric Space ************
+
+impl MetricSpace for AxialVector {
+    type Metric = DefaultFloat;
+
+    fn distance(self, other: AxialVector) -> DefaultFloat {
+        (self.distance2(other)).sqrt()
+    }
+
+    fn distance2(self, other: AxialVector) -> DefaultFloat {
+        ((self.q - other.q).pow(2) + (self.r - other.r).pow(2)) as DefaultFloat
+    }
+}
+
+
+
+// ************** Zero ****************
+
+
+impl Zero for AxialVector {
+    fn zero() -> AxialVector {
+        AxialVector { q: 0, r: 0 }
+    }
+
+    fn is_zero(&self) -> bool {
+        self.q == 0 && self.r == 0
+    }
+}
+
+
+// *************** Array & Index *******************
+
 
 impl Array for AxialVector {
     type Element = AxialType;
