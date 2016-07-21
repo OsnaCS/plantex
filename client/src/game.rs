@@ -68,7 +68,7 @@ fn create_context(config: &Config) -> Result<GlutinFacade, ()> {
                   major,
                   minor);
 
-            if let Some(mem) = context.get_free_video_memory() {
+            if let Some(mem) = context.get_free_video_memory().map(|mem| mem as u64) {
                 let (mem, unit) = match () {
                     _ if mem < (1 << 12) => (mem, "B"),
                     _ if mem < (1 << 22) => (mem >> 10, "KB"),
