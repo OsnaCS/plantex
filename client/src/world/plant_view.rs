@@ -21,7 +21,8 @@ pub struct PlantView {
 impl PlantView {
     /// Creates the graphical representation of given plant
     /// at the given plant offset
-    pub fn from_dummy_plant<F>(hex_vec: &[HexPillar], pillars_pos: Vec<Point2f>, facade: &F) -> Self
+    pub fn from_dummy_plant<F>(hex_vec: &[HexPillar],
+      pillars_pos: Vec<Point2f>, facade: &F) -> Self
         where F: glium::backend::Facade
     {
         /// get height and width for the plant from given Prop
@@ -49,7 +50,8 @@ impl PlantView {
                               color: [0.545, 0.27, 0.075],
                           },
                           Vertex {
-                              position: [1.0 * width, 1.0 * width, 1.0 * height],
+                              position: [1.0 * width, 1.0 * width,
+                                1.0 * height],
                               color: [0.545, 0.27, 0.075],
                           },
                           Vertex {
@@ -92,12 +94,12 @@ impl PlantView {
         where S: glium::Surface
     {
         /// initialise the IndexBuffer
-        let index: [u32; 30] = [1, 0, 2, 2, 0, 3, 2, 3, 4, 4, 3, 5, 4, 5, 6, 4, 6, 7, 7, 6, 0, 7,
+        let index: [u32; 30] = [1, 0, 2, 2, 0, 3, 2, 3, 4, 4, 3, 5, 4, 5,
+                                6, 4, 6, 7, 7, 6, 0, 7,
                                 0, 1, 1, 4, 7, 4, 1, 2];
         let ibuf = glium::index::IndexBuffer::new(&self.con,
-                                                  glium::index::PrimitiveType::TrianglesList,
-                                                  &index)
-            .unwrap();
+                      glium::index::PrimitiveType::TrianglesList,
+                      &index).unwrap();
 
         for plant_pos in &self.plants_pos {
             let uniforms = uniform! {
