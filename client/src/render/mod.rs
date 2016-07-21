@@ -20,7 +20,7 @@ impl Renderer {
     /// Is called once every main loop iteration
     pub fn render(&self, world_view: &WorldView, camera: &Camera) -> Result<(), ()> {
         let mut target = self.context.draw();
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
+        target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
 
         world_view.draw(&mut target, camera);
 

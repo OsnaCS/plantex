@@ -48,6 +48,7 @@ fn create_context(config: &Config) -> Result<GlutinFacade, ()> {
     let context = glutin::WindowBuilder::new()
         .with_dimensions(config.resolution.width, config.resolution.height)
         .with_title(config.window_title.clone())
+        .with_depth_buffer(24)
         .build_glium();
 
     match context {

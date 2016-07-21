@@ -11,10 +11,9 @@ pub struct ChunkView {
     vertices: glium::VertexBuffer<Vertex>,
     program: glium::Program,
     pillars_positions: Vec<Point2f>,
-    hexagon_vertex_buffer: Vec<Vertex>,
     index_buffer: glium::index::IndexBuffer<u32>,
 }
-
+/// Calculates one Point-coordinates of a Hexagon
 fn hex_corner(size: f32, i: i32) -> (f32, f32) {
     let angle_deg = 60.0 * (i as f32) + 30.0;
     let angle_rad = (consts::PI / 180.0) * angle_deg;
@@ -28,30 +27,30 @@ impl ChunkView {
     pub fn from_chunk<F>(_chunk: &Chunk, offset: AxialPoint, facade: &F) -> Self
         where F: glium::backend::Facade
     {
-        let mut hexagon_vertex_buffer = VecDeque::new();
 
+        // Create one hexagon for this chunk
+        let mut hexagon_vertex_buffer = VecDeque::new();
         for i in 0..6 {
             let raw_modell = hex_corner(world::HEX_OUTER_RADIUS, i);
 
             hexagon_vertex_buffer.push_front(Vertex {
                 position: [raw_modell.0, raw_modell.1, world::PILLAR_STEP_HEIGHT / 2.0],
-                color: [1.0, 0.0, 0.0],
+                color: [0.15 * i as f32, 0.0, 0.0],
             });
 
             hexagon_vertex_buffer.push_back(Vertex {
                 position: [raw_modell.0, raw_modell.1, -1.0 * (world::PILLAR_STEP_HEIGHT / 2.0)],
-                color: [0.0, 1.0, 0.0],
+                color: [1.0 - 0.15 * i as f32, 0.15 * i as f32, 0.0],
             });
 
         }
 
-
+        // convert to vector
         let mut final_buffer = Vec::new();
         for element in hexagon_vertex_buffer {
             final_buffer.push(element);
         }
 
-        // println!("{:#?}", final_buffer);
 
         let vbuf = glium::VertexBuffer::new(facade, &final_buffer).unwrap();
         let prog = glium::Program::from_source(facade,
@@ -68,10 +67,11 @@ impl ChunkView {
             }
         }
 
-        let mut raw_index_buffer = [1, 0, 5, 1, 5, 2, 2, 5, 4, 2, 4, 3 /* TOP */, 6, 7, 8, 8,
-                                    9, 6, 9, 11, 6, 9, 10, 11 /* BOTTOM */, 4, 5, 6, 4, 6, 7,
-                                    5, 0, 6, 6, 0, 11, 0, 1, 10, 0, 10, 11, 1, 2, 9, 1, 9, 10, 2,
-                                    3, 8, 2, 8, 9, 3, 4, 7, 3, 7, 8];
+        // Indecies
+        let raw_index_buffer = [5, 0, 1, 2, 5, 1, 4, 5, 2, 3, 4, 2 /* TOP */, 6, 7, 8, 8, 9,
+                                6, 9, 11, 6, 9, 10, 11 /* BOTTOM */, 6, 5, 4, 7, 6, 4, 6, 0,
+                                5, 11, 0, 6, 10, 1, 0, 11, 10, 0, 9, 2, 1, 10, 9, 1, 8, 3, 2, 9,
+                                8, 2, 7, 4, 3, 8, 7, 3 /* Body */];
 
 
         let ibuf = glium::index::IndexBuffer::new(facade,
@@ -83,13 +83,8 @@ impl ChunkView {
             vertices: vbuf,
             program: prog,
             pillars_positions: positions,
-            hexagon_vertex_buffer: final_buffer,
             index_buffer: ibuf,
         }
-    }
-
-    fn get_hexagon_model(&self) -> Vec<Vertex> {
-        self.hexagon_vertex_buffer.clone()
     }
 
     pub fn draw<S>(&self, surface: &mut S, camera: &Camera)
@@ -98,13 +93,23 @@ impl ChunkView {
 
         for pillar_pos in &self.pillars_positions {
             let uniforms = uniform!{
+              scale_matrix:[[1.0,0.0,0.0,0.0]
+                      ,[0.0,1.0,0.0,0.0],
+                      //FIXME 5.0 heightvalue
+                      [0.0,0.0,1.0,0.0],
+                      [0.0,0.0,0.0,1.0f32]],
                 offset: [pillar_pos.x, pillar_pos.y],
                 proj_matrix: camera.proj_matrix().to_arr(),
                 view_matrix: camera.view_matrix().to_arr(),
             };
 
             let params = glium::DrawParameters {
-                backface_culling: glium::draw_parameters::BackfaceCullingMode::CullClockwise,
+                depth: glium::Depth {
+                    write: true,
+                    test: glium::draw_parameters::DepthTest::IfLess,
+                    ..Default::default()
+                },
+                backface_culling: glium::draw_parameters::BackfaceCullingMode::CullCounterClockwise,
                 ..Default::default()
             };
 
