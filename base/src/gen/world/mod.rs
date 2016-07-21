@@ -1,7 +1,7 @@
 //! Procedurally generating the game world.
 //!
 
-use super::super::world::{Chunk, ChunkIndex, Provider};
+use world::{Chunk, ChunkIndex, Provider};
 
 /// Main type to generate the game world. Implements the `WorldProvider` trait
 /// (TODO, see #8).
