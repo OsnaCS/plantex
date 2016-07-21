@@ -1,9 +1,9 @@
 //! Procedurally generating the game world.
 //!
 
-use world::{Chunk, ChunkIndex, Provider};
+use world::{Chunk, ChunkIndex, ChunkProvider};
 
-/// Main type to generate the game world. Implements the `WorldProvider` trait
+/// Main type to generate the game world. Implements the `ChunkProvider` trait
 /// (TODO, see #8).
 pub struct WorldGenerator {
     seed: u64,
@@ -21,14 +21,12 @@ impl WorldGenerator {
     }
 }
 
-impl Provider for WorldGenerator {
-    /// Returns requested `Chunk`.
+impl ChunkProvider for WorldGenerator {
     fn load_chunk(&self, _: ChunkIndex) -> Option<Chunk> {
         // for the moment returns dummy chunk
         Some(Chunk::dummy())
     }
 
-    /// Returns wether `Chunk` load is possible
     fn is_chunk_loadable(&self, _: ChunkIndex) -> bool {
         // for the moment returns true
         true

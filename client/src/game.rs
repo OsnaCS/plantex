@@ -1,4 +1,4 @@
-use base::world::Provider as WorldProvider;
+use base::world::ChunkProvider as WorldProvider;
 use base::world::World;
 use event_manager::{EventManager, EventResponse};
 use glium::backend::glutin_backend::GlutinFacade;

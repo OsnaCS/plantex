@@ -3,7 +3,7 @@ use super::{Chunk, ChunkIndex};
 /// A type that can load a game world, specifically single chunks of it. This
 /// could mean loading a saved world from a file, generating a world
 /// procedurally or loading a world from a server.
-pub trait Provider {
+pub trait ChunkProvider {
     /// Attempt to load a chunk from the world. This may fail (e.g. when
     /// loading from a file and the chunk is not yet saved in the file).
     ///
@@ -25,7 +25,7 @@ pub trait Provider {
 #[derive(Clone, Copy, Debug)]
 pub struct NullProvider;
 
-impl Provider for NullProvider {
+impl ChunkProvider for NullProvider {
     fn load_chunk(&self, _: ChunkIndex) -> Option<Chunk> {
         None
     }
@@ -44,7 +44,7 @@ pub struct FallbackProvider<P, F> {
     fallback: F,
 }
 
-impl<P: Provider, F: Provider> Provider for FallbackProvider<P, F> {
+impl<P: ChunkProvider, F: ChunkProvider> ChunkProvider for FallbackProvider<P, F> {
     fn load_chunk(&self, pos: ChunkIndex) -> Option<Chunk> {
         if self.primary.is_chunk_loadable(pos) {
             self.primary.load_chunk(pos)
