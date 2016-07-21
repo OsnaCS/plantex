@@ -1,9 +1,11 @@
-use glium;
+use glium::backend::Context;
 use Camera;
 use render::ToArr;
 use base::math::*;
 use base::world::{HexPillar, PropType};
 use world::chunk::Vertex;
+use std::rc::Rc;
+use glium;
 
 ///Graphical representation of a "base::Plant"
 pub struct PlantView {
@@ -12,6 +14,8 @@ pub struct PlantView {
     //program links vertex and fragment shader together
     program: glium::Program,
     plants_pos: Vec<Point2f>,
+    //Context for IndexBuffer
+    con: Rc<Context>,
 }
 
 impl PlantView {
@@ -29,6 +33,9 @@ impl PlantView {
         match p_type {
             &PropType::Plant(p) => { width = p.stem_width; height = p.height },
         }
+        //Context for the draw method
+        //to fill the IndexBuffer
+        let c = facade.get_context().clone();
 
         let buffer = vec![Vertex {
                             position: [0.0, 1.0*width, 0.0],
@@ -68,17 +75,23 @@ impl PlantView {
                                             include_str!("plant_dummy.vert"),
                                             include_str!("plant_dummy.frag"),
                                             None).unwrap();
+
         PlantView {
             vertices: vbuf,
             program: prog,
             plants_pos: pillars_pos,
+            con: c,
         }
     }
 
     pub fn draw<S>(&self, surface: &mut S, camera: &Camera)
         where S: glium::Surface
     {
-        let ibuf = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+        //initialise the IndexBuffer
+        let index: [u32; 30] = [1, 0, 2, 2, 0, 3, 2, 3, 4, 4, 3, 5, 4, 5, 6, 4, 6, 7,
+            7, 6, 0, 7, 0, 1, 1 ,4 ,7, 4, 1, 2];
+        let ibuf = glium::index::IndexBuffer::new(&self.con, glium::index::PrimitiveType::TrianglesList,
+                &index).unwrap();
 
         for plant_pos in &self.plants_pos {
             let uniforms = uniform! {

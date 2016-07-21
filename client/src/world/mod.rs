@@ -43,6 +43,6 @@ impl WorldView {
         where S: glium::Surface
     {
         self.chunk.draw(surface, camera);
-        self.chunk.draw(surface, camera);
+        self.plant_view.draw(surface, camera);
     }
 }
