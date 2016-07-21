@@ -8,6 +8,7 @@ pub struct Camera {
     pub phi: f32,
 }
 
+// Initinal values
 impl Default for Camera {
     fn default() -> Camera {
         Camera {
@@ -30,17 +31,21 @@ impl Camera {
         Matrix4::look_at(self.position, self.get_look_at_point(), self.view_up_vector)
     }
 
-    /// Calculates the look_at_point by using theta and phi on the unit sphere
+    /// Calculates the look_at_point by adding the current position to the
+    /// look_at_vector
     pub fn get_look_at_point(&self) -> Point3f {
         self.position + self.get_look_at_vector()
     }
 
+    /// Calculates the look_at_vector by using theta and phi on the unit sphere
     pub fn get_look_at_vector(&self) -> Vector3f {
         Vector3f::new(self.theta.sin() * self.phi.cos(),
                       self.theta.sin() * self.phi.sin(),
                       self.theta.cos())
     }
 
+    /// Internal function to move the position of the camera
+    /// Will be called by the other functions (move_forwars etc)
     pub fn move_by(&mut self, pos_diff: Vector3f) {
         self.position += pos_diff;
     }
@@ -80,11 +85,10 @@ impl Camera {
     // pub fn move_up_down(&mut self, factor: f32) {
     //     self.move_by(Vector3f::new(0.0, 0.0, factor));
     // }
-
-
+    /// Changes `theta` and `phi` to essentially change the direction the
+    /// camera looks
     pub fn change_dir(&mut self, theta_diff: f32, phi_diff: f32) {
         self.theta += theta_diff;
         self.phi += phi_diff;
-        // new matrix will be calculated
     }
 }
