@@ -31,15 +31,15 @@ impl ChunkView {
         // Create one hexagon for this chunk
         let mut hexagon_vertex_buffer = VecDeque::new();
         for i in 0..6 {
-            let raw_modell = hex_corner(world::HEX_OUTER_RADIUS, i);
+            let (x, y) = hex_corner(world::HEX_OUTER_RADIUS, i);
 
             hexagon_vertex_buffer.push_front(Vertex {
-                position: [raw_modell.0, raw_modell.1, world::PILLAR_STEP_HEIGHT / 2.0],
+                position: [x, y, world::PILLAR_STEP_HEIGHT],
                 color: [0.15 * i as f32, 0.0, 0.0],
             });
 
             hexagon_vertex_buffer.push_back(Vertex {
-                position: [raw_modell.0, raw_modell.1, -1.0 * (world::PILLAR_STEP_HEIGHT / 2.0)],
+                position: [x, y, -1.0 * world::PILLAR_STEP_HEIGHT],
                 color: [1.0 - 0.15 * i as f32, 0.15 * i as f32, 0.0],
             });
 
