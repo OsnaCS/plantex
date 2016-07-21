@@ -1,5 +1,7 @@
 use base::math::*;
+use std::f32::consts;
 
+#[derive(Clone, Copy)]
 pub struct Camera {
     pub position: Point3f, // PRP
     pub view_up_vector: Vector3f, // VUV
@@ -13,8 +15,8 @@ impl Default for Camera {
     fn default() -> Camera {
         Camera {
             position: Point3::new(0.0, 0.0, 60.0),
-            phi: 0.0,
-            theta: 0.0,
+            phi: -0.27,
+            theta: 2.6,
             view_up_vector: Vector3::unit_z(),
         }
     }
@@ -85,10 +87,13 @@ impl Camera {
     // pub fn move_up_down(&mut self, factor: f32) {
     //     self.move_by(Vector3f::new(0.0, 0.0, factor));
     // }
+
     /// Changes `theta` and `phi` to essentially change the direction the
     /// camera looks
+
     pub fn change_dir(&mut self, theta_diff: f32, phi_diff: f32) {
-        self.theta += theta_diff;
+        self.theta += theta_diff * (consts::PI - self.theta);
         self.phi += phi_diff;
+        info!("phi: {}, theta: {}", self.phi, self.theta);
     }
 }

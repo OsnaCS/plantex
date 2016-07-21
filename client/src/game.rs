@@ -1,4 +1,5 @@
 use base::world::{ChunkIndex, ChunkProvider, World};
+use ghost::Ghost;
 use event_manager::{CloseHandler, EventManager, EventResponse};
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::{self, DisplayBuild, glutin};
@@ -26,11 +27,19 @@ pub fn run(config: &Config, provider: &ChunkProvider) -> Result<(), ()> {
     let world_view = WorldView::from_world(&world, &context);
 
     let camera = Camera::default();
+    let mut ghost = Ghost::new(context.clone());
 
     loop {
-        try!(renderer.render(&world_view, &camera));
+        try!(renderer.render(&world_view, &ghost.get_camera()));
 
-        let event_resp = event_manager.poll_events(&[&mut CloseHandler]);
+
+        // let mut x: i32 = 3;
+        // let y: &mut i32 = &mut x;
+        // let z: &&mut i32 = &y;
+
+        // let w: &mut i32 = *z;
+
+        let event_resp = event_manager.poll_events(vec![&mut CloseHandler, &mut ghost]);
         if event_resp == EventResponse::Quit {
             break;
         }
