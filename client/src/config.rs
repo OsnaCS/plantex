@@ -96,7 +96,7 @@ fn command_config(mut toml_config: Config) -> Result<Config, Box<StdError>> {
     if let Some(seed) = matches.value_of("Seed") {
         match seed.parse::<u64>() {
             Ok(n) => toml_config.seed = n,
-            Err(e) => return Err("Seed from command line is invalid".into()),
+            _ => return Err("Seed from command line is invalid".into()),
         }
     }
     Ok(toml_config)

@@ -22,7 +22,7 @@ fn main() {
     let conf = match client::Config::load_config() {
         Ok(v) => v,
         Err(e) => {
-            writeln!(io::stderr(), "{}", e);
+            writeln!(io::stderr(), "{}", e).unwrap();
             return;
         }
     };
