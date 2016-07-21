@@ -220,6 +220,7 @@ fn test_my_foo_feature() {
     assert!(uvq.r == 0 && uvr.r == 1);
     let test1 = AxialVector { q: -5, r: 2 };
     let test2 = AxialVector { q: 13, r: -4 };
+    // ****** Arith. Operations ******
     assert_eq!(-uvq, AxialVector { q: -1, r: 0 });
     assert_eq!(-test1, AxialVector { q: 5, r: -2 });
     assert_eq!(test1 + uvq, AxialVector { q: -4, r: 2 });
@@ -247,7 +248,26 @@ fn test_my_foo_feature() {
     test3.r = 6;
     test3 %= 3;
     assert!(test3.q == 2 && test3.r == 0);
-    // let mut f: f32 = 2.0;
-    // f = f.sqrt();
-    // assert_eq!(uvq.distance(uvq), f);
+    // ********* metric space ************
+    let mut f: f32 = 2.0;
+    f = f.sqrt();
+    assert_eq!(uvq.distance(uvr), f);
+    assert_eq!(test1.distance2(test2), 360.0);
+    // ********* zero *************
+    test3 = AxialVector::zero();
+    assert!(test3.q == 0 && test3.r == 0);
+    assert!(test3.is_zero());
+    assert!(!(test2.is_zero()));
+    // ********** Index *********
+    test3[0] = 12;
+    test3[1] = 4;
+    assert!(test3.q == 12 && test3.r == 4);
+    assert!(test3[0] == 12 && test3[1] == 4);
+    // ********** Array ***********
+    test3 = AxialVector::from_value(3);
+    assert!(test3.q == 3 && test3.r == 3);
+    assert_eq!(test3.sum(), 6);
+    assert_eq!(test3.product(), 9);
+    assert_eq!(test1.min(), -5);
+    assert_eq!(test2.max(), 13);
 }
