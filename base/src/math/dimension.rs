@@ -5,6 +5,7 @@ use std::ops::{Div, Mul};
 use num_traits::Zero;
 
 /// A two-dimensional dimension.
+#[derive(Debug)]
 pub struct Dimension2<T> {
     pub width: T,
     pub height: T,
@@ -32,7 +33,7 @@ impl<T: BaseNum> Dimension2<T> {
         }
     }
     pub fn aspect_ratio(&self) -> <T as Div>::Output {
-      //  assert!(!self.height.Zero::is_zero());
+        // assert!(self.height.Zero::is_zero());
         self.width / self.height
     }
     pub fn fitting(&self, other: Dimension2<T>) -> Dimension2<T> {
@@ -49,17 +50,29 @@ impl<T: BaseNum> Dimension2<T> {
 
 #[test]
 fn test_area() {
-    let test1 = Dimension2(width: 3, height: 5);
-    let test2 = Dimension2(width: 0, height: 0);
-
+    let test1 = Dimension2 {
+        width: 3,
+        height: 5,
+    };
+    let test2 = Dimension2 {
+        width: 0,
+        height: 0,
+    };
     assert_eq!(test2.area(), 0);
     assert_eq!(test1.area(), 15);
 }
-fn test_scale(){
-    let test1 = Dimension2(width: 3, height: 5);
-    let test2 = Dimension2(width: 0, height: 0);
+fn test_scale() {
+    let test1 = Dimension2 {
+        width: 3,
+        height: 5,
+    };
+    let test2 = Dimension2 {
+        width: 12,
+        height: 20,
+    };
     let scale = 4;
-
-    test1.scale(scale);
-
+    let scale1 = 0;
+    assert_eq!(test1.scale(scale).width, 12);
+    assert_eq!(test2.scale(scale1).width, 0);
 }
+fn test_aspect_ratio() {}
