@@ -6,6 +6,10 @@ use base::math::*;
 use self::clap::{App, Arg, ArgMatches};
 use self::regex::Regex;
 use std::error::Error as StdError;
+use std::path::Path;
+use std::fs::File;
+use std::io::Read;
+use self::toml::Parser;
 
 pub struct Config {
     pub resolution: Dimension2u,
@@ -21,42 +25,43 @@ pub struct Config {
                     * Chunkweite */
 }
 impl Config {
-    ///creates a new Config in three steps:
-    ///1. loads default config
-    ///2. Overrides from toml config file
-    ///3. Overrides from command line
+    /// creates a new Config in three steps:
+    /// 1. loads default config
+    /// 2. Overrides from toml config file
+    /// 3. Overrides from command line
     pub fn load_config() -> Result<Config, Box<StdError>> {
         let matches = App::new("Plantex")
-        .version(env!("CARGO_PKG_VERSION"))
-        .about("Game about Plants!")
-        .arg(Arg::with_name("Resolution")
-            .help("(e.g. =1280x720) 'Sets Resolution to new value'")
-            .takes_value(true)
-            .long("resolution"))
-        .arg(Arg::with_name("WindowMode")
-            .help("[Windowed, FullScreen] 'Sets WindowMode'")
-            .takes_value(true)
-            .long("windowmode"))
-        .arg(Arg::with_name("Vsync")
-            .help("[on/off]")
-            .takes_value(true)
-            .long("vsync"))
-        .arg(Arg::with_name("Seed")
-            .help("'Takes a specified seed to generate map'")
-            .takes_value(true)
-            .long("seed"))
-        .arg(Arg::with_name("File")
-            .help("Takes config file")
-            .takes_value(true)
-            .long("config-file"))
-        .get_matches();
+            .version(env!("CARGO_PKG_VERSION"))
+            .about("Game about Plants!")
+            .arg(Arg::with_name("Resolution")
+                .help("(e.g. =1280x720) 'Sets Resolution to new value'")
+                .takes_value(true)
+                .long("resolution"))
+            .arg(Arg::with_name("WindowMode")
+                .help("[Windowed, FullScreen] 'Sets WindowMode'")
+                .takes_value(true)
+                .long("windowmode"))
+            .arg(Arg::with_name("Vsync")
+                .help("[on/off]")
+                .takes_value(true)
+                .long("vsync"))
+            .arg(Arg::with_name("Seed")
+                .help("'Takes a specified seed to generate map'")
+                .takes_value(true)
+                .long("seed"))
+            .arg(Arg::with_name("File")
+                .help("Takes config file")
+                .takes_value(true)
+                .long("config-file"))
+            .get_matches();
 
         let conf = Config::default();
-        let t_conf = match config_toml(conf, &matches){
+
+        let t_conf = match config_toml(conf, &matches) {
             Ok(n) => n,
             Err(e) => return Err(e),
         };
-        let conf_final = match config_command(t_conf, &matches){
+        let conf_final = match config_command(t_conf, &matches) {
             Ok(n) => n,
             Err(e) => return Err(e),
         };
@@ -65,7 +70,6 @@ impl Config {
 }
 
 impl Default for Config {
-    ///Returns default config from hard coded values
     fn default() -> Self {
         Config {
             resolution: Dimension2::new(800, 600),
@@ -77,16 +81,37 @@ impl Default for Config {
     }
 }
 
-fn config_toml(mut default_config: Config, matches: &ArgMatches<>) -> Result<Config, Box<StdError>>{
-    if let Some(file) = matches.value_of("File"){
-        println!("Celebrate!!");
+fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Config, Box<StdError>> {
+    let mut name = "config.toml";
+    if let Some(file) = matches.value_of("File") {
+        let file_reg = Regex::new(".*\\.toml").unwrap();
+
+        if file_reg.is_match(file) && Path::new(file).exists() {
+            name = file;
+        } else {
+            return Err("invalid File in command line".into());
+        }
     }
+    if Path::new(name).exists() {
+        let mut f = try!(File::open(name));
+        let mut s = String::new();
+
+        try!(f.read_to_string(&mut s));
+        let toml = s;
+
+        let value = match toml::Parser::new(&toml).parse() {
+            Some(n) => n,
+            None => return Err("config file is corrupted".into()),
+        };
+        println!("{:?}", value);
+    }
+
 
     Ok(default_config)
 }
 
 
-fn config_command(mut toml_config: Config, matches: &ArgMatches<>) -> Result<Config, Box<StdError>> {
+fn config_command(mut toml_config: Config, matches: &ArgMatches) -> Result<Config, Box<StdError>> {
 
 
     if let Some(res) = matches.value_of("Resolution") {
