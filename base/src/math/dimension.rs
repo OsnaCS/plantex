@@ -2,7 +2,6 @@
 
 use super::{BaseNum, PartialOrd};
 use std::ops::{Div, Mul};
-use num_traits::Zero;
 
 /// A two-dimensional dimension.
 #[derive(Debug,Clone,Copy)]
@@ -104,8 +103,8 @@ fn test_fitting() {
         width: 4.0,
         height: 3.0,
     };
-    assert_eq!(test2.fitting(test1).width, 2.0);
-    assert_eq!(test2.fitting(test1).height, 1.5);
+    assert_eq!(test2.fitting(test1).width, 4.0 / 3.0);
+    assert_eq!(test2.fitting(test1).height, 1.0);
 }
 #[test]
 fn test_filling() {
