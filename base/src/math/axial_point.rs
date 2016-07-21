@@ -1,8 +1,8 @@
 use std::fmt;
 use world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS};
 use super::{AxialType, DefaultFloat, Point2f};
-use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
-use math::cgmath::{Array, Zero};
+use std::ops::{Add, Div, Index, IndexMut, Mul, Rem, Sub};
+use math::cgmath::{Array, MetricSpace, VectorSpace, Zero};
 
 /// A 2-dimensional point in axial coordinates. See [here][hex-blog] for more
 /// information.
@@ -107,6 +107,17 @@ impl Div<AxialType> for AxialPoint {
         }
     }
 }
+
+impl Rem<AxialType> for AxialPoint {
+    type Output = AxialPoint;
+
+    fn rem(self, d: AxialType) -> AxialPoint {
+        AxialPoint {
+            q: self.q % d,
+            r: self.r % d,
+        }
+    }
+}
 /// ********************Zero-Implementation************
 impl Zero for AxialPoint {
     fn zero() -> AxialPoint {
@@ -163,4 +174,24 @@ impl Array for AxialPoint {
     fn max(self) -> AxialType {
         if self.q < self.r { self.r } else { self.q }
     }
+}
+
+/// ******************* Metric-Space************************
+
+impl MetricSpace for AxialPoint {
+    type Metric = f32;
+
+    fn distance2(self, other: AxialPoint) -> Self::Metric {
+        (((self.q - other.q) * (self.q - other.q)) +
+         ((self.r - other.r) * (self.r - other.r))) as f32
+    }
+    fn distance(self, other: AxialPoint) -> Self::Metric {
+        self.distance2(other).sqrt()
+    }
+}
+
+/// ********************Vector-Space****************************
+
+impl VectorSpace for AxialPoint {
+    type Scalar = i32;
 }
