@@ -5,7 +5,6 @@ use super::{AxialType, DefaultFloat, Point2f};
 use std::ops::{Add, Div, Index, IndexMut, Mul, Rem, Sub};
 use math::cgmath::{Array, EuclideanSpace, MetricSpace};
 use super::AxialVector;
-
 /// A 2-dimensional point in axial coordinates. See [here][hex-blog] for more
 /// information.
 ///
@@ -16,7 +15,6 @@ pub struct AxialPoint {
     pub q: AxialType,
     pub r: AxialType,
 }
-
 // TODO: implement cgmath::Array
 // TODO: implement cgmath::MatricSpace
 // TODO: implement cgmath::EuclideanSpace
@@ -24,12 +22,10 @@ pub struct AxialPoint {
 // For all of the above, see
 // http://bjz.github.io/cgmath/cgmath/struct.Point2.html
 //
-
 impl AxialPoint {
     pub fn new(q: AxialType, r: AxialType) -> Self {
         AxialPoint { q: q, r: r }
     }
-
     /// Returns the position of the hexagons center in the standard coordinate
     /// system using `world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS}`.
     pub fn to_real(&self) -> Point2f {
@@ -38,7 +34,6 @@ impl AxialPoint {
             y: (self.r as DefaultFloat) * (3.0 / 2.0) * HEX_OUTER_RADIUS,
         }
     }
-
     /// Returns the `s` component of corresponding cube coordinates. In cube
     /// coordinates 'q + r + s = 0', so saving `s` is redundant and can be
     /// calculated on the fly when needed.
@@ -46,7 +41,6 @@ impl AxialPoint {
         -self.q - self.r
     }
 }
-
 impl fmt::Debug for AxialPoint {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_tuple("")
@@ -55,13 +49,9 @@ impl fmt::Debug for AxialPoint {
             .finish()
     }
 }
-
 /// ********************Basic Arithmetics************
-
 impl Add<AxialVector> for AxialPoint {
     type Output = AxialPoint;
-    // adds two Points together similar to vectors
-    // Returns an AxialPoint
     fn add(self, rhs: AxialVector) -> AxialPoint {
         AxialPoint {
             q: self.q + rhs.q,
@@ -69,11 +59,8 @@ impl Add<AxialVector> for AxialPoint {
         }
     }
 }
-
 impl Sub<AxialPoint> for AxialPoint {
     type Output = AxialVector;
-    /// substracts two Points similar to vectors
-    /// Returns an AxialPoint
     fn sub(self, rhs: AxialPoint) -> AxialVector {
         AxialVector {
             q: self.q - rhs.q,
@@ -81,11 +68,8 @@ impl Sub<AxialPoint> for AxialPoint {
         }
     }
 }
-
 impl Mul<AxialType> for AxialPoint {
     type Output = AxialPoint;
-    /// Multiplies a point and a scalar
-    /// Returns an AxialPoint
     fn mul(self, rhs: AxialType) -> AxialPoint {
         AxialPoint {
             q: self.q * rhs,
@@ -93,11 +77,8 @@ impl Mul<AxialType> for AxialPoint {
         }
     }
 }
-
 impl Div<AxialType> for AxialPoint {
     type Output = AxialPoint;
-    /// Divides a point and a scalar
-    /// Returns an AxialPoint
     fn div(self, rhs: AxialType) -> AxialPoint {
         AxialPoint {
             q: self.q / rhs,
@@ -105,7 +86,6 @@ impl Div<AxialType> for AxialPoint {
         }
     }
 }
-
 impl Rem<AxialType> for AxialPoint {
     type Output = AxialPoint;
     fn rem(self, d: AxialType) -> AxialPoint {
@@ -115,9 +95,7 @@ impl Rem<AxialType> for AxialPoint {
         }
     }
 }
-
 /// ********************Index************
-
 impl Index<usize> for AxialPoint {
     type Output = AxialType;
     fn index(&self, index: usize) -> &AxialType {
@@ -128,7 +106,6 @@ impl Index<usize> for AxialPoint {
         }
     }
 }
-
 impl IndexMut<usize> for AxialPoint {
     fn index_mut(&mut self, index: usize) -> &mut AxialType {
         match index {
@@ -138,9 +115,7 @@ impl IndexMut<usize> for AxialPoint {
         }
     }
 }
-
 /// ********************Array************
-
 impl Array for AxialPoint {
     type Element = AxialType;
     fn from_value(x: AxialType) -> AxialPoint {
@@ -159,9 +134,7 @@ impl Array for AxialPoint {
         max(self.q, self.r)
     }
 }
-
 /// ******************* Metric-Space************************
-
 impl MetricSpace for AxialPoint {
     type Metric = f32;
     fn distance2(self, other: AxialPoint) -> Self::Metric {
@@ -172,9 +145,7 @@ impl MetricSpace for AxialPoint {
         self.distance2(other).sqrt()
     }
 }
-
 /// ******************* EuclideanSpace**********************
-
 impl EuclideanSpace for AxialPoint {
     type Scalar = i32;
     type Diff = AxialVector;
@@ -182,7 +153,6 @@ impl EuclideanSpace for AxialPoint {
         AxialPoint { q: 0, r: 0 }
     }
     fn from_vec(v: Self::Diff) -> Self {
-
         AxialPoint { q: v.q, r: v.r }
     }
     fn to_vec(self) -> Self::Diff {
