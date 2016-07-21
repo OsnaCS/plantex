@@ -60,7 +60,6 @@ impl fmt::Debug for AxialPoint {
 
 impl Add<AxialVector> for AxialPoint {
     type Output = AxialPoint;
-
     // adds two Points together similar to vectors
     // Returns an AxialPoint
     fn add(self, rhs: AxialVector) -> AxialPoint {
@@ -71,10 +70,8 @@ impl Add<AxialVector> for AxialPoint {
     }
 }
 
-
 impl Sub<AxialPoint> for AxialPoint {
     type Output = AxialVector;
-
     /// substracts two Points similar to vectors
     /// Returns an AxialPoint
     fn sub(self, rhs: AxialPoint) -> AxialVector {
@@ -87,7 +84,6 @@ impl Sub<AxialPoint> for AxialPoint {
 
 impl Mul<AxialType> for AxialPoint {
     type Output = AxialPoint;
-
     /// Multiplies a point and a scalar
     /// Returns an AxialPoint
     fn mul(self, rhs: AxialType) -> AxialPoint {
@@ -100,7 +96,6 @@ impl Mul<AxialType> for AxialPoint {
 
 impl Div<AxialType> for AxialPoint {
     type Output = AxialPoint;
-
     /// Divides a point and a scalar
     /// Returns an AxialPoint
     fn div(self, rhs: AxialType) -> AxialPoint {
@@ -113,7 +108,6 @@ impl Div<AxialType> for AxialPoint {
 
 impl Rem<AxialType> for AxialPoint {
     type Output = AxialPoint;
-
     fn rem(self, d: AxialType) -> AxialPoint {
         AxialPoint {
             q: self.q % d,
@@ -149,19 +143,15 @@ impl IndexMut<usize> for AxialPoint {
 
 impl Array for AxialPoint {
     type Element = AxialType;
-
     fn from_value(x: AxialType) -> AxialPoint {
         AxialPoint { q: x, r: x }
     }
-
     fn sum(self) -> AxialType {
         self.q + self.r
     }
-
     fn product(self) -> AxialType {
         self.q * self.r
     }
-
     fn min(self) -> AxialType {
         min(self.q, self.r)
     }
@@ -174,12 +164,10 @@ impl Array for AxialPoint {
 
 impl MetricSpace for AxialPoint {
     type Metric = f32;
-
     fn distance2(self, other: AxialPoint) -> Self::Metric {
         (((self.q - other.q) * (self.q - other.q)) +
          ((self.r - other.r) * (self.r - other.r))) as f32
     }
-
     fn distance(self, other: AxialPoint) -> Self::Metric {
         self.distance2(other).sqrt()
     }
@@ -190,23 +178,19 @@ impl MetricSpace for AxialPoint {
 impl EuclideanSpace for AxialPoint {
     type Scalar = i32;
     type Diff = AxialVector;
-
     fn origin() -> Self {
         AxialPoint { q: 0, r: 0 }
     }
-
     fn from_vec(v: Self::Diff) -> Self {
 
         AxialPoint { q: v.q, r: v.r }
     }
-
     fn to_vec(self) -> Self::Diff {
         AxialVector {
             q: self.q,
             r: self.r,
         }
     }
-
     fn dot(self, v: Self::Diff) -> Self::Scalar {
         (self.q * v.q) + (self.r * v.r)
     }
