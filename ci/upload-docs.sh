@@ -5,9 +5,9 @@ set -e
 
 echo ""
 echo "=== Generating documentation ================="
-cargo doc
 
 if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    cargo doc
     echo ""
     echo "=== Uploading docs ==============="
     ghp-import -n target/doc

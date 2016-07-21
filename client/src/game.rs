@@ -1,5 +1,5 @@
-use base::world::Provider as WorldProvider;
-use base::world::World;
+use base::world::{ChunkIndex, ChunkProvider, World};
+use base::math::AxialPoint;
 use event_manager::{EventManager, EventResponse};
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::{self, DisplayBuild, glutin};
@@ -11,12 +11,18 @@ use Camera;
 /// Main game function: contains the mai render loop and owns all important
 /// components. This function should remain rather small, all heavy lifting
 /// should be done in other functions.
-pub fn run(config: &Config, _: &WorldProvider) -> Result<(), ()> {
+pub fn run(config: &Config, provider: &ChunkProvider) -> Result<(), ()> {
     // Create OpenGL context, the renderer and the event manager
     let context = try!(create_context(config));
     let renderer = Renderer::new(context.clone());
     let event_manager = EventManager::new(context.clone());
-    let world = World::dummy();
+    let mut world = World::empty();
+    for i in 0..3 {
+        for j in 0..3 {
+            world.add_chunk(ChunkIndex(AxialPoint::new(i, j)), provider);
+        }
+    }
+
     let world_view = WorldView::from_world(&world, &context);
     let camera = Camera {};
 
@@ -68,7 +74,7 @@ fn create_context(config: &Config) -> Result<GlutinFacade, ()> {
                   major,
                   minor);
 
-            if let Some(mem) = context.get_free_video_memory() {
+            if let Some(mem) = context.get_free_video_memory().map(|mem| mem as u64) {
                 let (mem, unit) = match () {
                     _ if mem < (1 << 12) => (mem, "B"),
                     _ if mem < (1 << 22) => (mem >> 10, "KB"),
