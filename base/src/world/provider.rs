@@ -48,10 +48,8 @@ impl<P: Provider, F: Provider> Provider for FallbackProvider<P, F> {
     fn load_chunk(&self, pos: ChunkIndex) -> Option<Chunk> {
         if self.primary.is_chunk_loadable(pos) {
             self.primary.load_chunk(pos)
-        } else if self.fallback.is_chunk_loadable(pos) {
-            self.fallback.load_chunk(pos)
         } else {
-            NullProvider {}.load_chunk(pos)
+            self.fallback.load_chunk(pos)
         }
     }
 

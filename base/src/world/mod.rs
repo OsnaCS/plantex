@@ -40,10 +40,10 @@ pub type PillarIndexComponent = math::AxialType;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct PillarIndex(pub math::AxialPoint);
 
-/// A new-type to index chunks. This is different from the 'PillarIndex' type
-/// which always represents a pillar position. So two different 'PillarIndices'
+/// A new-type to index chunks. This is different from the `PillarIndex` type
+/// which always represents a pillar position. So two different `PillarIndex`es
 /// could refer to two pillars in the same chunk, while two different
-/// 'ChunkIndices' always refer to two different chunks.
+/// `ChunkIndex`es always refer to two different chunks.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct ChunkIndex(pub math::AxialPoint);
 

@@ -25,7 +25,7 @@ impl World {
         World { chunks: chunks }
     }
 
-    /// Returns the hex pillar at the given world position, if the
+    /// Returns the hex pillar at the given world position, iff the
     /// corresponding chunk is loaded.
     pub fn pillar_at(&self, pos: PillarIndex) -> Option<&HexPillar> {
         // TODO: use `/` operator once it's implemented
