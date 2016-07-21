@@ -26,6 +26,19 @@ impl HexPillar {
         }
     }
 
+    pub fn from_height(height: HeightType) -> Self {
+        HexPillar {
+            sections: vec![PillarSection::new(GroundMaterial::Dirt, HeightType(0), height)],
+            props: vec![Prop {
+                            baseline: HeightType(50),
+                            prop: PropType::Plant(prop::Plant {
+                                height: 5.0,
+                                stem_width: 0.5,
+                            }),
+                        }],
+        }
+    }
+
     /// Returns a slice of this pillar's sections.
     pub fn sections(&self) -> &[PillarSection] {
         &self.sections
