@@ -165,3 +165,34 @@ impl EuclideanSpace for AxialPoint {
         (self.q * v.q) + (self.r * v.r)
     }
 }
+
+#[test]
+fn test() {
+    let a: AxialPoint = AxialPoint { q: 5, r: 7 };
+    let mut b: AxialPoint = AxialPoint { q: -2, r: 0 };
+    let v: AxialVector = AxialVector { q: 8, r: 1 };
+    assert!(a.add(v) == AxialPoint { q: 13, r: 8 });
+    assert!(a.sub(b) == AxialVector { q: 7, r: 7 });
+    assert!(b.mul(4) == AxialPoint { q: -8, r: 0 });
+    assert!(b.div(2) == AxialPoint { q: -1, r: 0 });
+    assert!(a.rem(3) == AxialPoint { q: 2, r: 1 });
+    assert!(a[0] == 5);
+    assert!(a[1] == 7);
+    b[0] = 5;
+    b[1] = 5;
+    assert!(b.q == 5 && b.r == 5);
+    let c = AxialPoint::from_value(7);
+    assert!(c.q == 7 && c.r == 7);
+    assert!(c.sum() == 14);
+    assert!(c.product() == 49);
+    assert!(a.min() == 5);
+    assert!(a.max() == 7);
+    let d = AxialPoint { q: 0, r: 0 };
+    let e = AxialPoint { q: 1, r: 1 };
+    let f = 2.0;
+    assert!(d.distance2(e) == f);
+    assert!(d.distance(e) == f.sqrt());
+    assert!(AxialPoint::from_vec(v) == AxialPoint { q: 8, r: 1 });
+    assert!(e.to_vec() == AxialVector { q: 1, r: 1 });
+    assert!(e.dot(v) == 9);
+}
