@@ -27,7 +27,7 @@ pub struct AxialVector {
 // For all of the above, see
 // http://bjz.github.io/cgmath/cgmath/struct.Vector2.html
 //
-/// AxialVector defines a vector specificly for Axial cordinate system.
+/// AxialVector defines a vector specifically for Axial cordinate system.
 impl AxialVector {
     pub fn new(q: AxialType, r: AxialType) -> Self {
         AxialVector { q: q, r: r }
