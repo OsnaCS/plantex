@@ -1,8 +1,9 @@
 use std::fmt;
 use world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS};
 use super::{AxialType, DefaultFloat, Vector2f};
-use math::cgmath::Zero;
-use std::ops::{Add, AddAssign, Div, Index, IndexMut, Mul, Neg, Rem, Sub};
+use math::cgmath::{VectorSpace, Zero};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Rem,
+               RemAssign, Sub, SubAssign};
 use math::cgmath::prelude::{Array, MetricSpace};
 use std::cmp;
 
@@ -105,6 +106,15 @@ impl Sub<AxialVector> for AxialVector {
 }
 
 
+impl SubAssign<AxialVector> for AxialVector {
+    fn sub_assign(&mut self, arg2: AxialVector) {
+        self.r -= arg2.r;
+        self.q -= arg2.q;
+
+    }
+}
+
+
 impl Mul<AxialType> for AxialVector {
     type Output = AxialVector;
 
@@ -113,6 +123,15 @@ impl Mul<AxialType> for AxialVector {
             r: self.r * arg2,
             q: self.q * arg2,
         }
+    }
+}
+
+
+impl MulAssign<AxialType> for AxialVector {
+    fn mul_assign(&mut self, arg2: AxialType) {
+        self.r *= arg2;
+        self.q *= arg2;
+
     }
 }
 
@@ -128,6 +147,14 @@ impl Div<AxialType> for AxialVector {
     }
 }
 
+impl DivAssign<AxialType> for AxialVector {
+    fn div_assign(&mut self, arg2: AxialType) {
+        self.r /= arg2;
+        self.q /= arg2;
+
+    }
+}
+
 
 impl Rem<AxialType> for AxialVector {
     type Output = AxialVector;
@@ -137,6 +164,14 @@ impl Rem<AxialType> for AxialVector {
             r: self.r % arg2,
             q: self.q % arg2,
         }
+    }
+}
+
+impl RemAssign<AxialType> for AxialVector {
+    fn rem_assign(&mut self, arg2: AxialType) {
+        self.r %= arg2;
+        self.q %= arg2;
+
     }
 }
 
@@ -155,6 +190,11 @@ impl MetricSpace for AxialVector {
     }
 }
 
+// ************ Vector Space ************
+
+impl VectorSpace for AxialVector {
+    type Scalar = AxialType;
+}
 
 
 // ************** Zero ****************
