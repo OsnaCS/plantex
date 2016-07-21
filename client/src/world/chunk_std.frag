@@ -7,5 +7,4 @@ uniform vec2 offset;
 
 void main() {
     color = vec4(x_color, 1.0);
-    color = vec4(1.0, 1.0, 1.0, 1.0);
 }
