@@ -46,7 +46,10 @@ impl ChunkView {
         }
 
         // convert to vector
-        let final_buffer: Vec<_> = hexagon_vertex_buffer.iter().collect();
+        let mut final_buffer = Vec::new();
+        for element in hexagon_vertex_buffer {
+            final_buffer.push(element);
+        }
 
 
         let vbuf = glium::VertexBuffer::new(facade, &final_buffer).unwrap();
