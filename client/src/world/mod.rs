@@ -30,6 +30,7 @@ impl WorldView {
         let mut chunks = Vec::new();
         for chunkkey in world.chunks.keys() {
             // FIX: 1 is HEX_OUTER_RADIUS, but thats a float
+            // dkfalksjflkdsjföl
             chunks.push(ChunkView::from_chunk(world.chunks.get(chunkkey).unwrap(),
                                               AxialPoint::new(chunkkey.0.q *
                                                               (1 * world::CHUNK_SIZE as i32),

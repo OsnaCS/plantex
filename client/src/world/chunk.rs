@@ -1,4 +1,4 @@
-use base::world::{self, Chunk, GroundMaterial, PillarSection};
+use base::world::{self, Chunk, PillarSection};
 use base::math::*;
 use glium;
 use Camera;
@@ -92,18 +92,24 @@ impl ChunkView {
         where S: glium::Surface
     {
         for pillar in &self.pillars {
-            for i in 0..pillar.sections.len() {
+            for section in &pillar.pillars {
+                let scale_matrix =
+                    Matrix4::from_nonuniform_scale(1.0,
+                                                   1.0,
+                                                   section.top.0 as f32 - section.bottom.0 as f32) *
+                    (Matrix4::from_translation(Vector3f::new(0.0, 0.0, section.bottom.0 as f32)));
                 let uniforms = uniform!{
+                    scale_matrix: scale_matrix.to_arr(),
 
-                    scale_matrix:[[1.0,0.0,0.0,0.0]
+                    /*scale_matrix:[[1.0,0.0,0.0,0.0]
                                ,[0.0,1.0,0.0,0.0],
-                                [0.0,0.0,pillar.sections.get(i as usize).unwrap()[1],
-                                pillar.sections.get(i as usize).unwrap()[0]],
-                                [0.0,0.0,0.0,1.0f32]],
+                                [0.0,0.0,section.top.0 as f32-section.bottom.0 as f32,
+                                section.bottom.0 as f32],
+                                [0.0,0.0,0.0,1.0f32]],*/
                     offset: [pillar.pos.x, pillar.pos.y],
                     proj_matrix: camera.proj_matrix().to_arr(),
                     view_matrix: camera.view_matrix().to_arr(),
-                    material_color: pillar.grounds.get(i as usize).unwrap().get_color(),
+                    material_color: section.ground.get_color(),
                 };
                 let params = glium::DrawParameters {
                     depth: glium::Depth {
@@ -138,23 +144,18 @@ implement_vertex!(Vertex, position, color);
 
 pub struct PillarView {
     pos: Point2f,
-    sections: Vec<[f32; 2]>,
-    grounds: Vec<GroundMaterial>,
+    pillars: Vec<PillarSection>,
 }
 
 impl PillarView {
     fn from_pillar_section(pos: Point2f, pil_sections: &[PillarSection]) -> PillarView {
-        let mut sections = Vec::new();
-        let mut grounds = Vec::new();
+        let mut pillar_sections = Vec::new();
         for section in pil_sections {
-            sections.push([section.bottom.0 as f32,
-         section.top.0 as f32 - section.bottom.0 as f32]);
-            grounds.push(section.ground.clone());
+            pillar_sections.push(section.clone());
         }
         PillarView {
             pos: pos,
-            sections: sections,
-            grounds: grounds,
+            pillars: pillar_sections,
         }
     }
 }
