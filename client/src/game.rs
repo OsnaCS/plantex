@@ -17,8 +17,8 @@ pub fn run(config: &Config, provider: &ChunkProvider) -> Result<(), ()> {
     let renderer = Renderer::new(context.clone());
     let event_manager = EventManager::new(context.clone());
     let mut world = World::empty();
-    for i in 0..3 {
-        for j in 0..3 {
+    for i in 0..5 {
+        for j in 0..5 {
             world.add_chunk(ChunkIndex(AxialPoint::new(i, j)), provider).unwrap();
         }
     }
