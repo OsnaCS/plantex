@@ -79,17 +79,32 @@ impl EventHandler for Ghost {
                 }
                 EventResponse::Continue
             }
+            // Event::MouseMoved(x, y) => {
+            //
+            //     if let Some((prev_x, prev_y)) = self.prev_mouse_pos {
+            //         let x_diff = x - prev_x;
+            //         let y_diff = y - prev_y;
+            //         info!("x = {}, y = {}", x_diff, y_diff);
+            //         self.cam.change_dir(y_diff as f32 / 300.0, -x_diff as f32 / 300.0);
+            //     }
+            //
+            //     self.prev_mouse_pos = Some((x, y));
+            //
+            //     EventResponse::Continue
+            // }
             Event::MouseMoved(x, y) => {
-
-                if let Some((prev_x, prev_y)) = self.prev_mouse_pos {
-                    let x_diff = x - prev_x;
-                    let y_diff = y - prev_y;
-                    info!("x = {}, y = {}", x_diff, y_diff);
-                    self.cam.change_dir(y_diff as f32 / 300.0, -x_diff as f32 / 300.0);
+                if let Some(window) = self.context.get_window() {
+                    // Possibility of mouse being outside of window without it resetting to the
+                    // middle?
+                    if let Some(middle) = window.get_inner_size_pixels() {
+                        let middle_x = (middle.0 as i32) / 2;
+                        let middle_y = (middle.1 as i32) / 2;
+                        let x_diff = x - middle_x;
+                        let y_diff = y - middle_y;
+                        self.cam.change_dir(y_diff as f32 / 300.0, -x_diff as f32 / 300.0);
+                        window.set_cursor_position(middle_x as i32, middle_y as i32);
+                    }
                 }
-
-                self.prev_mouse_pos = Some((x, y));
-
                 EventResponse::Continue
             }
             _ => EventResponse::NotHandled,

@@ -60,7 +60,15 @@ impl Camera {
     pub fn move_forward(&mut self, factor: f32) {
         let mut lookatvector = self.get_look_at_vector();
         lookatvector.z = 0.0;
-        lookatvector.normalize();
+        info!("x:{} y:{} z:{}",
+              lookatvector.x,
+              lookatvector.y,
+              lookatvector.z);
+        lookatvector = lookatvector.normalize();
+        info!("normx:{} y:{} z:{}",
+              lookatvector.x,
+              lookatvector.y,
+              lookatvector.z);
         lookatvector *= factor;
         self.move_by(lookatvector);
     }
@@ -73,7 +81,7 @@ impl Camera {
     pub fn move_backward(&mut self, factor: f32) {
         let mut lookatvector = self.get_look_at_vector();
         lookatvector.z = 0.0;
-        lookatvector.normalize();
+        lookatvector = lookatvector.normalize();
         lookatvector *= -factor;
         self.move_by(lookatvector);
     }
@@ -86,7 +94,7 @@ impl Camera {
     pub fn move_left(&mut self, factor: f32) {
         let mut lookatvector = self.get_look_at_vector();
         lookatvector.z = 0.0;
-        lookatvector.normalize();
+        lookatvector = lookatvector.normalize();
         // Get the orthogonal 2d-vector, which is 90 degrees to the left
         let mut move_dir = Vector3f::new(-lookatvector.y, lookatvector.x, 0.0);
         move_dir *= factor;
@@ -101,7 +109,7 @@ impl Camera {
     pub fn move_right(&mut self, factor: f32) {
         let mut lookatvector = self.get_look_at_vector();
         lookatvector.z = 0.0;
-        lookatvector.normalize();
+        lookatvector = lookatvector.normalize();
         // Get the orthogonal 2d-vector, which is 90 degrees to the left
         let mut move_dir = Vector3f::new(lookatvector.y, -lookatvector.x, 0.0);
         move_dir *= factor;
@@ -130,7 +138,19 @@ impl Camera {
     /// Changes `theta` and `phi` to essentially change the direction the
     /// camera looks
     pub fn change_dir(&mut self, theta_diff: f32, phi_diff: f32) {
-        self.theta += theta_diff * (consts::PI - self.theta);
+        if self.theta < 0.1 {
+            if theta_diff > 0.0 {
+                // all the way UP, theta will not go any lower
+                self.theta += theta_diff;
+            }
+        } else if self.theta > consts::PI - 0.1 {
+            if theta_diff < 0.0 {
+                // all the way DOWN, theta will not go any higher
+                self.theta += theta_diff;
+            }
+        } else {
+            self.theta += theta_diff;
+        }
         self.phi += phi_diff;
         info!("phi: {}, theta: {}", self.phi, self.theta);
     }
