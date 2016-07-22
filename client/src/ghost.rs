@@ -92,22 +92,6 @@ impl EventHandler for Ghost {
 
                 EventResponse::Continue
             }
-            // Event::MouseMoved(x, y) => {
-            //     if let Some(window) = self.context.get_window() {
-            //         // Possibility of mouse being outside of window without it reseting to the
-            //         // middle?
-            //         if let Some(middle) = window.get_inner_size_pixels() {
-            //             let middle_x = (middle.0 as i32) / 2;
-            //             let middle_y = (middle.1 as i32) / 2;
-            //             let x_diff = x - middle_x;
-            //             let y_diff = y - middle_y;
-            //             self.cam.change_dir(y_diff as f32 / 300.0, x_diff as f32 / 300.0);
-            //             window.set_cursor_position(middle_x as i32, middle_y as i32);
-            //         }
-            //     }
-            //     EventResponse::Continue
-            // }
-
             _ => EventResponse::NotHandled,
         }
     }
