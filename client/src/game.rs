@@ -6,7 +6,6 @@ use glium::{self, DisplayBuild, glutin};
 use render::Renderer;
 use super::Config;
 use world::WorldView;
-use Camera;
 use base::math::*;
 
 /// Main game function: contains the mai render loop and owns all important
@@ -26,7 +25,6 @@ pub fn run(config: &Config, provider: &ChunkProvider) -> Result<(), ()> {
 
     let world_view = WorldView::from_world(&world, &context);
 
-    let camera = Camera::default();
     let mut ghost = Ghost::new(context.clone());
 
     loop {

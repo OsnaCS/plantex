@@ -82,8 +82,8 @@ impl EventHandler for Ghost {
             Event::MouseMoved(x, y) => {
 
                 if let Some((prev_x, prev_y)) = self.prev_mouse_pos {
-                    let x_diff = (x - prev_x);
-                    let y_diff = (y - prev_y);
+                    let x_diff = x - prev_x;
+                    let y_diff = y - prev_y;
                     info!("x = {}, y = {}", x_diff, y_diff);
                     self.cam.change_dir(y_diff as f32 / 300.0, x_diff as f32 / 300.0);
                 }
