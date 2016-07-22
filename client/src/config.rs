@@ -75,14 +75,9 @@ vsync = true
 seed = 42
             "#;
 
-            let mut f = match File::create("config.toml") {
-                Ok(n) => n,
-                _ => return Err("Failed writing config file (e.g. missing write permission".into()),
-            };
-            match f.write_all(&toml.to_string().into_bytes()) {
-                Ok(n) => n,
-                _ => return Err("Failed writing config file (e.g. missing write permission".into()),
-            };
+            let mut f = try!(File::create("config.toml"));
+
+            try!(f.write_all(&toml.to_string().into_bytes()));
         };
 
         let t_conf = try!(config_toml(conf, &matches));
