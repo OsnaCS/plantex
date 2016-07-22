@@ -31,11 +31,11 @@ impl PlantView {
                 branches.iter()
                     .map(|branch| {
                         let mut vertices = Vec::new();
-                        for p in branch.points.iter().map(|cp| cp.point) {
+                        for cp in branch.points.iter() {
                             verts += 1;
                             vertices.push(Vertex {
-                                position: [p.x, p.y, p.z + 50.0],
-                                color: [0.0, 1.0, 0.0],
+                                position: [cp.point.x, cp.point.y, cp.point.z],
+                                color: [branch.color.x, branch.color.y, branch.color.z],
                             });
                         }
 
@@ -56,7 +56,8 @@ impl PlantView {
 
     pub fn draw<S: Surface>(&self, surface: &mut S, camera: &Camera) {
         let uniforms = uniform! {
-            offset: [self.pos.x, self.pos.y],
+            // FIXME HACK why do i have to half the Z coordinate...
+            offset: [self.pos.x, self.pos.y, self.pos.z/2.0],
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
         };

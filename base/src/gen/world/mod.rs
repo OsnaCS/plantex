@@ -30,6 +30,14 @@ impl ChunkProvider for WorldGenerator {
         let q = index.0.q * CHUNK_SIZE as i32;
         let r = index.0.r * CHUNK_SIZE as i32;
 
+        // FIXME: XorShift doesn't handle this form of seeding very well, the first value generated
+        // after this is almost always the same (or very close). Introduce better seeding methods
+        // and/or use a different RNG.
+        let mut rng = XorShiftRng::from_seed([(self.seed >> 32) as u32,
+                                              self.seed as u32,
+                                              q as u32,
+                                              r as u32]);
+
         for i in q..q + CHUNK_SIZE as i32 {
             for j in r..r + CHUNK_SIZE as i32 {
                 let height = (((i as f32) * 0.25).sin() * 10.0 + ((j as f32) * 0.25).sin() * 10.0 +
@@ -39,12 +47,10 @@ impl ChunkProvider for WorldGenerator {
                     PillarSection::new(GroundMaterial::Dirt, HeightType(0), HeightType(height));
                 let mut props = Vec::new();
 
-                // Place random plants in some spots
-                if i % 8 == 0 && j % 8 == 0 {
-                    let mut rng = XorShiftRng::from_seed([(self.seed >> 32) as u32,
-                                                          self.seed as u32,
-                                                          i as u32,
-                                                          j as u32]);
+                // Place a test plant every few blocks
+                const TREE_SPACING: i32 = 8;
+                if i % TREE_SPACING == 0 && j % TREE_SPACING == 0 {
+
                     let gen = PlantGenerator::rand(&mut rng);
 
                     props.push(Prop {
