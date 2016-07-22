@@ -97,15 +97,9 @@ impl ChunkView {
                     Matrix4::from_nonuniform_scale(1.0,
                                                    1.0,
                                                    section.top.0 as f32 - section.bottom.0 as f32) *
-                    (Matrix4::from_translation(Vector3f::new(0.0, 0.0, section.bottom.0 as f32)));
+                    Matrix4::from_translation(Vector3f::new(0.0, 0.0, section.bottom.0 as f32));
                 let uniforms = uniform!{
                     scale_matrix: scale_matrix.to_arr(),
-
-                    /*scale_matrix:[[1.0,0.0,0.0,0.0]
-                               ,[0.0,1.0,0.0,0.0],
-                                [0.0,0.0,section.top.0 as f32-section.bottom.0 as f32,
-                                section.bottom.0 as f32],
-                                [0.0,0.0,0.0,1.0f32]],*/
                     offset: [pillar.pos.x, pillar.pos.y],
                     proj_matrix: camera.proj_matrix().to_arr(),
                     view_matrix: camera.view_matrix().to_arr(),
