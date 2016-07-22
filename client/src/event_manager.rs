@@ -27,8 +27,6 @@ impl EventManager {
 
         for ev in self.context.poll_events() {
             for i in 0..handlers.len() {
-                // let x = *handler;
-                // let tmp: &mut _ = &mut **handler;
                 let response = handlers[i].handle_event(&ev);
                 match response {
                     EventResponse::NotHandled |
