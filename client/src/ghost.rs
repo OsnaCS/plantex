@@ -6,6 +6,7 @@ use glium::glutin::{CursorState, ElementState, Event, MouseButton, VirtualKeyCod
 pub struct Ghost {
     cam: Camera,
     context: GlutinFacade,
+    speed: f32,
     forward: bool,
     backward: bool,
     left: bool,
@@ -15,6 +16,9 @@ pub struct Ghost {
     mouselock: bool,
 }
 
+const DEFAULT_SPEED: f32 = 0.2;
+const SHIFT_SPEED: f32 = 1.0;
+
 
 
 impl Ghost {
@@ -22,6 +26,7 @@ impl Ghost {
         Ghost {
             cam: Camera::default(),
             context: context,
+            speed: DEFAULT_SPEED,
             forward: false,
             backward: false,
             left: false,
@@ -33,22 +38,22 @@ impl Ghost {
     }
     pub fn update(&mut self) {
         if self.forward {
-            self.cam.move_forward(1.0);
+            self.cam.move_forward(self.speed);
         }
         if self.backward {
-            self.cam.move_backward(1.0);
+            self.cam.move_backward(self.speed);
         }
         if self.left {
-            self.cam.move_left(1.0);
+            self.cam.move_left(self.speed);
         }
         if self.right {
-            self.cam.move_right(1.0);
+            self.cam.move_right(self.speed);
         }
         if self.up {
-            self.cam.move_up(1.0);
+            self.cam.move_up(self.speed);
         }
         if self.down {
-            self.cam.move_down(1.0);
+            self.cam.move_down(self.speed);
         }
     }
 
@@ -118,6 +123,14 @@ impl EventHandler for Ghost {
             }
             Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::LControl)) => {
                 self.down = false;
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::LShift)) => {
+                self.speed = SHIFT_SPEED;
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::LShift)) => {
+                self.speed = DEFAULT_SPEED;
                 EventResponse::Continue
             }
 
