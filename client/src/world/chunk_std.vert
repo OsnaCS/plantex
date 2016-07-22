@@ -12,5 +12,5 @@ uniform mat4 scale_matrix;
 void main() {
     gl_Position = proj_matrix * view_matrix * transpose(scale_matrix) *
     vec4(position.xy + offset, position.z, 1);
-    x_color = (gl_Position.xyz * position)*sin(gl_Position.x)*cos(gl_Position.y);
+    x_color = color;
 }
