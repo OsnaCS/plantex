@@ -169,7 +169,13 @@ impl TreeGen {
         let trunk_diameter = range_sample(&self.preset.trunk_diameter, rng);
         let trunk_height = range_sample(&self.preset.trunk_height, rng);
         let trunk_diameter_top = range_sample(&self.preset.trunk_diameter_top, rng);
-        let min_branch_height = range_sample(&self.preset.min_branch_height, rng);
+        let min_branch_height = range_sample(&self.preset.min_branch_height, rng) * trunk_height;
+
+        info!("diam {} to {}, height {}, branch start at {}",
+              trunk_diameter,
+              trunk_diameter_top,
+              trunk_height,
+              min_branch_height);
 
         let mut points = Vec::new();
 
@@ -206,7 +212,7 @@ impl TreeGen {
                 height += segment_len;
             }
 
-            // FIXME Do we need to create another point here?
+            add_point(height, trunk_diameter_top);
         }
 
         assert!(points.len() >= 2,

@@ -12,31 +12,10 @@ pub struct HexPillar {
 }
 
 impl HexPillar {
-    /// Creates a dummy pillar for early testing. FIXME: remove
-    pub fn dummy() -> Self {
+    pub fn new(sections: Vec<PillarSection>, props: Vec<Prop>) -> Self {
         HexPillar {
-            sections: vec![PillarSection::new(GroundMaterial::Dirt, HeightType(0), HeightType(50))],
-            props: vec![Prop {
-                            baseline: HeightType(50),
-                            prop: PropType::Plant(prop::Plant {
-                                height: 5.0,
-                                stem_width: 0.5,
-                            }),
-                        }],
-        }
-    }
-
-    /// Creates the dummy pillar but with the given height.
-    pub fn from_height(height: HeightType) -> Self {
-        HexPillar {
-            sections: vec![PillarSection::new(GroundMaterial::Dirt, HeightType(0), height)],
-            props: vec![Prop {
-                            baseline: HeightType(50),
-                            prop: PropType::Plant(prop::Plant {
-                                height: 5.0,
-                                stem_width: 0.5,
-                            }),
-                        }],
+            sections: sections,
+            props: props,
         }
     }
 

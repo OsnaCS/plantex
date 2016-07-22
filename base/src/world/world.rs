@@ -18,14 +18,6 @@ impl World {
         World { chunks: HashMap::new() }
     }
 
-    /// Returns a dummy world with one dummy chunk for early testing.
-    /// FIXME: remove
-    pub fn dummy() -> Self {
-        let mut chunks = HashMap::new();
-        chunks.insert(ChunkIndex(AxialPoint::new(0, 0)), Chunk::dummy());
-        World { chunks: chunks }
-    }
-
     pub fn replace_chunk(&mut self, index: ChunkIndex, provider: &ChunkProvider) {
         match provider.load_chunk(index) {
             Some(x) => {

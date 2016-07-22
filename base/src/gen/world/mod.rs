@@ -2,6 +2,9 @@
 //!
 
 use world::{CHUNK_SIZE, Chunk, ChunkIndex, ChunkProvider, HeightType, HexPillar};
+use world::{GroundMaterial, PillarSection, Prop, PropType};
+use rand::{Rand, SeedableRng, XorShiftRng};
+use gen::PlantGenerator;
 
 /// Main type to generate the game world. Implements the `ChunkProvider` trait
 /// (TODO, see #8).
@@ -26,12 +29,31 @@ impl ChunkProvider for WorldGenerator {
         let mut pillars = Vec::new();
         let q = index.0.q * CHUNK_SIZE as i32;
         let r = index.0.r * CHUNK_SIZE as i32;
-        let mut height;
+
         for i in q..q + CHUNK_SIZE as i32 {
             for j in r..r + CHUNK_SIZE as i32 {
-                height = (((i as f32) * 0.25).sin() * 10.0 +
-                          ((j as f32) * 0.25).sin() * 10.0 + 100.0) as u16;
-                pillars.push(HexPillar::from_height(HeightType(height)));
+                let height = (((i as f32) * 0.25).sin() * 10.0 + ((j as f32) * 0.25).sin() * 10.0 +
+                              100.0) as u16;
+
+                let ground_section =
+                    PillarSection::new(GroundMaterial::Dirt, HeightType(0), HeightType(height));
+                let mut props = Vec::new();
+
+                // Place random plants in some spots
+                if i % 8 == 0 && j % 8 == 0 {
+                    let mut rng = XorShiftRng::from_seed([(self.seed >> 32) as u32,
+                                                          self.seed as u32,
+                                                          i as u32,
+                                                          j as u32]);
+                    let gen = PlantGenerator::rand(&mut rng);
+
+                    props.push(Prop {
+                        baseline: HeightType(height),
+                        prop: PropType::Plant(gen.generate(&mut rng)),
+                    });
+                }
+
+                pillars.push(HexPillar::new(vec![ground_section], props));
             }
         }
 

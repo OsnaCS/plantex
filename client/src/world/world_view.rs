@@ -1,6 +1,7 @@
-use base::world::{self, ChunkIndex, World};
+use base::world::{self, World};
 use base::math::*;
-use glium;
+use glium::backend::Facade;
+use glium::Surface;
 use Camera;
 
 pub use world::chunk_view::ChunkView;
@@ -8,14 +9,11 @@ pub use world::plant_view::PlantView;
 
 /// Graphical representation of the `base::World`.
 pub struct WorldView {
-    plant_view: PlantView,
     chunks: Vec<ChunkView>,
 }
 
 impl WorldView {
-    pub fn from_world<F>(world: &World, facade: &F) -> Self
-        where F: glium::backend::Facade
-    {
+    pub fn from_world<F: Facade>(world: &World, facade: &F) -> Self {
         let mut pillars_pos = Vec::new();
         for q in 0..world::CHUNK_SIZE {
             for r in 0..world::CHUNK_SIZE {
@@ -37,23 +35,12 @@ impl WorldView {
 
         WorldView {
             chunks: chunks,
-            plant_view: PlantView::from_dummy_plant(&world.chunks[&ChunkIndex(AxialPoint::new(0,
-                                                                                              0))]
-                                                        .pillars(),
-                                                    pillars_pos,
-                                                    facade),
         }
-
-
     }
 
-
-    pub fn draw<S>(&self, surface: &mut S, camera: &Camera)
-        where S: glium::Surface
-    {
+    pub fn draw<S: Surface>(&self, surface: &mut S, camera: &Camera) {
         for chunkview in &self.chunks {
             chunkview.draw(surface, camera);
         }
-        self.plant_view.draw(surface, camera);
     }
 }
