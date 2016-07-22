@@ -25,20 +25,13 @@ impl PlantView {
       pillars_pos: Vec<Point2f>, facade: &F) -> Self
         where F: glium::backend::Facade
     {
-        /// get height and width for the plant from given Prop
-        let props = hex_vec[0].props();
-        let _prop_ = &props[0];
-        let p_type = &_prop_.prop;
-        let width: f32;
-        let height: f32;
-        match p_type {
-            &PropType::Plant(p) => {
-                width = p.stem_width;
-                height = p.height
-            }
+        // get height and width for the plant from given Prop
+        let (width, height) = match hex_vec[0].props()[0].prop() {
+            &PropType::Plant(p) => (p.stem_width, p.height),
         }
-        /// Context for the draw method
-        /// to fill the IndexBuffer
+
+        // Context for the draw method
+        // to fill the IndexBuffer
         let c = facade.get_context().clone();
 
         let buffer = vec![Vertex {
@@ -93,7 +86,7 @@ impl PlantView {
     pub fn draw<S>(&self, surface: &mut S, camera: &Camera)
         where S: glium::Surface
     {
-        /// initialise the IndexBuffer
+        // initialise the IndexBuffer
         let index: [u32; 30] = [1, 0, 2, 2, 0, 3, 2, 3, 4, 4, 3, 5, 4, 5,
                                 6, 4, 6, 7, 7, 6, 0, 7,
                                 0, 1, 1, 4, 7, 4, 1, 2];
