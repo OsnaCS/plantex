@@ -153,9 +153,6 @@ impl RemAssign<AxialType> for AxialVector {
 // ************ Metric Space ************
 impl MetricSpace for AxialVector {
     type Metric = DefaultFloat;
-    fn distance(self, other: AxialVector) -> DefaultFloat {
-        self.distance2(other).sqrt()
-    }
     fn distance2(self, other: AxialVector) -> DefaultFloat {
         ((self.q - other.q).pow(2) + (self.r - other.r).pow(2)) as DefaultFloat
     }
@@ -211,16 +208,22 @@ impl IndexMut<usize> for AxialVector {
         }
     }
 }
+// ********************* Unit Tests **********************
 #[test]
-fn test_my_foo_feature() {
+fn unit_vectors_test() {
     // ***** Unit Vectors *****
     let uvq = AxialVector::unit_q();
     assert!(uvq.q == 1 && uvq.r == 0);
     let uvr = AxialVector::unit_r();
     assert!(uvq.r == 0 && uvr.r == 1);
+}
+#[test]
+fn ops_test() {
+    // ****** Arith. Operations ******
     let test1 = AxialVector { q: -5, r: 2 };
     let test2 = AxialVector { q: 13, r: -4 };
-    // ****** Arith. Operations ******
+    let uvq = AxialVector::unit_q();
+    let uvr = AxialVector::unit_r();
     assert_eq!(-uvq, AxialVector { q: -1, r: 0 });
     assert_eq!(-test1, AxialVector { q: 5, r: -2 });
     assert_eq!(test1 + uvq, AxialVector { q: -4, r: 2 });
@@ -248,23 +251,44 @@ fn test_my_foo_feature() {
     test3.r = 6;
     test3 %= 3;
     assert!(test3.q == 2 && test3.r == 0);
+}
+#[test]
+fn metric_test() {
     // ********* metric space ************
+    let test1 = AxialVector { q: -5, r: 2 };
+    let test2 = AxialVector { q: 13, r: -4 };
+    let uvq = AxialVector::unit_q();
+    assert!(uvq.q == 1 && uvq.r == 0);
+    let uvr = AxialVector::unit_r();
     let mut f: f32 = 2.0;
     f = f.sqrt();
     assert_eq!(uvq.distance(uvr), f);
     assert_eq!(test1.distance2(test2), 360.0);
+}
+#[test]
+fn zero_test() {
     // ********* zero *************
-    test3 = AxialVector::zero();
+    let test2 = AxialVector { q: 13, r: -4 };
+    let test3 = AxialVector::zero();
     assert!(test3.q == 0 && test3.r == 0);
     assert!(test3.is_zero());
     assert!(!(test2.is_zero()));
+}
+#[test]
+fn index_test() {
     // ********** Index *********
+    let mut test3 = AxialVector::zero();
     test3[0] = 12;
     test3[1] = 4;
     assert!(test3.q == 12 && test3.r == 4);
     assert!(test3[0] == 12 && test3[1] == 4);
+}
+#[test]
+fn array_test() {
     // ********** Array ***********
-    test3 = AxialVector::from_value(3);
+    let test1 = AxialVector { q: -5, r: 2 };
+    let test2 = AxialVector { q: 13, r: -4 };
+    let test3 = AxialVector::from_value(3);
     assert!(test3.q == 3 && test3.r == 3);
     assert_eq!(test3.sum(), 6);
     assert_eq!(test3.product(), 9);
