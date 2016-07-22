@@ -1,4 +1,4 @@
-use base::world::{self, Chunk};
+use base::world::{self, Chunk, PillarSection};
 use base::math::*;
 use glium;
 use Camera;
@@ -10,7 +10,7 @@ use std::f32::consts;
 pub struct ChunkView {
     vertices: glium::VertexBuffer<Vertex>,
     program: glium::Program,
-    pillars_positions: Vec<Point2f>,
+    pillars: Vec<PillarView>,
     index_buffer: glium::index::IndexBuffer<u32>,
 }
 /// Calculates one Point-coordinates of a Hexagon
@@ -24,7 +24,7 @@ fn hex_corner(size: f32, i: i32) -> (f32, f32) {
 impl ChunkView {
     /// Creates the graphical representation of given chunk at the given chunk
     /// offset
-    pub fn from_chunk<F>(_chunk: &Chunk, offset: AxialPoint, facade: &F) -> Self
+    pub fn from_chunk<F>(chunk: &Chunk, offset: AxialPoint, facade: &F) -> Self
         where F: glium::backend::Facade
     {
 
@@ -56,12 +56,17 @@ impl ChunkView {
                                                None)
             .unwrap();
 
-        let mut positions = Vec::new();
-        for q in 0..world::CHUNK_SIZE {
-            for r in 0..world::CHUNK_SIZE {
-                let pos = offset.to_real() + AxialVector::new(q.into(), r.into()).to_real();
-                positions.push(pos);
-            }
+        let mut pillars = Vec::new();
+        for q in 0..world::CHUNK_SIZE * world::CHUNK_SIZE {
+            let pos = offset.to_real() +
+                      AxialVector::new((q / world::CHUNK_SIZE).into(),
+                                       (q % world::CHUNK_SIZE).into())
+                .to_real();
+            pillars.push(PillarView::from_pillar_section(pos,
+                                                         chunk.pillars()
+                                                             .get(q as usize)
+                                                             .unwrap()
+                                                             .sections()));
         }
 
         // Indecies
@@ -79,7 +84,7 @@ impl ChunkView {
         ChunkView {
             vertices: vbuf,
             program: prog,
-            pillars_positions: positions,
+            pillars: pillars,
             index_buffer: ibuf,
         }
     }
@@ -87,34 +92,35 @@ impl ChunkView {
     pub fn draw<S>(&self, surface: &mut S, camera: &Camera)
         where S: glium::Surface
     {
-        for pillar_pos in &self.pillars_positions {
-
-            let uniforms = uniform!{
-              scale_matrix:[[1.0,0.0,0.0,0.0]
-                           ,[0.0,1.0,0.0,0.0],
-                             //FIXME 1.0 heightvalue
-                            [0.0,0.0,1.0,0.0],
-                            [0.0,0.0,0.0,1.0f32]],
-                offset: [pillar_pos.x, pillar_pos.y],
-                proj_matrix: camera.proj_matrix().to_arr(),
-                view_matrix: camera.view_matrix().to_arr(),
-            };
-            let params = glium::DrawParameters {
-                depth: glium::Depth {
-                    write: true,
-                    test: glium::draw_parameters::DepthTest::IfLess,
+        for pillar in &self.pillars {
+            for section in &pillar.sections {
+                let uniforms = uniform!{
+                  scale_matrix:[[1.0,0.0,0.0,0.0]
+                               ,[0.0,1.0,0.0,0.0],
+                                [0.0,0.0,section[1], section[0]],
+                                [0.0,0.0,0.0,1.0f32]],
+                    offset: [pillar.pos.x, pillar.pos.y],
+                    proj_matrix: camera.proj_matrix().to_arr(),
+                    view_matrix: camera.view_matrix().to_arr(),
+                };
+                let params = glium::DrawParameters {
+                    depth: glium::Depth {
+                        write: true,
+                        test: glium::draw_parameters::DepthTest::IfLess,
+                        ..Default::default()
+                    },
+                    backface_culling:
+                        glium::draw_parameters::BackfaceCullingMode::CullCounterClockwise,
                     ..Default::default()
-                },
-                backface_culling: glium::draw_parameters::BackfaceCullingMode::CullCounterClockwise,
-                ..Default::default()
-            };
+                };
 
-            surface.draw(&self.vertices,
-                      &self.index_buffer,
-                      &self.program,
-                      &uniforms,
-                      &params)
-                .unwrap();
+                surface.draw(&self.vertices,
+                          &self.index_buffer,
+                          &self.program,
+                          &uniforms,
+                          &params)
+                    .unwrap();
+            }
 
         }
     }
@@ -127,3 +133,22 @@ pub struct Vertex {
 }
 
 implement_vertex!(Vertex, position, color);
+
+pub struct PillarView {
+    pos: Point2f,
+    sections: Vec<[f32; 2]>,
+}
+
+impl PillarView {
+    fn from_pillar_section(pos: Point2f, pil_sections: &[PillarSection]) -> PillarView {
+        let mut sections = Vec::new();
+        for section in pil_sections {
+            sections.push([section.bottom.0 as f32,
+         section.top.0 as f32 - section.bottom.0 as f32]);
+        }
+        PillarView {
+            pos: pos,
+            sections: sections,
+        }
+    }
+}
