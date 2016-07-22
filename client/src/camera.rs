@@ -52,7 +52,7 @@ impl Camera {
         self.position += pos_diff;
     }
 
-    /// Method to call when forward or backward movement is needed
+    /// Method to call when forward movement is needed
     /// `factor` is a factor to scale the movement speed
     /// `factor` has to be positive for foward movement
     pub fn move_forward(&mut self, factor: f32) {
@@ -63,34 +63,60 @@ impl Camera {
         self.move_by(lookatvector);
     }
 
-    // Implement forwars, backward, left and right seperately
+    /// Method to call when backward movement is needed
+    /// `factor` is a factor to scale the movement speed
+    /// `factor` has to be positive for backward movement
+    pub fn move_backward(&mut self, factor: f32) {
+        let mut lookatvector = self.get_look_at_vector();
+        lookatvector.z = 0.0;
+        lookatvector.normalize();
+        lookatvector *= -factor;
+        self.move_by(lookatvector);
+    }
 
-    /// Method to call when left or right movement is needed
+    /// Method to call when left movement is needed
     /// `factor` is a factor to scale the movement speed
     /// `factor` has to be positive for left movement
-    /// `factor` has to be negative for right movement
-    // pub fn move_left_right(&mut self, factor: f32) {
-    //     let mut lookatvector = self.get_look_at_vector();
-    //     lookatvector.z = 0.0;
-    //     lookatvector.normalize();
-    //     // Get the orthogonal 2d-vector, which is 90 degrees to the left
-    // let mut move_dir = Vector3f::new(-lookatvector.y, lookatvector.x,
-    // 0.0);
-    //     move_dir *= factor;
-    //     self.move_by(move_dir);
-    //
-    // }
-    /// Method to call when upward or downward movement is needed
+    pub fn move_left(&mut self, factor: f32) {
+        let mut lookatvector = self.get_look_at_vector();
+        lookatvector.z = 0.0;
+        lookatvector.normalize();
+        // Get the orthogonal 2d-vector, which is 90 degrees to the left
+        let mut move_dir = Vector3f::new(-lookatvector.y, lookatvector.x, 0.0);
+        move_dir *= factor;
+        self.move_by(move_dir);
+    }
+
+    /// Method to call when right movement is needed
+    /// `factor` is a factor to scale the movement speed
+    /// `factor` has to be positive for right movement
+    pub fn move_right(&mut self, factor: f32) {
+        let mut lookatvector = self.get_look_at_vector();
+        lookatvector.z = 0.0;
+        lookatvector.normalize();
+        // Get the orthogonal 2d-vector, which is 90 degrees to the left
+        let mut move_dir = Vector3f::new(lookatvector.y, -lookatvector.x, 0.0);
+        move_dir *= factor;
+        self.move_by(move_dir);
+    }
+
+
+    /// Method to call when upward movement is needed
     /// `factor` is a factor to scale the movement speed
     /// `factor` has to be positive for upward movement
-    /// `factor` has to be negative for downward movement
-    // pub fn move_up_down(&mut self, factor: f32) {
-    //     self.move_by(Vector3f::new(0.0, 0.0, factor));
-    // }
+    pub fn move_up(&mut self, factor: f32) {
+        self.move_by(Vector3f::new(0.0, 0.0, factor));
+    }
+
+    /// Method to call when downward movement is needed
+    /// `factor` is a factor to scale the movement speed
+    /// `factor` has to be positive for downward movement
+    pub fn move_down(&mut self, factor: f32) {
+        self.move_by(Vector3f::new(0.0, 0.0, -factor));
+    }
 
     /// Changes `theta` and `phi` to essentially change the direction the
     /// camera looks
-
     pub fn change_dir(&mut self, theta_diff: f32, phi_diff: f32) {
         self.theta += theta_diff * (consts::PI - self.theta);
         self.phi += phi_diff;

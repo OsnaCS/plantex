@@ -30,6 +30,33 @@ impl EventHandler for Ghost {
                 self.cam.move_forward(1.0);
                 EventResponse::Continue
             }
+            &Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::S)) => {
+                self.cam.move_backward(1.0);
+                EventResponse::Continue
+            }
+            &Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::A)) => {
+                self.cam.move_left(1.0);
+                EventResponse::Continue
+            }
+            &Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::D)) => {
+                self.cam.move_right(1.0);
+                EventResponse::Continue
+            }
+            &Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::Space)) => {
+                self.cam.move_up(1.0);
+                EventResponse::Continue
+            }
+            // X only for the fact, that you cannot hold LControl to go down,
+            // because holding the key only counts as one keystroke
+            &Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::X)) => {
+                self.cam.move_down(1.0);
+                EventResponse::Continue
+            }
+            &Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::LControl)) => {
+                self.cam.move_down(1.0);
+                EventResponse::Continue
+            }
+
             &Event::MouseInput(ElementState::Pressed, MouseButton::Left) => {
                 info!("clicked");
                 if let Some(window) = self.context.get_window() {
