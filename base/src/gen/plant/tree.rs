@@ -95,9 +95,9 @@ impl TreeGen {
         let segment_count = range_sample(&self.preset.branch_segment_count, rng);
 
         let mut points = vec![ControlPoint {
-            point: start,
-            diameter: diam,
-        }];
+                                  point: start,
+                                  diameter: diam,
+                              }];
 
         {
             let mut last = start;

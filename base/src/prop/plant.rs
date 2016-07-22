@@ -34,7 +34,8 @@ pub struct Branch {
 
 #[derive(Clone, Debug)]
 pub struct ControlPoint {
-    /// The location of this point in model coordinates (relative to the tree position).
+    /// The location of this point in model coordinates (relative to the tree
+    /// position).
     pub point: Point3f,
     /// The diameter of the branch at this point.
     pub diameter: f32,
