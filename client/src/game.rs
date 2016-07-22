@@ -10,11 +10,13 @@ use base::math::*;
 use base::gen::WorldGenerator;
 
 pub struct Game {
-    provider: Box<ChunkProvider>,
+    #[allow(dead_code)]
+    provider: Box<ChunkProvider>, // Needed when we dynamically load chunks
     renderer: Renderer,
     event_manager: EventManager,
     world_view: WorldView,
-    world: World,
+    #[allow(dead_code)]
+    world: World, // Needed for physics and updated as chunk updates arrive
     player: Ghost,
 }
 
