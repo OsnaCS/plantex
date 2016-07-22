@@ -30,9 +30,9 @@ impl ChunkProvider for WorldGenerator {
         let q = index.0.q * CHUNK_SIZE as i32;
         let r = index.0.r * CHUNK_SIZE as i32;
 
-        // FIXME: XorShift doesn't handle this form of seeding very well, the first value generated
-        // after this is almost always the same (or very close). Introduce better seeding methods
-        // and/or use a different RNG.
+        // FIXME: XorShift doesn't handle this form of seeding very well, the first
+        // value generated after this is almost always the same (or very close).
+        // Introduce better seeding methods and/or use a different RNG.
         let mut rng = XorShiftRng::from_seed([(self.seed >> 32) as u32,
                                               self.seed as u32,
                                               q as u32,
