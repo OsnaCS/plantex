@@ -47,9 +47,10 @@ impl ops::Index<AxialPoint> for Chunk {
     type Output = HexPillar;
 
     fn index(&self, pos: AxialPoint) -> &Self::Output {
-        let chunk_size: PillarIndexComponent = CHUNK_SIZE.into();
-
-        assert!(pos.q >= 0 && pos.q < chunk_size && pos.r >= 0 && pos.r < chunk_size);
-        (&self.pillars[(pos.r as usize) * (CHUNK_SIZE as usize) + (pos.q as usize)])
+        self.get(pos).unwrap_or_else(|| {
+            panic!("Index out of Bounds length is: {} index was {:?}",
+                   self.pillars.len(),
+                   pos)
+        })
     }
 }
