@@ -1,0 +1,8 @@
+[Graphic]
+resolution_width = 800
+resolution_height = 600
+windowmode = "Windowed"
+vsync = true
+
+[Game_settings]
+seed = 42

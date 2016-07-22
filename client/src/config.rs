@@ -9,17 +9,17 @@ use std::error::Error as StdError;
 use std::path::Path;
 use std::fs::File;
 use std::io::Read;
-use self::toml::Parser;
+use self::toml::Value;
+use std::string::String;
 
 pub struct Config {
     pub resolution: Dimension2u,
     pub window_mode: WindowMode,
     pub window_title: String,
     pub vsync: bool,
-    pub seed: u64, /* sichtweite
-                    * Vsync
-                    * kantenglättung
-                    * steuerung
+    pub seed: u64, /* view range
+                    * anti aliasing
+                    * Controls
                     * frames
                     * seed
                     * Chunkweite */
@@ -57,14 +57,8 @@ impl Config {
 
         let conf = Config::default();
 
-        let t_conf = match config_toml(conf, &matches) {
-            Ok(n) => n,
-            Err(e) => return Err(e),
-        };
-        let conf_final = match config_command(t_conf, &matches) {
-            Ok(n) => n,
-            Err(e) => return Err(e),
-        };
+        let t_conf = try!(config_toml(conf, &matches));
+        let conf_final = try!(config_command(t_conf, &matches));
         Ok(conf_final)
     }
 }
@@ -97,14 +91,89 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
         let mut s = String::new();
 
         try!(f.read_to_string(&mut s));
-        let toml = s;
 
-        let value = match toml::Parser::new(&toml).parse() {
-            Some(n) => n,
-            None => return Err("config file is corrupted".into()),
+        let value: Value = match s.parse() {
+            Ok(n) => n,
+            _ => return Err("corrupted config file".into()),
         };
-        println!("{:?}", value);
-    }
+
+        let mut res_toml = match value.lookup("Graphic.resolution_width") {
+            Some(n) => n,
+            None => return Err("resolution_width in config file is invalid".into()),
+        };
+        let int_res_width = match res_toml.as_integer() {
+            Some(n) => {
+                if n < 1 {
+                    return Err("resolution can not be negative".into());
+                } else {
+                    n as u32
+                }
+            }
+
+            None => return Err("resolution_width in config file has no integer".into()),
+        };
+
+        res_toml = match value.lookup("Graphic.resolution_height") {
+            Some(n) => n,
+            None => return Err("resolution_height in config file is invalid".into()),
+        };
+        let int_res_height = match res_toml.as_integer() {
+            Some(n) => {
+                if n < 1 {
+                    return Err("resolution can not be negative".into());
+                } else {
+                    n as u32
+                }
+            }
+
+            None => return Err("resolution_height in config file has no integer".into()),
+        };
+
+        default_config.resolution = Dimension2::new(int_res_width, int_res_height);
+
+        let window = match value.lookup("Graphic.windowmode") {
+            Some(n) => n,
+            None => return Err("resolution_height in config file is invalid".into()),
+        };
+
+        match window.as_str() {
+            Some(n) => {
+                match n {
+                    "Windowed" => default_config.window_mode = WindowMode::Windowed,
+                    "FullScreen" => default_config.window_mode = WindowMode::FullScreen,
+                    _ => return Err("invalid Window Mode in config file".into()),
+                }
+            }
+            _ => return Err("invalid Window Mode in config file".into()),
+        }
+
+        let sync = match value.lookup("Graphic.vsync") {
+            Some(n) => n,
+            None => return Err("resolution_height in config file is invalid".into()),
+        };
+
+        match sync.as_bool() {
+            Some(n) => default_config.vsync = n,
+            None => return Err("vsync value in config file is invalid".into()),
+        };
+
+        let seed = match value.lookup("Game_settings.seed") {
+            Some(n) => n,
+            None => return Err("seed in config file is invalid".into()),
+        };
+
+        match seed.as_integer() {
+            Some(n) => {
+                if n < 0 {
+                    return Err("seed can not be negative".into());
+                } else {
+                    default_config.seed = n as u64
+                }
+            }
+            None => return Err("seed in config file is invalid".into()),
+        };
+
+    }//TODO: else if no config file present, create one
 
 
     Ok(default_config)
