@@ -1,3 +1,4 @@
+
 [Graphic]
 resolution_width = 800
 resolution_height = 600
@@ -6,3 +7,4 @@ vsync = true
 
 [Game_settings]
 seed = 42
+            

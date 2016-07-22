@@ -8,7 +8,7 @@ use self::regex::Regex;
 use std::error::Error as StdError;
 use std::path::Path;
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, Write};
 use self::toml::Value;
 use std::string::String;
 
@@ -53,9 +53,37 @@ impl Config {
                 .help("Takes config file")
                 .takes_value(true)
                 .long("config-file"))
+            .arg(Arg::with_name("Write_Config_File")
+                .help("'Writes Config File with default values'")
+                .long("write-config"))
             .get_matches();
 
         let conf = Config::default();
+
+        if matches.is_present("Write_Config_File") {
+            if Path::new("config.toml").exists() {
+                return Err("Config.toml already exists".into());
+            }
+            let toml = r#"
+[Graphic]
+resolution_width = 800
+resolution_height = 600
+windowmode = "Windowed"
+vsync = true
+
+[Game_settings]
+seed = 42
+            "#;
+
+            let mut f = match File::create("config.toml") {
+                Ok(n) => n,
+                _ => return Err("Failed writing config file (e.g. missing write permission".into()),
+            };
+            match f.write_all(&toml.to_string().into_bytes()) {
+                Ok(n) => n,
+                _ => return Err("Failed writing config file (e.g. missing write permission".into()),
+            };
+        };
 
         let t_conf = try!(config_toml(conf, &matches));
         let conf_final = try!(config_command(t_conf, &matches));
@@ -173,7 +201,7 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
             None => return Err("seed in config file is invalid".into()),
         };
 
-    }//TODO: else if no config file present, create one
+    }
 
 
     Ok(default_config)
