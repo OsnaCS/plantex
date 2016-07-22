@@ -25,20 +25,13 @@ impl Ghost {
 
 
 /// **Implements Controls**
-
 /// *W => FORWARD
-
 /// *A => LEFT
-
 /// *S => BACKWARDS
-
 /// *D => RIGHT
-
 /// *'Space' => UP
-
 /// *'LControl' => DOWN (only accepts one keystroke (cannot hold LControl to go
 /// down))
-
 /// *'C' => DOWN (as a replacement for 'LControl')
 
 /// MouseMovement for changing the direction the camera looks
