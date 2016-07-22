@@ -60,15 +60,7 @@ impl Camera {
     pub fn move_forward(&mut self, factor: f32) {
         let mut lookatvector = self.get_look_at_vector();
         lookatvector.z = 0.0;
-        info!("x:{} y:{} z:{}",
-              lookatvector.x,
-              lookatvector.y,
-              lookatvector.z);
         lookatvector = lookatvector.normalize();
-        info!("normx:{} y:{} z:{}",
-              lookatvector.x,
-              lookatvector.y,
-              lookatvector.z);
         lookatvector *= factor;
         self.move_by(lookatvector);
     }
@@ -152,6 +144,5 @@ impl Camera {
             self.theta += theta_diff;
         }
         self.phi += phi_diff;
-        info!("phi: {}, theta: {}", self.phi, self.theta);
     }
 }

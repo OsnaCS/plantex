@@ -5,16 +5,50 @@ use glium::glutin::{CursorState, ElementState, Event, MouseButton, VirtualKeyCod
 
 pub struct Ghost {
     cam: Camera,
-    prev_mouse_pos: Option<(i32, i32)>,
     context: GlutinFacade,
+    forward: bool,
+    backward: bool,
+    left: bool,
+    right: bool,
+    up: bool,
+    down: bool,
+    mouselock: bool,
 }
+
+
 
 impl Ghost {
     pub fn new(context: GlutinFacade) -> Self {
         Ghost {
             cam: Camera::default(),
-            prev_mouse_pos: None,
             context: context,
+            forward: false,
+            backward: false,
+            left: false,
+            right: false,
+            up: false,
+            down: false,
+            mouselock: false,
+        }
+    }
+    pub fn update(&mut self) {
+        if self.forward {
+            self.cam.move_forward(1.0);
+        }
+        if self.backward {
+            self.cam.move_backward(1.0);
+        }
+        if self.left {
+            self.cam.move_left(1.0);
+        }
+        if self.right {
+            self.cam.move_right(1.0);
+        }
+        if self.up {
+            self.cam.move_up(1.0);
+        }
+        if self.down {
+            self.cam.move_down(1.0);
         }
     }
 
@@ -39,70 +73,99 @@ impl EventHandler for Ghost {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
         match *e {
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::W)) => {
-                self.cam.move_forward(1.0);
+                self.forward = true;
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::W)) => {
+                self.forward = false;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::S)) => {
-                self.cam.move_backward(1.0);
+                self.backward = true;
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::S)) => {
+                self.backward = false;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::A)) => {
-                self.cam.move_left(1.0);
+                self.left = true;
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::A)) => {
+                self.left = false;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::D)) => {
-                self.cam.move_right(1.0);
+                self.right = true;
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::D)) => {
+                self.right = false;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::Space)) => {
-                self.cam.move_up(1.0);
+                self.up = true;
                 EventResponse::Continue
             }
-            // X only for the fact, that you cannot hold LControl to go down,
-            // because holding the key only counts as one keystroke
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::Space)) => {
+                self.up = false;
+                EventResponse::Continue
+            }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::C)) => {
-                self.cam.move_down(1.0);
+                self.down = true;
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::C)) => {
+                self.down = false;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::LControl)) => {
-                self.cam.move_down(1.0);
+                self.down = true;
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::LControl)) => {
+                self.down = false;
                 EventResponse::Continue
             }
 
             Event::MouseInput(ElementState::Pressed, MouseButton::Left) => {
-                info!("clicked");
-                if let Some(window) = self.context.get_window() {
-                    let res = window.set_cursor_state(CursorState::Hide);
-                    warn!("{:?}", res);
-                } else {
-                    warn!("Failed to obtain window from facade");
+                if !self.mouselock {
+                    self.mouselock = true;
+                    if let Some(window) = self.context.get_window() {
+                        let res = window.set_cursor_state(CursorState::Hide);
+                        warn!("{:?} a", res);
+                    } else {
+                        warn!("Failed to obtain window from facade");
+                    }
+                } else if self.mouselock {
+                    self.mouselock = false;
+
+                    if let Some(window) = self.context.get_window() {
+                        let res = window.set_cursor_state(CursorState::Normal);
+                        warn!("{:?} b", res);
+                    } else {
+                        warn!("Failed to obtain window from facade");
+                    }
                 }
+
                 EventResponse::Continue
             }
-            // Event::MouseMoved(x, y) => {
-            //
-            //     if let Some((prev_x, prev_y)) = self.prev_mouse_pos {
-            //         let x_diff = x - prev_x;
-            //         let y_diff = y - prev_y;
-            //         info!("x = {}, y = {}", x_diff, y_diff);
-            //         self.cam.change_dir(y_diff as f32 / 300.0, -x_diff as f32 / 300.0);
-            //     }
-            //
-            //     self.prev_mouse_pos = Some((x, y));
-            //
-            //     EventResponse::Continue
-            // }
+
             Event::MouseMoved(x, y) => {
-                if let Some(window) = self.context.get_window() {
-                    // Possibility of mouse being outside of window without it resetting to the
-                    // middle?
-                    if let Some(middle) = window.get_inner_size_pixels() {
-                        let middle_x = (middle.0 as i32) / 2;
-                        let middle_y = (middle.1 as i32) / 2;
-                        let x_diff = x - middle_x;
-                        let y_diff = y - middle_y;
-                        self.cam.change_dir(y_diff as f32 / 300.0, -x_diff as f32 / 300.0);
-                        window.set_cursor_position(middle_x as i32, middle_y as i32);
+                if self.mouselock {
+                    if let Some(window) = self.context.get_window() {
+                        // Possibility of mouse being outside of window without it resetting to the
+                        // middle?
+                        if let Some(middle) = window.get_inner_size_pixels() {
+                            let middle_x = (middle.0 as i32) / 2;
+                            let middle_y = (middle.1 as i32) / 2;
+                            let x_diff = x - middle_x;
+                            let y_diff = y - middle_y;
+                            self.cam.change_dir(y_diff as f32 / 300.0, -x_diff as f32 / 300.0);
+                            let res = window.set_cursor_position(middle_x as i32, middle_y as i32);
+                            warn!("{:?} c", res);
+                        }
                     }
                 }
                 EventResponse::Continue

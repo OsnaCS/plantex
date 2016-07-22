@@ -33,6 +33,7 @@ pub fn run(config: &Config, provider: &ChunkProvider) -> Result<(), ()> {
         if event_resp == EventResponse::Quit {
             break;
         }
+        ghost.update();
     }
 
     Ok(())
