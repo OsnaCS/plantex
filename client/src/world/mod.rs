@@ -28,15 +28,14 @@ impl WorldView {
         }
 
         WorldView {
-            chunk: ChunkView::from_chunk(
-                &world.chunks[&ChunkIndex(AxialPoint::new(0, 0))],
-                                        AxialPoint::new(0, 0),
-                                        facade),
-            plant_view: PlantView::from_dummy_plant(
-                &world.chunks[&ChunkIndex(AxialPoint::new(0, 0))]
-                                        .pillars(),
-                                        pillars_pos,
-                                        facade),
+            chunk: ChunkView::from_chunk(&world.chunks[&ChunkIndex(AxialPoint::new(0, 0))],
+                                         AxialPoint::new(0, 0),
+                                         facade),
+            plant_view: PlantView::from_dummy_plant(&world.chunks[&ChunkIndex(AxialPoint::new(0,
+                                                                                              0))]
+                                                        .pillars(),
+                                                    pillars_pos,
+                                                    facade),
         }
 
     }
