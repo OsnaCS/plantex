@@ -43,7 +43,6 @@ impl EventManager {
     }
 }
 
-
 pub trait EventHandler {
     fn handle_event(&mut self, e: &Event) -> EventResponse;
 }

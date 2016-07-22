@@ -31,14 +31,6 @@ pub fn run(config: &Config, provider: &ChunkProvider) -> Result<(), ()> {
 
     loop {
         try!(renderer.render(&world_view, &ghost.get_camera()));
-
-
-        // let mut x: i32 = 3;
-        // let y: &mut i32 = &mut x;
-        // let z: &&mut i32 = &y;
-
-        // let w: &mut i32 = *z;
-
         let event_resp = event_manager.poll_events(vec![&mut CloseHandler, &mut ghost]);
         if event_resp == EventResponse::Quit {
             break;
