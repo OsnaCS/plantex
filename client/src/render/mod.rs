@@ -1,4 +1,4 @@
-use world::WorldView;
+use world::world_view::WorldView;
 use glium::Surface;
 use glium::backend::glutin_backend::GlutinFacade;
 // use super::Config;
