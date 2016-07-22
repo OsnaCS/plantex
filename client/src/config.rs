@@ -101,7 +101,7 @@ impl Default for Config {
 fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Config, Box<StdError>> {
     let mut name = "config.toml";
     if let Some(file) = matches.value_of("File") {
-        let file_reg = Regex::new(".*\\.toml").unwrap();
+        let file_reg = Regex::new(r#".*\\.toml"#).unwrap();
 
         if file_reg.is_match(file) && Path::new(file).exists() {
             name = file;
