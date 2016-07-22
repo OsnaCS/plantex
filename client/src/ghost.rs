@@ -125,8 +125,8 @@ impl EventHandler for Ghost {
                 if !self.mouselock {
                     self.mouselock = true;
                     if let Some(window) = self.context.get_window() {
-                        let res = window.set_cursor_state(CursorState::Hide);
-                        warn!("{:?} a", res);
+                        window.set_cursor_state(CursorState::Hide)
+                            .expect("failed to set cursor state");
                     } else {
                         warn!("Failed to obtain window from facade");
                     }
@@ -134,8 +134,8 @@ impl EventHandler for Ghost {
                     self.mouselock = false;
 
                     if let Some(window) = self.context.get_window() {
-                        let res = window.set_cursor_state(CursorState::Normal);
-                        warn!("{:?} b", res);
+                        let res = window.set_cursor_state(CursorState::Normal)
+                            .expect("failed to set cursor state");
                     } else {
                         warn!("Failed to obtain window from facade");
                     }
