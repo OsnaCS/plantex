@@ -10,10 +10,11 @@ extern crate log;
 
 pub mod render;
 pub mod event_manager;
+mod camera;
 mod config;
 mod game;
+mod ghost;
 mod world;
-mod camera;
 
 pub use config::Config;
 pub use camera::Camera;

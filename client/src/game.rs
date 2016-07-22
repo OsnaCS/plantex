@@ -1,12 +1,12 @@
 use base::world::{ChunkIndex, ChunkProvider, World};
-use base::math::AxialPoint;
-use event_manager::{EventManager, EventResponse};
+use ghost::Ghost;
+use event_manager::{CloseHandler, EventManager, EventResponse};
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::{self, DisplayBuild, glutin};
 use render::Renderer;
 use super::Config;
 use world::WorldView;
-use Camera;
+use base::math::*;
 
 /// Main game function: contains the mai render loop and owns all important
 /// components. This function should remain rather small, all heavy lifting
@@ -24,12 +24,12 @@ pub fn run(config: &Config, provider: &ChunkProvider) -> Result<(), ()> {
     }
 
     let world_view = WorldView::from_world(&world, &context);
-    let camera = Camera {};
+
+    let mut ghost = Ghost::new(context.clone());
 
     loop {
-        try!(renderer.render(&world_view, &camera));
-
-        let event_resp = event_manager.poll_events();
+        try!(renderer.render(&world_view, &ghost.get_camera()));
+        let event_resp = event_manager.poll_events(vec![&mut CloseHandler, &mut ghost]);
         if event_resp == EventResponse::Quit {
             break;
         }

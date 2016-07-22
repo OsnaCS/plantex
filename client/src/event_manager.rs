@@ -23,17 +23,44 @@ impl EventManager {
         EventManager { context: context }
     }
 
-    pub fn poll_events(&self) -> EventResponse {
+    pub fn poll_events(&self, mut handlers: Vec<&mut EventHandler>) -> EventResponse {
+
         for ev in self.context.poll_events() {
-            match ev {
-                Event::Closed => return EventResponse::Quit,
-                Event::KeyboardInput(_, _, Some(VirtualKeyCode::Escape)) => {
-                    return EventResponse::Quit;
+            for i in 0..handlers.len() {
+                let response = handlers[i].handle_event(&ev);
+                match response {
+                    EventResponse::NotHandled |
+                    EventResponse::Continue => (),
+                    EventResponse::Break => break,
+                    EventResponse::Quit => return EventResponse::Quit,
                 }
-                _ => (),
             }
         }
-
+        // Just for the sake of return value
         EventResponse::NotHandled
+    }
+}
+
+pub trait EventHandler {
+    fn handle_event(&mut self, e: &Event) -> EventResponse;
+}
+
+/// Handler that handles the closing of the window
+pub struct CloseHandler;
+
+/// handle_event function of CloseHandler
+
+/// Windows can be closed by:
+
+/// *clicking the 'X' on the upper edge of the window
+
+/// *pressing 'Escape'
+impl EventHandler for CloseHandler {
+    fn handle_event(&mut self, e: &Event) -> EventResponse {
+        match *e {
+            Event::Closed => EventResponse::Quit,
+            Event::KeyboardInput(_, _, Some(VirtualKeyCode::Escape)) => EventResponse::Quit,
+            _ => EventResponse::NotHandled,
+        }
     }
 }
