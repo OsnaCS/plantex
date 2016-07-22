@@ -1,4 +1,4 @@
-use base::world::{self, Chunk, HeightType, PillarSection};
+use base::world::{self, Chunk, PillarSection};
 use base::math::*;
 use glium;
 use Camera;
