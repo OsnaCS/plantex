@@ -27,8 +27,7 @@ fn main() {
         }
     };
 
-    let generator = base::gen::WorldGenerator::with_seed(conf.seed);
-    let res = client::start_game(conf, &generator);
+    let res = client::start_game(conf);
 
     // Check if any error occured
     if res.is_err() {
