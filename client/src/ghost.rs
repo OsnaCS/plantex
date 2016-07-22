@@ -112,14 +112,6 @@ impl EventHandler for Ghost {
                 self.up = false;
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::C)) => {
-                self.down = true;
-                EventResponse::Continue
-            }
-            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::C)) => {
-                self.down = false;
-                EventResponse::Continue
-            }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::LControl)) => {
                 self.down = true;
                 EventResponse::Continue
@@ -163,8 +155,8 @@ impl EventHandler for Ghost {
                             let x_diff = x - middle_x;
                             let y_diff = y - middle_y;
                             self.cam.change_dir(y_diff as f32 / 300.0, -x_diff as f32 / 300.0);
-                            let res = window.set_cursor_position(middle_x as i32, middle_y as i32);
-                            warn!("{:?} c", res);
+                            window.set_cursor_position(middle_x as i32, middle_y as i32)
+                                .expect("setting cursor position failed");
                         }
                     }
                 }
