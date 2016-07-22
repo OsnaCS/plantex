@@ -1,6 +1,8 @@
 //! Functionality about procedurally generating content.
 //!
 
-pub mod world;
+mod plant;
+mod world;
 
 pub use self::world::WorldGenerator;
+pub use self::plant::PlantGenerator;

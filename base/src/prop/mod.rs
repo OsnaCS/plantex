@@ -1,6 +1,6 @@
 //! Contains types of the available props.
 //!
 
-mod plant;
+pub mod plant;
 
 pub use self::plant::Plant;
