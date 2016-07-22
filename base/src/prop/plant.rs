@@ -22,10 +22,20 @@ pub enum NewPlant {
 #[derive(Clone, Debug)]
 pub struct Branch {
     /// At least 2 points describing the branch.
-    pub points: Vec<(Point3f, f32)>,
+    ///
+    /// The branch extends through all `ControlPoint`s in order.
+    pub points: Vec<ControlPoint>,
     /// The color of this branch.
     ///
     /// Currently, a branch has a uniform color. The vector holds elements in
     /// range `0..1` representing the RGB color channels.
     pub color: Vector3f,
+}
+
+#[derive(Clone, Debug)]
+pub struct ControlPoint {
+    /// The location of this point in model coordinates (relative to the tree position).
+    pub point: Point3f,
+    /// The diameter of the branch at this point.
+    pub diameter: f32,
 }

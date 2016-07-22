@@ -1,6 +1,6 @@
 //! Generates random trees and tree-like plants.
 
-use prop::plant::Branch;
+use prop::plant::{Branch, ControlPoint};
 use math::{Basis3, Deg, Euler, InnerSpace, Point3f, Rotation, Vector1, Vector3f};
 use rand::{Rand, Rng};
 use rand::distributions::range::SampleRange;
@@ -94,7 +94,11 @@ impl TreeGen {
         // How many segments should this branch get?
         let segment_count = range_sample(&self.preset.branch_segment_count, rng);
 
-        let mut points = vec![(start, diam)];
+        let mut points = vec![ControlPoint {
+            point: start,
+            diameter: diam,
+        }];
+
         {
             let mut last = start;
             // Helper for adding a new point to this branch, which possibly grows a new
@@ -123,7 +127,10 @@ impl TreeGen {
                     self.create_branch(rng, point, dir, depth + 1, diam);
                 }
 
-                points.push((point, diam));
+                points.push(ControlPoint {
+                    point: point,
+                    diameter: diam,
+                });
             };
 
             // In a loop, get the length of the next segment from the current diameter.
@@ -179,7 +186,10 @@ impl TreeGen {
                     }
                 }
 
-                points.push((point, diam));
+                points.push(ControlPoint {
+                    point: point,
+                    diameter: diam,
+                });
             };
 
             let diam_start = Vector1::new(trunk_diameter);
