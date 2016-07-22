@@ -5,7 +5,7 @@ use glium::backend::glutin_backend::GlutinFacade;
 use glium::{self, DisplayBuild, glutin};
 use render::Renderer;
 use super::Config;
-use world::WorldView;
+use world::world_view::WorldView;
 use base::math::*;
 
 /// Main game function: contains the mai render loop and owns all important
