@@ -19,7 +19,7 @@ pub fn run(config: &Config, provider: &ChunkProvider) -> Result<(), ()> {
     let mut world = World::empty();
     for i in 0..3 {
         for j in 0..3 {
-            world.add_chunk(ChunkIndex(AxialPoint::new(i, j)), provider);
+            world.add_chunk(ChunkIndex(AxialPoint::new(i, j)), provider).unwrap();
         }
     }
 

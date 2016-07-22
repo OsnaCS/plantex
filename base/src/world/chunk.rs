@@ -28,6 +28,13 @@ impl Chunk {
         Chunk { pillars: pillars }
     }
 
+    /// Creates a chunk from a `Vec<HexPillar>`
+    pub fn from_pillars(pillars: Vec<HexPillar>) -> Self {
+        assert_eq!(pillars.len() as usize, CHUNK_SIZE.pow(2) as usize);
+
+        Chunk { pillars: pillars }
+    }
+
     pub fn pillars(&self) -> &[HexPillar] {
         &self.pillars
     }
