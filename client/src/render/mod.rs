@@ -1,7 +1,6 @@
 use world::WorldView;
 use glium::Surface;
 use glium::backend::glutin_backend::GlutinFacade;
-// use super::Config;
 use Camera;
 
 mod to_arr;

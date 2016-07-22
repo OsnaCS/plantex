@@ -3,7 +3,7 @@ use Camera;
 use render::ToArr;
 use base::math::*;
 use base::world::{HexPillar, PropType};
-use world::chunk::Vertex;
+use world::chunk_view::Vertex;
 use std::rc::Rc;
 use glium;
 
