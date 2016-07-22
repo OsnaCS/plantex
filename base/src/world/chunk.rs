@@ -31,18 +31,25 @@ impl Chunk {
     pub fn pillars(&self) -> &[HexPillar] {
         &self.pillars
     }
+    /// Safer method to get through a chunk with an ìndex
+    pub fn get(&self, pos: AxialPoint) -> Option<&HexPillar> {
+        let chunk_size: PillarIndexComponent = CHUNK_SIZE.into();
+
+        if pos.q >= 0 && pos.q < chunk_size && pos.r >= 0 && pos.r < chunk_size {
+            None
+        } else {
+            Some(&self.pillars[(pos.r as usize) * (CHUNK_SIZE as usize) + (pos.q as usize)])
+        }
+    }
 }
 
 impl ops::Index<AxialPoint> for Chunk {
     type Output = HexPillar;
 
-    fn index(&self, pos: AxialPoint) -> Option<&Self::Output> {
+    fn index(&self, pos: AxialPoint) -> &Self::Output {
         let chunk_size: PillarIndexComponent = CHUNK_SIZE.into();
 
-        if pos.q >= 0 && pos.q < chunk_size && pos.r >= 0 && pos.r < chunk_size {
-            return None;
-        } else {
-            return Some(&self.pillars[(pos.r as usize) * (CHUNK_SIZE as usize) + (pos.q as usize)]);
-        }
+        assert!(pos.q >= 0 && pos.q < chunk_size && pos.r >= 0 && pos.r < chunk_size);
+        (&self.pillars[(pos.r as usize) * (CHUNK_SIZE as usize) + (pos.q as usize)])
     }
 }
