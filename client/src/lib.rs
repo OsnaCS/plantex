@@ -19,7 +19,9 @@ mod world;
 pub use config::Config;
 pub use camera::Camera;
 
+use game::Game;
 
-pub fn start_game(config: Config, world_provider: &base::world::ChunkProvider) -> Result<(), ()> {
-    game::run(&config, world_provider)
+pub fn start_game(config: Config) -> Result<(), ()> {
+    let game = try!(Game::new(config));
+    game.run()
 }

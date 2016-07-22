@@ -7,36 +7,63 @@ use render::Renderer;
 use super::Config;
 use world::WorldView;
 use base::math::*;
+use base::gen::WorldGenerator;
 
-/// Main game function: contains the mai render loop and owns all important
-/// components. This function should remain rather small, all heavy lifting
-/// should be done in other functions.
-pub fn run(config: &Config, provider: &ChunkProvider) -> Result<(), ()> {
-    // Create OpenGL context, the renderer and the event manager
-    let context = try!(create_context(config));
-    let renderer = Renderer::new(context.clone());
-    let event_manager = EventManager::new(context.clone());
-    let mut world = World::empty();
+pub struct Game {
+    provider: Box<ChunkProvider>,
+    renderer: Renderer,
+    event_manager: EventManager,
+    world_view: WorldView,
+    world: World,
+    player: Ghost,
+}
+
+impl Game {
+    pub fn new(config: Config) -> Result<Self, ()> {
+        let context = try!(create_context(&config));
+        let mut world = World::empty();
+        let provider = create_chunk_provider(&config);
+        pregenerate_world(&mut world, &*provider);
+
+        Ok(Game {
+            provider: provider,
+            renderer: Renderer::new(context.clone()),
+            event_manager: EventManager::new(context.clone()),
+            world_view: WorldView::from_world(&world, &context),
+            world: world,
+            player: Ghost::new(context.clone()),
+        })
+    }
+
+    /// Main game function: contains the main render loop and owns all important
+    /// components. This function should remain rather small, all heavy lifting
+    /// should be done in other functions.
+    pub fn run(mut self) -> Result<(), ()> {
+        loop {
+            try!(self.renderer.render(&self.world_view, &self.player.get_camera()));
+            let event_resp = self.event_manager
+                .poll_events(vec![&mut CloseHandler, &mut self.player]);
+            if event_resp == EventResponse::Quit {
+                break;
+            }
+            self.player.update();
+        }
+
+        Ok(())
+    }
+}
+
+fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
+    Box::new(WorldGenerator::with_seed(config.seed))
+}
+
+fn pregenerate_world(world: &mut World, provider: &ChunkProvider) {
+    // FIXME temporary worldgen invoker, replace with dynamic gen
     for i in 0..5 {
         for j in 0..5 {
             world.add_chunk(ChunkIndex(AxialPoint::new(i, j)), provider).unwrap();
         }
     }
-
-    let world_view = WorldView::from_world(&world, &context);
-
-    let mut ghost = Ghost::new(context.clone());
-
-    loop {
-        try!(renderer.render(&world_view, &ghost.get_camera()));
-        let event_resp = event_manager.poll_events(vec![&mut CloseHandler, &mut ghost]);
-        if event_resp == EventResponse::Quit {
-            break;
-        }
-        ghost.update();
-    }
-
-    Ok(())
 }
 
 /// Creates the OpenGL context and prints useful information about the
