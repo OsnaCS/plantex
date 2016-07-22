@@ -16,6 +16,8 @@ fn main() {
         .init()
         .expect("logger initialization failed");
 
+    info!("Launching local server");
+    let addr = server::start_local_server();
 
     info!("~~~~~~~~~~ Plantex started ~~~~~~~~~~");
 
@@ -27,7 +29,7 @@ fn main() {
         }
     };
 
-    let res = client::start_game(conf);
+    let res = client::start_game(conf, addr);
 
     // Check if any error occured
     if res.is_err() {

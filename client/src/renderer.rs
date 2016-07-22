@@ -2,6 +2,7 @@ use world::WorldView;
 use glium::Surface;
 use super::{Camera, GameContext};
 use std::rc::Rc;
+use std::error::Error;
 
 use glium::texture::texture2d::Texture2d;
 use glium::texture::{DepthFormat, DepthTexture2d, MipmapsOption, UncompressedFloatFormat};
@@ -61,7 +62,7 @@ impl Renderer {
 
 
     /// Is called once every main loop iteration
-    pub fn render(&self, world_view: &WorldView, camera: &Camera) -> Result<(), ()> {
+    pub fn render(&self, world_view: &WorldView, camera: &Camera) -> Result<(), Box<Error>> {
         // ===================================================================
         // Rendering into HDR framebuffer
         // ===================================================================
@@ -92,7 +93,7 @@ impl Renderer {
                   &Default::default())
             .unwrap();
 
-        target.finish().unwrap();
+        try!(target.finish());
 
 
         Ok(())
