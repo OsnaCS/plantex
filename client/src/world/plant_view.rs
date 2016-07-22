@@ -26,9 +26,9 @@ impl PlantView {
         where F: glium::backend::Facade
     {
         // get height and width for the plant from given Prop
-        let (width, height) = match hex_vec[0].props()[0].prop() {
-            &PropType::Plant(p) => (p.stem_width, p.height),
-        }
+        let (width, height) = match hex_vec[0].props()[0].prop {
+            PropType::Plant(p) => (p.stem_width, p.height),
+        };
 
         // Context for the draw method
         // to fill the IndexBuffer
