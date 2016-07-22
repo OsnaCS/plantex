@@ -97,7 +97,7 @@ impl ChunkView {
 
                     scale_matrix:[[1.0,0.0,0.0,0.0]
                                ,[0.0,1.0,0.0,0.0],
-                                [0.0,0.0,pillar.sections.get(i as usize).unwrap()[1], 
+                                [0.0,0.0,pillar.sections.get(i as usize).unwrap()[1],
                                 pillar.sections.get(i as usize).unwrap()[0]],
                                 [0.0,0.0,0.0,1.0f32]],
                     offset: [pillar.pos.x, pillar.pos.y],
