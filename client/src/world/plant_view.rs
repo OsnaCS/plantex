@@ -1,5 +1,5 @@
 use glium::backend::Facade;
-use glium::{Program, Surface, VertexBuffer, DrawParameters, Depth, DepthTest};
+use glium::{Depth, DepthTest, DrawParameters, Program, Surface, VertexBuffer};
 use glium::index::{NoIndices, PrimitiveType};
 use Camera;
 use render::ToArr;

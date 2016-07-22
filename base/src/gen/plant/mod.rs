@@ -16,9 +16,7 @@ pub enum PlantGenerator {
 impl PlantGenerator {
     pub fn generate<R: Rng>(self, rng: &mut R) -> Plant {
         match self {
-            PlantGenerator::Tree(treegen) => Plant::Tree {
-                branches: treegen.generate(rng),
-            },
+            PlantGenerator::Tree(treegen) => Plant::Tree { branches: treegen.generate(rng) },
         }
     }
 }

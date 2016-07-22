@@ -1,6 +1,6 @@
-use base::world::{self, Chunk, PillarSection, HexPillar, PropType};
+use base::world::{self, Chunk, HexPillar, PillarSection, PropType};
 use base::math::*;
-use glium::{IndexBuffer, Program, Surface, VertexBuffer, DrawParameters, Depth};
+use glium::{Depth, DrawParameters, IndexBuffer, Program, Surface, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
 use glium::backend::Facade;
 use glium::index::PrimitiveType;
@@ -145,14 +145,17 @@ impl PillarView {
         PillarView {
             pos: pos,
             pillars: pillar.sections().to_vec(),
-            plants: pillar.props().iter().map(|prop| {
-                match prop.prop {
-                    PropType::Plant(ref plant) => {
-                        let pos = Point3f::new(pos.x, pos.y, prop.baseline.0 as f32);
-                        PlantView::from_plant(pos, plant, facade)
+            plants: pillar.props()
+                .iter()
+                .map(|prop| {
+                    match prop.prop {
+                        PropType::Plant(ref plant) => {
+                            let pos = Point3f::new(pos.x, pos.y, prop.baseline.0 as f32);
+                            PlantView::from_plant(pos, plant, facade)
+                        }
                     }
-                }
-            }).collect(),
+                })
+                .collect(),
         }
     }
 }

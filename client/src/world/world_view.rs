@@ -33,9 +33,7 @@ impl WorldView {
                                               facade));
         }
 
-        WorldView {
-            chunks: chunks,
-        }
+        WorldView { chunks: chunks }
     }
 
     pub fn draw<S: Surface>(&self, surface: &mut S, camera: &Camera) {
