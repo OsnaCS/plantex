@@ -24,13 +24,12 @@ impl EventManager {
     }
 
     pub fn poll_events(&self, mut handlers: Vec<&mut EventHandler>) -> EventResponse {
-        use std::ops::IndexMut;
 
         for ev in self.context.poll_events() {
             for i in 0..handlers.len() {
                 // let x = *handler;
                 // let tmp: &mut _ = &mut **handler;
-                let response = handlers.index_mut(i).handle_event(&ev);
+                let response = handlers[i].handle_event(&ev);
                 match response {
                     EventResponse::NotHandled |
                     EventResponse::Continue => (),

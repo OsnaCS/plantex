@@ -4,7 +4,7 @@ use std::f32::consts;
 #[derive(Clone, Copy)]
 pub struct Camera {
     pub position: Point3f, // PRP
-    pub view_up_vector: Vector3f, // VUV
+    // VUV will be calculated on the fly
     // used to calculate the look_at_point
     pub theta: f32,
     pub phi: f32,
@@ -17,7 +17,6 @@ impl Default for Camera {
             position: Point3::new(0.0, 0.0, 60.0),
             phi: -0.27,
             theta: 2.6,
-            view_up_vector: Vector3::unit_z(),
         }
     }
 }
@@ -30,7 +29,7 @@ impl Camera {
 
     /// Returns view matrix
     pub fn view_matrix(&self) -> Matrix4<f32> {
-        Matrix4::look_at(self.position, self.get_look_at_point(), self.view_up_vector)
+        Matrix4::look_at(self.position, self.get_look_at_point(), Vector3::unit_z())
     }
 
     /// Calculates the look_at_point by adding the current position to the
