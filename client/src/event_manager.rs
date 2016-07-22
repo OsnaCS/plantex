@@ -51,9 +51,9 @@ pub struct CloseHandler;
 
 impl EventHandler for CloseHandler {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
-        match e {
-            &Event::Closed => EventResponse::Quit,
-            &Event::KeyboardInput(_, _, Some(VirtualKeyCode::Escape)) => EventResponse::Quit,
+        match *e {
+            Event::Closed => EventResponse::Quit,
+            Event::KeyboardInput(_, _, Some(VirtualKeyCode::Escape)) => EventResponse::Quit,
             _ => EventResponse::NotHandled,
         }
     }
