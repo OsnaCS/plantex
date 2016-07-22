@@ -22,7 +22,7 @@ pub struct Config {
                     * Controls
                     * frames
                     * seed
-                    * Chunkweite */
+                    * Chunkrange */
 }
 impl Config {
     /// creates a new Config in three steps:
