@@ -1,4 +1,4 @@
-use base::world::{self, Chunk, PillarSection};
+use base::world::{self, Chunk, GroundMaterial, PillarSection};
 use base::math::*;
 use glium;
 use Camera;
@@ -37,9 +37,8 @@ impl ChunkView {
                 position: [x, y, world::PILLAR_STEP_HEIGHT],
                 color: [0.15 * i as f32, 0.0, 0.0],
             });
-
             hexagon_vertex_buffer.push_back(Vertex {
-                position: [x, y, -1.0 * world::PILLAR_STEP_HEIGHT],
+                position: [x, y, 0.0],
                 color: [1.0 - 0.15 * i as f32, 0.15 * i as f32, 0.0],
             });
 
@@ -93,15 +92,17 @@ impl ChunkView {
         where S: glium::Surface
     {
         for pillar in &self.pillars {
-            for section in &pillar.sections {
+            for i in 0..pillar.sections.len() {
                 let uniforms = uniform!{
-                  scale_matrix:[[1.0,0.0,0.0,0.0]
+
+                    scale_matrix:[[1.0,0.0,0.0,0.0]
                                ,[0.0,1.0,0.0,0.0],
-                                [0.0,0.0,section[1], section[0]],
+                                [0.0,0.0,pillar.sections.get(i as usize).unwrap()[1], pillar.sections.get(i as usize).unwrap()[0]],
                                 [0.0,0.0,0.0,1.0f32]],
                     offset: [pillar.pos.x, pillar.pos.y],
                     proj_matrix: camera.proj_matrix().to_arr(),
                     view_matrix: camera.view_matrix().to_arr(),
+                    material_color: pillar.grounds.get(i as usize).unwrap().get_color(),
                 };
                 let params = glium::DrawParameters {
                     depth: glium::Depth {
@@ -137,18 +138,22 @@ implement_vertex!(Vertex, position, color);
 pub struct PillarView {
     pos: Point2f,
     sections: Vec<[f32; 2]>,
+    grounds: Vec<GroundMaterial>,
 }
 
 impl PillarView {
     fn from_pillar_section(pos: Point2f, pil_sections: &[PillarSection]) -> PillarView {
         let mut sections = Vec::new();
+        let mut grounds = Vec::new();
         for section in pil_sections {
             sections.push([section.bottom.0 as f32,
          section.top.0 as f32 - section.bottom.0 as f32]);
+            grounds.push(section.ground.clone());
         }
         PillarView {
             pos: pos,
             sections: sections,
+            grounds: grounds,
         }
     }
 }
