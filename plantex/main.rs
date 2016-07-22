@@ -4,6 +4,7 @@ extern crate env_logger;
 #[macro_use]
 extern crate log;
 extern crate server;
+extern crate rand;
 
 use std::io::{self, Write};
 use log::LogLevelFilter;

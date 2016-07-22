@@ -7,6 +7,7 @@
 extern crate num_traits;
 #[macro_use]
 extern crate log;
+extern crate rand;
 
 pub mod gen;
 pub mod math;
