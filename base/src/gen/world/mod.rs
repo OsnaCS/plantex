@@ -26,10 +26,11 @@ impl ChunkProvider for WorldGenerator {
         let mut pillars = Vec::new();
         let q = index.0.q * CHUNK_SIZE as i32;
         let r = index.0.r * CHUNK_SIZE as i32;
+        let mut height;
         for i in q..q + CHUNK_SIZE as i32 {
             for j in r..r + CHUNK_SIZE as i32 {
-                pillars.push(HexPillar::from_height(HeightType(((i as f32).sin()
-                    *25.0 + (j as f32).sin()*25.0 + 100.0) as u16)));
+                height = ((i as f32).sin() * 25.0 + (j as f32).sin() * 25.0 + 100.0) as u16;
+                pillars.push(HexPillar::from_height(HeightType(height)));
             }
         }
 

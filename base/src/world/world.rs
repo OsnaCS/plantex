@@ -37,12 +37,12 @@ impl World {
     }
 
     pub fn add_chunk(&mut self, index: ChunkIndex, provider: &ChunkProvider) -> Result<(), ()> {
-        if self.chunks.get(&index).is_some() {
-            return Err(());
+        if self.chunks.contains_key(&index) {
+            Err(())
+        } else {
+            self.replace_chunk(index, provider);
+            Ok(())
         }
-
-        self.replace_chunk(index, provider);
-        Ok(())
     }
 
     /// Returns the hex pillar at the given world position, iff the
