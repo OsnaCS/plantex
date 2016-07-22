@@ -46,13 +46,16 @@ impl Camera {
     }
 
     /// Internal function to move the position of the camera
+
     /// Will be called by the other functions (move_forwars etc)
     pub fn move_by(&mut self, pos_diff: Vector3f) {
         self.position += pos_diff;
     }
 
-    /// Method to call when forward movement is needed
+    /// Method to call when **forward movement** is needed
+
     /// `factor` is a factor to scale the movement speed
+
     /// `factor` has to be positive for foward movement
     pub fn move_forward(&mut self, factor: f32) {
         let mut lookatvector = self.get_look_at_vector();
@@ -62,8 +65,10 @@ impl Camera {
         self.move_by(lookatvector);
     }
 
-    /// Method to call when backward movement is needed
+    /// Method to call when **backward movement** is needed
+
     /// `factor` is a factor to scale the movement speed
+
     /// `factor` has to be positive for backward movement
     pub fn move_backward(&mut self, factor: f32) {
         let mut lookatvector = self.get_look_at_vector();
@@ -73,8 +78,10 @@ impl Camera {
         self.move_by(lookatvector);
     }
 
-    /// Method to call when left movement is needed
+    /// Method to call when **left movement** is needed
+
     /// `factor` is a factor to scale the movement speed
+
     /// `factor` has to be positive for left movement
     pub fn move_left(&mut self, factor: f32) {
         let mut lookatvector = self.get_look_at_vector();
@@ -86,8 +93,10 @@ impl Camera {
         self.move_by(move_dir);
     }
 
-    /// Method to call when right movement is needed
+    /// Method to call when **right movement** is needed
+
     /// `factor` is a factor to scale the movement speed
+
     /// `factor` has to be positive for right movement
     pub fn move_right(&mut self, factor: f32) {
         let mut lookatvector = self.get_look_at_vector();
@@ -100,15 +109,19 @@ impl Camera {
     }
 
 
-    /// Method to call when upward movement is needed
+    /// Method to call when **upward movement** is needed
+
     /// `factor` is a factor to scale the movement speed
+
     /// `factor` has to be positive for upward movement
     pub fn move_up(&mut self, factor: f32) {
         self.move_by(Vector3f::new(0.0, 0.0, factor));
     }
 
-    /// Method to call when downward movement is needed
+    /// Method to call when **downward movement** is needed
+
     /// `factor` is a factor to scale the movement speed
+
     /// `factor` has to be positive for downward movement
     pub fn move_down(&mut self, factor: f32) {
         self.move_by(Vector3f::new(0.0, 0.0, -factor));

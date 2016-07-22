@@ -49,8 +49,12 @@ pub trait EventHandler {
 pub struct CloseHandler;
 
 /// handle_event function of CloseHandler
-/// Windows can be closed by clicking the 'X' on the upper edge of the window
-/// or by pressing 'Escape'
+
+/// Windows can be closed by:
+
+/// *clicking the 'X' on the upper edge of the window
+
+/// *pressing 'Escape'
 impl EventHandler for CloseHandler {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
         match *e {

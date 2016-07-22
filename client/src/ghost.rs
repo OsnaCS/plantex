@@ -24,10 +24,23 @@ impl Ghost {
 }
 
 
-/// Implements Controls
-/// WASD for obvious movement
-/// 'Space' for going UP
-/// 'LControl' and 'C' for going DOWN
+/// **Implements Controls**
+
+/// *W => FORWARD
+
+/// *A => LEFT
+
+/// *S => BACKWARDS
+
+/// *D => RIGHT
+
+/// *'Space' => UP
+
+/// *'LControl' => DOWN (only accepts one keystroke (cannot hold LControl to go
+/// down))
+
+/// *'C' => DOWN (as a replacement for 'LControl')
+
 /// MouseMovement for changing the direction the camera looks
 impl EventHandler for Ghost {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
