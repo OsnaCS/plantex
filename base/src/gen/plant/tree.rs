@@ -1,7 +1,7 @@
 //! Generates random trees and tree-like plants.
 
 use prop::plant::Branch;
-use math::{InnerSpace, Point3f, Vector1, Vector3f, Euler, Basis3, Deg, Rotation};
+use math::{Basis3, Deg, Euler, InnerSpace, Point3f, Rotation, Vector1, Vector3f};
 use rand::{Rand, Rng};
 use rand::distributions::range::SampleRange;
 use rand::distributions::{self, IndependentSample};
@@ -24,7 +24,8 @@ struct Preset {
     branch_diameter_factor: Range<f32>,
     /// Range of subbranch angles in degrees.
     branch_angle_deg: Range<f32>,
-    /// Factor by which to reduce segment diameter between consecutive points, sampled per branch.
+    /// Factor by which to reduce segment diameter between consecutive points,
+    /// sampled per branch.
     branch_diam_reduction: Range<f32>,
     /// Range of angles to use for rotation of new segments.
     ///
@@ -38,7 +39,7 @@ struct Preset {
     /// Range of segment lengths to use for branches.
     ///
     /// Each segment will have a random length in this range.
-    branch_segment_length: Range<f32>,  // FIXME unused
+    branch_segment_length: Range<f32>, // FIXME unused
 }
 
 static PRESETS: &'static [Preset] = &[Preset {
@@ -82,7 +83,8 @@ impl TreeGen {
             return;
         }
 
-        // Current normalized growing direction, variated slightly as segments are generated
+        // Current normalized growing direction, variated slightly as segments are
+        // generated
         let mut dir = dir.normalize();
 
         // Determine starting diameter of the new branch
@@ -95,17 +97,19 @@ impl TreeGen {
         let mut points = vec![(start, diam)];
         {
             let mut last = start;
-            // Helper for adding a new point to this branch, which possibly grows a new branch.
+            // Helper for adding a new point to this branch, which possibly grows a new
+            // branch.
             let mut add_point = |dist, diam| {
                 // First, get a random angle by which to variate this segment.
                 let x_angle = range_sample(&self.preset.branch_segment_angle, rng);
                 let y_angle = range_sample(&self.preset.branch_segment_angle, rng);
 
-                dir = Basis3::from(Euler {
+                let rotation = Basis3::from(Euler {
                     x: Deg::new(x_angle),
                     y: Deg::new(y_angle),
                     z: Deg::new(0.0),
-                }).rotate_vector(dir);
+                });
+                dir = rotation.rotate_vector(dir);
 
                 // We need to add a point with a distance of `dist` from `last`.
                 let point = last + dir * dist;
@@ -130,7 +134,8 @@ impl TreeGen {
             }
         }
 
-        assert!(points.len() >= 2, "should've generated at least 2 points :(");
+        assert!(points.len() >= 2,
+                "should've generated at least 2 points :(");
         self.branches.push(Branch {
             points: points,
             // FIXME Fixed color for now, we should use a configurable random color (or at least
@@ -139,17 +144,18 @@ impl TreeGen {
         });
     }
 
-    /// Given the growing direction of the parent branch, calculates a growing direction to use for
-    /// a new child branch.
+    /// Given the growing direction of the parent branch, calculates a growing
+    /// direction to use for a new child branch.
     fn gen_branch_direction<R: Rng>(&self, rng: &mut R, parent_dir: Vector3f) -> Vector3f {
         let x_angle = range_sample(&self.preset.branch_angle_deg, rng);
         let y_angle = range_sample(&self.preset.branch_angle_deg, rng);
 
-        Basis3::from(Euler {
+        let rotation = Basis3::from(Euler {
             x: Deg::new(x_angle),
             y: Deg::new(y_angle),
             z: Deg::new(0.0),
-        }).rotate_vector(parent_dir)
+        });
+        rotation.rotate_vector(parent_dir)
     }
 
     fn create_trunk<R: Rng>(&mut self, rng: &mut R) {
@@ -193,7 +199,8 @@ impl TreeGen {
             // FIXME Do we need to create another point here?
         }
 
-        assert!(points.len() >= 2, "should've generated at least 2 points :(");
+        assert!(points.len() >= 2,
+                "should've generated at least 2 points :(");
         self.branches.push(Branch {
             points: points,
             // FIXME Fixed color for now, we should use a configurable random color (or at least
