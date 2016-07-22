@@ -18,8 +18,17 @@ fn main() {
 
 
     info!("~~~~~~~~~~ Plantex started ~~~~~~~~~~");
-    let res = client::start_game(client::Config::default(),
-                                 &base::gen::WorldGenerator::with_seed(42));
+
+    let conf = match client::Config::load_config() {
+        Ok(v) => v,
+        Err(e) => {
+            writeln!(io::stderr(), "{}", e).unwrap();
+            return;
+        }
+    };
+
+    let generator = base::gen::WorldGenerator::with_seed(conf.seed);
+    let res = client::start_game(conf, &generator);
 
     // Check if any error occured
     if res.is_err() {

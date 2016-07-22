@@ -8,6 +8,9 @@ version = "0.1.0"
 [dependencies]
 glium = "0.15.0"
 log = "0.3.6"
+clap = "2"
+toml = "0.1"
+regex = "0.1"
 
 [dependencies.base]
 path = "../base"
