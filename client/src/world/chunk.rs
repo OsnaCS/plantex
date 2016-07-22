@@ -24,7 +24,7 @@ fn hex_corner(size: f32, i: i32) -> (f32, f32) {
 impl ChunkView {
     /// Creates the graphical representation of given chunk at the given chunk
     /// offset
-    pub fn from_chunk<F>(_chunk: &Chunk, offset: AxialPoint, facade: &F) -> Self
+    pub fn from_chunk<F>(chunk: &Chunk, offset: AxialPoint, facade: &F) -> Self
         where F: glium::backend::Facade
     {
 
@@ -63,7 +63,7 @@ impl ChunkView {
                                        (q % world::CHUNK_SIZE).into())
                 .to_real();
             pillars.push(PillarView::from_pillar_section(pos,
-                                                         _chunk.pillars()
+                                                         chunk.pillars()
                                                              .get(q as usize)
                                                              .unwrap()
                                                              .sections()));
@@ -97,7 +97,6 @@ impl ChunkView {
                 let uniforms = uniform!{
                   scale_matrix:[[1.0,0.0,0.0,0.0]
                                ,[0.0,1.0,0.0,0.0],
-                                 //FIXME 1.0 heightvalue
                                 [0.0,0.0,section[1], section[0]],
                                 [0.0,0.0,0.0,1.0f32]],
                     offset: [pillar.pos.x, pillar.pos.y],
@@ -141,13 +140,6 @@ pub struct PillarView {
 }
 
 impl PillarView {
-    // fn new(pos: Point2f, bottom: HeightType, height: HeightType) -> PillarView {
-    // PillarView {
-    // pos: pos,
-    // sections: vec![bottom.0 as f32,height.0 as f32],
-    // }
-    // }
-
     fn from_pillar_section(pos: Point2f, pil_sections: &[PillarSection]) -> PillarView {
         let mut sections = Vec::new();
         for section in pil_sections {
