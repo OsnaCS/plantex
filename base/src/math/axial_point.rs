@@ -141,9 +141,6 @@ impl MetricSpace for AxialPoint {
         (((self.q - other.q) * (self.q - other.q)) +
          ((self.r - other.r) * (self.r - other.r))) as f32
     }
-    fn distance(self, other: AxialPoint) -> Self::Metric {
-        self.distance2(other).sqrt()
-    }
 }
 /// ******************* EuclideanSpace**********************
 impl EuclideanSpace for AxialPoint {
