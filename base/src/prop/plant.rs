@@ -1,4 +1,3 @@
-
 /// Represents a plant in the game world.
 ///
 /// Currently, the fields are temporary and just for testing
