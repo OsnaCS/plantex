@@ -1,6 +1,7 @@
 mod tree;
 
 use self::tree::TreeGen;
+use prop::Plant;
 
 use rand::{Rand, Rng};
 
@@ -10,6 +11,14 @@ use rand::{Rand, Rng};
 /// generator.
 pub enum PlantGenerator {
     Tree(TreeGen),
+}
+
+impl PlantGenerator {
+    pub fn generate<R: Rng>(self, rng: &mut R) -> Plant {
+        match self {
+            PlantGenerator::Tree(treegen) => Plant::Tree { branches: treegen.generate(rng) },
+        }
+    }
 }
 
 impl Rand for PlantGenerator {

@@ -10,6 +10,7 @@ use std::ops::Range;
 /// Parameters for the tree generator.
 #[derive(Debug)]
 struct Preset {
+    name: &'static str,
     /// Diameter of the first branch we create (the trunk).
     trunk_diameter: Range<f32>,
     /// Trunk height. Note that branches going upward can increase plant height
@@ -43,6 +44,7 @@ struct Preset {
 }
 
 static PRESETS: &'static [Preset] = &[Preset {
+                                          name: "'Regular' Tree",
                                           trunk_diameter: 0.3..0.5,
                                           trunk_height: 3.0..6.0,
                                           trunk_diameter_top: 0.2..0.4,
@@ -147,16 +149,22 @@ impl TreeGen {
             points: points,
             // FIXME Fixed color for now, we should use a configurable random color (or at least
             // make it brown).
-            color: Vector3f::new(0.0, 0.0, 1.0),
+            color: Vector3f::new(0.0, 1.0, 0.0),
         });
     }
 
     /// Given the growing direction of the parent branch, calculates a growing
     /// direction to use for a new child branch.
     fn gen_branch_direction<R: Rng>(&self, rng: &mut R, parent_dir: Vector3f) -> Vector3f {
-        let x_angle = range_sample(&self.preset.branch_angle_deg, rng);
-        let y_angle = range_sample(&self.preset.branch_angle_deg, rng);
+        // `branch_angle_deg` specifies the angle range in degrees
+        let mut x_angle = range_sample(&self.preset.branch_angle_deg, rng);
+        let mut y_angle = range_sample(&self.preset.branch_angle_deg, rng);
 
+        // Invert sign with 50%, to mirror the specified range to the other side
+        x_angle = if rng.gen() { -x_angle } else { x_angle };
+        y_angle = if rng.gen() { -y_angle } else { y_angle };
+
+        // Rotate the growing direction of the parent branch
         let rotation = Basis3::from(Euler {
             x: Deg::new(x_angle),
             y: Deg::new(y_angle),
@@ -169,17 +177,23 @@ impl TreeGen {
         let trunk_diameter = range_sample(&self.preset.trunk_diameter, rng);
         let trunk_height = range_sample(&self.preset.trunk_height, rng);
         let trunk_diameter_top = range_sample(&self.preset.trunk_diameter_top, rng);
-        let min_branch_height = range_sample(&self.preset.min_branch_height, rng);
+        let min_branch_height = range_sample(&self.preset.min_branch_height, rng) * trunk_height;
+
+        debug!("trunk diam {} to {}, height {}, branch start at {}",
+               trunk_diameter,
+               trunk_diameter_top,
+               trunk_height,
+               min_branch_height);
 
         let mut points = Vec::new();
 
         {
             let mut add_point = |height, diam| {
-                let point = Point3f::new(0.0, height, 0.0);
+                let point = Point3f::new(0.0, 0.0, height);
                 if height >= min_branch_height {
                     // FIXME Make branch spawn chance configurable
-                    // 1/5 chance to spawn a branch at any point
-                    if rng.gen_weighted_bool(5) {
+                    // 1/3 chance to spawn a branch at any point
+                    if rng.gen_weighted_bool(3) {
                         // Build a vector for the branch direction (Z is up)
                         let dir = self.gen_branch_direction(rng, Vector3f::new(0.0, 0.0, 1.0));
                         self.create_branch(rng, point, dir, 1, diam);
@@ -194,19 +208,18 @@ impl TreeGen {
 
             let diam_start = Vector1::new(trunk_diameter);
             let diam_end = Vector1::new(trunk_diameter_top);
-            let mut height = 0.0;
-            while height < trunk_height {
-                // Current height as a fraction of the total height
-                let height_frac = if height == 0.0 { 0.0 } else { trunk_height / height };
+
+            // Split trunk in segments
+            // FIXME Vary the segment direction like we do for normal branches
+            // FIXME Make segment count depend on the trunk height
+            const SEGMENT_COUNT: u32 = 10;
+            for i in 0..SEGMENT_COUNT + 1 {
+                let height = i as f32 * trunk_height / SEGMENT_COUNT as f32;
+                let height_frac = height / trunk_height;
                 let diam = diam_start.lerp(diam_end, height_frac);
 
                 add_point(height, diam.x);
-
-                let segment_len = segment_dist(diam.x);
-                height += segment_len;
             }
-
-            // FIXME Do we need to create another point here?
         }
 
         assert!(points.len() >= 2,
@@ -215,7 +228,7 @@ impl TreeGen {
             points: points,
             // FIXME Fixed color for now, we should use a configurable random color (or at least
             // make it brown).
-            color: Vector3f::new(0.0, 0.0, 1.0),
+            color: Vector3f::new(0.0, 1.0, 0.0),
         });
 
         debug!("generated tree with {} branches", self.branches.len());
@@ -225,7 +238,6 @@ impl TreeGen {
     ///
     /// The tree is returned as a list of branches for now.
     pub fn generate<R: Rng>(mut self, rng: &mut R) -> Vec<Branch> {
-        info!("treegen activated!");    // deleteme
         // Recursively create the tree and put all branches in a buffer.
         self.create_trunk(rng);
         self.branches
@@ -234,8 +246,7 @@ impl TreeGen {
 
 impl Rand for TreeGen {
     fn rand<R: Rng>(rng: &mut R) -> Self {
-        // Create a tree generator with random parameters.
-        // First, select a random preset:
+        // Select a random preset that we'll use
         let preset = rng.choose(PRESETS).unwrap().clone();
 
         TreeGen {

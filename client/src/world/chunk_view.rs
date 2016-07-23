@@ -1,18 +1,23 @@
-use base::world::{self, Chunk, PillarSection};
+use base::world::{self, Chunk, HexPillar, PillarSection, PropType};
 use base::math::*;
-use glium;
+use glium::{self, DrawParameters, IndexBuffer, Program, VertexBuffer};
+use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
+use glium::backend::Facade;
+use glium::index::PrimitiveType;
 use Camera;
 use render::ToArr;
 use std::collections::VecDeque;
 use std::f32::consts;
+use world::plant_view::PlantView;
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
-    vertices: glium::VertexBuffer<Vertex>,
-    program: glium::Program,
+    vertices: VertexBuffer<Vertex>,
+    program: Program,
     pillars: Vec<PillarView>,
-    index_buffer: glium::index::IndexBuffer<u32>,
+    index_buffer: IndexBuffer<u32>,
 }
+
 /// Calculates one Point-coordinates of a Hexagon
 fn hex_corner(size: f32, i: i32) -> (f32, f32) {
     let angle_deg = 60.0 * (i as f32) + 30.0;
@@ -24,9 +29,7 @@ fn hex_corner(size: f32, i: i32) -> (f32, f32) {
 impl ChunkView {
     /// Creates the graphical representation of given chunk at the given chunk
     /// offset
-    pub fn from_chunk<F>(chunk: &Chunk, offset: AxialPoint, facade: &F) -> Self
-        where F: glium::backend::Facade
-    {
+    pub fn from_chunk<F: Facade>(chunk: &Chunk, offset: AxialPoint, facade: &F) -> Self {
 
         // Create one hexagon for this chunk
         let mut hexagon_vertex_buffer = VecDeque::new();
@@ -48,11 +51,11 @@ impl ChunkView {
         let final_buffer: Vec<_> = hexagon_vertex_buffer.into_iter().collect();
 
 
-        let vbuf = glium::VertexBuffer::new(facade, &final_buffer).unwrap();
-        let prog = glium::Program::from_source(facade,
-                                               include_str!("chunk_std.vert"),
-                                               include_str!("chunk_std.frag"),
-                                               None)
+        let vbuf = VertexBuffer::new(facade, &final_buffer).unwrap();
+        let prog = Program::from_source(facade,
+                                        include_str!("chunk_std.vert"),
+                                        include_str!("chunk_std.frag"),
+                                        None)
             .unwrap();
 
         let mut pillars = Vec::new();
@@ -61,11 +64,8 @@ impl ChunkView {
                       AxialVector::new((q / world::CHUNK_SIZE).into(),
                                        (q % world::CHUNK_SIZE).into())
                 .to_real();
-            pillars.push(PillarView::from_pillar_section(pos,
-                                                         chunk.pillars()
-                                                             .get(q as usize)
-                                                             .unwrap()
-                                                             .sections()));
+            let pillar = &chunk.pillars()[q as usize];
+            pillars.push(PillarView::from_pillar(pos, pillar, facade));
         }
 
         // Indecies
@@ -75,9 +75,7 @@ impl ChunkView {
                                 8, 2, 7, 4, 3, 8, 7, 3 /* Body */];
 
 
-        let ibuf = glium::index::IndexBuffer::new(facade,
-                                                  glium::index::PrimitiveType::TrianglesList,
-                                                  &raw_index_buffer)
+        let ibuf = IndexBuffer::new(facade, PrimitiveType::TrianglesList, &raw_index_buffer)
             .unwrap();
 
         ChunkView {
@@ -88,11 +86,9 @@ impl ChunkView {
         }
     }
 
-    pub fn draw<S>(&self, surface: &mut S, camera: &Camera)
-        where S: glium::Surface
-    {
+    pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         for pillar in &self.pillars {
-            for section in &pillar.pillars {
+            for section in &pillar.sections {
                 let scale_matrix =
                     Matrix4::from_nonuniform_scale(1.0,
                                                    1.0,
@@ -105,14 +101,13 @@ impl ChunkView {
                     view_matrix: camera.view_matrix().to_arr(),
                     material_color: section.ground.get_color(),
                 };
-                let params = glium::DrawParameters {
+                let params = DrawParameters {
                     depth: glium::Depth {
                         write: true,
-                        test: glium::draw_parameters::DepthTest::IfLess,
+                        test: DepthTest::IfLess,
                         ..Default::default()
                     },
-                    backface_culling:
-                        glium::draw_parameters::BackfaceCullingMode::CullCounterClockwise,
+                    backface_culling: BackfaceCullingMode::CullCounterClockwise,
                     ..Default::default()
                 };
 
@@ -124,9 +119,15 @@ impl ChunkView {
                     .unwrap();
             }
 
+            for plant in &pillar.plants {
+                plant.draw(surface, camera);
+            }
         }
     }
 }
+
+
+// FIXME `Vertex` really shouldn't be in this module
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vertex {
@@ -138,18 +139,26 @@ implement_vertex!(Vertex, position, color);
 
 pub struct PillarView {
     pos: Point2f,
-    pillars: Vec<PillarSection>,
+    sections: Vec<PillarSection>,
+    plants: Vec<PlantView>,
 }
 
 impl PillarView {
-    fn from_pillar_section(pos: Point2f, pil_sections: &[PillarSection]) -> PillarView {
-        let mut pillar_sections = Vec::new();
-        for section in pil_sections {
-            pillar_sections.push(section.clone());
-        }
+    fn from_pillar<F: Facade>(pos: Point2f, pillar: &HexPillar, facade: &F) -> PillarView {
         PillarView {
             pos: pos,
-            pillars: pillar_sections,
+            sections: pillar.sections().to_vec(),
+            plants: pillar.props()
+                .iter()
+                .map(|prop| {
+                    match prop.prop {
+                        PropType::Plant(ref plant) => {
+                            let pos = Point3f::new(pos.x, pos.y, prop.baseline.0 as f32);
+                            PlantView::from_plant(pos, plant, facade)
+                        }
+                    }
+                })
+                .collect(),
         }
     }
 }

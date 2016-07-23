@@ -1,6 +1,5 @@
 use super::{CHUNK_SIZE, HexPillar, PillarIndexComponent};
 use std::ops;
-use std::iter;
 use math::*;
 
 /// Represents one part of the game world.
@@ -20,14 +19,6 @@ pub struct Chunk {
 }
 
 impl Chunk {
-    /// Creates a dummy chunk for early testing. FIXME: remove
-    pub fn dummy() -> Self {
-        let pillars = iter::repeat(HexPillar::dummy())
-            .take(CHUNK_SIZE.pow(2) as usize)
-            .collect();
-        Chunk { pillars: pillars }
-    }
-
     /// Creates a chunk from a `Vec<HexPillar>`
     pub fn from_pillars(pillars: Vec<HexPillar>) -> Self {
         assert_eq!(pillars.len() as usize, CHUNK_SIZE.pow(2) as usize);
