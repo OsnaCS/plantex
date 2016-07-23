@@ -179,11 +179,11 @@ impl TreeGen {
         let trunk_diameter_top = range_sample(&self.preset.trunk_diameter_top, rng);
         let min_branch_height = range_sample(&self.preset.min_branch_height, rng) * trunk_height;
 
-        info!("trunk diam {} to {}, height {}, branch start at {}",
-              trunk_diameter,
-              trunk_diameter_top,
-              trunk_height,
-              min_branch_height);
+        debug!("trunk diam {} to {}, height {}, branch start at {}",
+               trunk_diameter,
+               trunk_diameter_top,
+               trunk_height,
+               min_branch_height);
 
         let mut points = Vec::new();
 

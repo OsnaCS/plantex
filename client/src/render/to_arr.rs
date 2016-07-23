@@ -60,3 +60,19 @@ impl<T: BaseFloat> ToArr for Vector2<T> {
         (*self).into()
     }
 }
+
+impl<T: BaseNum> ToArr for Point2<T> {
+    type Output = [T; 2];
+
+    fn to_arr(&self) -> Self::Output {
+        (*self).into()
+    }
+}
+
+impl<T: BaseNum> ToArr for Point3<T> {
+    type Output = [T; 3];
+
+    fn to_arr(&self) -> Self::Output {
+        (*self).into()
+    }
+}

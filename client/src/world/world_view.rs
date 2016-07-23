@@ -1,7 +1,7 @@
 use base::world::{self, World};
 use base::math::*;
 use glium::backend::Facade;
-use glium::Surface;
+use glium;
 use Camera;
 
 pub use world::chunk_view::ChunkView;
@@ -36,7 +36,7 @@ impl WorldView {
         WorldView { chunks: chunks }
     }
 
-    pub fn draw<S: Surface>(&self, surface: &mut S, camera: &Camera) {
+    pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         for chunkview in &self.chunks {
             chunkview.draw(surface, camera);
         }

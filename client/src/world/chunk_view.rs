@@ -1,6 +1,6 @@
 use base::world::{self, Chunk, HexPillar, PillarSection, PropType};
 use base::math::*;
-use glium::{Depth, DrawParameters, IndexBuffer, Program, Surface, VertexBuffer};
+use glium::{self, DrawParameters, IndexBuffer, Program, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
 use glium::backend::Facade;
 use glium::index::PrimitiveType;
@@ -86,9 +86,9 @@ impl ChunkView {
         }
     }
 
-    pub fn draw<S: Surface>(&self, surface: &mut S, camera: &Camera) {
+    pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         for pillar in &self.pillars {
-            for section in &pillar.pillars {
+            for section in &pillar.sections {
                 let scale_matrix =
                     Matrix4::from_nonuniform_scale(1.0,
                                                    1.0,
@@ -102,7 +102,7 @@ impl ChunkView {
                     material_color: section.ground.get_color(),
                 };
                 let params = DrawParameters {
-                    depth: Depth {
+                    depth: glium::Depth {
                         write: true,
                         test: DepthTest::IfLess,
                         ..Default::default()
@@ -126,6 +126,9 @@ impl ChunkView {
     }
 }
 
+
+// FIXME `Vertex` really shouldn't be in this module
+
 #[derive(Debug, Copy, Clone)]
 pub struct Vertex {
     pub position: [f32; 3],
@@ -136,7 +139,7 @@ implement_vertex!(Vertex, position, color);
 
 pub struct PillarView {
     pos: Point2f,
-    pillars: Vec<PillarSection>,
+    sections: Vec<PillarSection>,
     plants: Vec<PlantView>,
 }
 
@@ -144,7 +147,7 @@ impl PillarView {
     fn from_pillar<F: Facade>(pos: Point2f, pillar: &HexPillar, facade: &F) -> PillarView {
         PillarView {
             pos: pos,
-            pillars: pillar.sections().to_vec(),
+            sections: pillar.sections().to_vec(),
             plants: pillar.props()
                 .iter()
                 .map(|prop| {

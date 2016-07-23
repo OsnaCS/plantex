@@ -1,5 +1,5 @@
 use glium::backend::Facade;
-use glium::{Depth, DepthTest, DrawParameters, Program, Surface, VertexBuffer};
+use glium::{self, DepthTest, DrawParameters, Program, VertexBuffer};
 use glium::index::{NoIndices, PrimitiveType};
 use Camera;
 use render::ToArr;
@@ -34,8 +34,8 @@ impl PlantView {
                         for cp in branch.points.iter() {
                             verts += 1;
                             vertices.push(Vertex {
-                                position: [cp.point.x, cp.point.y, cp.point.z],
-                                color: [branch.color.x, branch.color.y, branch.color.z],
+                                position: cp.point.to_arr(),
+                                color: branch.color.to_arr(),
                             });
                         }
 
@@ -45,7 +45,7 @@ impl PlantView {
             }
         };
 
-        info!("{} verts -> {:?}", verts, pos);
+        debug!("{} verts -> {:?}", verts, pos);
 
         PlantView {
             branches: branches,
@@ -54,7 +54,7 @@ impl PlantView {
         }
     }
 
-    pub fn draw<S: Surface>(&self, surface: &mut S, camera: &Camera) {
+    pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         let uniforms = uniform! {
             // FIXME HACK why do i have to half the Z coordinate...
             offset: [self.pos.x, self.pos.y, self.pos.z/2.0],
@@ -63,7 +63,7 @@ impl PlantView {
         };
 
         let params = DrawParameters {
-            depth: Depth {
+            depth: glium::Depth {
                 write: true,
                 test: DepthTest::IfLess,
                 ..Default::default()
