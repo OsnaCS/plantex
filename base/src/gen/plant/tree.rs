@@ -1,7 +1,8 @@
 //! Generates random trees and tree-like plants.
 
 use prop::plant::{Branch, ControlPoint};
-use math::{Basis3, Deg, Euler, InnerSpace, Point3f, Rotation, Vector1, Vector3f};
+use math::{ApproxEq, Basis3, Deg, Euler, InnerSpace, Point3f, Rad, Rotation, Rotation3, Vector1,
+           Vector3f};
 use rand::{Rand, Rng};
 use rand::distributions::range::SampleRange;
 use rand::distributions::{self, IndependentSample};
@@ -52,9 +53,9 @@ static PRESETS: &'static [Preset] = &[Preset {
                                           branch_diameter_factor: 0.3..0.5,
                                           branch_angle_deg: 70.0..110.0,
                                           branch_diam_reduction: 0.75..0.85,
-                                          branch_segment_angle: 2.0..10.0,
-                                          branch_segment_count: 5..20,
-                                          branch_segment_length: 0.05..0.15,
+                                          branch_segment_angle: 5.0..15.0,
+                                          branch_segment_count: 3..10,
+                                          branch_segment_length: 0.30..0.40,
                                       }];
 
 pub struct TreeGen {
@@ -107,8 +108,12 @@ impl TreeGen {
             // branch.
             let mut add_point = |dist, diam| {
                 // First, get a random angle by which to variate this segment.
-                let x_angle = range_sample(&self.preset.branch_segment_angle, rng);
-                let y_angle = range_sample(&self.preset.branch_segment_angle, rng);
+                let mut x_angle = range_sample(&self.preset.branch_segment_angle, rng);
+                let mut y_angle = range_sample(&self.preset.branch_segment_angle, rng);
+
+                // Invert sign with 50%, to mirror the specified range to the other side
+                x_angle = if rng.gen() { -x_angle } else { x_angle };
+                y_angle = if rng.gen() { -y_angle } else { y_angle };
 
                 let rotation = Basis3::from(Euler {
                     x: Deg::new(x_angle),
@@ -122,8 +127,7 @@ impl TreeGen {
                 last = point;
 
                 // FIXME Make branch spawn chance configurable
-                // 1/20 chance to spawn a branch at any point
-                if rng.gen_weighted_bool(20) {
+                if rng.gen_weighted_bool(depth * 3) {
                     // Build a vector for the branch direction (Z is up)
                     let dir = self.gen_branch_direction(rng, dir);
                     self.create_branch(rng, point, dir, depth + 1, diam);
@@ -139,7 +143,13 @@ impl TreeGen {
             for _ in 0..segment_count {
                 let length = segment_dist(diam);
                 diam *= diam_factor;
+
                 add_point(length, diam);
+
+                if diam < 0.001 {
+                    // Bail out at 1mm
+                    break;
+                }
             }
         }
 
@@ -157,20 +167,33 @@ impl TreeGen {
     /// direction to use for a new child branch.
     fn gen_branch_direction<R: Rng>(&self, rng: &mut R, parent_dir: Vector3f) -> Vector3f {
         // `branch_angle_deg` specifies the angle range in degrees
-        let mut x_angle = range_sample(&self.preset.branch_angle_deg, rng);
-        let mut y_angle = range_sample(&self.preset.branch_angle_deg, rng);
+        let angle = range_sample(&self.preset.branch_angle_deg, rng);
 
-        // Invert sign with 50%, to mirror the specified range to the other side
-        x_angle = if rng.gen() { -x_angle } else { x_angle };
-        y_angle = if rng.gen() { -y_angle } else { y_angle };
+        // AWESOME hack: Generate *any* vector that is not parallel to `parent_dir`,
+        // calculate the cross product between it and `parent_dir`.
+        // This gets us a vector perpendicular to `parent_dir`, which we can rotate
+        // `parent_dir` around to tilt it by `angle` degrees.
+        let mut rand_vec = Vector3f::rand(rng).normalize();
+        while rand_vec.angle(parent_dir).approx_eq(&Rad::new(0.0)) {
+            // They're parallel, so generate a new vector. This is probably unnecessary,
+            // but someone
+            // who *actually* knows their math instead of faking it should check.
+            rand_vec = Vector3f::rand(rng);
+        }
 
-        // Rotate the growing direction of the parent branch
-        let rotation = Basis3::from(Euler {
-            x: Deg::new(x_angle),
-            y: Deg::new(y_angle),
-            z: Deg::new(0.0),
-        });
-        rotation.rotate_vector(parent_dir)
+        // Create vector around we'll tilt `parent_dir`
+        let rot_vec = parent_dir.cross(rand_vec);
+
+        // Tilt the growing direction of the parent branch by about 90° to get the
+        // direction of the
+        let tilt_rotation = Basis3::from_axis_angle(rot_vec, Deg::new(angle).into());
+
+        let spin_angle = range_sample(&(0.0..360.0), rng);
+
+        // Then rotate this vector randomly (0-360°) around the parent branch
+        let around_we_go = Basis3::from_axis_angle(parent_dir, Deg::new(spin_angle).into());
+
+        around_we_go.rotate_vector(tilt_rotation.rotate_vector(parent_dir))
     }
 
     fn create_trunk<R: Rng>(&mut self, rng: &mut R) {
@@ -192,8 +215,8 @@ impl TreeGen {
                 let point = Point3f::new(0.0, 0.0, height);
                 if height >= min_branch_height {
                     // FIXME Make branch spawn chance configurable
-                    // 1/3 chance to spawn a branch at any point
-                    if rng.gen_weighted_bool(3) {
+                    let branches = &[0, 0, 1, 1, 1, 2];
+                    for _ in 0..*rng.choose(branches).unwrap() {
                         // Build a vector for the branch direction (Z is up)
                         let dir = self.gen_branch_direction(rng, Vector3f::new(0.0, 0.0, 1.0));
                         self.create_branch(rng, point, dir, 1, diam);
