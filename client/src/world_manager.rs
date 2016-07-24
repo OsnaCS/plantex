@@ -41,7 +41,7 @@ impl WorldManager {
                 world: World::empty(),
                 world_view: WorldView::from_world(&World::empty(), game_context.get_facade()),
                 provided_chunks: chunk_recv,
-                // TODO: this needs to come from the config!
+                // TODO: load this from the config!
                 load_distance: 20.0,
             })),
             chunk_requests: chunk_request_sender,

@@ -21,11 +21,10 @@ impl Game {
     pub fn new(config: Config) -> Result<Self, ()> {
         let facade = try!(create_context(&config));
         let context = GameContext::new(facade, config.clone());
-        // let mut world = World::empty();
-        let world_manager = WorldManager::new(create_chunk_provider(&config), context.clone());
+
+        let world_manager = WorldManager::new(create_chunk_provider(context.get_config()),
+                                              context.clone());
         world_manager.pregenerate_world();
-        // let mut provider = create_chunk_provider(&config);
-        // pregenerate_world(&mut world, &mut *provider);
 
         Ok(Game {
             renderer: Renderer::new(context.clone()),
@@ -67,16 +66,6 @@ impl Game {
 fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
     Box::new(WorldGenerator::with_seed(config.seed))
 }
-
-// fn pregenerate_world(world: &mut World, provider: &mut ChunkProvider) {
-//     // FIXME temporary worldgen invoker, replace with dynamic gen
-//     for i in 0..5 {
-//         for j in 0..5 {
-// world.add_chunk(ChunkIndex(AxialPoint::new(i, j)),
-// provider).unwrap();
-//         }
-//     }
-// }
 
 /// Creates the OpenGL context and prints useful information about the
 /// success or failure of said action.

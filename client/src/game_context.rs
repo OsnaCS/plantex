@@ -4,7 +4,7 @@ use super::Config;
 #[derive(Clone)]
 pub struct GameContext {
     facade: GlutinFacade,
-    config: Config,
+    config: Config, // TODO: we might want to wrap it into `Rc` (performance)
 }
 
 impl GameContext {
