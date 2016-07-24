@@ -169,31 +169,7 @@ impl TreeGen {
         // `branch_angle_deg` specifies the angle range in degrees
         let angle = range_sample(&self.preset.branch_angle_deg, rng);
 
-        // AWESOME hack: Generate *any* vector that is not parallel to `parent_dir`,
-        // calculate the cross product between it and `parent_dir`.
-        // This gets us a vector perpendicular to `parent_dir`, which we can rotate
-        // `parent_dir` around to tilt it by `angle` degrees.
-        let mut rand_vec = Vector3f::rand(rng);
-        while rand_vec.angle(parent_dir).approx_eq(&Rad::new(0.0)) {
-            // They're parallel, so generate a new vector. This is probably unnecessary,
-            // but someone
-            // who *actually* knows their math instead of faking it should check.
-            rand_vec = Vector3f::rand(rng);
-        }
-
-        // Create vector around we'll tilt `parent_dir`
-        let rot_vec = parent_dir.cross(rand_vec);
-
-        // Tilt the growing direction of the parent branch by about 90° to get the
-        // direction of the new branch
-        let tilt_rotation = Basis3::from_axis_angle(rot_vec, Deg::new(angle).into());
-
-        let spin_angle = range_sample(&(0.0..360.0), rng);
-
-        // Then rotate this vector randomly (0-360°) around the parent branch
-        let around_we_go = Basis3::from_axis_angle(parent_dir, Deg::new(spin_angle).into());
-
-        around_we_go.rotate_vector(tilt_rotation.rotate_vector(parent_dir))
+        random_vec_with_angle(rng, parent_dir, angle)
     }
 
     fn create_trunk<R: Rng>(&mut self, rng: &mut R) {

@@ -7,11 +7,13 @@ extern crate cgmath;
 mod axial_point;
 mod axial_vector;
 mod dimension;
+mod random;
 
 pub use self::cgmath::*;
 pub use self::axial_vector::*;
 pub use self::axial_point::*;
 pub use self::dimension::*;
+pub use self::random::*;
 
 pub type DefaultFloat = f32;
 pub type DefaultInt = i32;
