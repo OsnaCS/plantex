@@ -56,8 +56,7 @@ impl PlantView {
 
     pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         let uniforms = uniform! {
-            // FIXME HACK why do i have to half the Z coordinate...
-            offset: [self.pos.x, self.pos.y, self.pos.z/2.0],
+            offset: self.pos.to_arr(),
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
         };

@@ -47,11 +47,21 @@ pub struct PillarIndex(pub math::AxialPoint);
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct ChunkIndex(pub math::AxialPoint);
 
-/// Represents one discrete height of a pillar section.
+/// Represents a discretized height.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
-pub struct HeightType(pub u16);
+pub struct HeightType(u16);
 
 impl HeightType {
+    /// Creates a `HeightType` with a given discrete height.
+    pub fn from_units(n: u16) -> Self {
+        HeightType(n)
+    }
+
+    /// Gets the number of discrete units.
+    pub fn units(&self) -> u16 {
+        self.0
+    }
+
     /// Calculates the real (world position) height from the underlying
     /// representation.
     pub fn to_real(&self) -> f32 {

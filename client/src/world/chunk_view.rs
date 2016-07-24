@@ -89,14 +89,11 @@ impl ChunkView {
     pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         for pillar in &self.pillars {
             for section in &pillar.sections {
-                let scale_matrix =
-                    Matrix4::from_nonuniform_scale(1.0,
-                                                   1.0,
-                                                   section.top.0 as f32 - section.bottom.0 as f32) *
-                    Matrix4::from_translation(Vector3f::new(0.0, 0.0, section.bottom.0 as f32));
-                let uniforms = uniform!{
-                    scale_matrix: scale_matrix.to_arr(),
-                    offset: [pillar.pos.x, pillar.pos.y],
+                let height = section.top.units() - section.bottom.units();
+
+                let uniforms = uniform! {
+                    height: height as f32,
+                    offset: [pillar.pos.x, pillar.pos.y, section.bottom.to_real()],
                     proj_matrix: camera.proj_matrix().to_arr(),
                     view_matrix: camera.view_matrix().to_arr(),
                     material_color: section.ground.get_color(),
@@ -153,7 +150,7 @@ impl PillarView {
                 .map(|prop| {
                     match prop.prop {
                         PropType::Plant(ref plant) => {
-                            let pos = Point3f::new(pos.x, pos.y, prop.baseline.0 as f32);
+                            let pos = Point3f::new(pos.x, pos.y, prop.baseline.to_real());
                             PlantView::from_plant(pos, plant, facade)
                         }
                     }

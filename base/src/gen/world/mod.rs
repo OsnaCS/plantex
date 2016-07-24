@@ -35,8 +35,9 @@ impl ChunkProvider for WorldGenerator {
                 let height = (((i as f32) * 0.25).sin() * 10.0 + ((j as f32) * 0.25).sin() * 10.0 +
                               100.0) as u16;
 
-                let ground_section =
-                    PillarSection::new(GroundMaterial::Dirt, HeightType(0), HeightType(height));
+                let ground_section = PillarSection::new(GroundMaterial::Dirt,
+                                                        HeightType::from_units(0),
+                                                        HeightType::from_units(height));
                 let mut props = Vec::new();
 
                 // Place a test plant every few blocks
@@ -46,7 +47,7 @@ impl ChunkProvider for WorldGenerator {
                     let gen = PlantGenerator::rand(&mut rng);
 
                     props.push(Prop {
-                        baseline: HeightType(height),
+                        baseline: HeightType::from_units(height),
                         prop: PropType::Plant(gen.generate(&mut rng)),
                     });
                 }
