@@ -5,7 +5,6 @@ use Camera;
 use render::ToArr;
 use base::math::*;
 use base::prop::Plant;
-use world::chunk_view::Vertex;
 
 /// Graphical representation of a 'base::Plant'
 pub struct PlantView {
@@ -80,3 +79,12 @@ impl PlantView {
         }
     }
 }
+
+/// Vertex type used to render plants/trees.
+#[derive(Debug, Copy, Clone)]
+pub struct Vertex {
+    pub position: [f32; 3],
+    pub color: [f32; 3],
+}
+
+implement_vertex!(Vertex, position, color);

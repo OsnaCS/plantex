@@ -38,11 +38,9 @@ impl ChunkView {
 
             hexagon_vertex_buffer.push_front(Vertex {
                 position: [x, y, world::PILLAR_STEP_HEIGHT],
-                color: [0.15 * i as f32, 0.0, 0.0],
             });
             hexagon_vertex_buffer.push_back(Vertex {
                 position: [x, y, 0.0],
-                color: [1.0 - 0.15 * i as f32, 0.15 * i as f32, 0.0],
             });
 
         }
@@ -124,15 +122,13 @@ impl ChunkView {
 }
 
 
-// FIXME `Vertex` really shouldn't be in this module
-
+/// Vertex type used to render chunks (or hex pillars).
 #[derive(Debug, Copy, Clone)]
 pub struct Vertex {
     pub position: [f32; 3],
-    pub color: [f32; 3],
 }
 
-implement_vertex!(Vertex, position, color);
+implement_vertex!(Vertex, position);
 
 pub struct PillarView {
     pos: Point2f,
