@@ -39,9 +39,7 @@ impl ChunkView {
             hexagon_vertex_buffer.push_front(Vertex {
                 position: [x, y, world::PILLAR_STEP_HEIGHT],
             });
-            hexagon_vertex_buffer.push_back(Vertex {
-                position: [x, y, 0.0],
-            });
+            hexagon_vertex_buffer.push_back(Vertex { position: [x, y, 0.0] });
 
         }
 

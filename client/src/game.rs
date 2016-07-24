@@ -8,7 +8,7 @@ use super::Config;
 use world::WorldView;
 use base::math::*;
 use base::gen::WorldGenerator;
-use std::time::{Instant, Duration};
+use std::time::{Duration, Instant};
 
 pub struct Game {
     #[allow(dead_code)]
