@@ -8,6 +8,7 @@ use super::Config;
 use world::WorldView;
 use base::math::*;
 use base::gen::WorldGenerator;
+use std::time::{Duration, Instant};
 
 pub struct Game {
     #[allow(dead_code)]
@@ -41,6 +42,8 @@ impl Game {
     /// components. This function should remain rather small, all heavy lifting
     /// should be done in other functions.
     pub fn run(mut self) -> Result<(), ()> {
+        let mut frames = 0;
+        let mut next_fps_measure = Instant::now() + Duration::from_secs(1);
         loop {
             try!(self.renderer.render(&self.world_view, &self.player.get_camera()));
             let event_resp = self.event_manager
@@ -49,6 +52,13 @@ impl Game {
                 break;
             }
             self.player.update();
+
+            frames += 1;
+            if next_fps_measure < Instant::now() {
+                info!("{} FPS", frames);
+                next_fps_measure = Instant::now() + Duration::from_secs(1);
+                frames = 0;
+            }
         }
 
         Ok(())
