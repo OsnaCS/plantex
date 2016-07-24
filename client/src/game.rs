@@ -1,39 +1,36 @@
-use base::world::{ChunkIndex, ChunkProvider, World};
+use base::world::ChunkProvider;
 use ghost::Ghost;
 use event_manager::{CloseHandler, EventManager, EventResponse};
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::{self, DisplayBuild, glutin};
-use render::Renderer;
-use super::Config;
-use world::WorldView;
-use base::math::*;
+use super::Renderer;
+use super::{Config, GameContext, WorldManager};
 use base::gen::WorldGenerator;
 use std::time::{Duration, Instant};
 
 pub struct Game {
     #[allow(dead_code)]
-    provider: Box<ChunkProvider>, // Needed when we dynamically load chunks
     renderer: Renderer,
     event_manager: EventManager,
-    world_view: WorldView,
     #[allow(dead_code)]
-    world: World, // Needed for physics and updated as chunk updates arrive
+    world_manager: WorldManager,
     player: Ghost,
 }
 
 impl Game {
     pub fn new(config: Config) -> Result<Self, ()> {
-        let context = try!(create_context(&config));
-        let mut world = World::empty();
-        let provider = create_chunk_provider(&config);
-        pregenerate_world(&mut world, &*provider);
+        let facade = try!(create_context(&config));
+        let context = GameContext::new(facade, config.clone());
+        // let mut world = World::empty();
+        let world_manager = WorldManager::new(create_chunk_provider(&config), context.clone());
+        world_manager.pregenerate_world();
+        // let mut provider = create_chunk_provider(&config);
+        // pregenerate_world(&mut world, &mut *provider);
 
         Ok(Game {
-            provider: provider,
             renderer: Renderer::new(context.clone()),
-            event_manager: EventManager::new(context.clone()),
-            world_view: WorldView::from_world(&world, &context),
-            world: world,
+            event_manager: EventManager::new(context.get_facade().clone()),
+            world_manager: world_manager,
             player: Ghost::new(context.clone()),
         })
     }
@@ -45,7 +42,9 @@ impl Game {
         let mut frames = 0;
         let mut next_fps_measure = Instant::now() + Duration::from_secs(1);
         loop {
-            try!(self.renderer.render(&self.world_view, &self.player.get_camera()));
+            self.world_manager.update_world();
+
+            try!(self.renderer.render(&*self.world_manager.get_view(), &self.player.get_camera()));
             let event_resp = self.event_manager
                 .poll_events(vec![&mut CloseHandler, &mut self.player]);
             if event_resp == EventResponse::Quit {
@@ -69,14 +68,15 @@ fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
     Box::new(WorldGenerator::with_seed(config.seed))
 }
 
-fn pregenerate_world(world: &mut World, provider: &ChunkProvider) {
-    // FIXME temporary worldgen invoker, replace with dynamic gen
-    for i in 0..5 {
-        for j in 0..5 {
-            world.add_chunk(ChunkIndex(AxialPoint::new(i, j)), provider).unwrap();
-        }
-    }
-}
+// fn pregenerate_world(world: &mut World, provider: &mut ChunkProvider) {
+//     // FIXME temporary worldgen invoker, replace with dynamic gen
+//     for i in 0..5 {
+//         for j in 0..5 {
+// world.add_chunk(ChunkIndex(AxialPoint::new(i, j)),
+// provider).unwrap();
+//         }
+//     }
+// }
 
 /// Creates the OpenGL context and prints useful information about the
 /// success or failure of said action.

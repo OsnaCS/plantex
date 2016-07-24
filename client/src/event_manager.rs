@@ -15,17 +15,17 @@ pub enum EventResponse {
 }
 
 pub struct EventManager {
-    context: GlutinFacade,
+    facade: GlutinFacade,
 }
 
 impl EventManager {
-    pub fn new(context: GlutinFacade) -> Self {
-        EventManager { context: context }
+    pub fn new(facade: GlutinFacade) -> Self {
+        EventManager { facade: facade }
     }
 
     pub fn poll_events(&self, mut handlers: Vec<&mut EventHandler>) -> EventResponse {
 
-        for ev in self.context.poll_events() {
+        for ev in self.facade.poll_events() {
             for i in 0..handlers.len() {
                 let response = handlers[i].handle_event(&ev);
                 match response {

@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use super::{Chunk, ChunkIndex, HexPillar, PillarIndex};
-use world::provider::ChunkProvider;
 use math::*;
 
 /// Represents a whole game world consisting of multiple `Chunk`s.
@@ -18,21 +17,21 @@ impl World {
         World { chunks: HashMap::new() }
     }
 
-    pub fn replace_chunk(&mut self, index: ChunkIndex, provider: &ChunkProvider) {
-        match provider.load_chunk(index) {
-            Some(x) => {
-                self.chunks.insert(index, x);
-                info!("Chunk {:?} loaded", index);
-            }
-            None => error!("Chunk {:?} not loadable!", index),
-        }
+    /// Inserts the given chunk into the world and replaces the chunk that
+    /// might have been at the given position before.
+    pub fn replace_chunk(&mut self, index: ChunkIndex, chunk: Chunk) {
+        // TODO: we might want to return the replaced chunk...
+        self.chunks.insert(index, chunk);
+        debug!("inserted chunk at position {:?}", index);
     }
 
-    pub fn add_chunk(&mut self, index: ChunkIndex, provider: &ChunkProvider) -> Result<(), ()> {
+    /// Inserts the given chunk at the given position, if there wasn't a chunk
+    /// at that position before. In the latter case the given chunk is returned.
+    pub fn add_chunk(&mut self, index: ChunkIndex, chunk: Chunk) -> Result<(), Chunk> {
         if self.chunks.contains_key(&index) {
-            Err(())
+            Err(chunk)
         } else {
-            self.replace_chunk(index, provider);
+            self.replace_chunk(index, chunk);
             Ok(())
         }
     }
