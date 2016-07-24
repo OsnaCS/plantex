@@ -1,12 +1,12 @@
 //! Generates random trees and tree-like plants.
 
 use prop::plant::{Branch, ControlPoint};
-use math::{ApproxEq, Basis3, Deg, Euler, InnerSpace, Point3f, Rad, Rotation, Rotation3, Vector1,
-           Vector3f};
+use math::*;
 use rand::{Rand, Rng};
 use rand::distributions::range::SampleRange;
 use rand::distributions::{self, IndependentSample};
 use std::ops::Range;
+use std::cmp;
 
 /// Parameters for the tree generator.
 #[derive(Debug)]
@@ -280,7 +280,9 @@ impl Rand for TreeGen {
 }
 
 /// Samples a random element from a range.
-fn range_sample<T: SampleRange + PartialOrd + Copy, R: Rng>(range: &Range<T>, rng: &mut R) -> T {
+fn range_sample<T: SampleRange + cmp::PartialOrd + Copy, R: Rng>(range: &Range<T>,
+                                                                 rng: &mut R)
+                                                                 -> T {
     // Build a `rand` crate Range. We use `std`s Range for the cool `a..b` syntax ;)
     distributions::Range::new(range.start, range.end).ind_sample(rng)
 }
