@@ -14,7 +14,6 @@ use world::WorldView;
 pub struct WorldManager {
     shared: Rc<RefCell<Shared>>,
     chunk_requests: Sender<ChunkIndex>,
-    sent_requests: RefCell<HashSet<ChunkIndex>>,
     context: Rc<GameContext>,
 }
 
@@ -22,6 +21,7 @@ struct Shared {
     world: World,
     world_view: WorldView,
     provided_chunks: Receiver<(ChunkIndex, Chunk)>,
+    sent_requests: HashSet<ChunkIndex>,
     load_distance: f32,
     player_chunk: ChunkIndex,
 }
@@ -43,13 +43,13 @@ impl WorldManager {
             shared: Rc::new(RefCell::new(Shared {
                 world: World::empty(),
                 world_view: WorldView::from_world(&World::empty(), game_context.get_facade()),
+                sent_requests: HashSet::new(),
                 provided_chunks: chunk_recv,
                 // TODO: load this from the config!
                 load_distance: 7.0,
                 player_chunk: ChunkIndex(AxialPoint::new(0, 0)),
             })),
             chunk_requests: chunk_request_sender,
-            sent_requests: RefCell::new(HashSet::new()),
             context: game_context,
         };
 
@@ -76,7 +76,7 @@ impl WorldManager {
                     let chunk_index = ChunkIndex(chunk_pos);
 
                     if !shared.world.chunks.contains_key(&chunk_index) {
-                        self.request_chunk(chunk_index);
+                        self.request_chunk(chunk_index, &mut shared.sent_requests);
                     }
                 }
             }
@@ -100,11 +100,10 @@ impl WorldManager {
     }
 
     /// Sends a chunk request if that was not already done for this chunk.
-    fn request_chunk(&self, index: ChunkIndex) {
-        let mut req = self.sent_requests.borrow_mut();
-        if !req.contains(&index) {
+    fn request_chunk(&self, index: ChunkIndex, sent_requests: &mut HashSet<ChunkIndex>) {
+        if !sent_requests.contains(&index) {
             self.chunk_requests.send(index).unwrap();
-            req.insert(index);
+            sent_requests.insert(index);
         }
     }
 
@@ -163,7 +162,7 @@ impl WorldManager {
 
             shared.world_view.refresh_chunk(pos, &chunk, self.context.get_facade());
 
-            self.sent_requests.borrow_mut().remove(&pos);
+            shared.sent_requests.remove(&pos);
             let res = shared.world.add_chunk(pos, chunk);
             if res.is_err() {
                 warn!("chunk at {:?} already exists!", pos);
