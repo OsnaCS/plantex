@@ -162,7 +162,7 @@ fn hex_corner(size: f32, i: i32) -> (f32, f32) {
     (size * angle_rad.cos(), size * angle_rad.sin())
 }
 /// Calculates the top face of the Hexagon and normals
-pub fn get_top_hexagon_model() -> (Vec<Vertex>, Vec<u32>) {
+fn get_top_hexagon_model() -> (Vec<Vertex>, Vec<u32>) {
     let mut vertices = Vec::new();
 
     for i in 0..6 {
@@ -183,7 +183,7 @@ pub fn get_top_hexagon_model() -> (Vec<Vertex>, Vec<u32>) {
 }
 
 /// Calculates the bottom face of the Hexagon and the normals
-pub fn get_bottom_hexagon_model() -> (Vec<Vertex>, Vec<u32>) {
+fn get_bottom_hexagon_model() -> (Vec<Vertex>, Vec<u32>) {
     let mut vertices = Vec::new();
 
     for i in 0..6 {
@@ -204,7 +204,7 @@ pub fn get_bottom_hexagon_model() -> (Vec<Vertex>, Vec<u32>) {
 }
 
 /// Calculates the sides of the Hexagon and normals
-pub fn get_side_hexagon_model(ind1: i32, ind2: i32, cur_len: usize) -> (Vec<Vertex>, Vec<u32>) {
+fn get_side_hexagon_model(ind1: i32, ind2: i32, cur_len: usize) -> (Vec<Vertex>, Vec<u32>) {
     let mut vertices = Vec::new();
 
     let (x1, y1) = hex_corner(world::HEX_OUTER_RADIUS, ind1);
