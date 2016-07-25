@@ -28,15 +28,6 @@ impl SkyView {
             Vertex { position: [0.0, 0.0, SKYDOME_SIZE], color: [0.0, 0.0, 1.0]},
         ];
 
-        //         let raw_vertex_buffer = vec![
-        //     Vertex { position: [0.0, -60.0, 60.0], color: [1.0, 0.0, 0.0]},
-        //     Vertex { position: [60.0, 0.0, 60.0], color: [0.0, 1.0, 0.0]},
-        //     Vertex { position: [0.0, 60.0, 60.0], color: [0.0, 0.0, 1.0]},
-        //     Vertex { position: [-60.0, 0.0, 60.0], color: [0.0, 0.0, 1.0]},
-        //     Vertex { position: [0.0, 0.0, 0.0], color: [0.0, 0.0, 1.0]},
-        //     Vertex { position: [0.0, 0.0, 120.0], color: [0.0, 0.0, 1.0]},
-        // ];
-
         let vbuf = VertexBuffer::new(context.get_facade(), &raw_vertex_buffer).unwrap();
 
         // Indices
