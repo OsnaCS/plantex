@@ -1,10 +1,12 @@
 use base::world::{Chunk, ChunkProvider, World};
 use super::GameContext;
+use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
+use std::mem::replace;
 use std::thread;
 use std::cell::{Ref, RefCell};
 use std::sync::mpsc::{Receiver, Sender, TryRecvError, channel};
-use base::world::ChunkIndex;
+use base::world::{CHUNK_SIZE, ChunkIndex};
 use base::math::*;
 use world::WorldView;
 
@@ -12,6 +14,7 @@ use world::WorldView;
 pub struct WorldManager {
     shared: Rc<RefCell<Shared>>,
     chunk_requests: Sender<ChunkIndex>,
+    sent_requests: RefCell<HashSet<ChunkIndex>>,
     context: Rc<GameContext>,
 }
 
@@ -19,8 +22,8 @@ struct Shared {
     world: World,
     world_view: WorldView,
     provided_chunks: Receiver<(ChunkIndex, Chunk)>,
-    #[allow(dead_code)]
     load_distance: f32,
+    player_chunk: ChunkIndex,
 }
 
 impl WorldManager {
@@ -36,25 +39,70 @@ impl WorldManager {
             worker_thread(provider, chunk_request_recv, chunk_sender);
         });
 
-        WorldManager {
+        let this = WorldManager {
             shared: Rc::new(RefCell::new(Shared {
                 world: World::empty(),
                 world_view: WorldView::from_world(&World::empty(), game_context.get_facade()),
                 provided_chunks: chunk_recv,
                 // TODO: load this from the config!
-                load_distance: 20.0,
+                load_distance: 3.0,
+                player_chunk: ChunkIndex(AxialPoint::new(0, 0)),
             })),
             chunk_requests: chunk_request_sender,
+            sent_requests: RefCell::new(HashSet::new()),
             context: game_context,
-        }
+        };
+
+        this.update_player_chunk();
+        this
     }
 
-    // TODO: this is temporary
-    pub fn pregenerate_world(&self) {
-        for q in 0..5 {
-            for r in 0..5 {
-                self.chunk_requests.send(ChunkIndex(AxialPoint::new(q, r))).unwrap();
+    /// Called when the player moves to a different chunk.
+    ///
+    /// This unloads all currently loaded chunks that are too far away from the
+    /// player, and loads all chunks close enough to the player (if they aren't
+    /// already requested).
+    fn update_player_chunk(&self) {
+        let mut shared = self.shared.borrow_mut();
+        let player_chunk = shared.player_chunk.0;
+        let radius = shared.load_distance as i32;
+
+        // Load new range
+        for qd in -radius..radius {
+            for rd in -radius..radius {
+                let chunk_pos = AxialPoint::new(player_chunk.q + qd, player_chunk.r + rd);
+                let chunk_index = ChunkIndex(chunk_pos);
+
+                if !shared.world.chunks.contains_key(&chunk_index) {
+                    self.request_chunk(chunk_index);
+                }
             }
+        }
+
+        // Drop unneeded chunks from world
+        let min_q = player_chunk.q - radius;
+        let min_r = player_chunk.r - radius;
+        let max_q = player_chunk.q + radius;
+        let max_r = player_chunk.r + radius;
+        let chunks = replace(&mut shared.world.chunks, HashMap::new());
+        let mut new_chunks = HashMap::new();
+        for (index, chunk) in chunks {
+            let chunk_pos = index.0;
+            if chunk_pos.q >= min_q && chunk_pos.r >= min_r && chunk_pos.q <= max_q &&
+               chunk_pos.r <= max_r {
+                // Still in range
+                new_chunks.insert(index, chunk);
+            }
+        }
+        shared.world.chunks = new_chunks;
+    }
+
+    /// Sends a chunk request if that was not already done for this chunk.
+    fn request_chunk(&self, index: ChunkIndex) {
+        let mut req = self.sent_requests.borrow_mut();
+        if !req.contains(&index) {
+            self.chunk_requests.send(index).unwrap();
+            req.insert(index);
         }
     }
 
@@ -73,14 +121,27 @@ impl WorldManager {
     }
 
     /// Starts to generate all chunks within `load_distance` (config parameter)
-    /// around `pos`. TODO
-    pub fn load_world_around(&self, _pos: Point2f) -> bool {
-        unimplemented!();
+    /// around `pos`.
+    fn load_world_around(&self, pos: Point2f) {
+        let axial_pos = AxialPoint::from_real(pos);
+        let chunk_pos = AxialPoint::new(axial_pos.q / CHUNK_SIZE as i32,
+                                        axial_pos.r / CHUNK_SIZE as i32);
+
+        let mut shared = self.shared.borrow_mut();
+        if shared.player_chunk.0 != chunk_pos {
+            shared.player_chunk = ChunkIndex(chunk_pos);
+            info!("player moved to chunk {:?}", chunk_pos);
+            drop(shared);
+
+            self.update_player_chunk();
+        }
     }
 
     /// Applies all queued updated to the actual world. Notably, all generated
     /// chunks are added.
-    pub fn update_world(&self) {
+    pub fn update_world(&self, player_pos: Point3f) {
+        self.load_world_around(Point2f::new(player_pos.x, player_pos.y));
+
         let mut shared = self.shared.borrow_mut();
         let mut view_needs_update = false;
 
@@ -99,6 +160,7 @@ impl WorldManager {
                 Ok(val) => val,
             };
 
+            self.sent_requests.borrow_mut().remove(&pos);
             let res = shared.world.add_chunk(pos, chunk);
             if res.is_err() {
                 warn!("chunk at {:?} already exists!", pos);
