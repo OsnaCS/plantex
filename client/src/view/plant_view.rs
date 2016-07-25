@@ -1,28 +1,26 @@
 use glium::backend::Facade;
-use glium::{self, DepthTest, DrawParameters, Program, VertexBuffer};
+use glium::{self, DepthTest, DrawParameters, VertexBuffer};
 use glium::index::{NoIndices, PrimitiveType};
 use Camera;
 use util::ToArr;
 use base::math::*;
 use base::prop::Plant;
+use std::rc::Rc;
+use super::PlantRenderer;
 
 /// Graphical representation of a 'base::Plant'
 pub struct PlantView {
     branches: Vec<VertexBuffer<Vertex>>,
-    /// program links vertex and fragment shader together
-    program: Program,
+    renderer: Rc<PlantRenderer>,
     pos: Point3f,
 }
 
 impl PlantView {
-    pub fn from_plant<F: Facade>(pos: Point3f, plant: &Plant, facade: &F) -> Self {
-        // FIXME this is just stupid, don't recompile the shader for every plant
-        let prog = Program::from_source(facade,
-                                        include_str!("plant_dummy.vert"),
-                                        include_str!("plant_dummy.frag"),
-                                        None)
-            .unwrap();
-
+    pub fn from_plant<F: Facade>(pos: Point3f,
+                                 plant: &Plant,
+                                 renderer: Rc<PlantRenderer>,
+                                 facade: &F)
+                                 -> Self {
         // FIXME handle other plant types
         let mut verts = 0;
         let branches = match *plant {
@@ -48,7 +46,7 @@ impl PlantView {
 
         PlantView {
             branches: branches,
-            program: prog,
+            renderer: renderer,
             pos: pos,
         }
     }
@@ -72,7 +70,7 @@ impl PlantView {
         for vbuf in &self.branches {
             surface.draw(vbuf,
                       &NoIndices(PrimitiveType::LineStrip),
-                      &self.program,
+                      self.renderer.program(),
                       &uniforms,
                       &params)
                 .unwrap();

@@ -17,6 +17,7 @@ mod renderer;
 mod world;
 mod world_manager;
 mod event_manager;
+pub mod view;
 pub mod util;
 
 pub use camera::Camera;

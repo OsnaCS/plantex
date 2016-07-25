@@ -7,7 +7,9 @@ use glium::index::PrimitiveType;
 use Camera;
 use util::ToArr;
 use std::f32::consts;
-use world::plant_view::PlantView;
+use view::PlantView;
+use std::rc::Rc;
+use view::PlantRenderer;
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
@@ -22,7 +24,11 @@ pub struct ChunkView {
 impl ChunkView {
     /// Creates the graphical representation of given chunk at the given chunk
     /// offset
-    pub fn from_chunk<F: Facade>(chunk: &Chunk, offset: AxialPoint, facade: &F) -> Self {
+    pub fn from_chunk<F: Facade>(chunk: &Chunk,
+                                 offset: AxialPoint,
+                                 plant_renderer: Rc<PlantRenderer>,
+                                 facade: &F)
+                                 -> Self {
 
 
         let mut vertices = Vec::new();
@@ -52,7 +58,7 @@ impl ChunkView {
                                        (q % world::CHUNK_SIZE).into())
                 .to_real();
             let pillar = &chunk.pillars()[q as usize];
-            pillars.push(PillarView::from_pillar(pos, pillar, facade));
+            pillars.push(PillarView::from_pillar(pos, pillar, plant_renderer.clone(), facade));
         }
 
         let ibuf = IndexBuffer::new(facade, PrimitiveType::TrianglesList, &indices).unwrap();
@@ -119,7 +125,11 @@ pub struct PillarView {
 }
 
 impl PillarView {
-    fn from_pillar<F: Facade>(pos: Point2f, pillar: &HexPillar, facade: &F) -> PillarView {
+    fn from_pillar<F: Facade>(pos: Point2f,
+                              pillar: &HexPillar,
+                              plant_renderer: Rc<PlantRenderer>,
+                              facade: &F)
+                              -> PillarView {
         PillarView {
             pos: pos,
             sections: pillar.sections().to_vec(),
@@ -129,7 +139,7 @@ impl PillarView {
                     match prop.prop {
                         PropType::Plant(ref plant) => {
                             let pos = Point3f::new(pos.x, pos.y, prop.baseline.to_real());
-                            PlantView::from_plant(pos, plant, facade)
+                            PlantView::from_plant(pos, plant, plant_renderer.clone(), facade)
                         }
                     }
                 })
