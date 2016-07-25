@@ -36,7 +36,7 @@ impl AxialPoint {
         }
     }
 
-    /// Return the `AxailPoint´ from a Point2f
+    /// Return the `AxialPoint` from a `Point2f`
     pub fn from_real(real: Point2f) -> Self {
         let q: f32 = (real.x * ::math::SQRT_3 / 3.0 - real.y / 3.0) / HEX_OUTER_RADIUS;
         let r: f32 = (real.y * 2.0 / 3.0) / HEX_OUTER_RADIUS;
