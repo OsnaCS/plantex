@@ -13,6 +13,7 @@ use std::net::{SocketAddr, TcpStream};
 use std::error::Error;
 use view::{SkyView, Sun};
 use super::DayTime;
+use super::weather::Weather;
 
 pub struct Game {
     renderer: Renderer,
@@ -24,6 +25,7 @@ pub struct Game {
     sun: Sun,
     sky_view: SkyView,
     daytime: DayTime,
+    weather: Weather,
 }
 
 impl Game {
@@ -32,17 +34,20 @@ impl Game {
         let server = try!(TcpStream::connect(server));
         let facade = try!(create_context(&config));
         let context = Rc::new(GameContext::new(facade, config.clone()));
+        let world_weather = Weather::new(context.clone());
+        let player = Ghost::new(context.clone());
 
         Ok(Game {
             renderer: Renderer::new(context.clone()),
             event_manager: EventManager::new(context.get_facade().clone()),
             world_manager: WorldManager::new(create_chunk_provider(context.get_config()),
                                              context.clone()),
-            player: Ghost::new(context.clone()),
             server: server,
             sun: Sun::new(context.clone()),
             sky_view: SkyView::new(context.clone()),
             daytime: DayTime::default(),
+            weather: world_weather,
+            player: player,
         })
     }
 
@@ -56,6 +61,7 @@ impl Game {
 
         loop {
             self.world_manager.update_world(self.player.get_camera().position);
+            self.weather.update(&self.player.get_camera());
 
             let time_now = Instant::now();
             let duration_delta = time_now.duration_since(time_prev);
@@ -72,7 +78,9 @@ impl Game {
             try!(self.renderer.render(&*self.world_manager.get_view(),
                                       &self.player.get_camera(),
                                       &self.sun,
+                                      &mut self.weather,
                                       &self.sky_view));
+
             let event_resp = self.event_manager
                 .poll_events(vec![&mut CloseHandler, &mut self.player, &mut self.daytime]);
             if event_resp == EventResponse::Quit {
