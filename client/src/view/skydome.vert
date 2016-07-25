@@ -2,6 +2,8 @@
 
 in vec3 position;
 in vec3 color;
+in float theta;
+in float phi;
 
 out vec3 x_color;
 
@@ -20,5 +22,7 @@ void main() {
 
     gl_Position = proj_matrix * view_matrix * vec4(position, 1);
 
-    x_color = color;
+    // x_color = vec3(theta, 0, phi);
+    x_color = vec3(phi/6.28);
+    // x_color = color;
 }
