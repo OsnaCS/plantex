@@ -1,9 +1,9 @@
 use world::WorldView;
 use glium::Surface;
 use super::{Camera, GameContext};
+use view::SkyView;
 use std::rc::Rc;
 use std::error::Error;
-
 use glium::texture::texture2d::Texture2d;
 use glium::texture::{DepthFormat, DepthTexture2d, MipmapsOption, UncompressedFloatFormat};
 use glium::framebuffer::MultiOutputFrameBuffer;
@@ -19,8 +19,6 @@ pub struct Renderer {
     quad_vertex_buffer: VertexBuffer<Vertex>,
     quad_index_buffer: IndexBuffer<u16>,
 }
-
-
 
 impl Renderer {
     pub fn new(context: Rc<GameContext>) -> Self {
@@ -62,7 +60,11 @@ impl Renderer {
 
 
     /// Is called once every main loop iteration
-    pub fn render(&self, world_view: &WorldView, camera: &Camera) -> Result<(), Box<Error>> {
+    pub fn render(&self,
+                  world_view: &WorldView,
+                  camera: &Camera,
+                  sky_view: &SkyView)
+                  -> Result<(), Box<Error>> {
         // ===================================================================
         // Rendering into HDR framebuffer
         // ===================================================================
@@ -93,8 +95,9 @@ impl Renderer {
                   &Default::default())
             .unwrap();
 
-        try!(target.finish());
+        sky_view.draw_skydome(&mut target, camera);
 
+        try!(target.finish());
 
         Ok(())
     }
