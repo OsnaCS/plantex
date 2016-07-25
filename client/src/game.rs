@@ -39,8 +39,17 @@ impl Game {
     pub fn run(mut self) -> Result<(), ()> {
         let mut frames = 0;
         let mut next_fps_measure = Instant::now() + Duration::from_secs(1);
+        let mut time_prev = Instant::now();
         loop {
             self.world_manager.update_world();
+
+
+            let mut time_now = Instant::now();
+            let mut duration_delta = time_now.duration_since(time_prev);
+            let mut delta = ((duration_delta.subsec_nanos() / 1000) as f32) / 1000000.0 +
+                            duration_delta.as_secs() as f32;
+
+            time_prev = Instant::now();
 
             try!(self.renderer.render(&*self.world_manager.get_view(), &self.player.get_camera()));
             let event_resp = self.event_manager
@@ -48,7 +57,7 @@ impl Game {
             if event_resp == EventResponse::Quit {
                 break;
             }
-            self.player.update();
+            self.player.update(delta);
 
             frames += 1;
             if next_fps_measure < Instant::now() {
