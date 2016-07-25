@@ -12,7 +12,7 @@ use std::io::{Read, Write};
 use self::toml::Value;
 use std::string::String;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Config {
     pub resolution: Dimension2u,
     pub window_mode: WindowMode,
@@ -250,7 +250,7 @@ fn config_command(mut toml_config: Config, matches: &ArgMatches) -> Result<Confi
     Ok(toml_config)
 }
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum WindowMode {
     Windowed,
     // FullScreenWindow, // TODO: maybe add this

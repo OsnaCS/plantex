@@ -5,7 +5,7 @@ use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
 use glium::backend::Facade;
 use glium::index::PrimitiveType;
 use Camera;
-use render::ToArr;
+use util::ToArr;
 use std::collections::VecDeque;
 use std::f32::consts;
 use world::plant_view::PlantView;

@@ -8,16 +8,23 @@ extern crate glium;
 #[macro_use]
 extern crate log;
 
-pub mod render;
-pub mod event_manager;
 mod camera;
 mod config;
 mod game;
+mod game_context;
 mod ghost;
+mod renderer;
 mod world;
+mod world_manager;
+mod event_manager;
+pub mod util;
 
-pub use config::Config;
 pub use camera::Camera;
+pub use config::Config;
+pub use event_manager::*;
+pub use game_context::GameContext;
+pub use renderer::Renderer;
+pub use world_manager::WorldManager;
 
 use game::Game;
 

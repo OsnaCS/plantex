@@ -1,11 +1,12 @@
 use super::camera::*;
+use super::GameContext;
 use super::event_manager::*;
-use glium::backend::glutin_backend::GlutinFacade;
 use glium::glutin::{CursorState, ElementState, Event, MouseButton, VirtualKeyCode};
+use std::rc::Rc;
 
 pub struct Ghost {
     cam: Camera,
-    context: GlutinFacade,
+    context: Rc<GameContext>,
     speed: f32,
     forward: bool,
     backward: bool,
@@ -22,7 +23,7 @@ const SHIFT_SPEED: f32 = 1.0;
 
 
 impl Ghost {
-    pub fn new(context: GlutinFacade) -> Self {
+    pub fn new(context: Rc<GameContext>) -> Self {
         Ghost {
             cam: Camera::default(),
             context: context,
@@ -137,7 +138,7 @@ impl EventHandler for Ghost {
             Event::MouseInput(ElementState::Pressed, MouseButton::Left) => {
                 if !self.mouselock {
                     self.mouselock = true;
-                    if let Some(window) = self.context.get_window() {
+                    if let Some(window) = self.context.get_facade().get_window() {
                         window.set_cursor_state(CursorState::Hide)
                             .expect("failed to set cursor state");
                     } else {
@@ -146,7 +147,7 @@ impl EventHandler for Ghost {
                 } else if self.mouselock {
                     self.mouselock = false;
 
-                    if let Some(window) = self.context.get_window() {
+                    if let Some(window) = self.context.get_facade().get_window() {
                         window.set_cursor_state(CursorState::Normal)
                             .expect("failed to set cursor state");
                     } else {
@@ -159,7 +160,7 @@ impl EventHandler for Ghost {
 
             Event::MouseMoved(x, y) => {
                 if self.mouselock {
-                    if let Some(window) = self.context.get_window() {
+                    if let Some(window) = self.context.get_facade().get_window() {
                         // Possibility of mouse being outside of window without it resetting to the
                         // middle?
                         if let Some(middle) = window.get_inner_size_pixels() {

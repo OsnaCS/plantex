@@ -3,7 +3,7 @@ use super::{Chunk, ChunkIndex};
 /// A type that can load a game world, specifically single chunks of it. This
 /// could mean loading a saved world from a file, generating a world
 /// procedurally or loading a world from a server.
-pub trait ChunkProvider {
+pub trait ChunkProvider: Send {
     /// Attempt to load a chunk from the world. This may fail (e.g. when
     /// loading from a file and the chunk is not yet saved in the file).
     ///

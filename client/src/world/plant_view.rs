@@ -2,7 +2,7 @@ use glium::backend::Facade;
 use glium::{self, DepthTest, DrawParameters, Program, VertexBuffer};
 use glium::index::{NoIndices, PrimitiveType};
 use Camera;
-use render::ToArr;
+use util::ToArr;
 use base::math::*;
 use base::prop::Plant;
 
