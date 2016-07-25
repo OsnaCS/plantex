@@ -7,3 +7,6 @@
 
 # Backup files created by rustfmt
 *.rs.bk
+
+# game config
+/config.toml
