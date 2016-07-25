@@ -39,6 +39,16 @@ impl Chunk {
             Some(&self.pillars[(pos.r as usize) * (CHUNK_SIZE as usize) + (pos.q as usize)])
         }
     }
+
+    /// Closure function which interates through a `Chunk`
+    pub fn with_pillars<F>(mut iter: F) where F: FnMut(AxialPoint) {
+        for q in 0..CHUNK_SIZE {
+            for r in 0..CHUNK_SIZE {
+                let pos = AxialPoint::new(q.into(), r.into());
+                iter(pos);
+            }
+        }
+    }
 }
 
 impl ops::Index<AxialPoint> for Chunk {
