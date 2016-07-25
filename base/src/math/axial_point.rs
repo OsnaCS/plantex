@@ -34,6 +34,30 @@ impl AxialPoint {
             y: (self.r as DefaultFloat) * (3.0 / 2.0) * HEX_OUTER_RADIUS,
         }
     }
+    /// Return the AxailPoint from a Point2f
+    pub fn from_real(real: Point2f) -> Self {
+        let q: f32 = (real.x * ::math::SQRT_3 / 3.0 - real.y / 3.0) / HEX_OUTER_RADIUS;
+        let r: f32 = (real.y * 2.0 / 3.0) / HEX_OUTER_RADIUS;
+
+        let y: f32 = -q - r;
+
+        // Rounding
+        let mut rx: i32 = (q + 0.5) as i32;
+        let ry: i32 = (y + 0.5) as i32;
+        let mut rz: i32 = (r + 0.5) as i32;
+
+        // To test the right rounding
+        let x_diff = (rx as f32 - q).abs();
+        let y_diff = (ry as f32 - y).abs();
+        let z_diff = (rz as f32 - r).abs();
+        if x_diff > y_diff && x_diff > z_diff {
+            rx = -ry - rz;
+        } else if !(y_diff > z_diff) {
+            rz = -rx - ry;
+        }
+
+        AxialPoint { q: rx, r: rz }
+    }
     /// Returns the `s` component of corresponding cube coordinates. In cube
     /// coordinates 'q + r + s = 0', so saving `s` is redundant and can be
     /// calculated on the fly when needed.
