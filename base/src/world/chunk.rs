@@ -1,4 +1,4 @@
-use super::{CHUNK_SIZE, HexPillar, PillarIndexComponent};
+use super::{CHUNK_SIZE, ChunkIndex, HexPillar, PillarIndexComponent};
 use std::ops;
 use math::*;
 
@@ -54,12 +54,15 @@ impl Chunk {
     }
 
     /// Creates a `Chunk` using individual pillars returned by a closure
-    pub fn with_pillars<F>(mut func: F) -> Chunk
+    pub fn with_pillars<F>(chunk_index: ChunkIndex, mut func: F) -> Chunk
         where F: FnMut(AxialPoint) -> HexPillar
     {
         let mut hec = Vec::new();
-        for q in 0..CHUNK_SIZE {
-            for r in 0..CHUNK_SIZE {
+        let start_q = CHUNK_SIZE as i32 * chunk_index.0.q;
+        let start_r = CHUNK_SIZE as i32 * chunk_index.0.r;
+
+        for q in start_q..start_q + CHUNK_SIZE as i32 {
+            for r in start_r..start_r + CHUNK_SIZE as i32 {
                 let pos = AxialPoint::new(q.into(), r.into());
                 hec.push(func(pos));
             }
