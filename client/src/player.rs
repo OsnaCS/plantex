@@ -6,6 +6,7 @@ use base::math::*;
 use std::time::{Duration, Instant};
 use std::thread::sleep;
 
+const MAX_VELOCITY: f32 = 5.0;
 pub struct Player {
     cam: Camera,
     // velocity: f32,
@@ -13,6 +14,7 @@ pub struct Player {
     context: GlutinFacade,
     delta_x: f32,
     vel_z: f32,
+    walk_vel: Vector2<f32>,
     delta_y: f32,
     delta_z: f32,
     dz: f32,
@@ -20,6 +22,14 @@ pub struct Player {
     is_jumping: bool,
     is_moving: bool,
     tick_count: f32,
+    walk_accel: Vector3<f32>,
+    forward: bool,
+    backward: bool,
+    left: bool,
+    right: bool,
+    up: bool,
+    down: bool,
+    mouselock: bool,
 }
 
 impl Player {
@@ -37,10 +47,19 @@ impl Player {
             delta_z: 0.0,
             gravity: 0.005,
             vel_z: 0.0,
+            walk_vel: Vector2::new(0.0, 0.0),
             dz: 0.0,
             is_jumping: false,
             is_moving: false,
             tick_count: 1.0,
+            walk_accel: Vector3::new(0.0, 0.0, 0.0),
+            forward: false,
+            backward: false,
+            left: false,
+            right: false,
+            up: false,
+            down: false,
+            mouselock: false,
         }
     }
 
@@ -53,26 +72,27 @@ impl Player {
             self.dz = 0.11;
             self.is_jumping = true;
         }
-
-
-        // if self.delta_x == 0.0 && self.delta_y == 0.0 {
-        //     // Jump vertically because sideways motion is zero
-        //     let now = Instant::now();
-
-        //     tick_count = 1.0;
-        //     while 1.0 > 0.999999 {
-
-        //         let mut dz: f32 = 1.0;
-
-        //         self.cam.move_up(20.0);
-        //         // self.cam.move_up(dz);
-        //         sleep(Duration::new(1, 0));
-        //         tick_count += 1.0;
-        //         println!("dz: {}", dz);
-        //     }
-        //     // self.cam.move_down(self.cam.position[2] - 1.0);
-        // }
     }
+
+
+
+    // if self.delta_x == 0.0 && self.delta_y == 0.0 {
+    //     // Jump vertically because sideways motion is zero
+    //     let now = Instant::now();
+
+    //     tick_count = 1.0;
+    //     while 1.0 > 0.999999 {
+
+    //         let mut dz: f32 = 1.0;
+
+    //         self.cam.move_up(20.0);
+    //         // self.cam.move_up(dz);
+    //         sleep(Duration::new(1, 0));
+    //         tick_count += 1.0;
+    //         println!("dz: {}", dz);
+    //     }
+    //     // self.cam.move_down(self.cam.position[2] - 1.0);
+    // }
 
     pub fn update(&mut self, delta: f32) {
         // let mut tick_count = self.tick_count;
@@ -81,7 +101,7 @@ impl Player {
         //         ((self.gravity / 2.0) * (tick_count * 0.1) * (tick_count *
         //         0.1));
         // println!("cam position: {:?}", self.cam.position);
-        if self.is_jumping == true {
+        if self.is_jumping {
             if self.cam.position[2] >= 50.0 {
                 self.dz = self.dz - self.gravity;
                 // let mut dz = (1.5 * self.tick_count * 0.007) -
@@ -90,7 +110,7 @@ impl Player {
                 // if dz < -0.03 {
                 //     dz = -0.03;
                 // }
-                println!("dz: {:?}", self.dz);
+                // println!("dz: {:?}", self.dz);
                 if self.dz < -0.2 {
                     self.dz = -0.2;
                 }
@@ -106,6 +126,34 @@ impl Player {
                 self.cam.position[2] = 1.0;
             }
 
+        }
+
+        if self.forward && !self.backward {
+            if self.walk_vel[1] < MAX_VELOCITY {
+                self.walk_vel[1] += 1.0;
+            }
+            self.cam.move_forward(self.walk_vel[1]);
+        }
+
+        if self.backward && !self.forward {
+            if self.walk_vel[1] < MAX_VELOCITY - 2.0 {
+                self.walk_vel[1] += 0.5;
+            }
+            self.cam.move_backward(self.walk_vel[1]);
+        }
+
+        if self.left && !self.right {
+            if self.walk_vel[0] < MAX_VELOCITY - 2.0 {
+                self.walk_vel[0] += 0.5;
+            }
+            self.cam.move_left(self.walk_vel[0]);
+        }
+
+        if !self.left && self.right {
+            if self.walk_vel[0] < MAX_VELOCITY - 2.0 {
+                self.walk_vel[0] += 0.5;
+            }
+            self.cam.move_right(self.walk_vel[0]);
         }
 
         // if self.is_moving {
@@ -130,41 +178,65 @@ impl EventHandler for Player {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
         match *e {
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::W)) => {
-                self.cam.move_forward(0.1);
+                self.forward = true;
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::W)) => {
+                self.walk_vel[1] = 0.0;
+                self.forward = false;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::S)) => {
-                self.cam.move_backward(0.1);
+                self.backward = true;
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::S)) => {
+                self.walk_vel[1] = 0.0;
+                self.backward = false;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::A)) => {
-                self.cam.move_left(0.1);
-
+                self.left = true;
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::A)) => {
+                self.walk_vel[0] = 0.0;
+                self.left = false;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::D)) => {
-                self.cam.move_right(0.1);
+                self.right = true;
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::D)) => {
+                self.walk_vel[0] = 0.0;
+                self.right = false;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::Space)) => {
-
-                // if !self.is_jumping() {
                 self.jump();
-                //  self.cam.move_down(0.1);
                 EventResponse::Continue
             }
-
-            // X only for the fact, that you cannot hold LControl to go down,
-            // because holding the key only counts as one keystroke
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::C)) => {
-                self.cam.move_down(1.0);
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::Space)) => {
+                self.up = false;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::LControl)) => {
-                self.cam.move_down(1.0);
+                self.down = true;
                 EventResponse::Continue
             }
-
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::LControl)) => {
+                self.down = false;
+                EventResponse::Continue
+            }
+            // Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::LShift)) => {
+            //     self.speed = SHIFT_SPEED;
+            //     EventResponse::Continue
+            // }
+            // Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::LShift)) => {
+            //     self.speed = DEFAULT_SPEED;
+            //     EventResponse::Continue
+            // }
             Event::MouseInput(ElementState::Pressed, MouseButton::Left) => {
                 info!("clicked");
                 if let Some(window) = self.context.get_window() {
