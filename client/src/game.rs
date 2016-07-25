@@ -21,14 +21,11 @@ impl Game {
         let facade = try!(create_context(&config));
         let context = Rc::new(GameContext::new(facade, config.clone()));
 
-        let world_manager = WorldManager::new(create_chunk_provider(context.get_config()),
-                                              context.clone());
-        world_manager.pregenerate_world();
-
         Ok(Game {
             renderer: Renderer::new(context.clone()),
             event_manager: EventManager::new(context.get_facade().clone()),
-            world_manager: world_manager,
+            world_manager: WorldManager::new(create_chunk_provider(context.get_config()),
+                                             context.clone()),
             player: Ghost::new(context.clone()),
         })
     }
@@ -41,8 +38,7 @@ impl Game {
         let mut next_fps_measure = Instant::now() + Duration::from_secs(1);
         let mut time_prev = Instant::now();
         loop {
-            self.world_manager.update_world();
-
+            self.world_manager.update_world(self.player.get_camera().position);
 
             let time_now = Instant::now();
             let duration_delta = time_now.duration_since(time_prev);
