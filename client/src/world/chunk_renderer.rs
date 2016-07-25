@@ -9,8 +9,7 @@ pub struct ChunkRenderer {
     /// Chunk shader
     program: Program,
     /// Vertex buffer for a single `HexPillar`, repeated, scaled and colored as
-    /// needed to draw
-    /// chunks.
+    /// needed to draw chunks.
     pillar_vbuf: VertexBuffer<Vertex>,
     /// Index Buffer for `pillar_vbuf`.
     pillar_ibuf: IndexBuffer<u32>,
