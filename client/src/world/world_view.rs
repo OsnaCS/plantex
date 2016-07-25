@@ -14,14 +14,6 @@ pub struct WorldView {
 
 impl WorldView {
     pub fn from_world<F: Facade>(world: &World, facade: &F) -> Self {
-        let mut pillars_pos = Vec::new();
-        for q in 0..world::CHUNK_SIZE {
-            for r in 0..world::CHUNK_SIZE {
-                let pos = AxialPoint::new(q.into(), r.into()).to_real();
-                pillars_pos.push(pos);
-            }
-        }
-
         let mut chunks = Vec::new();
         for chunkkey in world.chunks.keys() {
             // FIX: 1 is HEX_OUTER_RADIUS, but thats a float
