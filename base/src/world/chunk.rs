@@ -40,26 +40,28 @@ impl Chunk {
         }
     }
 
-    /// Closure function which interates through a `Chunk`
-    pub fn for_pillars_positions<F>(mut iter: F)
+    /// Calls the given closure with all pillar positions
+    /// that are contained in a `Chunk`
+    pub fn for_pillars_positions<F>(mut func: F)
         where F: FnMut(AxialPoint)
     {
         for q in 0..CHUNK_SIZE {
             for r in 0..CHUNK_SIZE {
                 let pos = AxialPoint::new(q.into(), r.into());
-                iter(pos);
+                func(pos);
             }
         }
     }
 
-    pub fn with_pillars<F>(mut iter: F) -> Chunk
+    /// Creates a `Chunk` using individual pillars returned by a closure
+    pub fn with_pillars<F>(mut func: F) -> Chunk
         where F: FnMut(AxialPoint) -> HexPillar
     {
         let mut hec = Vec::new();
         for q in 0..CHUNK_SIZE {
             for r in 0..CHUNK_SIZE {
                 let pos = AxialPoint::new(q.into(), r.into());
-                hec.push(iter(pos));
+                hec.push(func(pos));
             }
         }
         Chunk { pillars: hec }
