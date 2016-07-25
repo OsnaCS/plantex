@@ -17,8 +17,9 @@ pub struct Ghost {
     mouselock: bool,
 }
 
-const DEFAULT_SPEED: f32 = 0.2;
-const SHIFT_SPEED: f32 = 1.0;
+// Speed per second
+const DEFAULT_SPEED: f32 = 12.0;
+const SHIFT_SPEED: f32 = 60.0;
 
 
 
@@ -37,24 +38,26 @@ impl Ghost {
             mouselock: false,
         }
     }
-    pub fn update(&mut self) {
+    pub fn update(&mut self, delta: f32) {;
+        let factored_speed = self.speed * delta;
+
         if self.forward {
-            self.cam.move_forward(self.speed);
+            self.cam.move_forward(factored_speed);
         }
         if self.backward {
-            self.cam.move_backward(self.speed);
+            self.cam.move_backward(factored_speed);
         }
         if self.left {
-            self.cam.move_left(self.speed);
+            self.cam.move_left(factored_speed);
         }
         if self.right {
-            self.cam.move_right(self.speed);
+            self.cam.move_right(factored_speed);
         }
         if self.up {
-            self.cam.move_up(self.speed);
+            self.cam.move_up(factored_speed);
         }
         if self.down {
-            self.cam.move_down(self.speed);
+            self.cam.move_down(factored_speed);
         }
     }
 
