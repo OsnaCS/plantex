@@ -1,17 +1,18 @@
 use super::camera::*;
 use super::event_manager::*;
-use glium::backend::glutin_backend::GlutinFacade;
+use GameContext;
 use glium::glutin::{CursorState, ElementState, Event, MouseButton, VirtualKeyCode};
 use base::math::*;
 use std::time::{Duration, Instant};
 use std::thread::sleep;
+use std::rc::Rc;
 
 const MAX_VELOCITY: f32 = 5.0;
 pub struct Player {
     cam: Camera,
     // velocity: f32,
     prev_mouse_pos: Option<(i32, i32)>,
-    context: GlutinFacade,
+    context: Rc<GameContext>,
     delta_x: f32,
     vel_z: f32,
     walk_vel: Vector2<f32>,
@@ -33,7 +34,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(context: GlutinFacade) -> Self {
+    pub fn new(context: Rc<GameContext>) -> Self {
         Player {
             cam: Camera {
                 position: Point3::new(0.0, 0.0, 50.0),
@@ -239,7 +240,7 @@ impl EventHandler for Player {
             // }
             Event::MouseInput(ElementState::Pressed, MouseButton::Left) => {
                 info!("clicked");
-                if let Some(window) = self.context.get_window() {
+                if let Some(window) = self.context.get_facade().get_window() {
                     let res = window.set_cursor_state(CursorState::Grab);
                     warn!("{:?}", res);
                 } else {

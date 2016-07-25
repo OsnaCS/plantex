@@ -27,9 +27,6 @@ pub struct Game {
     daytime: DayTime,
     weather: Weather,
     ghost: Ghost,
-    world_view: WorldView,
-    #[allow(dead_code)]
-    world: World, // Needed for physics and updated as chunk updates arrive
     player: Player,
 }
 
@@ -56,9 +53,6 @@ impl Game {
             player: player,
 =======
             ghost: Ghost::new(context.clone()),
-            event_manager: EventManager::new(context.clone()),
-            world_view: WorldView::from_world(&world, &context),
-            world: world,
             player: Player::new(context.clone()),
 >>>>>>> (WIP) Add walking and jumping
         })
