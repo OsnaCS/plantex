@@ -14,18 +14,23 @@ use std::error::Error;
 use view::{SkyView, Sun};
 use super::DayTime;
 use super::weather::Weather;
+use player::Player;
 
 pub struct Game {
     renderer: Renderer,
     event_manager: EventManager,
     world_manager: WorldManager,
-    player: Ghost,
     #[allow(dead_code)]
     server: TcpStream,
     sun: Sun,
     sky_view: SkyView,
     daytime: DayTime,
     weather: Weather,
+    ghost: Ghost,
+    world_view: WorldView,
+    #[allow(dead_code)]
+    world: World, // Needed for physics and updated as chunk updates arrive
+    player: Player,
 }
 
 impl Game {
@@ -46,8 +51,16 @@ impl Game {
             sun: Sun::new(context.clone()),
             sky_view: SkyView::new(context.clone()),
             daytime: DayTime::default(),
+<<<<<<< HEAD
             weather: world_weather,
             player: player,
+=======
+            ghost: Ghost::new(context.clone()),
+            event_manager: EventManager::new(context.clone()),
+            world_view: WorldView::from_world(&world, &context),
+            world: world,
+            player: Player::new(context.clone()),
+>>>>>>> (WIP) Add walking and jumping
         })
     }
 

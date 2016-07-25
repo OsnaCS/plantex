@@ -21,6 +21,7 @@ mod event_manager;
 pub mod view;
 pub mod util;
 pub mod daytime;
+mod player;
 
 pub use daytime::*;
 pub use camera::Camera;
