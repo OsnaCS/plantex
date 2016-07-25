@@ -39,7 +39,7 @@ impl Ghost {
         }
     }
     pub fn update(&mut self, delta: f32) {;
-        let mut factored_speed = self.speed * delta;
+        let factored_speed = self.speed * delta;
 
         if self.forward {
             self.cam.move_forward(factored_speed);

@@ -44,10 +44,10 @@ impl Game {
             self.world_manager.update_world();
 
 
-            let mut time_now = Instant::now();
-            let mut duration_delta = time_now.duration_since(time_prev);
-            let mut delta = ((duration_delta.subsec_nanos() / 1000) as f32) / 1000000.0 +
-                            duration_delta.as_secs() as f32;
+            let time_now = Instant::now();
+            let duration_delta = time_now.duration_since(time_prev);
+            let delta = ((duration_delta.subsec_nanos() / 1_000) as f32) / 1_000_000.0 +
+                        duration_delta.as_secs() as f32;
 
             time_prev = Instant::now();
 
