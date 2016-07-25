@@ -41,7 +41,7 @@ impl Chunk {
     }
 
     /// Closure function which interates through a `Chunk`
-    pub fn with_pillars<F>(mut iter: F)
+    pub fn for_pillars_positions<F>(mut iter: F)
         where F: FnMut(AxialPoint)
     {
         for q in 0..CHUNK_SIZE {
@@ -50,6 +50,19 @@ impl Chunk {
                 iter(pos);
             }
         }
+    }
+
+    pub fn with_pillars<F>(mut iter: F) -> Chunk
+        where F: FnMut(AxialPoint) -> HexPillar
+    {
+        let mut hec = Vec::new();
+        for q in 0..CHUNK_SIZE {
+            for r in 0..CHUNK_SIZE {
+                let pos = AxialPoint::new(q.into(), r.into());
+                hec.push(iter(pos));
+            }
+        }
+        Chunk { pillars: hec }
     }
 }
 

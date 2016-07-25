@@ -1,4 +1,4 @@
-use base::world::{self, Chunk, World};
+use base::world::{self, World};
 use base::math::*;
 use glium::backend::Facade;
 use glium;
@@ -14,13 +14,6 @@ pub struct WorldView {
 
 impl WorldView {
     pub fn from_world<F: Facade>(world: &World, facade: &F) -> Self {
-        let mut pillars_pos = Vec::new();
-
-        // Iterating through the Chunk by using the closure function in `Chunk`
-        Chunk::with_pillars(|axial| {
-            pillars_pos.push(axial.to_real());
-        });
-
         let mut chunks = Vec::new();
         for chunkkey in world.chunks.keys() {
             // FIX: 1 is HEX_OUTER_RADIUS, but thats a float
