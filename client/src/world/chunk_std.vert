@@ -18,10 +18,13 @@ uniform vec3 material_color;
 const vec3 sun = vec3(1.0, 0.0, 1.0);
 
 void main() {
-    gl_Position = proj_matrix * view_matrix * vec4(position.xy + offset.xy, position.z * height + offset.z, 1);
+    gl_Position = proj_matrix * view_matrix * vec4( position.xy +
+                                                    offset.xy, position.z *
+                                                    height +
+                                                    offset.z, 1);
     surfaceNormal = normal;
     toLight = sun;
-   
+
     // FIXME: Slightly modify the material color to create some color
     // differences. Remove this once real lighting is used.
     x_color = material_color;
