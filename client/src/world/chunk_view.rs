@@ -1,4 +1,4 @@
-use base::world::{self, Chunk, HexPillar, PillarSection, PropType};
+use base::world::{self, Chunk, HexPillar, PropType};
 use base::math::*;
 use glium::{self, DrawParameters, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
@@ -109,8 +109,6 @@ pub struct Instance {
 implement_vertex!(Instance, material_color, offset, height);
 
 pub struct PillarView {
-    pos: Point2f,
-    sections: Vec<PillarSection>,
     plants: Vec<PlantView>,
 }
 
@@ -121,8 +119,6 @@ impl PillarView {
                               facade: &F)
                               -> PillarView {
         PillarView {
-            pos: pos,
-            sections: pillar.sections().to_vec(),
             plants: pillar.props()
                 .iter()
                 .map(|prop| {
