@@ -6,6 +6,7 @@ use Camera;
 use std::collections::HashMap;
 use std::rc::Rc;
 use view::PlantRenderer;
+use world::ChunkRenderer;
 
 pub use world::chunk_view::ChunkView;
 pub use view::PlantView;
@@ -13,12 +14,14 @@ pub use view::PlantView;
 /// Graphical representation of the `base::World`.
 pub struct WorldView {
     chunks: HashMap<ChunkIndex, ChunkView>,
+    chunk_renderer: Rc<ChunkRenderer>,
     plant_renderer: Rc<PlantRenderer>,
 }
 
 impl WorldView {
     pub fn from_world<F: Facade>(world: &World, facade: &F) -> Self {
         let plant_renderer = Rc::new(PlantRenderer::new(facade));
+        let chunk_renderer = Rc::new(ChunkRenderer::new(facade));
 
         let mut chunks = HashMap::new();
         for chunkkey in world.chunks.keys() {
@@ -29,12 +32,14 @@ impl WorldView {
                                                                 (1 * world::CHUNK_SIZE as i32),
                                                                 chunkkey.0.r *
                                                                 (1 * world::CHUNK_SIZE as i32)),
+                                                chunk_renderer.clone(),
                                                 plant_renderer.clone(),
                                                 facade));
         }
 
         WorldView {
             chunks: chunks,
+            chunk_renderer: chunk_renderer,
             plant_renderer: plant_renderer,
         }
     }
@@ -46,6 +51,7 @@ impl WorldView {
                                                                  (1 * world::CHUNK_SIZE as i32),
                                                                  chunk_pos.0.r *
                                                                  (1 * world::CHUNK_SIZE as i32)),
+                                                                 self.chunk_renderer.clone(),
                                                  self.plant_renderer.clone(),
                                                  facade));
     }
