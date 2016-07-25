@@ -24,19 +24,6 @@ impl ChunkView {
     /// offset
     pub fn from_chunk<F: Facade>(chunk: &Chunk, offset: AxialPoint, facade: &F) -> Self {
 
-        // Create one hexagon for this chunk
-        // let mut hexagon_vertex_buffer = VecDeque::new();
-        // for i in 0..6 {
-        // let (x, y) = hex_corner(world::HEX_OUTER_RADIUS, i);
-        //
-        // hexagon_vertex_buffer.push_front(Vertex {
-        // position: [x, y, world::PILLAR_STEP_HEIGHT],
-        // });
-        // hexagon_vertex_buffer.push_back(Vertex { position: [x, y, 0.0] });
-        //
-        // }
-        //
-
 
         let mut vertices = Vec::new();
         let mut indices = Vec::new();
@@ -65,9 +52,6 @@ impl ChunkView {
         vertices.append(&mut sw_vertices);
         indices.append(&mut sw_indices);
 
-        // convert to vector
-        // let final_buffer: Vec<_> = top_modell.0;
-
 
         let vbuf = VertexBuffer::new(facade, &vertices).unwrap();
         let prog = Program::from_source(facade,
@@ -85,15 +69,6 @@ impl ChunkView {
             let pillar = &chunk.pillars()[q as usize];
             pillars.push(PillarView::from_pillar(pos, pillar, facade));
         }
-
-        // Indecies
-        // let raw_index_buffer = [5, 0, 1, 2, 5, 1, 4, 5, 2, 3, 4, 2 /* TOP */, 6, 7,
-        // 8, 8, 9,
-        // 6, 9, 11, 6, 9, 10, 11 /* BOTTOM */, 6, 5, 4, 7, 6, 4, 6, 0,
-        // 5, 11, 0, 6, 10, 1, 0, 11, 10, 0, 9, 2, 1, 10, 9, 1, 8, 3, 2, 9,
-        // 8, 2, 7, 4, 3, 8, 7, 3 /* Body */];
-
-
 
         let ibuf = IndexBuffer::new(facade, PrimitiveType::TrianglesList, &indices).unwrap();
 
@@ -186,7 +161,7 @@ fn hex_corner(size: f32, i: i32) -> (f32, f32) {
 
     (size * angle_rad.cos(), size * angle_rad.sin())
 }
-
+/// Calculates the top face of the Hexagon and normals
 pub fn get_top_hexagon_modell() -> (Vec<Vertex>, Vec<u32>) {
     let mut vertices = Vec::new();
 
@@ -207,6 +182,7 @@ pub fn get_top_hexagon_modell() -> (Vec<Vertex>, Vec<u32>) {
     (vertices, vec![0, 6, 1, 5, 6, 0, 4, 6, 5, 3, 6, 4, 2, 6, 3, 1, 6, 2])
 }
 
+/// Calculates the bottom face of the Hexagon and the normals
 pub fn get_bottom_hexagon_modell() -> (Vec<Vertex>, Vec<u32>) {
     let mut vertices = Vec::new();
 
@@ -227,6 +203,7 @@ pub fn get_bottom_hexagon_modell() -> (Vec<Vertex>, Vec<u32>) {
     (vertices, vec![8, 13, 7, 7, 13, 12, 12, 13, 11, 11, 13, 10, 10, 13, 9, 9, 13, 8])
 }
 
+/// Calculates the sides of the Hexagon and normals
 pub fn get_side_hexagon_modell(ind1: i32, ind2: i32, cur_len: usize) -> (Vec<Vertex>, Vec<u32>) {
     let mut vertices = Vec::new();
 
