@@ -1,6 +1,7 @@
 use super::{CHUNK_SIZE, HexPillar, PillarIndexComponent};
 use std::ops;
 use math::*;
+use std::slice::Iter;
 
 /// Represents one part of the game world.
 ///
@@ -26,8 +27,8 @@ impl Chunk {
         Chunk { pillars: pillars }
     }
 
-    pub fn pillars(&self) -> &[HexPillar] {
-        &self.pillars
+    pub fn pillars(&self) -> Iter<HexPillar> {
+        self.pillars.iter()
     }
     /// Safer method to get through a chunk with an ìndex
     pub fn get(&self, pos: AxialPoint) -> Option<&HexPillar> {

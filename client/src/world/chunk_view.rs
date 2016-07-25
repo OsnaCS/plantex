@@ -60,7 +60,13 @@ impl ChunkView {
                       AxialVector::new((q / world::CHUNK_SIZE).into(),
                                        (q % world::CHUNK_SIZE).into())
                 .to_real();
-            let pillar = &chunk.pillars()[q as usize];
+
+            // Every element is reachable because `Chunk` generates
+            // a filled vector of `HexPillar` which changed in an Iterator
+            let pillar = match chunk.pillars().next() {
+                Some(p) => p,
+                _ => unreachable!(),
+            };
             pillars.push(PillarView::from_pillar(pos, pillar, facade));
         }
 
@@ -138,9 +144,8 @@ impl PillarView {
     fn from_pillar<F: Facade>(pos: Point2f, pillar: &HexPillar, facade: &F) -> PillarView {
         PillarView {
             pos: pos,
-            sections: pillar.sections().to_vec(),
+            sections: pillar.sections().as_slice().to_vec(),
             plants: pillar.props()
-                .iter()
                 .map(|prop| {
                     match prop.prop {
                         PropType::Plant(ref plant) => {

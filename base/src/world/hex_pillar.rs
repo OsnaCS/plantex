@@ -1,6 +1,6 @@
 use super::{GroundMaterial, HeightType};
 use prop;
-
+use std::slice::Iter;
 /// Represents one pillar of hexgonal shape in the game world.
 ///
 /// A pillar consists of multiple sections (each of which has a material) and
@@ -19,14 +19,14 @@ impl HexPillar {
         }
     }
 
-    /// Returns a slice of this pillar's sections.
-    pub fn sections(&self) -> &[PillarSection] {
-        &self.sections
+    /// Returns an iterator of this pillar's sections.
+    pub fn sections(&self) -> Iter<PillarSection> {
+        self.sections.iter()
     }
 
-    /// Returns a slice of this pillar's props.
-    pub fn props(&self) -> &[Prop] {
-        &self.props
+    /// Returns an iterator of this pillar's props.
+    pub fn props(&self) -> Iter<Prop> {
+        self.props.iter()
     }
 }
 
