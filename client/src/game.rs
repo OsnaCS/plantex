@@ -7,12 +7,11 @@ use super::Renderer;
 use super::{Config, GameContext, WorldManager};
 use base::gen::WorldGenerator;
 use std::time::{Duration, Instant};
+use std::rc::Rc;
 
 pub struct Game {
-    #[allow(dead_code)]
     renderer: Renderer,
     event_manager: EventManager,
-    #[allow(dead_code)]
     world_manager: WorldManager,
     player: Ghost,
 }
@@ -20,7 +19,7 @@ pub struct Game {
 impl Game {
     pub fn new(config: Config) -> Result<Self, ()> {
         let facade = try!(create_context(&config));
-        let context = GameContext::new(facade, config.clone());
+        let context = Rc::new(GameContext::new(facade, config.clone()));
 
         let world_manager = WorldManager::new(create_chunk_provider(context.get_config()),
                                               context.clone());

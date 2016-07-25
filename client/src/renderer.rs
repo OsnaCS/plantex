@@ -1,13 +1,14 @@
 use world::WorldView;
 use glium::Surface;
 use super::{Camera, GameContext};
+use std::rc::Rc;
 
 pub struct Renderer {
-    context: GameContext,
+    context: Rc<GameContext>,
 }
 
 impl Renderer {
-    pub fn new(context: GameContext) -> Self {
+    pub fn new(context: Rc<GameContext>) -> Self {
         Renderer { context: context }
     }
 

@@ -2,10 +2,11 @@ use super::camera::*;
 use super::GameContext;
 use super::event_manager::*;
 use glium::glutin::{CursorState, ElementState, Event, MouseButton, VirtualKeyCode};
+use std::rc::Rc;
 
 pub struct Ghost {
     cam: Camera,
-    context: GameContext,
+    context: Rc<GameContext>,
     speed: f32,
     forward: bool,
     backward: bool,
@@ -22,7 +23,7 @@ const SHIFT_SPEED: f32 = 1.0;
 
 
 impl Ghost {
-    pub fn new(context: GameContext) -> Self {
+    pub fn new(context: Rc<GameContext>) -> Self {
         Ghost {
             cam: Camera::default(),
             context: context,

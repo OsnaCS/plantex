@@ -12,7 +12,7 @@ use world::WorldView;
 pub struct WorldManager {
     shared: Rc<RefCell<Shared>>,
     chunk_requests: Sender<ChunkIndex>,
-    context: GameContext,
+    context: Rc<GameContext>,
 }
 
 struct Shared {
@@ -24,7 +24,7 @@ struct Shared {
 }
 
 impl WorldManager {
-    pub fn new(provider: Box<ChunkProvider>, game_context: GameContext) -> Self {
+    pub fn new(provider: Box<ChunkProvider>, game_context: Rc<GameContext>) -> Self {
         // Create two channels to send chunk positions and receive chunks.
         let (chunk_request_sender, chunk_request_recv) = channel();
         let (chunk_sender, chunk_recv) = channel();
@@ -63,12 +63,12 @@ impl WorldManager {
     /// *Note*: since the world manager uses a `RefCell` to save the world, a
     /// `Ref` is returned. But thanks to deref coercions you can use it like a
     /// standard reference.
-    pub fn get_world<'a>(&'a self) -> Ref<'a, World> {
+    pub fn get_world(&self) -> Ref<World> {
         Ref::map(self.shared.borrow(), |shared| &shared.world)
     }
 
     /// Returns an immutable reference to the world view.
-    pub fn get_view<'a>(&'a self) -> Ref<'a, WorldView> {
+    pub fn get_view(&self) -> Ref<WorldView> {
         Ref::map(self.shared.borrow(), |shared| &shared.world_view)
     }
 
