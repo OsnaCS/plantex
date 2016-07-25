@@ -30,7 +30,6 @@ impl WorldGenerator {
         WorldGenerator {
             seed: seed,
             terrain_table: PermutationTable::rand(&mut terrain_rng),
-            plant_table: PermutationTable::rand(&mut plant_rng),
         }
     }
 
