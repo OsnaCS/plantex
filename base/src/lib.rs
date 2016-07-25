@@ -6,6 +6,7 @@
 
 extern crate rand;
 extern crate num_traits;
+extern crate noise;
 #[macro_use]
 extern crate log;
 

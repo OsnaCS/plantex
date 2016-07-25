@@ -7,7 +7,10 @@ version = "0.1.0"
 
 [dependencies]
 cgmath = "0.10.0"
+fnv = "1.0.3"
 log = "0.3.6"
 num-traits = "0.1.33"
 rand = "0.3.14"
-fnv = "1.0.3"
+
+[dependencies.noise]
+git = "https://github.com/bjz/noise-rs"
