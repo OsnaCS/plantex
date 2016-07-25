@@ -41,7 +41,9 @@ impl Chunk {
     }
 
     /// Closure function which interates through a `Chunk`
-    pub fn with_pillars<F>(mut iter: F) where F: FnMut(AxialPoint) {
+    pub fn with_pillars<F>(mut iter: F)
+        where F: FnMut(AxialPoint)
+    {
         for q in 0..CHUNK_SIZE {
             for r in 0..CHUNK_SIZE {
                 let pos = AxialPoint::new(q.into(), r.into());

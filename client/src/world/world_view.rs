@@ -1,4 +1,4 @@
-use base::world::{self, World, Chunk};
+use base::world::{self, Chunk, World};
 use base::math::*;
 use glium::backend::Facade;
 use glium;
