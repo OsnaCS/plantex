@@ -76,7 +76,10 @@ impl WorldManager {
                     let chunk_index = ChunkIndex(chunk_pos);
 
                     if !shared.world.chunks.contains_key(&chunk_index) {
-                        self.request_chunk(chunk_index, &mut shared.sent_requests);
+                        if !shared.sent_requests.contains(&chunk_index) {
+                            self.chunk_requests.send(chunk_index).unwrap();
+                            shared.sent_requests.insert(chunk_index);
+                        }
                     }
                 }
             }
@@ -99,13 +102,6 @@ impl WorldManager {
         shared.world.chunks = new_chunks;
     }
 
-    /// Sends a chunk request if that was not already done for this chunk.
-    fn request_chunk(&self, index: ChunkIndex, sent_requests: &mut HashSet<ChunkIndex>) {
-        if !sent_requests.contains(&index) {
-            self.chunk_requests.send(index).unwrap();
-            sent_requests.insert(index);
-        }
-    }
 
     /// Returns an immutable reference to the world.
     ///
