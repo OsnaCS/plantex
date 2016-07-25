@@ -27,28 +27,28 @@ impl ChunkView {
 
         let mut vertices = Vec::new();
         let mut indices = Vec::new();
-        let (mut top_vertices, mut top_indices) = get_top_hexagon_modell();
+        let (mut top_vertices, mut top_indices) = get_top_hexagon_model();
         vertices.append(&mut top_vertices);
         indices.append(&mut top_indices);
-        let (mut bottom_vertices, mut bottom_indices) = get_bottom_hexagon_modell();
+        let (mut bottom_vertices, mut bottom_indices) = get_bottom_hexagon_model();
         vertices.append(&mut bottom_vertices);
         indices.append(&mut bottom_indices);
-        let (mut north_vertices, mut north_indices) = get_side_hexagon_modell(4, 5, vertices.len());
+        let (mut north_vertices, mut north_indices) = get_side_hexagon_model(4, 5, vertices.len());
         vertices.append(&mut north_vertices);
         indices.append(&mut north_indices);
-        let (mut south_vertices, mut south_indices) = get_side_hexagon_modell(1, 2, vertices.len());
+        let (mut south_vertices, mut south_indices) = get_side_hexagon_model(1, 2, vertices.len());
         vertices.append(&mut south_vertices);
         indices.append(&mut south_indices);
-        let (mut ne_vertices, mut ne_indices) = get_side_hexagon_modell(5, 0, vertices.len());
+        let (mut ne_vertices, mut ne_indices) = get_side_hexagon_model(5, 0, vertices.len());
         vertices.append(&mut ne_vertices);
         indices.append(&mut ne_indices);
-        let (mut se_vertices, mut se_indices) = get_side_hexagon_modell(0, 1, vertices.len());
+        let (mut se_vertices, mut se_indices) = get_side_hexagon_model(0, 1, vertices.len());
         vertices.append(&mut se_vertices);
         indices.append(&mut se_indices);
-        let (mut nw_vertices, mut nw_indices) = get_side_hexagon_modell(3, 4, vertices.len());
+        let (mut nw_vertices, mut nw_indices) = get_side_hexagon_model(3, 4, vertices.len());
         vertices.append(&mut nw_vertices);
         indices.append(&mut nw_indices);
-        let (mut sw_vertices, mut sw_indices) = get_side_hexagon_modell(2, 3, vertices.len());
+        let (mut sw_vertices, mut sw_indices) = get_side_hexagon_model(2, 3, vertices.len());
         vertices.append(&mut sw_vertices);
         indices.append(&mut sw_indices);
 
@@ -162,7 +162,7 @@ fn hex_corner(size: f32, i: i32) -> (f32, f32) {
     (size * angle_rad.cos(), size * angle_rad.sin())
 }
 /// Calculates the top face of the Hexagon and normals
-pub fn get_top_hexagon_modell() -> (Vec<Vertex>, Vec<u32>) {
+pub fn get_top_hexagon_model() -> (Vec<Vertex>, Vec<u32>) {
     let mut vertices = Vec::new();
 
     for i in 0..6 {
@@ -183,7 +183,7 @@ pub fn get_top_hexagon_modell() -> (Vec<Vertex>, Vec<u32>) {
 }
 
 /// Calculates the bottom face of the Hexagon and the normals
-pub fn get_bottom_hexagon_modell() -> (Vec<Vertex>, Vec<u32>) {
+pub fn get_bottom_hexagon_model() -> (Vec<Vertex>, Vec<u32>) {
     let mut vertices = Vec::new();
 
     for i in 0..6 {
@@ -204,7 +204,7 @@ pub fn get_bottom_hexagon_modell() -> (Vec<Vertex>, Vec<u32>) {
 }
 
 /// Calculates the sides of the Hexagon and normals
-pub fn get_side_hexagon_modell(ind1: i32, ind2: i32, cur_len: usize) -> (Vec<Vertex>, Vec<u32>) {
+pub fn get_side_hexagon_model(ind1: i32, ind2: i32, cur_len: usize) -> (Vec<Vertex>, Vec<u32>) {
     let mut vertices = Vec::new();
 
     let (x1, y1) = hex_corner(world::HEX_OUTER_RADIUS, ind1);
