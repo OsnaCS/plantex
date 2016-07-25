@@ -8,19 +8,21 @@ use super::{Config, GameContext, WorldManager};
 use base::gen::WorldGenerator;
 use std::time::{Duration, Instant};
 use std::rc::Rc;
+use super::weather::Weather;
 
 pub struct Game {
     renderer: Renderer,
     event_manager: EventManager,
     world_manager: WorldManager,
     player: Ghost,
+    weather: Weather,
 }
 
 impl Game {
     pub fn new(config: Config) -> Result<Self, ()> {
         let facade = try!(create_context(&config));
         let context = Rc::new(GameContext::new(facade, config.clone()));
-
+        let world_weather = Weather::new(context.get_facade().clone());
         let world_manager = WorldManager::new(create_chunk_provider(context.get_config()),
                                               context.clone());
         world_manager.pregenerate_world();
@@ -30,6 +32,7 @@ impl Game {
             event_manager: EventManager::new(context.get_facade().clone()),
             world_manager: world_manager,
             player: Ghost::new(context.clone()),
+            weather: world_weather,
         })
     }
 
@@ -41,8 +44,10 @@ impl Game {
         let mut next_fps_measure = Instant::now() + Duration::from_secs(1);
         loop {
             self.world_manager.update_world();
-
-            try!(self.renderer.render(&*self.world_manager.get_view(), &self.player.get_camera()));
+            self.weather.update();
+            try!(self.renderer.render(&self.weather,
+                                      &*self.world_manager.get_view(),
+                                      &self.player.get_camera()));
             let event_resp = self.event_manager
                 .poll_events(vec![&mut CloseHandler, &mut self.player]);
             if event_resp == EventResponse::Quit {
