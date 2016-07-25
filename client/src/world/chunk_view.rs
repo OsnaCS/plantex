@@ -6,7 +6,6 @@ use glium::backend::Facade;
 use glium::index::PrimitiveType;
 use Camera;
 use util::ToArr;
-use std::collections::VecDeque;
 use std::f32::consts;
 use world::plant_view::PlantView;
 
@@ -18,36 +17,28 @@ pub struct ChunkView {
     index_buffer: IndexBuffer<u32>,
 }
 
-/// Calculates one Point-coordinates of a Hexagon
-fn hex_corner(size: f32, i: i32) -> (f32, f32) {
-    let angle_deg = 60.0 * (i as f32) + 30.0;
-    let angle_rad = (consts::PI / 180.0) * angle_deg;
 
-    (size * angle_rad.cos(), size * angle_rad.sin())
-}
 
 impl ChunkView {
     /// Creates the graphical representation of given chunk at the given chunk
     /// offset
     pub fn from_chunk<F: Facade>(chunk: &Chunk, offset: AxialPoint, facade: &F) -> Self {
 
-        // Create one hexagon for this chunk
-        let mut hexagon_vertex_buffer = VecDeque::new();
-        for i in 0..6 {
-            let (x, y) = hex_corner(world::HEX_OUTER_RADIUS, i);
 
-            hexagon_vertex_buffer.push_front(Vertex {
-                position: [x, y, world::PILLAR_STEP_HEIGHT],
-            });
-            hexagon_vertex_buffer.push_back(Vertex { position: [x, y, 0.0] });
-
-        }
-
-        // convert to vector
-        let final_buffer: Vec<_> = hexagon_vertex_buffer.into_iter().collect();
+        let mut vertices = Vec::new();
+        let mut indices = Vec::new();
+        get_top_hexagon_model(&mut vertices, &mut indices);
+        get_bottom_hexagon_model(&mut vertices, &mut indices);
+        get_side_hexagon_model(4, 5, &mut vertices, &mut indices);
+        get_side_hexagon_model(1, 2, &mut vertices, &mut indices);
+        get_side_hexagon_model(5, 0, &mut vertices, &mut indices);
+        get_side_hexagon_model(0, 1, &mut vertices, &mut indices);
+        get_side_hexagon_model(3, 4, &mut vertices, &mut indices);
+        get_side_hexagon_model(2, 3, &mut vertices, &mut indices);
 
 
-        let vbuf = VertexBuffer::new(facade, &final_buffer).unwrap();
+
+        let vbuf = VertexBuffer::new(facade, &vertices).unwrap();
         let prog = Program::from_source(facade,
                                         include_str!("chunk_std.vert"),
                                         include_str!("chunk_std.frag"),
@@ -64,15 +55,7 @@ impl ChunkView {
             pillars.push(PillarView::from_pillar(pos, pillar, facade));
         }
 
-        // Indecies
-        let raw_index_buffer = [5, 0, 1, 2, 5, 1, 4, 5, 2, 3, 4, 2 /* TOP */, 6, 7, 8, 8, 9,
-                                6, 9, 11, 6, 9, 10, 11 /* BOTTOM */, 6, 5, 4, 7, 6, 4, 6, 0,
-                                5, 11, 0, 6, 10, 1, 0, 11, 10, 0, 9, 2, 1, 10, 9, 1, 8, 3, 2, 9,
-                                8, 2, 7, 4, 3, 8, 7, 3 /* Body */];
-
-
-        let ibuf = IndexBuffer::new(facade, PrimitiveType::TrianglesList, &raw_index_buffer)
-            .unwrap();
+        let ibuf = IndexBuffer::new(facade, PrimitiveType::TrianglesList, &indices).unwrap();
 
         ChunkView {
             vertices: vbuf,
@@ -124,9 +107,10 @@ impl ChunkView {
 #[derive(Debug, Copy, Clone)]
 pub struct Vertex {
     pub position: [f32; 3],
+    pub normal: [f32; 3],
 }
 
-implement_vertex!(Vertex, position);
+implement_vertex!(Vertex, position, normal);
 
 pub struct PillarView {
     pos: Point2f,
@@ -152,4 +136,120 @@ impl PillarView {
                 .collect(),
         }
     }
+}
+
+
+/// Calculates one Point-coordinates of a Hexagon
+fn hex_corner(size: f32, i: i32) -> (f32, f32) {
+    let angle_deg = 60.0 * (i as f32) + 30.0;
+    let angle_rad = (consts::PI / 180.0) * angle_deg;
+
+    (size * angle_rad.cos(), size * angle_rad.sin())
+}
+/// Calculates the top face of the Hexagon and normals
+fn get_top_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
+    let cur_len = vertices.len() as u32;
+    for i in 0..6 {
+        let (x, y) = hex_corner(world::HEX_OUTER_RADIUS, i);
+
+        vertices.push(Vertex {
+            position: [x, y, world::PILLAR_STEP_HEIGHT],
+            normal: [0.0, 0.0, 1.0],
+        });
+    }
+
+    vertices.push(Vertex {
+        position: [0.0, 0.0, world::PILLAR_STEP_HEIGHT],
+        normal: [0.0, 0.0, 1.0],
+    });
+
+    indices.append(&mut vec![cur_len + 0,
+                             cur_len + 6,
+                             cur_len + 1,
+                             cur_len + 5,
+                             cur_len + 6,
+                             cur_len + 0,
+                             cur_len + 4,
+                             cur_len + 6,
+                             cur_len + 5,
+                             cur_len + 3,
+                             cur_len + 6,
+                             cur_len + 4,
+                             cur_len + 2,
+                             cur_len + 6,
+                             cur_len + 3,
+                             cur_len + 1,
+                             cur_len + 6,
+                             cur_len + 2]);
+}
+
+/// Calculates the bottom face of the Hexagon and the normals
+fn get_bottom_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
+    let cur_len = vertices.len() as u32;
+    for i in 0..6 {
+        let (x, y) = hex_corner(world::HEX_OUTER_RADIUS, i);
+
+        vertices.push(Vertex {
+            position: [x, y, 0.0],
+            normal: [0.0, 0.0, -1.0],
+        });
+    }
+
+    vertices.push(Vertex {
+        position: [0.0, 0.0, 0.0],
+        normal: [0.0, 0.0, -1.0],
+    });
+    indices.append(&mut vec![cur_len + 1,
+                             cur_len + 6,
+                             cur_len + 0,
+                             cur_len + 0,
+                             cur_len + 6,
+                             cur_len + 5,
+                             cur_len + 5,
+                             cur_len + 6,
+                             cur_len + 4,
+                             cur_len + 4,
+                             cur_len + 6,
+                             cur_len + 3,
+                             cur_len + 3,
+                             cur_len + 6,
+                             cur_len + 2,
+                             cur_len + 2,
+                             cur_len + 6,
+                             cur_len + 1]);
+}
+
+/// Calculates the sides of the Hexagon and normals
+fn get_side_hexagon_model(ind1: i32,
+                          ind2: i32,
+                          vertices: &mut Vec<Vertex>,
+                          indices: &mut Vec<u32>) {
+    let cur_len = vertices.len() as u32;
+    let (x1, y1) = hex_corner(world::HEX_OUTER_RADIUS, ind1);
+    let (x2, y2) = hex_corner(world::HEX_OUTER_RADIUS, ind2);
+    let normal = [y1 + y2, x1 + x2, 0.0];
+
+    vertices.push(Vertex {
+        position: [x1, y1, world::PILLAR_STEP_HEIGHT],
+        normal: normal,
+    });
+    vertices.push(Vertex {
+        position: [x1, y1, 0.0],
+        normal: normal,
+    });
+    vertices.push(Vertex {
+        position: [x2, y2, world::PILLAR_STEP_HEIGHT],
+        normal: normal,
+    });
+    vertices.push(Vertex {
+        position: [x2, y2, 0.0],
+        normal: normal,
+    });
+
+    indices.append(&mut vec![cur_len + 0,
+                             cur_len + 2,
+                             cur_len + 1,
+                             cur_len + 1,
+                             cur_len + 2,
+                             cur_len + 3]);
 }
