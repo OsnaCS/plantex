@@ -28,8 +28,10 @@ pub use renderer::Renderer;
 pub use world_manager::WorldManager;
 
 use game::Game;
+use std::net::SocketAddr;
+use std::error::Error;
 
-pub fn start_game(config: Config) -> Result<(), ()> {
-    let game = try!(Game::new(config));
+pub fn start_game(config: Config, server: SocketAddr) -> Result<(), Box<Error>> {
+    let game = try!(Game::new(config, server));
     game.run()
 }

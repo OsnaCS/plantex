@@ -8,16 +8,22 @@ use super::{Config, GameContext, WorldManager};
 use base::gen::WorldGenerator;
 use std::time::{Duration, Instant};
 use std::rc::Rc;
+use std::net::{SocketAddr, TcpStream};
+use std::error::Error;
 
 pub struct Game {
     renderer: Renderer,
     event_manager: EventManager,
     world_manager: WorldManager,
     player: Ghost,
+    #[allow(dead_code)]
+    server: TcpStream,
 }
 
 impl Game {
-    pub fn new(config: Config) -> Result<Self, ()> {
+    pub fn new(config: Config, server: SocketAddr) -> Result<Self, Box<Error>> {
+        info!("connecting to {}", server);
+        let server = try!(TcpStream::connect(server));
         let facade = try!(create_context(&config));
         let context = Rc::new(GameContext::new(facade, config.clone()));
 
@@ -27,16 +33,18 @@ impl Game {
             world_manager: WorldManager::new(create_chunk_provider(context.get_config()),
                                              context.clone()),
             player: Ghost::new(context.clone()),
+            server: server,
         })
     }
 
     /// Main game function: contains the main render loop and owns all important
     /// components. This function should remain rather small, all heavy lifting
     /// should be done in other functions.
-    pub fn run(mut self) -> Result<(), ()> {
+    pub fn run(mut self) -> Result<(), Box<Error>> {
         let mut frames = 0;
         let mut next_fps_measure = Instant::now() + Duration::from_secs(1);
         let mut time_prev = Instant::now();
+
         loop {
             self.world_manager.update_world(self.player.get_camera().position);
 
@@ -73,7 +81,7 @@ fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
 
 /// Creates the OpenGL context and prints useful information about the
 /// success or failure of said action.
-fn create_context(config: &Config) -> Result<GlutinFacade, ()> {
+fn create_context(config: &Config) -> Result<GlutinFacade, Box<Error>> {
     // Create glium context
     // TODO: handle fullscreen
     // TODO: OpenGL version/profile
@@ -90,7 +98,7 @@ fn create_context(config: &Config) -> Result<GlutinFacade, ()> {
             error!("OpenGL context creation failed! Detailed error:");
             error!("{}", e);
 
-            Err(())
+            Err(e.into())
         }
         Ok(context) => {
             // Print some information about the acquired OpenGL context
