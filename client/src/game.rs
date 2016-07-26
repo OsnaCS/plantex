@@ -53,8 +53,12 @@ impl Game {
             player: player,
 =======
             ghost: Ghost::new(context.clone()),
+<<<<<<< HEAD
             player: Player::new(context.clone()),
 >>>>>>> (WIP) Add walking and jumping
+=======
+            player: Player::new(context.clone(), world_manager.clone()),
+>>>>>>> Add player and change chunk
         })
     }
 
@@ -107,7 +111,7 @@ impl Game {
     }
 }
 
-fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
+pub fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
     Box::new(WorldGenerator::with_seed(config.seed))
 }
 
