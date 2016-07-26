@@ -35,8 +35,7 @@ impl World {
             Ok(())
         }
     }
-
-    /// Returns the hex pillar at the given world position, iff the
+    /// Returns the hex pillar at the given world position, if the
     /// corresponding chunk is loaded.
     pub fn pillar_at(&self, pos: PillarIndex) -> Option<&HexPillar> {
         let chunk_size = super::CHUNK_SIZE as i32;
@@ -44,9 +43,8 @@ impl World {
         // TODO: use `/` operator once it's implemented
         // let chunk_pos = pos / (super::CHUNK_SIZE as i32);
         let chunk_pos = pos.0 / chunk_size;
-
-
         let out = self.chunks.get(&ChunkIndex(chunk_pos)).map(|chunk| {
+
             let mut inner_pos = pos.0 % chunk_size;
             if inner_pos.q < 0 {
                 inner_pos.q += chunk_size;
@@ -59,37 +57,13 @@ impl World {
             }
             &chunk[inner_pos]
         });
-        // println!("out {:?}", out.get(AxialPoint { q: 5.0, r: 7.0 }));
         if out.is_none() {
-            // println!("test");
             debug!("chunk {:?} is not loaded (position request {:?})",
                    chunk_pos,
                    pos);
         }
-
-        // println!("out {:?}", out);
         out
     }
-
-    // pub fn pillar_at_axp(&self, pos: AxialPoint) -> Option<&HexPillar> {
-    //     let out = self.chunks.get(&ChunkIndex(pos)).map(|chunk| {
-    //         // TODO: use `%` operator once it's implemented
-    //         // let inner_pos = pos % (super::CHUNK_SIZE as i32);
-    //         let inner_pos = AxialPoint::new(pos.q % (super::CHUNK_SIZE as i32),
-    //                                         pos.r % (super::CHUNK_SIZE as i32));
-    //         println!("inner pos {:?}", chunk[inner_pos]);
-    //         &chunk[inner_pos]
-    //     });
-
-    //     if out.is_none() {
-    //         println!("test");
-    //         debug!("chunk {:?} is not loaded (position request {:?})", pos, pos);
-    //     }
-
-    //     println!("out {:?}", out);
-    //     out
-    // }
-
 
     /// Returns the chunk in which the given pillar exists.
     pub fn chunk_from_pillar(&self, pos: PillarIndex) -> Option<&Chunk> {
