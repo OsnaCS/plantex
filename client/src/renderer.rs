@@ -47,10 +47,10 @@ impl Renderer {
             .unwrap();
 
         let tonemapping_program = Program::from_source(context.get_facade(),
-                                          include_str!("tonemapping.vert"),
-                                          include_str!("tonemapping.frag"),
-                                          None)
-                .unwrap();
+                                                       include_str!("tonemapping.vert"),
+                                                       include_str!("tonemapping.frag"),
+                                                       None)
+            .unwrap();
 
         Renderer {
             context: context.clone(),
