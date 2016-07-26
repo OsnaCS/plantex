@@ -1,6 +1,7 @@
 use super::{CHUNK_SIZE, ChunkIndex, HexPillar, PillarIndexComponent};
 use std::ops;
 use math::*;
+use std::iter::Iterator;
 
 /// Represents one part of the game world.
 ///
@@ -18,6 +19,28 @@ pub struct Chunk {
     pillars: Vec<HexPillar>,
 }
 
+pub struct ChunkPillars<'a> {
+    pillars: &'a [HexPillar],
+    i: u16,
+}
+
+impl<'a> Iterator for ChunkPillars<'a> {
+
+    type Item = (AxialVector, &'a HexPillar);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.i < CHUNK_SIZE * CHUNK_SIZE {
+            let axial = AxialVector::new((self.i / CHUNK_SIZE).into(),
+                    (self.i % CHUNK_SIZE).into());
+            let item = (axial, &self.pillars[self.i as usize]);
+            self.i += 1;
+            Some(item)
+        } else {
+            None
+        }
+    }
+}
+
 impl Chunk {
     /// Creates a chunk from a `Vec<HexPillar>`
     pub fn from_pillars(pillars: Vec<HexPillar>) -> Self {
@@ -26,9 +49,13 @@ impl Chunk {
         Chunk { pillars: pillars }
     }
 
-    pub fn pillars(&self) -> &[HexPillar] {
-        &self.pillars
+    pub fn pillars(&self) -> ChunkPillars {
+        ChunkPillars {
+            pillars: &self.pillars,
+            i: 0,
+        }
     }
+
     /// Safer method to get through a chunk with an ìndex
     pub fn get(&self, pos: AxialPoint) -> Option<&HexPillar> {
         let chunk_size: PillarIndexComponent = CHUNK_SIZE.into();
