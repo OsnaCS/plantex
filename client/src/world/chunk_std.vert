@@ -1,19 +1,22 @@
 #version 140
 
+// Per-vertex attributes
 in vec3 position;
 in vec3 normal;
+
+// Per-instance attributes:
+// Height in units, not world coordinates, since the "pillar prototype" has a
+// height of one unit.
+in float height;
+in vec3 offset;
+in vec3 material_color;
 
 out vec3 x_color;
 out vec3 toLight;
 out vec3 surfaceNormal;
 
-// Height in units, not world coordinates, since the "pillar prototype" has a
-// height of one unit.
-uniform float height;
-uniform vec3 offset;
 uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
-uniform vec3 material_color;
 
 const vec3 sun = vec3(1.0, 0.0, 1.0);
 
@@ -24,8 +27,5 @@ void main() {
                                                     offset.z, 1);
     surfaceNormal = normal;
     toLight = sun;
-
-    // FIXME: Slightly modify the material color to create some color
-    // differences. Remove this once real lighting is used.
     x_color = material_color;
 }
