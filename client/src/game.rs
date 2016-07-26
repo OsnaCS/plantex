@@ -3,6 +3,7 @@ use ghost::Ghost;
 use event_manager::{CloseHandler, EventManager, EventResponse};
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::{self, DisplayBuild, glutin};
+use glium::glutin::GlRequest;
 use super::Renderer;
 use super::{Config, GameContext, WorldManager};
 use base::gen::WorldGenerator;
@@ -82,6 +83,7 @@ fn create_context(config: &Config) -> Result<GlutinFacade, ()> {
         .with_dimensions(config.resolution.width, config.resolution.height)
         .with_title(config.window_title.clone())
         .with_depth_buffer(24)
+        .with_gl(GlRequest::Latest)
         .build_glium();
 
     match context {
