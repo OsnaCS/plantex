@@ -6,8 +6,7 @@ use std::rc::Rc;
 use glium::texture::texture2d::Texture2d;
 use glium::texture::{DepthFormat, DepthTexture2d, MipmapsOption, UncompressedFloatFormat};
 use glium::framebuffer::MultiOutputFrameBuffer;
-use glium::VertexBuffer;
-use glium::{IndexBuffer, Program};
+use glium::{IndexBuffer, Program, VertexBuffer};
 use glium::index::PrimitiveType;
 use glium::backend::Facade;
 
