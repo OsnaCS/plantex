@@ -4,6 +4,7 @@ use world::chunk_view::Vertex;
 use glium::{IndexBuffer, Program, VertexBuffer};
 use glium::index::PrimitiveType;
 use glium::backend::Facade;
+use GameContext;
 
 pub struct ChunkRenderer {
     /// Chunk shader
@@ -29,11 +30,7 @@ impl ChunkRenderer {
         get_side_hexagon_model(2, 3, &mut vertices, &mut indices);
 
         ChunkRenderer {
-            program: Program::from_source(facade,
-                                          include_str!("chunk_std.vert"),
-                                          include_str!("chunk_std.frag"),
-                                          None)
-                .unwrap(),
+            program: GameContext::shader_func("chunk_std", facade),
             pillar_vbuf: VertexBuffer::new(facade, &vertices).unwrap(),
             pillar_ibuf: IndexBuffer::new(facade, PrimitiveType::TrianglesList, &indices).unwrap(),
         }

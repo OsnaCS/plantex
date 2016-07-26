@@ -1,5 +1,6 @@
 use glium::Program;
 use glium::backend::Facade;
+use GameContext;
 
 pub struct PlantRenderer {
     program: Program,
@@ -7,13 +8,7 @@ pub struct PlantRenderer {
 
 impl PlantRenderer {
     pub fn new<F: Facade>(facade: &F) -> Self {
-        let prog = Program::from_source(facade,
-                                        include_str!("plant_dummy.vert"),
-                                        include_str!("plant_dummy.frag"),
-                                        None)
-            .unwrap();
-
-        PlantRenderer { program: prog }
+        PlantRenderer { program: GameContext::shader_func("plant_dummy", facade) }
     }
 
     pub fn program(&self) -> &Program {
