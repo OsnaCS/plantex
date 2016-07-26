@@ -8,6 +8,7 @@ use std::rc::Rc;
 use super::world_manager::*;
 use game::*;
 
+
 const VELOCITY: f32 = 1.5;
 const LOW_VELOCITY: f32 = 1.0;
 const FAST_VELOCITY: f32 = 3.0;
@@ -61,7 +62,7 @@ impl Player {
             speed: false,
         }
     }
-    pub fn get_height(&self) {
+    pub fn get_height(&self) -> f32 {
         let world = self.world_manager.get_world();
 
         let real_pos = Point2f::new(self.cam.position[0], self.cam.position[1]);
@@ -70,14 +71,24 @@ impl Player {
 
         let argument = PillarIndex(axial_pos);
         let pillar = world.pillar_at(argument);
-        // println!("--------- {:?}", pillar);
+        // let sect = pillar.unwrap_or_else(|| panic!("Pillar not found{:?}", pillar));
+        // sect.sections()[0].top.to_real()
 
+        if pillar.is_some() {
+            let sect = pillar.unwrap().sections();
+            sect[0].top.to_real()
+
+        } else {
+            0.0
+        }
+        // let pillar_section = pillar.unwrap().sections();
+        //   let ref top = pillar_section[2];
         //    let pillar = pillar.expect("chunk at player pos not loaded!");
 
         //   pillar.sections()[2]
         // let hexpil = world.pillar_at_axp(axial_pos);
 
-        // println!("{:?}", hexpil);
+        //  println!("--------------------{:?}", pillar_section);
 
 
         // let height = self.world_manager.
@@ -95,26 +106,31 @@ impl Player {
 
     pub fn update(&mut self, delta: f32) {
 
-        // self.get_height();
-        //  if !self.is_jumping && !self.is_falling {
-        //     let height = self.get_height();
-        //    self.cam.position[2] = 50.0;
-        // }
-        if self.cam.position[2] > 50.0 && !self.is_jumping {
-            self.is_falling = true;
+        let height = self.get_height() + 1.0;
+        println!("pil----------------- {}", height);
+        println!("cam----------------- {}", self.cam.position[2]);
+
+        if !self.is_jumping && !self.is_falling {
+            if height < self.cam.position[2] {
+                self.is_falling = true;
+            } else {
+                self.cam.position[2] = height;
+            }
+
         }
 
+        if self.cam.position[2] > height && !self.is_jumping {
+            self.is_falling = true;
+        }
 
         if self.is_jumping {
             println!("is falling {:?}", self.is_falling);
             self.is_falling = true;
 
-
+            // Reduce vertical velocity smoothly
             if self.delta_z > -100.0 {
                 self.delta_z -= 1.0;
             }
-        } else {
-            self.cam.position[2] = 50.0;
         }
 
 
@@ -160,9 +176,10 @@ impl Player {
             self.cam.move_right(self.walk_vel[0] * delta);
         }
 
-        if self.cam.position[2] <= 50.0 {
+        if self.cam.position[2] < height {
             self.is_falling = false;
             self.is_jumping = false;
+            self.cam.position[2] = height;
         }
     }
 }
