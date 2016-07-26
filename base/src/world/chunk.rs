@@ -25,13 +25,12 @@ pub struct ChunkPillars<'a> {
 }
 
 impl<'a> Iterator for ChunkPillars<'a> {
-
     type Item = (AxialVector, &'a HexPillar);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.i < CHUNK_SIZE * CHUNK_SIZE {
             let axial = AxialVector::new((self.i / CHUNK_SIZE).into(),
-                    (self.i % CHUNK_SIZE).into());
+                                         (self.i % CHUNK_SIZE).into());
             let item = (axial, &self.pillars[self.i as usize]);
             self.i += 1;
             Some(item)
