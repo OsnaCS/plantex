@@ -1,4 +1,4 @@
-use base::world::{self, Chunk, HexPillar, PropType};
+use base::world::{Chunk, HexPillar, PropType};
 use base::math::*;
 use glium::{self, DrawParameters, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
@@ -30,15 +30,10 @@ impl ChunkView {
 
         let mut sections = Vec::new();
         let mut pillars = Vec::new();
-        for q in 0..world::CHUNK_SIZE * world::CHUNK_SIZE {
-            let pos = offset.to_real() +
-                      AxialVector::new((q / world::CHUNK_SIZE).into(),
-                                       (q % world::CHUNK_SIZE).into())
-                .to_real();
-            let pillar = &chunk.pillars()[q as usize];
 
+        for (axial, pillar) in chunk.pillars() {
+            let pos = offset.to_real() + axial.to_real();
             pillars.push(PillarView::from_pillar(pos, pillar, plant_renderer.clone(), facade));
-
             for section in pillar.sections() {
                 sections.push(Instance {
                     material_color: section.ground.get_color(),
