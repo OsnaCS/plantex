@@ -4,9 +4,7 @@ use super::{Camera, GameContext};
 use std::rc::Rc;
 
 use glium::texture::texture2d::Texture2d;
-use glium::texture::UncompressedFloatFormat;
-use glium::texture::MipmapsOption;
-use glium::texture::{DepthFormat, DepthTexture2d};
+use glium::texture::{UncompressedFloatFormat, MipmapsOption, DepthFormat, DepthTexture2d};
 use glium::framebuffer::MultiOutputFrameBuffer;
 use glium::VertexBuffer;
 use glium::{IndexBuffer, Program};
