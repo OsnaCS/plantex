@@ -4,7 +4,7 @@ use math::{Point3f, Vector3f};
 
 /// A message from the server to a client.
 #[derive(RustcEncodable, RustcDecodable)]
-pub enum ClientCommand {
+pub enum ServerMessage {
     /// Register a player currently playing on the same server.
     ///
     /// Sent when a player joins the server or when this client just joined the
@@ -16,7 +16,7 @@ pub enum ClientCommand {
 
 /// A message from a client to the server.
 #[derive(RustcEncodable, RustcDecodable)]
-pub enum ServerCommand {
+pub enum ClientMessage {
     UpdatePose {
         position: Point3f,
         orientation: Vector3f,

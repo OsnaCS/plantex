@@ -2,6 +2,7 @@ use std::net::{TcpListener, TcpStream};
 use std::io;
 use std::thread;
 use std::sync::mpsc::{Receiver, TryRecvError, channel};
+use std::time::Duration;
 
 /// A player connected to the server.
 struct Player {
@@ -57,13 +58,17 @@ impl Server {
                         self.players.push(Player { conn: stream });
                         self.handle_new_player(id);
                     }
-                    Err(TryRecvError::Empty) => {}
+                    Err(TryRecvError::Empty) => break,
                     Err(TryRecvError::Disconnected) => {
                         info!("tcp listener thread exited, killing server");
                         return Ok(());
                     }
                 }
             }
+
+            // Sleep for 1/60th of a second
+            // FIXME Put in a proper rate limit
+            thread::sleep(Duration::new(0, 1000000 / 60));
 
             // self.world_manager.update_world(self.player.get_camera().position);
         }
