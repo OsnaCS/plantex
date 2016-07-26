@@ -61,7 +61,7 @@ impl ChunkProvider for WorldGenerator {
                                                    &[(x as f32) * 0.08, (y as f32) * 0.08]);
 
             // Place a test plant every few blocks
-            if plant_noise > 0.0 {
+            if plant_noise > 0.4 {
                 let mut rng = super::seeded_rng(self.seed, "TREE", (pos.q, pos.r));
                 if rng.next_f32() < plant_noise {
                     let gen = PlantGenerator::rand(&mut rng);

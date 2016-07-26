@@ -38,10 +38,6 @@ struct Preset {
     /// Together with `branch_segment_length`, this defines the overall branch
     /// length.
     branch_segment_count: Range<u32>,
-    /// Range of segment lengths to use for branches.
-    ///
-    /// Each segment will have a random length in this range.
-    branch_segment_length: Range<f32>, // FIXME unused
 }
 
 static PRESETS: &'static [Preset] = &[Preset {
@@ -54,8 +50,7 @@ static PRESETS: &'static [Preset] = &[Preset {
                                           branch_angle_deg: 70.0..110.0,
                                           branch_diam_reduction: 0.75..0.85,
                                           branch_segment_angle: 5.0..15.0,
-                                          branch_segment_count: 3..10,
-                                          branch_segment_length: 0.30..0.40,
+                                          branch_segment_count: 1..4,
                                       }];
 
 pub struct TreeGen {
@@ -81,7 +76,7 @@ impl TreeGen {
                              dir: Vector3f,
                              depth: u32,
                              parent_diam: f32) {
-        if depth > 5 {
+        if depth > 3 {
             // Limit recursion
             return;
         }
@@ -146,8 +141,8 @@ impl TreeGen {
 
                 add_point(length, diam);
 
-                if diam < 0.001 {
-                    // Bail out at 1mm
+                if diam < 0.005 {
+                    // Bail out at 5mm
                     break;
                 }
             }
