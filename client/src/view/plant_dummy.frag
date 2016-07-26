@@ -1,8 +1,12 @@
 #version 140
 
 in vec3 x_color;
-out vec4 color;
+in vec3 toLight;
+in vec3 surfaceNormal;
+
+out vec3 color;
 
 void main() {
-    color = vec4(x_color, 1.0);
+    float diffuse = max(0.0, dot(normalize(toLight), normalize(surfaceNormal)));
+    color = x_color * 0.1 + x_color * diffuse;
 }
