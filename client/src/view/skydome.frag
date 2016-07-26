@@ -1,22 +1,28 @@
 #version 140
 
-in float o_theta;
+in float pre_theta;
 in vec2 pre_phi;
-// in vec3 x_color;
+in vec3 unit_coords;
 
 out vec3 color;
 
 #define PI 3.141592653589793
 
 void main() {
-    vec2 normalized_pre_phi = normalize(pre_phi);
+    // Calculate spherical coordinates
+    vec3 unit_vector = normalize(unit_coords);
+    float theta = acos(unit_vector.z);
 
-    float phi = acos(normalized_pre_phi.x);
-    if (normalized_pre_phi.y < 0) {
+    float phi = acos(unit_vector.x);
+    if (unit_vector.y < 0) {
         phi = 2*PI - phi;
     }
 
-    color = vec3(phi/(2*PI));
-    // color = vec3(phi.x / 2 + 0.5);
-    // color = x_color;
+
+    // Calculate color
+
+
+    color = vec3((theta / PI)-0.2,(theta / PI)-0.1,1.0);
+
+    // color = vec3(0.0,0.0,theta / PI);
 }

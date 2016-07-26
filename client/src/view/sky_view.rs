@@ -1,10 +1,9 @@
-// use glium::backend::Facade;
 use std::rc::Rc;
 use glium::{self, DrawParameters, IndexBuffer, Program, VertexBuffer};
 use glium::index::PrimitiveType;
 use GameContext;
 use Camera;
-use glium::draw_parameters::{DepthTest};
+use glium::draw_parameters::DepthTest;
 use util::ToArr;
 use base::math::*;
 use std::f32::consts;
@@ -20,19 +19,20 @@ impl SkyView {
 
         const SKYDOME_SIZE: f32 = 1000.0;
         let raw_vertex_buffer = vec![
-            Vertex { position: [0.0, -SKYDOME_SIZE, 0.0], xy: [0.0, -1.0], color: [0.7, 0.0, 0.0], theta: consts::PI/2.0}, //a
-            Vertex { position: [SKYDOME_SIZE, 0.0, 0.0], xy: [1.0, 0.0], color: [0.5, 0.2, 0.0], theta: consts::PI/2.0}, //b
-            Vertex { position: [0.0, SKYDOME_SIZE, 0.0], xy: [0.0, 1.0], color: [0.0, 0.0, 0.7], theta: consts::PI/2.0}, //c
-            Vertex { position: [-SKYDOME_SIZE, 0.0, 0.0], xy: [-1.0, 0.0], color: [0.0, 0.0, 0.7], theta: consts::PI/2.0}, //d
-            Vertex { position: [0.0, 0.0, -SKYDOME_SIZE], xy: [0.0, 0.0], color: [0.0, 0.0, 1.0], theta: consts::PI}, //e
-            Vertex { position: [0.0, 0.0, SKYDOME_SIZE], xy: [0.0, 0.0], color: [0.0, 0.0, 1.0], theta: 0.0}, //f
+            Vertex { position: [0.0, -SKYDOME_SIZE, 0.0], xyz: [0.0, -1.0, 0.0]}, //a
+            Vertex { position: [SKYDOME_SIZE, 0.0, 0.0], xyz: [1.0, 0.0, 0.0]}, //b
+            Vertex { position: [0.0, SKYDOME_SIZE, 0.0], xyz: [0.0, 1.0, 0.0]}, //c
+            Vertex { position: [-SKYDOME_SIZE, 0.0, 0.0], xyz: [-1.0, 0.0, 0.0]}, //d
+            Vertex { position: [0.0, 0.0, -SKYDOME_SIZE], xyz: [0.0, 0.0, -1.0]}, //e
+            Vertex { position: [0.0, 0.0, SKYDOME_SIZE], xyz: [0.0, 0.0, 1.0]}, //f
 
         ];
 
         let vbuf = VertexBuffer::new(context.get_facade(), &raw_vertex_buffer).unwrap();
 
         // Indices
-        let raw_index_buffer = [0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4, 1, 0, 5, 0, 3, 5, 3, 2, 5, 2, 1, 5]; //TrianglesList
+        let raw_index_buffer = [0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4, 1, 0, 5, 0, 3, 5, 3, 2, 5, 2,
+                                1, 5]; //TrianglesList
         let ibuf = IndexBuffer::new(context.get_facade(),
                                     PrimitiveType::TrianglesList,
                                     &raw_index_buffer)
@@ -87,9 +87,7 @@ impl SkyView {
 #[derive(Debug, Copy, Clone)]
 struct Vertex {
     pub position: [f32; 3],
-    pub xy : [f32; 2],
-    pub color: [f32; 3],
-    pub theta: f32,
+    pub xyz: [f32; 3],
 }
 
-implement_vertex!(Vertex, position, xy, color, theta);
+implement_vertex!(Vertex, position, xyz);
