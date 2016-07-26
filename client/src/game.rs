@@ -16,7 +16,7 @@ pub struct Game {
     event_manager: EventManager,
     world_manager: WorldManager,
     player: Ghost,
-    #[allow(unused)]
+    #[allow(dead_code)]
     server: TcpStream,
 }
 
