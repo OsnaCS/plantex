@@ -7,7 +7,6 @@ use base::world::*;
 use std::rc::Rc;
 use super::world_manager::*;
 
-
 const GRAVITY: f32 = 9.81;
 /// Represents a `Player` in the world, the `Player` can move up, right, down
 /// left, right with w, a, s, d, jump with space and speed with shift
@@ -55,12 +54,8 @@ impl Player {
     }
     /// Updates the `Player` after every iteration
     pub fn update(&mut self, delta: f32) {
-        let mut height = 0.0;
-        let mut test = self.get_ground_height();
-        if test.is_some() {
-            height = test.unwrap();
-            height = height + 1.75;
-        }
+        let height = self.get_ground_height().unwrap_or(0.0) + 1.70;
+
         // Moves the Player forward or backward with the acceleration and delta
         // (1.0 - (-((self.timer_vel * delta) / (1.0))).exp()) -> this is a formula
         // that calculates a
