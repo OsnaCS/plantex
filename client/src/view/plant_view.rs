@@ -26,7 +26,7 @@ impl PlantView {
                                  -> Self {
         let mut indices = Vec::new();
         let mut vertices = Vec::new();
-        let branches = match *plant {
+        match *plant {
             Plant::Tree(Tree { ref branches, branch_color }) => {
                 for branch in branches {
                     for i in 1..branch.points.len() {
