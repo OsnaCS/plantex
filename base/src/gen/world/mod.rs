@@ -1,10 +1,8 @@
 //! Procedurally generating the game world.
 
-use math::*;
 use world::{Chunk, ChunkIndex, ChunkProvider, HeightType, HexPillar};
 use world::{CHUNK_SIZE, GroundMaterial, PILLAR_STEP_HEIGHT, PillarSection, Prop, PropType};
 use rand::Rand;
-use world::{GroundMaterial, PillarSection, Prop, PropType};
 use gen::PlantGenerator;
 use noise::{PermutationTable, open_simplex2, open_simplex3};
 use gen::seeded_rng;
@@ -71,9 +69,9 @@ impl WorldGenerator {
         }
     }
 
-    fn plant_threshhold_from_biome(biome: Biome) -> f32 {
+    fn plant_threshold_from_biome(biome: &Biome) -> f32 {
         0.05 +
-        match biome {
+        match *biome {
             Biome::GrassLand => 0.3,
             Biome::Desert => 0.465,
             Biome::Snow => 0.3,
@@ -82,6 +80,19 @@ impl WorldGenerator {
             Biome::Savanna => 0.375,
             Biome::Stone => 0.45,
             Biome::WeihnachtsmannLand => 1.0,
+        }
+    }
+
+    fn steepness_from_biome(biome: &Biome) -> f32 {
+        match *biome {
+            Biome::GrassLand => 40.0,
+            Biome::Desert => 200.0,
+            Biome::Snow => 30.0,
+            Biome::Forest => 35.0,
+            Biome::RainForest => 25.0,
+            Biome::Savanna => 50.0,
+            Biome::Stone => 15.0,
+            Biome::WeihnachtsmannLand => 5.0,
         }
     }
 }
@@ -94,96 +105,16 @@ impl ChunkProvider for WorldGenerator {
         // units)
         let mut fill = [[[false; WORLDGEN_HEIGHT]; CHUNK_SIZE as usize]; CHUNK_SIZE as usize];
 
-        // Chunk start position in absolute axial coords
-        let chunk_start = index.0 * CHUNK_SIZE as i32;
-        for q in 0..CHUNK_SIZE {
-            for r in 0..CHUNK_SIZE {
-                for i in 0..WORLDGEN_HEIGHT {
-                    if i == 0 {
-                        fill[q as usize][r as usize][i as usize] = true;
-                        continue;
-                    }
-
-                    let real_pos = (chunk_start + AxialVector::new(q as i32, r as i32)).to_real();
-                    let x = real_pos.x;
-                    let y = real_pos.y;
-                    let z = i as f32 * PILLAR_STEP_HEIGHT;
-                    let fill_noise = open_simplex3::<f32>(&self.terrain_table,
-                                                          &[x * LAND_NOISE_SCALE.0,
-                                                            y * LAND_NOISE_SCALE.1,
-                                                            z * LAND_NOISE_SCALE.2]);
-
-                    // The noise is (theoretically) in the range -1..1
-                    // Map the noise to a range of 0..1
-                    let fill_noise = (fill_noise + 1.0) / 2.0;
-
-                    // Calculate threshold to fill this "block". The lower the threshold, the more
-                    // likely this voxel is filled, so it should increase with height.
-                    let height_pct = i as f32 / WORLDGEN_HEIGHT as f32;
-
-                    // The threshold is calculated using a sigmoid function. These are the
-                    // parameters used:
-
-                    /// Minimum threshold to prevent threshold to reach 0,
-                    /// needed to have any caves at all
-                    const MIN_THRESH: f32 = 0.6;
-                    /// "Steepness" of the sigmoid function.
-                    const THRESH_STEEPNESS: f32 = 30.0;
-                    /// Threshold at half value (max. steepness, avg. terrain
-                    /// height)
-                    const THRESH_MID: f32 = 0.5;
-
-                    let sig_thresh =
-                        1.0 / (1.0 + f32::exp(-THRESH_STEEPNESS * (height_pct - THRESH_MID)));
-
-                    let threshold = (sig_thresh + MIN_THRESH) / (1.0 + MIN_THRESH);
-
-                    fill[q as usize][r as usize][i as usize] = fill_noise > threshold;
-                }
-            }
-        }
-
         Some(Chunk::with_pillars(index, |pos| {
+
             let real_pos = pos.to_real();
             let x = real_pos.x;
             let y = real_pos.y;
-
             // Pillar pos relative to first pillar
-            let rel_pos = pos - index.0 * CHUNK_SIZE as i32;
-            let column = &fill[rel_pos.q as usize][rel_pos.r as usize];
+            let rel_q = pos.q - index.0.q * CHUNK_SIZE as i32;
+            let rel_r = pos.r - index.0.r * CHUNK_SIZE as i32;
 
-            // Create sections for all connected `true`s in the array
-            let mut sections = Vec::new();
-            let mut low = 0;
-            let mut height = None;
-            for i in 0..WORLDGEN_HEIGHT {
-                match (height, column[i]) {
-                    (Some(h), true) => {
-                        // Next one's still solid, increase section height
-                        height = Some(h + 1);
-                    }
-                    (Some(h), false) => {
-                        // Create a section of height `h` and start over
-                        sections.push(PillarSection::new(GroundMaterial::Dirt,
-                                                         HeightType::from_units(low),
-                                                         HeightType::from_units(low + h)));
-                        height = None;
-                    }
-                    (None, true) => {
-                        low = i as u16;
-                        height = Some(1);
-                    }
-                    (None, false) => {}
-                };
-            }
-
-            if let Some(h) = height {
-                // Create the topmost pillar
-                sections.push(PillarSection::new(GroundMaterial::Dirt,
-                                                 HeightType::from_units(low),
-                                                 HeightType::from_units(low + h)));
-            }
-
+            // noises
             let mut temperature_noise = (open_simplex2::<f32>(&self.temperature_table,
                                                               &[(x as f32) * 0.0015,
                                                                 (y as f32) * 0.0015]) +
@@ -205,24 +136,102 @@ impl ChunkProvider for WorldGenerator {
             let current_biome = WorldGenerator::biome_from_climate(temperature_noise,
                                                                    humidity_noise);
 
-            let material = match current_biome {
-                Biome::GrassLand => GroundMaterial::Grass,
-                Biome::Desert => GroundMaterial::Sand,
-                Biome::Snow => GroundMaterial::Snow,
-                Biome::Forest => GroundMaterial::Mulch,
-                Biome::RainForest => GroundMaterial::Jungle,
-                Biome::Savanna => GroundMaterial::Dirt,
-                Biome::Stone => GroundMaterial::Stone,
-                Biome::WeihnachtsmannLand => GroundMaterial::Color(1.0, 0.0, 0.0),
-            };
+            for i in 0..WORLDGEN_HEIGHT {
+                if i == 0 {
+                    fill[rel_q as usize][rel_r as usize][i as usize] = true;
+                    continue;
+                }
+
+                let z = i as f32 * PILLAR_STEP_HEIGHT;
+                let fill_noise = open_simplex3::<f32>(&self.terrain_table,
+                                                      &[x * LAND_NOISE_SCALE.0,
+                                                        y * LAND_NOISE_SCALE.1,
+                                                        z * LAND_NOISE_SCALE.2]);
+
+                // The noise is (theoretically) in the range -1..1
+                // Map the noise to a range of 0..1
+                let fill_noise = (fill_noise + 1.0) / 2.0;
+
+                // Calculate threshold to fill this "block". The lower the threshold, the more
+                // likely this voxel is filled, so it should increase with height.
+                let height_pct = i as f32 / WORLDGEN_HEIGHT as f32;
+
+                // The threshold is calculated using a sigmoid function. These are the
+                // parameters used:
+
+                /// Minimum threshold to prevent threshold to reach 0,
+                /// needed to have any caves at all
+                const MIN_THRESH: f32 = 0.6;
+                /// Threshold at half value (max. steepness, avg. terrain
+                /// height)
+                const THRESH_MID: f32 = 0.5;
+
+                // "Steepness" of the sigmoid function.
+                let thresh_steepness: f32 = WorldGenerator::steepness_from_biome(&current_biome);
+
+                let sig_thresh = 1.0 /
+                                 (1.0 + f32::exp(-thresh_steepness * (height_pct - THRESH_MID)));
+
+                let threshold = (sig_thresh + MIN_THRESH) / (1.0 + MIN_THRESH);
+
+                fill[rel_q as usize][rel_r as usize][i as usize] = fill_noise > threshold;
+            }
+
+            let column = &fill[rel_q as usize][rel_r as usize];
+
+            // Create sections for all connected `true`s in the array
+            let mut sections = Vec::new();
+            let mut low = 0;
+            let mut height = None;
+            for i in 0..WORLDGEN_HEIGHT {
+                let material = match current_biome {
+                    Biome::GrassLand => GroundMaterial::Grass,
+                    Biome::Desert => GroundMaterial::Sand,
+                    Biome::Snow => GroundMaterial::Snow,
+                    Biome::Forest => GroundMaterial::Mulch,
+                    Biome::RainForest => GroundMaterial::Jungle,
+                    Biome::Savanna => GroundMaterial::Dirt,
+                    Biome::Stone => GroundMaterial::Stone,
+                    Biome::WeihnachtsmannLand => GroundMaterial::Color(1.0, 0.0, 0.0),
+                };
+
+
+                match (height, column[i]) {
+
+                    (Some(h), true) => {
+                        // Next one's still solid, increase section height
+                        height = Some(h + 1);
+                    }
+                    (Some(h), false) => {
+                        // Create a section of height `h` and start over
+                        sections.push(PillarSection::new(material,
+                                                         HeightType::from_units(low),
+                                                         HeightType::from_units(low + h)));
+                        height = None;
+                    }
+                    (None, true) => {
+                        low = i as u16;
+                        height = Some(1);
+                    }
+                    (None, false) => {}
+                };
+            }
+
+            if let Some(h) = height {
+                // Create the topmost pillar
+                sections.push(PillarSection::new(GroundMaterial::Dirt,
+                                                 HeightType::from_units(low),
+                                                 HeightType::from_units(low + h)));
+            }
 
             let mut props = Vec::new();
 
+            // plants
             let plant_noise = open_simplex2::<f32>(&self.plant_table,
                                                    &[(x as f32) * 0.25, (y as f32) * 0.25]);
 
-            // Place a test plant every few blocks
-            if plant_noise > WorldGenerator::plant_threshhold_from_biome(current_biome) {
+            if plant_noise > 1.0 {
+                // WorldGenerator::plant_threshold_from_biome(&current_biome) {
                 let mut rng = super::seeded_rng(self.seed, "TREE", (pos.q, pos.r));
                 let gen = PlantGenerator::rand(&mut rng);
 
