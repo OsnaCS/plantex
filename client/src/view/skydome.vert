@@ -1,22 +1,15 @@
-#version 140
+#version 150
 
-in vec3 position;
-in vec3 xyz;
+in vec3 i_position;
+in vec3 i_unit_coords;
 
-out float pre_theta;
-out vec2 pre_phi;
+uniform mat4 u_proj_matrix;
+uniform mat4 u_view_matrix;
 
-out vec3 unit_coords;
-
-uniform mat4 proj_matrix;
-uniform mat4 view_matrix;
+out vec3 x_unit_coords;
 
 void main() {
+    gl_Position = u_proj_matrix * u_view_matrix * vec4(i_position, 1);
 
-    gl_Position = proj_matrix * view_matrix * vec4(position, 1);
-
-    pre_theta = xyz.z;
-    pre_phi = vec2(xyz.x, xyz.y);
-
-    unit_coords = xyz;
+    x_unit_coords = i_unit_coords;
 }

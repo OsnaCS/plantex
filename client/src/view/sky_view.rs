@@ -6,7 +6,6 @@ use Camera;
 use glium::draw_parameters::DepthTest;
 use util::ToArr;
 use base::math::*;
-use std::f32::consts;
 
 pub struct SkyView {
     vertex_buffer: VertexBuffer<Vertex>,
@@ -16,21 +15,28 @@ pub struct SkyView {
 
 impl SkyView {
     pub fn new(context: Rc<GameContext>) -> Self {
-
         const SKYDOME_SIZE: f32 = 1000.0;
         let raw_vertex_buffer = vec![
-            Vertex { position: [0.0, -SKYDOME_SIZE, 0.0], xyz: [0.0, -1.0, 0.0]}, //a
-            Vertex { position: [SKYDOME_SIZE, 0.0, 0.0], xyz: [1.0, 0.0, 0.0]}, //b
-            Vertex { position: [0.0, SKYDOME_SIZE, 0.0], xyz: [0.0, 1.0, 0.0]}, //c
-            Vertex { position: [-SKYDOME_SIZE, 0.0, 0.0], xyz: [-1.0, 0.0, 0.0]}, //d
-            Vertex { position: [0.0, 0.0, -SKYDOME_SIZE], xyz: [0.0, 0.0, -1.0]}, //e
-            Vertex { position: [0.0, 0.0, SKYDOME_SIZE], xyz: [0.0, 0.0, 1.0]}, //f
-
+            // a: part of xy-plane
+            Vertex { i_position: [0.0, -SKYDOME_SIZE, 0.0], i_unit_coords: [0.0, -1.0, 0.0]},
+            // b: part of xy-plane
+            Vertex { i_position: [SKYDOME_SIZE, 0.0, 0.0], i_unit_coords: [1.0, 0.0, 0.0]},
+            // c: part of xy-plane
+            Vertex { i_position: [0.0, SKYDOME_SIZE, 0.0], i_unit_coords: [0.0, 1.0, 0.0]},
+            // d: part of xy-plane
+            Vertex { i_position: [-SKYDOME_SIZE, 0.0, 0.0], i_unit_coords: [-1.0, 0.0, 0.0]},
+            // e: peak of lower hemisphere
+            Vertex { i_position: [0.0, 0.0, -SKYDOME_SIZE], i_unit_coords: [0.0, 0.0, -1.0]},
+            // f: peak of upper hemisphere
+            Vertex { i_position: [0.0, 0.0, SKYDOME_SIZE], i_unit_coords: [0.0, 0.0, 1.0]},
         ];
 
         let vbuf = VertexBuffer::new(context.get_facade(), &raw_vertex_buffer).unwrap();
 
         // Indices
+        // Index-Buffer corresponds to the planes of the octaeder
+        // [a, b, e] [b, c, e] [c, d, e] [d, a, e] [b, a, f] [a, d, f] [d, c, f] [c, b,
+        // f]
         let raw_index_buffer = [0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4, 1, 0, 5, 0, 3, 5, 3, 2, 5, 2,
                                 1, 5]; //TrianglesList
         let ibuf = IndexBuffer::new(context.get_facade(),
@@ -38,14 +44,11 @@ impl SkyView {
                                     &raw_index_buffer)
             .unwrap();
 
-
-
         let prog = Program::from_source(context.get_facade(),
                                         include_str!("skydome.vert"),
                                         include_str!("skydome.frag"),
                                         None)
             .unwrap();
-
 
         SkyView {
             vertex_buffer: vbuf,
@@ -57,12 +60,14 @@ impl SkyView {
     pub fn draw_skydome<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
 
         let pos = Point3::new(0.0, 0.0, 0.0);
+
+        // skydome-octaeder position is set to camera position
         let view_matrix =
             Matrix4::look_at(pos, pos + camera.get_look_at_vector(), Vector3::unit_z());
 
         let uniforms = uniform! {
-            proj_matrix: camera.proj_matrix().to_arr(),
-            view_matrix: view_matrix.to_arr(),
+            u_proj_matrix: camera.proj_matrix().to_arr(),
+            u_view_matrix: view_matrix.to_arr(),
         };
         let params = DrawParameters {
             depth: glium::Depth {
@@ -82,12 +87,11 @@ impl SkyView {
     }
 }
 
-
 /// Vertex type used to render chunks (or hex pillars).
 #[derive(Debug, Copy, Clone)]
 struct Vertex {
-    pub position: [f32; 3],
-    pub xyz: [f32; 3],
+    pub i_position: [f32; 3],
+    pub i_unit_coords: [f32; 3],
 }
 
-implement_vertex!(Vertex, position, xyz);
+implement_vertex!(Vertex, i_position, i_unit_coords);
