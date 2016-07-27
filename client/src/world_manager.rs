@@ -46,7 +46,7 @@ impl WorldManager {
                 sent_requests: HashSet::new(),
                 provided_chunks: chunk_recv,
                 // TODO: load this from the config!
-                load_distance: 7.0,
+                load_distance: 10.0,
                 player_chunk: ChunkIndex(AxialPoint::new(0, 0)),
             })),
             chunk_requests: chunk_request_sender,

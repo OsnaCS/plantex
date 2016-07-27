@@ -3,15 +3,22 @@
 use math::*;
 use world::{Chunk, ChunkIndex, ChunkProvider, HeightType, HexPillar};
 use world::{CHUNK_SIZE, GroundMaterial, PILLAR_STEP_HEIGHT, PillarSection, Prop, PropType};
-use rand::{Rand, Rng};
+use rand::Rand;
+use world::{GroundMaterial, PillarSection, Prop, PropType};
 use gen::PlantGenerator;
 use noise::{PermutationTable, open_simplex2, open_simplex3};
 use gen::seeded_rng;
 
-// pub const LANDSCAPE_FLAT: f32 = 0.01;
-// pub const LANDSCAPE_MODERATE: f32 = 0.05;
-// pub const LANDSCAPE_HILLY: f32 = 0.1125;
-
+enum Biome {
+    GrassLand,
+    Desert,
+    Snow,
+    Forest,
+    RainForest,
+    Savanna,
+    Stone,
+    WeihnachtsmannLand,
+}
 
 /// Land "fill noise" scaling in x, y, and z direction.
 const LAND_NOISE_SCALE: (f32, f32, f32) = (0.03, 0.03, 0.05);
@@ -22,6 +29,8 @@ pub struct WorldGenerator {
     seed: u64,
     terrain_table: PermutationTable,
     plant_table: PermutationTable,
+    temperature_table: PermutationTable,
+    humidity_table: PermutationTable,
 }
 
 impl WorldGenerator {
@@ -29,17 +38,51 @@ impl WorldGenerator {
     pub fn with_seed(seed: u64) -> Self {
         let mut terrain_rng = seeded_rng(seed, 0, ());
         let mut plant_rng = seeded_rng(seed, 1, ());
+        let mut temperature_rng = seeded_rng(seed, 2, ());
+        let mut humidity_rng = seeded_rng(seed, 3, ());
 
         WorldGenerator {
             seed: seed,
             terrain_table: PermutationTable::rand(&mut terrain_rng),
             plant_table: PermutationTable::rand(&mut plant_rng),
+            temperature_table: PermutationTable::rand(&mut temperature_rng),
+            humidity_table: PermutationTable::rand(&mut humidity_rng),
         }
     }
 
     /// Returns the seed of this world generator.
     pub fn seed(&self) -> u64 {
         self.seed
+    }
+
+    fn biome_from_climate(temperature: f32, humidity: f32) -> Biome {
+        match (temperature, humidity) {
+            (0.0...0.2, 0.0...0.2) => Biome::Stone,
+            (0.0...0.2, 0.2...0.4) => Biome::Snow,
+            (0.0...0.2, 0.4...1.0) => Biome::Snow,
+            (0.2...0.4, 0.0...0.2) => Biome::GrassLand,
+            (0.2...0.4, 0.2...0.4) => Biome::GrassLand,
+            (0.2...0.4, 0.4...1.0) => Biome::Forest,
+            (0.4...1.0, 0.0...0.2) => Biome::Desert,
+            (0.4...1.0, 0.2...0.4) => Biome::Savanna,
+            (0.4...1.0, 0.4...1.0) => Biome::RainForest,
+            _ => Biome::WeihnachtsmannLand,
+
+        }
+    }
+
+    fn plant_threshhold_from_biome(biome: Biome) -> f32 {
+        0.05 +
+        match biome {
+            Biome::GrassLand => 0.3,
+            Biome::Desert => 0.465,
+            Biome::Snow => 0.3,
+            Biome::Forest => 0.2,
+            Biome::RainForest => 0.1,
+            Biome::Savanna => 0.375,
+            Biome::Stone => 0.45,
+            Biome::WeihnachtsmannLand => 1.0,
+        }
     }
 }
 
@@ -141,28 +184,58 @@ impl ChunkProvider for WorldGenerator {
                                                  HeightType::from_units(low + h)));
             }
 
+            let mut temperature_noise = (open_simplex2::<f32>(&self.temperature_table,
+                                                              &[(x as f32) * 0.0015,
+                                                                (y as f32) * 0.0015]) +
+                                         0.6) / 2.0;
+            temperature_noise += 0.05 *
+                                 open_simplex2::<f32>(&self.temperature_table,
+                                                      &[(x as f32) * 0.15, (y as f32) * 0.15]);
+
+
+            let mut humidity_noise = (open_simplex2::<f32>(&self.humidity_table,
+                                                           &[(x as f32) * 0.0015,
+                                                             (y as f32) * 0.0015]) +
+                                      0.6) / 2.0;
+            humidity_noise += 0.05 *
+                              open_simplex2::<f32>(&self.humidity_table,
+                                                   &[(x as f32) * 0.15, (y as f32) * 0.15]);
+
+
+            let current_biome = WorldGenerator::biome_from_climate(temperature_noise,
+                                                                   humidity_noise);
+
+            let material = match current_biome {
+                Biome::GrassLand => GroundMaterial::Grass,
+                Biome::Desert => GroundMaterial::Sand,
+                Biome::Snow => GroundMaterial::Snow,
+                Biome::Forest => GroundMaterial::Mulch,
+                Biome::RainForest => GroundMaterial::Jungle,
+                Biome::Savanna => GroundMaterial::Dirt,
+                Biome::Stone => GroundMaterial::Stone,
+                Biome::WeihnachtsmannLand => GroundMaterial::Color(1.0, 0.0, 0.0),
+            };
+
             let mut props = Vec::new();
 
             let plant_noise = open_simplex2::<f32>(&self.plant_table,
-                                                   &[(x as f32) * 0.08, (y as f32) * 0.08]);
+                                                   &[(x as f32) * 0.25, (y as f32) * 0.25]);
 
             // Place a test plant every few blocks
-            if plant_noise > 0.4 {
+            if plant_noise > WorldGenerator::plant_threshhold_from_biome(current_biome) {
                 let mut rng = super::seeded_rng(self.seed, "TREE", (pos.q, pos.r));
-                if rng.next_f32() < plant_noise {
-                    let gen = PlantGenerator::rand(&mut rng);
+                let gen = PlantGenerator::rand(&mut rng);
 
-                    // put the tree at the highest position
-                    let height = match sections.last() {
-                        Some(section) => section.top,
-                        None => HeightType::from_units(0),
-                    };
+                // put the tree at the highest position
+                let height = match sections.last() {
+                    Some(section) => section.top,
+                    None => HeightType::from_units(0),
+                };
 
-                    props.push(Prop {
-                        baseline: height,
-                        prop: PropType::Plant(gen.generate(&mut rng)),
-                    });
-                }
+                props.push(Prop {
+                    baseline: height,
+                    prop: PropType::Plant(gen.generate(&mut rng)),
+                });
             }
 
             HexPillar::new(sections, props)
