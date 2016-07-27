@@ -5,6 +5,7 @@ use glium::backend::glutin_backend::GlutinFacade;
 use glium::{self, DisplayBuild, glutin};
 use super::Renderer;
 use super::{Config, GameContext, WorldManager};
+use config::WindowMode;
 use base::gen::WorldGenerator;
 use std::time::{Duration, Instant};
 use std::rc::Rc;
@@ -87,15 +88,31 @@ fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
 /// Creates the OpenGL context and prints useful information about the
 /// success or failure of said action.
 fn create_context(config: &Config) -> Result<GlutinFacade, Box<Error>> {
-    // Create glium context
-    // TODO: handle fullscreen
-    // TODO: OpenGL version/profile
-    // TODO: vsync
-    let context = glutin::WindowBuilder::new()
-        .with_dimensions(config.resolution.width, config.resolution.height)
-        .with_title(config.window_title.clone())
-        .with_depth_buffer(24)
-        .build_glium();
+
+    // initialize window builder
+    let mut window_builder = glutin::WindowBuilder::new();
+
+    // check for window mode and set params
+    match config.window_mode {
+        WindowMode::Windowed => (),
+        // TODO: if we add a fullscreen window mode
+        // FullScreenWindow => (),
+        WindowMode::FullScreen => {
+            window_builder = window_builder.with_fullscreen(glutin::get_primary_monitor());
+            window_builder = window_builder.with_decorations(false);
+        }
+    }
+
+    // check for vsync
+    if config.vsync {
+        window_builder = window_builder.with_vsync();
+    }
+
+    // set title, resolution & create glium context
+    window_builder = window_builder.with_title(config.window_title.clone());
+    window_builder =
+        window_builder.with_dimensions(config.resolution.width, config.resolution.height);
+    let context = window_builder.with_depth_buffer(24).build_glium();
 
     match context {
         Err(e) => {
