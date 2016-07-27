@@ -1,4 +1,5 @@
 use base::world;
+use base::math::SQRT_3;
 use std::f32::consts;
 use world::chunk_view::Vertex;
 use glium::{IndexBuffer, Program, VertexBuffer};
@@ -64,21 +65,44 @@ fn hex_corner(size: f32, i: i32) -> (f32, f32) {
     (size * angle_rad.cos(), size * angle_rad.sin())
 }
 
+/// Calculate texture coordinates
+fn tex_map(i: i32) -> (f32, f32) {
+    match i {
+        0 => (1.0 - (0.5 - SQRT_3 / 4.0), 0.25),
+        1 => (1.0 - (0.5 - SQRT_3 / 4.0), 0.75),
+        2 => (0.5, 1.0),
+        3 => (0.5 - SQRT_3 / 4.0, 0.75),
+        4 => (0.5 - SQRT_3 / 4.0, 0.25),
+        5 => (0.5, 0.0),
+        // TODO: ERROR HANDLING
+        _ => (0.0, 0.0),
+    }
+}
+
 /// Calculates the top face of the Hexagon and normals
 fn get_top_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
     let cur_len = vertices.len() as u32;
+    // Corner vertices
     for i in 0..6 {
         let (x, y) = hex_corner(world::HEX_OUTER_RADIUS, i);
+        println!("x: {}, y: {}", x, y);
+
+        let (a, b) = tex_map(i);
 
         vertices.push(Vertex {
             position: [x, y, world::PILLAR_STEP_HEIGHT],
             normal: [0.0, 0.0, 1.0],
+            // TODO: Set top texture coordinates
+            tex_coord: [a, b],
         });
     }
 
+    // Central Vertex
     vertices.push(Vertex {
         position: [0.0, 0.0, world::PILLAR_STEP_HEIGHT],
         normal: [0.0, 0.0, 1.0],
+        // TODO: Set top texture coordinates
+        tex_coord: [0.5, 0.5],
     });
 
     indices.append(&mut vec![cur_len + 0,
@@ -107,15 +131,19 @@ fn get_bottom_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) 
     for i in 0..6 {
         let (x, y) = hex_corner(world::HEX_OUTER_RADIUS, i);
 
+        let (a, b) = tex_map(i);
+
         vertices.push(Vertex {
             position: [x, y, 0.0],
             normal: [0.0, 0.0, -1.0],
+            tex_coord: [a, b],
         });
     }
 
     vertices.push(Vertex {
         position: [0.0, 0.0, 0.0],
         normal: [0.0, 0.0, -1.0],
+        tex_coord: [0.5, 0.5],
     });
     indices.append(&mut vec![cur_len + 1,
                              cur_len + 6,
@@ -150,18 +178,22 @@ fn get_side_hexagon_model(ind1: i32,
     vertices.push(Vertex {
         position: [x1, y1, world::PILLAR_STEP_HEIGHT],
         normal: normal,
+        tex_coord: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x1, y1, 0.0],
         normal: normal,
+        tex_coord: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x2, y2, world::PILLAR_STEP_HEIGHT],
         normal: normal,
+        tex_coord: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x2, y2, 0.0],
         normal: normal,
+        tex_coord: [0.0, 0.0],
     });
 
     indices.append(&mut vec![cur_len + 0,

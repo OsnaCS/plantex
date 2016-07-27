@@ -86,9 +86,10 @@ impl ChunkView {
 pub struct Vertex {
     pub position: [f32; 3],
     pub normal: [f32; 3],
+    pub tex_coord: [f32; 2],
 }
 
-implement_vertex!(Vertex, position, normal);
+implement_vertex!(Vertex, position, normal, tex_coord);
 
 /// Instance data for each pillar section.
 #[derive(Debug, Copy, Clone)]
