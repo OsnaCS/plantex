@@ -56,6 +56,11 @@ impl ChunkProvider for WorldGenerator {
         for q in 0..CHUNK_SIZE {
             for r in 0..CHUNK_SIZE {
                 for i in 0..WORLDGEN_HEIGHT {
+                    if i == 0 {
+                        fill[q as usize][r as usize][i as usize] = true;
+                        continue;
+                    }
+
                     let real_pos = (chunk_start + AxialVector::new(q as i32, r as i32)).to_real();
                     let x = real_pos.x;
                     let y = real_pos.y;
