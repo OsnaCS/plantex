@@ -95,6 +95,19 @@ impl WorldGenerator {
             Biome::WeihnachtsmannLand => 5.0,
         }
     }
+
+    fn material_from_biome(biome: &Biome) -> GroundMaterial {
+        match *biome {
+            Biome::GrassLand => GroundMaterial::Grass,
+            Biome::Desert => GroundMaterial::Sand,
+            Biome::Snow => GroundMaterial::Snow,
+            Biome::Forest => GroundMaterial::Mulch,
+            Biome::RainForest => GroundMaterial::Jungle,
+            Biome::Savanna => GroundMaterial::Dirt,
+            Biome::Stone => GroundMaterial::Stone,
+            Biome::WeihnachtsmannLand => GroundMaterial::Color(1.0, 0.0, 0.0),
+        }
+    }
 }
 
 impl ChunkProvider for WorldGenerator {
@@ -184,17 +197,7 @@ impl ChunkProvider for WorldGenerator {
             let mut low = 0;
             let mut height = None;
             for i in 0..WORLDGEN_HEIGHT {
-                let material = match current_biome {
-                    Biome::GrassLand => GroundMaterial::Grass,
-                    Biome::Desert => GroundMaterial::Sand,
-                    Biome::Snow => GroundMaterial::Snow,
-                    Biome::Forest => GroundMaterial::Mulch,
-                    Biome::RainForest => GroundMaterial::Jungle,
-                    Biome::Savanna => GroundMaterial::Dirt,
-                    Biome::Stone => GroundMaterial::Stone,
-                    Biome::WeihnachtsmannLand => GroundMaterial::Color(1.0, 0.0, 0.0),
-                };
-
+                let material = WorldGenerator::material_from_biome(&current_biome);
 
                 match (height, column[i]) {
 
