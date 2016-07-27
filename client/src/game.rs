@@ -10,6 +10,7 @@ use std::time::{Duration, Instant};
 use std::rc::Rc;
 use std::net::{SocketAddr, TcpStream};
 use std::error::Error;
+use view::SkyView;
 
 pub struct Game {
     renderer: Renderer,
@@ -18,6 +19,7 @@ pub struct Game {
     player: Ghost,
     #[allow(dead_code)]
     server: TcpStream,
+    sky_view: SkyView,
 }
 
 impl Game {
@@ -34,6 +36,7 @@ impl Game {
                                              context.clone()),
             player: Ghost::new(context.clone()),
             server: server,
+            sky_view: SkyView::new(context.clone()),
         })
     }
 
@@ -55,7 +58,9 @@ impl Game {
 
             time_prev = Instant::now();
 
-            try!(self.renderer.render(&*self.world_manager.get_view(), &self.player.get_camera()));
+            try!(self.renderer.render(&*self.world_manager.get_view(),
+                                      &self.player.get_camera(),
+                                      &self.sky_view));
             let event_resp = self.event_manager
                 .poll_events(vec![&mut CloseHandler, &mut self.player]);
             if event_resp == EventResponse::Quit {

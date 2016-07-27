@@ -24,7 +24,7 @@ impl Default for Camera {
 impl Camera {
     /// Returns the projection matrix
     pub fn proj_matrix(&self) -> Matrix4<f32> {
-        perspective(deg(60.0), 16.0 / 9.0, 0.1, 500.0)
+        perspective(deg(60.0), 16.0 / 9.0, 0.1, 3_000.0)
     }
 
     /// Returns view matrix
