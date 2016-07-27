@@ -55,6 +55,32 @@ static PRESETS: &'static [Preset] = &[Preset {
                                           branch_segment_angle: 5.0..15.0,
                                           branch_segment_count: 1..4,
                                           branch_color: (0.3..0.33, 0.1..0.13, 0.0..0.02),
+                                      },
+                                      Preset {
+                                          name: "Shrub",
+                                          trunk_diameter: 0.05..0.15,
+                                          trunk_height: 0.5..1.5,
+                                          trunk_diameter_top: 0.6..0.60001,
+                                          min_branch_height: 0.4..0.6,
+                                          branch_diameter_factor: 0.3..0.5,
+                                          branch_angle_deg: 60.0..100.0,
+                                          branch_diam_reduction: 0.70..0.80,
+                                          branch_segment_angle: 15.0..20.0,
+                                          branch_segment_count: 1..4,
+                                          branch_color: (0.15..0.18, 0.03..0.05, 0.0..0.02),
+                                      },
+                                      Preset {
+                                          name: "Cactus",
+                                          trunk_diameter: 0.3..0.5,
+                                          trunk_height: 2.0..4.0,
+                                          trunk_diameter_top: 0.6..0.60001,
+                                          min_branch_height: 0.4..0.6,
+                                          branch_diameter_factor: 0.3..0.5,
+                                          branch_angle_deg: 90.0..90.00001,
+                                          branch_diam_reduction: 0.90..0.95,
+                                          branch_segment_angle: 0.0..0.00001,
+                                          branch_segment_count: 1..2,
+                                          branch_color: (0.0..0.05, 0.3..0.33, 0.0..0.02),
                                       }];
 
 pub struct TreeGen {
@@ -169,8 +195,11 @@ impl TreeGen {
     fn create_trunk<R: Rng>(&mut self, rng: &mut R) {
         let trunk_diameter = range_sample(&self.preset.trunk_diameter, rng);
         let trunk_height = range_sample(&self.preset.trunk_height, rng);
-        let trunk_diameter_top = range_sample(&self.preset.trunk_diameter_top, rng);
+        let mut trunk_diameter_top = range_sample(&self.preset.trunk_diameter_top, rng);
         let min_branch_height = range_sample(&self.preset.min_branch_height, rng) * trunk_height;
+
+        // The trunk is supposed to get smaller as we go up, so just enforce that rule here:
+        trunk_diameter_top = trunk_diameter.min(trunk_diameter_top);
 
         debug!("trunk diam {} to {}, height {}, branch start at {}",
                trunk_diameter,
