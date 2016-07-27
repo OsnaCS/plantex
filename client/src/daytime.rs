@@ -1,5 +1,6 @@
 use super::event_manager::*;
 use glium::glutin::{ElementState, Event, VirtualKeyCode};
+use std::f32::consts;
 
 #[derive(Debug)]
 pub struct DayTime {
@@ -27,6 +28,12 @@ impl Default for DayTime {
     }
 }
 
+const DAY_LENGTH: f32 = 720.0;
+const YEAR_LENGTH: u32 = 12;
+
+const MONTH_DIFFERENCE: f32 = 3.1415 / 18.0;
+
+
 impl DayTime {
     pub fn set_time(&mut self, time_year: u32, time_day: u32, time_on_day: f32) {
         self.time_year = time_year;
@@ -51,9 +58,6 @@ impl DayTime {
     // `DAY_LENGTH` defines the length of a day in real-life seconds
     // `YEAR_LENGTH` defines the length of a year in `DAY_LENGTH`s
     pub fn update(&mut self, delta: f32) {
-        const DAY_LENGTH: f32 = 720.0;
-        const YEAR_LENGTH: u32 = 12;
-
         // Output of Time
         info!("Year: {} Day: {} Time: {}",
               self.time_year,
@@ -71,6 +75,37 @@ impl DayTime {
             }
         }
 
+    }
+
+
+
+    pub fn get_sun_light_vector(&self) {
+        // 0 degrees for mid summer
+        // 60 degrees for hard winter
+        let mut half_year = YEAR_LENGTH as f32 / 2.0;
+        let mut half_day = DAY_LENGTH as f32 / 2.0;
+
+
+        let mut theta = self.time_day as f32 - half_year;
+        if theta < 0.0 {
+            theta *= -1.0;
+        }
+        // theta now is the day difference from the highest day, sunposition-wise
+        theta *= MONTH_DIFFERENCE;
+
+        if self.time_on_day < half_day {
+            // pre noon
+            // sun rising
+            theta += consts::PI - consts::PI * (self.time_on_day / half_day)
+        } else {
+            // after noon
+            // sun going down
+            theta += consts::PI * ((self.time_on_day - half_day) / half_day)
+        }
+
+        let mut phi = self.time_on_day / DAY_LENGTH as f32 * 2.0 * consts::PI;
+
+        info!("THETA: {} PHI: {}", theta, phi);
     }
 }
 
@@ -91,3 +126,9 @@ impl EventHandler for DayTime {
 
     }
 }
+
+
+
+// position in theta phi
+
+// lichtvektor
