@@ -73,27 +73,21 @@ impl WorldGenerator {
         0.05 +
         match *biome {
             Biome::GrassLand => 0.3,
-            Biome::Desert => 0.465,
-            Biome::Snow => 0.3,
-            Biome::Forest => 0.2,
-            Biome::RainForest => 0.1,
+            Biome::Desert => 0.46,
+            Biome::Snow => 0.35,
+            Biome::Forest => 0.25,
+            Biome::RainForest => 0.2,
             Biome::Savanna => 0.375,
             Biome::Stone => 0.45,
             Biome::WeihnachtsmannLand => 1.0,
         }
     }
 
-    fn steepness_from_biome(biome: &Biome) -> f32 {
-        match *biome {
-            Biome::GrassLand => 40.0,
-            Biome::Desert => 200.0,
-            Biome::Snow => 30.0,
-            Biome::Forest => 35.0,
-            Biome::RainForest => 25.0,
-            Biome::Savanna => 50.0,
-            Biome::Stone => 15.0,
-            Biome::WeihnachtsmannLand => 5.0,
-        }
+    /// trying aproximate the
+    /// steepvalues       10   20   60  200
+    /// for temperature  0.0  0.2  0.4  1.0
+    fn steepness_from_temperature(temperature: f32) -> f32 {
+        120.0 * temperature * temperature + 72.0 * temperature + 3.5
     }
 
     fn material_from_biome(biome: &Biome) -> GroundMaterial {
@@ -132,7 +126,7 @@ impl ChunkProvider for WorldGenerator {
                                                               &[(x as f32) * 0.0015,
                                                                 (y as f32) * 0.0015]) +
                                          0.6) / 2.0;
-            temperature_noise += 0.05 *
+            temperature_noise += 0.035 *
                                  open_simplex2::<f32>(&self.temperature_table,
                                                       &[(x as f32) * 0.15, (y as f32) * 0.15]);
 
@@ -141,7 +135,7 @@ impl ChunkProvider for WorldGenerator {
                                                            &[(x as f32) * 0.0015,
                                                              (y as f32) * 0.0015]) +
                                       0.6) / 2.0;
-            humidity_noise += 0.05 *
+            humidity_noise += 0.035 *
                               open_simplex2::<f32>(&self.humidity_table,
                                                    &[(x as f32) * 0.15, (y as f32) * 0.15]);
 
@@ -180,7 +174,8 @@ impl ChunkProvider for WorldGenerator {
                 const THRESH_MID: f32 = 0.5;
 
                 // "Steepness" of the sigmoid function.
-                let thresh_steepness: f32 = WorldGenerator::steepness_from_biome(&current_biome);
+                let thresh_steepness: f32 =
+                    WorldGenerator::steepness_from_temperature(temperature_noise);
 
                 let sig_thresh = 1.0 /
                                  (1.0 + f32::exp(-thresh_steepness * (height_pct - THRESH_MID)));
@@ -233,8 +228,7 @@ impl ChunkProvider for WorldGenerator {
             let plant_noise = open_simplex2::<f32>(&self.plant_table,
                                                    &[(x as f32) * 0.25, (y as f32) * 0.25]);
 
-            if plant_noise > 1.0 {
-                // WorldGenerator::plant_threshold_from_biome(&current_biome) {
+            if plant_noise > WorldGenerator::plant_threshold_from_biome(&current_biome) {
                 let mut rng = super::seeded_rng(self.seed, "TREE", (pos.q, pos.r));
                 let gen = PlantGenerator::rand(&mut rng);
 
