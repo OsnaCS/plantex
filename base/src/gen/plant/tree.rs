@@ -198,7 +198,8 @@ impl TreeGen {
         let mut trunk_diameter_top = range_sample(&self.preset.trunk_diameter_top, rng);
         let min_branch_height = range_sample(&self.preset.min_branch_height, rng) * trunk_height;
 
-        // The trunk is supposed to get smaller as we go up, so just enforce that rule here:
+        // The trunk is supposed to get smaller as we go up, so just enforce that rule
+        // here:
         trunk_diameter_top = trunk_diameter.min(trunk_diameter_top);
 
         debug!("trunk diam {} to {}, height {}, branch start at {}",
