@@ -3,6 +3,7 @@
 // Per-vertex attributes
 in vec3 position;
 in vec3 normal;
+in vec2 tex_coord;
 
 // Per-instance attributes:
 // Height in units, not world coordinates, since the "pillar prototype" has a
@@ -14,6 +15,7 @@ in vec3 material_color;
 out vec3 x_color;
 out vec3 toLight;
 out vec3 surfaceNormal;
+out vec2 x_tex_coord;
 
 uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
@@ -28,4 +30,5 @@ void main() {
     surfaceNormal = normal;
     toLight = sun;
     x_color = material_color;
+    x_tex_coord = tex_coord;
 }

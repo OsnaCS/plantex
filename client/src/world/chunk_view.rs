@@ -8,6 +8,7 @@ use util::ToArr;
 use view::{PlantRenderer, PlantView};
 use world::ChunkRenderer;
 use std::rc::Rc;
+use glium::texture::texture2d::Texture2d;
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
@@ -15,6 +16,7 @@ pub struct ChunkView {
     pillars: Vec<PillarView>,
     /// Instance data buffer.
     pillar_buf: VertexBuffer<Instance>,
+    texture: Texture2d,
 }
 
 impl ChunkView {
@@ -43,17 +45,30 @@ impl ChunkView {
             }
         }
 
+        let data = vec![
+            vec![(0u8, 0u8, 0u8), (0u8, 0u8, 255u8), (0u8, 0u8, 255u8)],
+            vec![(0u8, 0u8, 0u8), (0u8, 0u8, 255u8), (0u8, 0u8, 255u8)],
+            vec![(255u8, 0u8, 0u8), (0u8, 255u8, 0u8), (0u8, 255u8, 0u8)],
+        ];
+
+        let tex = Texture2d::new(facade, data).unwrap();
+
         ChunkView {
             renderer: chunk_renderer,
             pillars: pillars,
             pillar_buf: VertexBuffer::dynamic(facade, &sections).unwrap(),
+            texture: tex,
         }
     }
 
     pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
+
+
+
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
+            my_texture: self.texture.sampled().wrap_function(::glium::uniforms::SamplerWrapFunction::Clamp),
         };
         let params = DrawParameters {
             depth: glium::Depth {
