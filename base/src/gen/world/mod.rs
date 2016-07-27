@@ -45,7 +45,7 @@ impl WorldGenerator {
 
 impl ChunkProvider for WorldGenerator {
     fn load_chunk(&self, index: ChunkIndex) -> Option<Chunk> {
-        const WORLDGEN_HEIGHT: usize = 128;
+        const WORLDGEN_HEIGHT: usize = 256;
         // Create a 3D-Array of booleans indicating which pillar sections to fill
         // (Map height is unlimited in theory, but we'll limit worldgen to 64 height
         // units)
@@ -65,11 +65,32 @@ impl ChunkProvider for WorldGenerator {
                                                             y * LAND_NOISE_SCALE.1,
                                                             z * LAND_NOISE_SCALE.2]);
 
-                    // Offset the noise, since it's in range -1 .. 1 (or something like that)
-                    let fill_noise = fill_noise + 1.0;
+                    // The noise is (theoretically) in the range -1..1
+                    // Map the noise to a range of 0..1
+                    let fill_noise = (fill_noise + 1.0) / 2.0;
 
-                    fill[q as usize][r as usize][i as usize] =
-                        fill_noise > 1.7 * (i as f32 / WORLDGEN_HEIGHT as f32);
+                    // Calculate threshold to fill this "block". The lower the threshold, the more
+                    // likely this voxel is filled, so it should increase with height.
+                    let height_pct = i as f32 / WORLDGEN_HEIGHT as f32;
+
+                    // The threshold is calculated using a sigmoid function. These are the
+                    // parameters used:
+
+                    /// Minimum threshold to prevent threshold to reach 0,
+                    /// needed to have any caves at all
+                    const MIN_THRESH: f32 = 0.6;
+                    /// "Steepness" of the sigmoid function.
+                    const THRESH_STEEPNESS: f32 = 30.0;
+                    /// Threshold at half value (max. steepness, avg. terrain
+                    /// height)
+                    const THRESH_MID: f32 = 0.5;
+
+                    let sig_thresh =
+                        1.0 / (1.0 + f32::exp(-THRESH_STEEPNESS * (height_pct - THRESH_MID)));
+
+                    let threshold = (sig_thresh + MIN_THRESH) / (1.0 + MIN_THRESH);
+
+                    fill[q as usize][r as usize][i as usize] = fill_noise > threshold;
                 }
             }
         }
