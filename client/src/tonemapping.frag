@@ -10,15 +10,16 @@ in VertexData {
 layout(location = 0) out vec4 frag_output;
 
 void main() {
-    const float gamma = 1.0;
-
-    // get color and use simple tone mapping
-    vec3 color = texture(decal_texture, i.frag_texcoord).rgb;
-    vec3 mapped = color / (color + vec3(1.0));
-
-    //exposure used for day night cycle
-    mapped = vec3(1.0) - exp(-color * exposure);
-    //gamma correction
+    //A gamma value of 2.2 is a default gamma value that 
+    //roughly estimates the average gamma of most displays.
+    //sRGB color space
+    const float gamma = 2.2;
+    vec3 hdrColor = texture(decal_texture, i.frag_texcoord).rgb;
+  
+    // Exposure tone mapping
+    vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
+    // Gamma correction 
     mapped = pow(mapped, vec3(1.0 / gamma));
+    
     frag_output = vec4(mapped, 1.0);
 }
