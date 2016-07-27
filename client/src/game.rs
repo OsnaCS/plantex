@@ -11,7 +11,7 @@ use std::time::{Duration, Instant};
 use std::rc::Rc;
 use std::net::{SocketAddr, TcpStream};
 use std::error::Error;
-use view::SkyView;
+use view::{SkyView, Sun};
 use super::DayTime;
 
 pub struct Game {
@@ -21,6 +21,7 @@ pub struct Game {
     player: Ghost,
     #[allow(dead_code)]
     server: TcpStream,
+    sun: Sun,
     sky_view: SkyView,
     daytime: DayTime,
 }
@@ -39,6 +40,7 @@ impl Game {
                                              context.clone()),
             player: Ghost::new(context.clone()),
             server: server,
+            sun: Sun::new(context.clone()),
             sky_view: SkyView::new(context.clone()),
             daytime: DayTime::default(),
         })
@@ -67,6 +69,7 @@ impl Game {
 
             try!(self.renderer.render(&*self.world_manager.get_view(),
                                       &self.player.get_camera(),
+                                      &self.sun,
                                       &self.sky_view));
             let event_resp = self.event_manager
                 .poll_events(vec![&mut CloseHandler, &mut self.player, &mut self.daytime]);
