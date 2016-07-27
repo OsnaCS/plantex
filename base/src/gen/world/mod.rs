@@ -118,8 +118,7 @@ impl ChunkProvider for WorldGenerator {
             let x = real_pos.x;
             let y = real_pos.y;
             // Pillar pos relative to first pillar
-            let rel_q = pos.q - index.0.q * CHUNK_SIZE as i32;
-            let rel_r = pos.r - index.0.r * CHUNK_SIZE as i32;
+            let rel_pos = pos - index.0 * CHUNK_SIZE as i32;
 
             // noises
             let mut temperature_noise = (open_simplex2::<f32>(&self.temperature_table,
@@ -145,7 +144,7 @@ impl ChunkProvider for WorldGenerator {
 
             for i in 0..WORLDGEN_HEIGHT {
                 if i == 0 {
-                    fill[rel_q as usize][rel_r as usize][i as usize] = true;
+                    fill[rel_pos.q as usize][rel_pos.r as usize][i as usize] = true;
                     continue;
                 }
 
@@ -182,10 +181,10 @@ impl ChunkProvider for WorldGenerator {
 
                 let threshold = (sig_thresh + MIN_THRESH) / (1.0 + MIN_THRESH);
 
-                fill[rel_q as usize][rel_r as usize][i as usize] = fill_noise > threshold;
+                fill[rel_pos.q as usize][rel_pos.r as usize][i as usize] = fill_noise > threshold;
             }
 
-            let column = &fill[rel_q as usize][rel_r as usize];
+            let column = &fill[rel_pos.q as usize][rel_pos.r as usize];
 
             // Create sections for all connected `true`s in the array
             let mut sections = Vec::new();
