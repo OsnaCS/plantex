@@ -25,7 +25,7 @@ impl PlantView {
                                  facade: &F)
                                  -> Self {
         // FIXME handle other plant types
-        let verts = 0;
+        // let verts = 0;
         let mut indices = Vec::new();
         let mut vertices = Vec::new();
         let branches = match *plant {
