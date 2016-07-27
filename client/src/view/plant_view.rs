@@ -4,10 +4,10 @@ use glium::index::PrimitiveType;
 use Camera;
 use util::ToArr;
 use base::math::*;
+use base::gen::seeded_rng;
 use base::prop::Plant;
 use std::rc::Rc;
 use super::PlantRenderer;
-use std::f32::consts;
 use base::prop::plant::ControlPoint;
 
 /// Graphical representation of a 'base::Plant'
@@ -45,8 +45,6 @@ impl PlantView {
                     .collect()
             }
         };
-
-        debug!("{} verts -> {:?}", verts, pos);
 
         PlantView {
             branches: branches,
@@ -94,167 +92,108 @@ pub struct Vertex {
 
 implement_vertex!(Vertex, position, color, normal);
 
-fn triangle_corner(size: f32, i: i32) -> (f32, f32) {
-    let angle_deg = 120.0 * (i as f32);
-    let angle_rad = (consts::PI / 180.0) * angle_deg;
-
-    (size * angle_rad.cos(), size * angle_rad.sin())
-}
-
+/// generates Vertexbuffer and indexbuffer for a branch
 fn get_vertices_for_branch(start: &ControlPoint,
                            end: &ControlPoint,
                            vertices: &mut Vec<Vertex>,
                            indices: &mut Vec<u32>,
-                           color: Vector3f)
-                           -> () {
-    // for i in 0..3 {
-    // let (x, y) = triangle_corner(end.diameter, i);
-    // vertices.push(Vertex {
-    // position: [end.point.x + x, end.point.y + y, end.point.z],
-    // color: color.to_arr(),
-    // });
-    // }
-    //
-    // for i in 0..3 {
-    // let (x, y) = triangle_corner(start.diameter, i);
-    // vertices.push(Vertex {
-    // position: [start.point.x + x, start.point.y + y, start.point.z],
-    // color: color.to_arr(),
-    // });
-    // }
-
-    // let (fistStartX, firstStartY) = triangle_corner(start.diameter, 0);
-    // let (secondStartX, secondStartY) = triangle_corner(start.diameter, 1);
-    // let (thirdStartX, thirdStartY) = triangle_corner(start.diameter, 2);
-    //
-    // let (fistEndX, firstEndY) = triangle_corner(end.diameter, 0);
-    // let (secondEndX, secondEndY) = triangle_corner(end.diameter, 1);
-    // let (thirdEndX, thirdEndY) = triangle_corner(end.diameter, 2);
-    //
-    // indices.append(&mut vec![cur_len + 2,
-    // cur_len + 1,
-    // cur_len + 0,
-    // cur_len + 5,
-    // cur_len + 4,
-    // cur_len + 3,
-    // cur_len + 0,
-    // cur_len + 1,
-    // cur_len + 3,
-    // cur_len + 1,
-    // cur_len + 4,
-    // cur_len + 3,
-    // cur_len + 5,
-    // cur_len + 2,
-    // cur_len + 0,
-    // cur_len + 5,
-    // cur_len + 0,
-    // cur_len + 3,
-    // cur_len + 4,
-    // cur_len + 1,
-    // cur_len + 2,
-    // cur_len + 4,
-    // cur_len + 2,
-    // cur_len + 5]);
-    //
-
-    get_top_triangle_model(vertices, indices, end, color);
-    get_bottom_triangle_model(vertices, indices, start, color);
-    get_side_triangle_model(0, 1, vertices, indices, start, end, color);
-    get_side_triangle_model(1, 2, vertices, indices, start, end, color);
-    get_side_triangle_model(2, 0, vertices, indices, start, end, color);
-}
-
-/// Calculates the top face of the Hexagon and normals
-fn get_top_triangle_model(vertices: &mut Vec<Vertex>,
-                          indices: &mut Vec<u32>,
-                          end: &ControlPoint,
-                          color: Vector3f) {
-    let cur_len = vertices.len() as u32;
-    for i in 0..3 {
-        let (x, y) = triangle_corner(end.diameter, i);
-
-        vertices.push(Vertex {
-            position: [end.point.x + x, end.point.y + y, end.point.z],
-            normal: [0.0, 0.0, 1.0],
-            color: color.to_arr(),
-        });
-    }
-
-    indices.append(&mut vec![cur_len + 2, cur_len + 1, cur_len + 0]);
-}
-
-/// Calculates the bottom face of the Hexagon and the normals
-fn get_bottom_triangle_model(vertices: &mut Vec<Vertex>,
-                             indices: &mut Vec<u32>,
-                             start: &ControlPoint,
-                             color: Vector3f) {
-    let cur_len = vertices.len() as u32;
-    for i in 0..3 {
-        let (x, y) = triangle_corner(start.diameter, i);
-
-        vertices.push(Vertex {
-            position: [start.point.x + x, start.point.y + y, start.point.z],
-            normal: [0.0, 0.0, -1.0],
-            color: color.to_arr(),
-        });
-    }
-
-    vertices.push(Vertex {
-        position: [0.0, 0.0, 0.0],
-        normal: [0.0, 0.0, -1.0],
-        color: color.to_arr(),
-    });
-    indices.append(&mut vec![cur_len + 2, cur_len + 0, cur_len + 1]);
-}
-
-/// Calculates the sides of the Hexagon and normals
-fn get_side_triangle_model(ind1: i32,
-                           ind2: i32,
-                           vertices: &mut Vec<Vertex>,
-                           indices: &mut Vec<u32>,
-                           start: &ControlPoint,
-                           end: &ControlPoint,
                            color: Vector3f) {
-    let cur_len = vertices.len() as u32;
-    let (e1x, e1y) = triangle_corner(end.diameter, ind1);
-    let (e2x, e2y) = triangle_corner(end.diameter, ind2);
-    let (s1x, s1y) = triangle_corner(start.diameter, ind1);
-    let (s2x, s2y) = triangle_corner(start.diameter, ind2);
 
     let to_end: Vector3f = Vector3f::new(end.point.x - start.point.x,
                                          end.point.y - start.point.y,
                                          end.point.z - start.point.z);
-    let to_side: Vector3f = Vector3f::new(e1x - e2x, e1y - e2y, 0.0);
-    let cross: Vector3f = Vector3f::new(to_end.y * to_side.z - to_end.z * to_side.y,
-                                        to_end.z * to_side.x - to_end.x * to_side.z,
-                                        to_end.x * to_side.y - to_end.y * to_side.x);
-    let normal = [cross.x, cross.y, cross.z];
+    let ortho = get_points_from_vector(to_end);
+
+    let mut cur_len = vertices.len() as u32;
+
+    // Bottom
+    for vec in ortho.iter() {
+        vertices.push(Vertex {
+            position: [start.point.x + vec.x * start.diameter,
+                       start.point.y + vec.y * start.diameter,
+                       start.point.z + vec.z * start.diameter],
+            normal: (-to_end).to_arr(),
+            color: color.to_arr(),
+        });
+    }
+    indices.append(&mut vec![cur_len + 2, cur_len + 0, cur_len + 1]);
+
+    // Top
+    cur_len = vertices.len() as u32;
+
+
+    for vec in ortho.iter() {
+        vertices.push(Vertex {
+            position: [end.point.x + vec.x * end.diameter,
+                       end.point.y + vec.y * end.diameter,
+                       end.point.z + vec.z * end.diameter],
+            normal: to_end.to_arr(),
+            color: color.to_arr(),
+        });
+    }
+    indices.append(&mut vec![cur_len + 1, cur_len + 0, cur_len + 2]);
+
+    side(vertices, indices, color, start, end, ortho[0], ortho[1]);
+    side(vertices, indices, color, start, end, ortho[1], ortho[2]);
+    side(vertices, indices, color, start, end, ortho[2], ortho[0]);
+}
+
+/// Creates Vertexbuffer and IndexBuffer for a Side of the plants
+fn side(vertices: &mut Vec<Vertex>,
+        indices: &mut Vec<u32>,
+        color: Vector3f,
+        start: &ControlPoint,
+        end: &ControlPoint,
+        first_normal: Vector3f,
+        second_normal: Vector3f) {
+    let cur_len = vertices.len() as u32;
 
     vertices.push(Vertex {
-        position: [end.point.x + e1x, end.point.y + e1y, end.point.z],
-        normal: normal,
-        color: color.to_arr(),
-    });
-    vertices.push(Vertex {
-        position: [end.point.x + e2x, end.point.y + e2y, end.point.z],
-        normal: normal,
-        color: color.to_arr(),
-    });
-    vertices.push(Vertex {
-        position: [start.point.x + s1x, start.point.y + s1y, start.point.z],
-        normal: normal,
-        color: color.to_arr(),
-    });
-    vertices.push(Vertex {
-        position: [start.point.x + s2x, start.point.y + s2y, start.point.z],
-        normal: normal,
+        position: [end.point.x + first_normal.x * end.diameter,
+                   end.point.y + first_normal.y * end.diameter,
+                   end.point.z + first_normal.z * end.diameter],
+        normal: (first_normal + second_normal).to_arr(),
         color: color.to_arr(),
     });
 
-    indices.append(&mut vec![cur_len + 0,
-                             cur_len + 3,
-                             cur_len + 2,
+    vertices.push(Vertex {
+        position: [end.point.x + second_normal.x * end.diameter,
+                   end.point.y + second_normal.y * end.diameter,
+                   end.point.z + second_normal.z * end.diameter],
+        normal: (first_normal + second_normal).to_arr(),
+        color: color.to_arr(),
+    });
+
+    vertices.push(Vertex {
+        position: [start.point.x + first_normal.x * start.diameter,
+                   start.point.y + first_normal.y * start.diameter,
+                   start.point.z + first_normal.z * start.diameter],
+        normal: (first_normal + second_normal).to_arr(),
+        color: color.to_arr(),
+    });
+
+    vertices.push(Vertex {
+        position: [start.point.x + second_normal.x * start.diameter,
+                   start.point.y + second_normal.y * start.diameter,
+                   start.point.z + second_normal.z * start.diameter],
+        normal: (first_normal + second_normal).to_arr(),
+        color: color.to_arr(),
+    });
+
+    indices.append(&mut vec![cur_len + 2,
                              cur_len + 0,
                              cur_len + 1,
+                             cur_len + 2,
+                             cur_len + 1,
                              cur_len + 3]);
+}
+
+/// generates 3 normalized vectors  perpendicular to the given vector
+fn get_points_from_vector(vector: Vector3f) -> [Vector3f; 3] {
+    let ortho = random_vec_with_angle(&mut seeded_rng(0x2651aa465abded, (), ()), vector, 90.0);
+    let rot = Basis3::from_axis_angle(vector, Deg::new(120.0).into());
+    let v0 = rot.rotate_vector(ortho);
+    let v1 = rot.rotate_vector(v0);
+
+    [ortho.normalize(), v0.normalize(), v1.normalize()]
 }
