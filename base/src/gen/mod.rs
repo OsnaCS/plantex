@@ -13,7 +13,7 @@ use rand::{SeedableRng, XorShiftRng};
 use self::fnv::FnvHasher;
 use std::hash::{Hash, Hasher};
 
-type Random = XorShiftRng;
+pub type Random = XorShiftRng;
 
 /// Creates a seeded RNG for use in world gen.
 ///
@@ -24,7 +24,7 @@ type Random = XorShiftRng;
 /// * `world_seed`: The constant world seed as set in the config
 /// * `feat_seed`: Feature-specific constant seed
 /// * `loc_seed`: Location-seed, for example, X/Y coordinates of a feature
-fn seeded_rng<T: Hash, U: Hash>(world_seed: u64, feat_seed: T, loc_seed: U) -> Random {
+pub fn seeded_rng<T: Hash, U: Hash>(world_seed: u64, feat_seed: T, loc_seed: U) -> Random {
     // Hash everything, even `world_seed`, since XorShift really doesn't like seeds
     // with many 0s in it
     let mut fnv = FnvHasher::default();
