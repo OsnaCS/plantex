@@ -86,7 +86,7 @@ impl Renderer {
 
         let uniforms = uniform! {
             decal_texture: &self.quad_tex,
-            exposure: 0.8f32
+            exposure: 1.0f32
         };
 
         target.draw(&self.quad_vertex_buffer,
