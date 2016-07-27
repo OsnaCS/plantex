@@ -2,7 +2,7 @@
 
 in vec3 x_unit_coords;
 
-out vec3 o_color;
+out vec3 color;
 
 #define PI 3.141592653589793
 
@@ -26,5 +26,5 @@ void main() {
     }
 
     // Calculate dummy blue gradient sky color
-    o_color = vec3((theta / PI)-0.2,(theta / PI)-0.1,1.0);
+    color = vec3((theta / PI)-0.2,(theta / PI)-0.1,1.0);
 }

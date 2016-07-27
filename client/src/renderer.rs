@@ -76,7 +76,7 @@ impl Renderer {
         hdr_buffer.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
 
         world_view.draw(&mut hdr_buffer, camera);
-
+        sky_view.draw_skydome(&mut hdr_buffer, camera);
 
         // ===================================================================
         // Tonemapping
@@ -94,8 +94,6 @@ impl Renderer {
                   &uniforms,
                   &Default::default())
             .unwrap();
-
-        sky_view.draw_skydome(&mut target, camera);
 
         try!(target.finish());
 
