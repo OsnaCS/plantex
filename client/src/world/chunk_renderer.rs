@@ -30,10 +30,7 @@ impl ChunkRenderer {
         get_side_hexagon_model(2, 3, &mut vertices, &mut indices);
 
         ChunkRenderer {
-            program: match context.load_program("chunk_std") {
-                Ok(prog) => prog,
-                Err(_) => panic!("failed to compile program"),
-            },
+            program: context.load_program("chunk_std").unwrap(),
             pillar_vbuf: VertexBuffer::new(context.get_facade(), &vertices).unwrap(),
             pillar_ibuf: IndexBuffer::new(context.get_facade(),
                                           PrimitiveType::TrianglesList,

@@ -8,12 +8,7 @@ pub struct PlantRenderer {
 
 impl PlantRenderer {
     pub fn new(context: Rc<GameContext>) -> Self {
-        PlantRenderer {
-            program: match context.load_program("plant_dummy") {
-                Ok(prog) => prog,
-                Err(_) => panic!("failed to compile program"),
-            },
-        }
+        PlantRenderer { program: context.load_program("plant_dummy").unwrap() }
     }
 
     pub fn program(&self) -> &Program {
