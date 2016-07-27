@@ -70,6 +70,7 @@ impl Player {
                 self.timer_vel = 1.0;
             }
         }
+
         // Moves the Player left an right with the acceleration and delta
         if self.acceleration.y != 0.0 {
             self.cam
@@ -81,6 +82,10 @@ impl Player {
             if self.acceleration.y == 0.0 {
                 self.timer_vel = 1.0;
             }
+        }
+
+        if self.shift_speed == 0.5 && self.cam.position.z == height {
+            self.cam.position.z = height - 0.5;
         }
         // Let the player jump with the given start-velocity
         if self.velocity.z != 0.0 {
@@ -97,16 +102,27 @@ impl Player {
         // `Player` is less than
         // the `HexPillar`
         if self.velocity.z == 0.0 && self.cam.position.z < height {
-            self.cam.position.z = height;
+            if self.shift_speed != 0.5 {
+                self.cam.position.z = height;
+            } else {
+                self.cam.position.z = height - 0.5;
+            }
         }
         // Checks if the `Player` is higher than the actual `Player` on wich he is
         // standing and let
         // him fall on that
-        if self.cam.position.z > height && self.velocity.z == 0.0 {
+        if self.cam.position.z > height && self.velocity.z == 0.0 && self.shift_speed != 0.5 {
             self.cam
                 .move_down((self.timer_jump * self.timer_jump * delta * delta * GRAVITY) / 16.0);
             self.timer_jump += 1.0;
             if self.cam.position.z < height {
+                self.timer_jump = 1.0;
+            }
+        } else if self.shift_speed == 0.5 {
+            self.cam
+                .move_down((self.timer_jump * self.timer_jump * delta * delta * GRAVITY) / 16.0);
+            self.timer_jump += 1.0;
+            if self.cam.position.z + 0.5 < height {
                 self.timer_jump = 1.0;
             }
         }
@@ -156,9 +172,11 @@ impl EventHandler for Player {
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::LControl)) => {
+                self.shift_speed = 0.5;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::LControl)) => {
+                self.shift_speed = 1.0;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::LShift)) => {
