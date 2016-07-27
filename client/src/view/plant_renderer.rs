@@ -1,19 +1,14 @@
 use glium::Program;
-use glium::backend::Facade;
+use GameContext;
+use std::rc::Rc;
 
 pub struct PlantRenderer {
     program: Program,
 }
 
 impl PlantRenderer {
-    pub fn new<F: Facade>(facade: &F) -> Self {
-        let prog = Program::from_source(facade,
-                                        include_str!("plant_dummy.vert"),
-                                        include_str!("plant_dummy.frag"),
-                                        None)
-            .unwrap();
-
-        PlantRenderer { program: prog }
+    pub fn new(context: Rc<GameContext>) -> Self {
+        PlantRenderer { program: context.load_program("plant_dummy").unwrap() }
     }
 
     pub fn program(&self) -> &Program {
