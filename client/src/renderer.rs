@@ -18,6 +18,7 @@ pub struct Renderer {
     tonemapping_program: Program,
     quad_vertex_buffer: VertexBuffer<Vertex>,
     quad_index_buffer: IndexBuffer<u16>,
+    resolution: (u32, u32),
 }
 
 impl Renderer {
@@ -55,16 +56,25 @@ impl Renderer {
             depth_texture: depth_texture,
             quad_vertex_buffer: Renderer::create_vertex_buf(context.get_facade()),
             quad_index_buffer: ibuf,
+            resolution: resolution,
         }
     }
 
 
     /// Is called once every main loop iteration
-    pub fn render(&self,
+    pub fn render(&mut self,
                   world_view: &WorldView,
                   camera: &Camera,
                   sky_view: &SkyView)
                   -> Result<(), Box<Error>> {
+        // ===================================================================
+        // check dimensions
+        // ===================================================================
+        let new_res = self.context.get_facade().get_framebuffer_dimensions();
+        if self.resolution != new_res {
+            self.render_update();
+        }
+
         // ===================================================================
         // Rendering into HDR framebuffer
         // ===================================================================
@@ -121,6 +131,29 @@ impl Renderer {
                                 texcoord: [0.0, 1.0],
                             }])
             .unwrap()
+    }
+
+    // render update is called when a dimensions resize of the facade occures
+    // recreates the 2D textures
+    fn render_update(&mut self) {
+        self.resolution = self.context.get_facade().get_framebuffer_dimensions();
+        info!("time to resize framebuffer with dimensions {},{}",
+              self.resolution.0,
+              self.resolution.1);
+
+        self.quad_tex = Texture2d::empty_with_format(self.context.get_facade(),
+                                                     UncompressedFloatFormat::F32F32F32F32,
+                                                     MipmapsOption::NoMipmap,
+                                                     self.resolution.0,
+                                                     self.resolution.1)
+            .unwrap();
+
+        self.depth_texture = DepthTexture2d::empty_with_format(self.context.get_facade(),
+                                                               DepthFormat::F32,
+                                                               MipmapsOption::NoMipmap,
+                                                               self.resolution.0,
+                                                               self.resolution.1)
+            .unwrap();
     }
 }
 
