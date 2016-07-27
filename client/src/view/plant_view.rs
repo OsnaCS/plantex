@@ -111,7 +111,7 @@ fn get_vertices_for_branch(start: &ControlPoint,
             position: [start.point.x + vec.x * start.diameter,
                        start.point.y + vec.y * start.diameter,
                        start.point.z + vec.z * start.diameter],
-            normal: (-to_end).to_arr(),
+            normal: (-to_end).normalize().to_arr(),
             color: color.to_arr(),
         });
     }
@@ -126,7 +126,7 @@ fn get_vertices_for_branch(start: &ControlPoint,
             position: [end.point.x + vec.x * end.diameter,
                        end.point.y + vec.y * end.diameter,
                        end.point.z + vec.z * end.diameter],
-            normal: to_end.to_arr(),
+            normal: to_end.normalize().to_arr(),
             color: color.to_arr(),
         });
     }
@@ -151,7 +151,7 @@ fn side(vertices: &mut Vec<Vertex>,
         position: [end.point.x + first_normal.x * end.diameter,
                    end.point.y + first_normal.y * end.diameter,
                    end.point.z + first_normal.z * end.diameter],
-        normal: (first_normal + second_normal).to_arr(),
+        normal: (first_normal + second_normal).normalize().to_arr(),
         color: color.to_arr(),
     });
 
@@ -159,7 +159,7 @@ fn side(vertices: &mut Vec<Vertex>,
         position: [end.point.x + second_normal.x * end.diameter,
                    end.point.y + second_normal.y * end.diameter,
                    end.point.z + second_normal.z * end.diameter],
-        normal: (first_normal + second_normal).to_arr(),
+        normal: (first_normal + second_normal).normalize().to_arr(),
         color: color.to_arr(),
     });
 
@@ -167,7 +167,7 @@ fn side(vertices: &mut Vec<Vertex>,
         position: [start.point.x + first_normal.x * start.diameter,
                    start.point.y + first_normal.y * start.diameter,
                    start.point.z + first_normal.z * start.diameter],
-        normal: (first_normal + second_normal).to_arr(),
+        normal: (first_normal + second_normal).normalize().to_arr(),
         color: color.to_arr(),
     });
 
@@ -175,7 +175,7 @@ fn side(vertices: &mut Vec<Vertex>,
         position: [start.point.x + second_normal.x * start.diameter,
                    start.point.y + second_normal.y * start.diameter,
                    start.point.z + second_normal.z * start.diameter],
-        normal: (first_normal + second_normal).to_arr(),
+        normal: (first_normal + second_normal).normalize().to_arr(),
         color: color.to_arr(),
     });
 
