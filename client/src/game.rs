@@ -88,38 +88,18 @@ fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
 /// Creates the OpenGL context and prints useful information about the
 /// success or failure of said action.
 fn create_context(config: &Config) -> Result<GlutinFacade, Box<Error>> {
-    // Create glium context
-    // TODO: handle fullscreen
-    // TODO: OpenGL version/profile
-    // TODO: vsync
-    // let context = glutin::WindowBuilder::new()
-    // .with_dimensions(config.resolution.width, config.resolution.height)
-    // .with_title(config.window_title.clone())
-    // .with_depth_buffer(24)
-    // .build_glium();
-
 
     // initialize window builder
     let mut window_builder = glutin::WindowBuilder::new();
 
     // check for window mode and set params
     match config.window_mode {
-        WindowMode::Windowed => {
-            window_builder = window_builder.with_decorations(true);
-            window_builder =
-                window_builder.with_dimensions(config.resolution.width, config.resolution.height);
-            window_builder = window_builder.with_title(config.window_title.clone());
-        }
+        WindowMode::Windowed => (),
+        // TODO: if we add a fullscreen window mode
         // FullScreenWindow => (),
-        //
-        // takes monitor resolution for fullscreen mode
         WindowMode::FullScreen => {
             window_builder = window_builder.with_fullscreen(glutin::get_primary_monitor());
-            // TODO: Do we want native resolution for fullscreen or black bars (for
-            // performance reasons)?
-            // maybe remove next two lines
-            window_builder =
-                window_builder.with_dimensions(config.resolution.width, config.resolution.height);
+            window_builder = window_builder.with_decorations(false);
         }
     }
 
@@ -128,7 +108,10 @@ fn create_context(config: &Config) -> Result<GlutinFacade, Box<Error>> {
         window_builder = window_builder.with_vsync();
     }
 
-    // Create glium context
+    // set title, resolution & create glium context
+    window_builder = window_builder.with_title(config.window_title.clone());
+    window_builder =
+        window_builder.with_dimensions(config.resolution.width, config.resolution.height);
     let context = window_builder.with_depth_buffer(24).build_glium();
 
     match context {
