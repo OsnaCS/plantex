@@ -10,3 +10,7 @@
 
 # game config
 /config.toml
+
+# OSX index files
+.DS_Store
+
