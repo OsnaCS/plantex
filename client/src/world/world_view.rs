@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use view::PlantRenderer;
 use world::ChunkRenderer;
+use GameContext;
 
 pub use world::chunk_view::ChunkView;
 pub use view::PlantView;
@@ -19,9 +20,9 @@ pub struct WorldView {
 }
 
 impl WorldView {
-    pub fn from_world<F: Facade>(world: &World, facade: &F) -> Self {
-        let plant_renderer = Rc::new(PlantRenderer::new(facade));
-        let chunk_renderer = Rc::new(ChunkRenderer::new(facade));
+    pub fn from_world(world: &World, context: Rc<GameContext>) -> Self {
+        let plant_renderer = Rc::new(PlantRenderer::new(context.clone()));
+        let chunk_renderer = Rc::new(ChunkRenderer::new(context.clone()));
 
         let mut chunks = HashMap::new();
         for chunkkey in world.chunks.keys() {
@@ -34,7 +35,7 @@ impl WorldView {
                                                                 (1 * world::CHUNK_SIZE as i32)),
                                                 chunk_renderer.clone(),
                                                 plant_renderer.clone(),
-                                                facade));
+                                                context.get_facade()));
         }
 
         WorldView {

@@ -42,7 +42,7 @@ impl WorldManager {
         let this = WorldManager {
             shared: Rc::new(RefCell::new(Shared {
                 world: World::empty(),
-                world_view: WorldView::from_world(&World::empty(), game_context.get_facade()),
+                world_view: WorldView::from_world(&World::empty(), game_context.clone()),
                 sent_requests: HashSet::new(),
                 provided_chunks: chunk_recv,
                 // TODO: load this from the config!

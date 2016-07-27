@@ -1,10 +1,9 @@
 use glium::backend::glutin_backend::GlutinFacade;
-use glium::backend::Facade;
 use glium::Program;
 use super::Config;
-use std::path::Path;
 use std::fs::File;
 use std::io::Read;
+use std::error::Error;
 
 #[derive(Clone)]
 pub struct GameContext {
@@ -28,36 +27,24 @@ impl GameContext {
         &self.config
     }
 
-    /// Function to load shader files more easily
-    pub fn shader_func<F: Facade>(shader: &str, facade: &F) -> Program {
-        if (Path::new(format!("shader/{}.vert", shader).as_str())).exists() &&
-           (Path::new(format!("shader/{}.frag", shader).as_str())).exists() {
+    /// Loads vertex and fragment shader automatically to prevent recompiling
+    /// the application
+    /// everytime a shader is changed.
+    pub fn load_program(&self, shader: &str) -> Result<Program, Box<Error>> {
 
-            let mut vert = match File::open((format!("shader/{}.vert", shader)).as_str()) {
-                Err(_) => panic!("Could not open {}.vert!", shader),
-                Ok(file) => file,
-            };
-            let mut frag = match File::open((format!("shader/{}.frag", shader)).as_str()) {
-                Err(_) => panic!("Could not open {}.frag!", shader),
-                Ok(file) => file,
-            };
+        let mut vert = try!(File::open(&format!("client/shader/{}.vert", shader)));
+        let mut frag = try!(File::open(&format!("client/shader/{}.frag", shader)));
 
-            let mut vert_buf = String::new();
-            let mut frag_buf = String::new();
+        let mut vert_buf = String::new();
+        let mut frag_buf = String::new();
 
-            match vert.read_to_string(&mut vert_buf) {
-                Err(_) => panic!("Could not read {}.vert!", shader),
-                Ok(_) => (),
-            }
-            match frag.read_to_string(&mut frag_buf) {
-                Err(_) => panic!("Could not read the {}.frag!", shader),
-                Ok(_) => (),
-            }
+        try!(vert.read_to_string(&mut vert_buf));
+        try!(frag.read_to_string(&mut frag_buf));
 
-            Program::from_source(facade, vert_buf.as_str(), frag_buf.as_str(), None).unwrap()
-        } else {
-            panic!("No such shader file!")
+        let prog = Program::from_source(&self.facade, &vert_buf, &frag_buf, None);
+        if let Err(ref e) = prog {
+            warn!("failed to compile program '{}':\n{}", shader, e);
         }
-
+        Ok(try!(prog))
     }
 }
