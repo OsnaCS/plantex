@@ -111,7 +111,7 @@ impl Game {
     }
 }
 
-pub fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
+fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
     Box::new(WorldGenerator::with_seed(config.seed))
 }
 

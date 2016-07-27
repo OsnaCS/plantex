@@ -5,7 +5,7 @@ use math::*;
 /// Represents a whole game world consisting of multiple `Chunk`s.
 ///
 /// Chunks are parallelograms (roughly) that are placed next to each other
-/// in the world.]
+/// in the world.
 pub struct World {
     // TODO: make it private after we can access it immutable via a method! (see #7)
     pub chunks: HashMap<ChunkIndex, Chunk>,
@@ -35,7 +35,8 @@ impl World {
             Ok(())
         }
     }
-    /// Returns the hex pillar at the given world position, if the
+
+    /// Returns the hex pillar at the given world position, iff the
     /// corresponding chunk is loaded.
     pub fn pillar_at(&self, pos: PillarIndex) -> Option<&HexPillar> {
         let chunk_size = super::CHUNK_SIZE as i32;
@@ -57,6 +58,8 @@ impl World {
             }
             &chunk[inner_pos]
         });
+
+
         if out.is_none() {
             debug!("chunk {:?} is not loaded (position request {:?})",
                    chunk_pos,
