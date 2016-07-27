@@ -5,7 +5,7 @@ use Camera;
 use util::ToArr;
 use base::math::*;
 use base::gen::seeded_rng;
-use base::prop::Plant;
+use base::prop::plant::{Plant, Tree};
 use std::rc::Rc;
 use super::PlantRenderer;
 use base::prop::plant::ControlPoint;
@@ -28,7 +28,7 @@ impl PlantView {
         let mut indices = Vec::new();
         let mut vertices = Vec::new();
         let branches = match *plant {
-            Plant::Tree { ref branches } => {
+            Plant::Tree(Tree { ref branches, branch_color }) => {
                 branches.iter()
                     .map(|branch| {
 
@@ -37,7 +37,7 @@ impl PlantView {
                                                     &branch.points[i],
                                                     &mut vertices,
                                                     &mut indices,
-                                                    branch.color)
+                                                    branch_color)
                         }
                         VertexBuffer::new(facade, &vertices).unwrap()
                     })
