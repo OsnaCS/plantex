@@ -7,7 +7,7 @@ use std::error::Error;
 use glium::texture::texture2d::Texture2d;
 use glium::texture::{DepthFormat, DepthTexture2d, MipmapsOption, UncompressedFloatFormat};
 use glium::framebuffer::{MultiOutputFrameBuffer, SimpleFrameBuffer};
-use glium::{IndexBuffer, VertexBuffer};
+use glium::{IndexBuffer, Program, VertexBuffer};
 use glium::index::PrimitiveType;
 use glium::backend::Facade;
 use glium::framebuffer::ToColorAttachment;
@@ -22,6 +22,10 @@ pub struct Renderer {
     bloom_horz_tex: Texture2d,
     bloom_vert_tex: Texture2d,
     bloom_blend_tex: Texture2d,
+    tonemapping_program: Program,
+    bloom_filter_program: Program,
+    bloom_blur_program: Program,
+    bloom_blend_program: Program,
 }
 
 impl Renderer {
@@ -80,6 +84,11 @@ impl Renderer {
             .unwrap();
 
 
+        let tonemapping_program = context.load_program("tonemapping").unwrap();
+        let bloom_filter_program = context.load_program("bloom_filter").unwrap();
+        let bloom_blur_program = context.load_program("bloom_blur").unwrap();
+        let bloom_blend_program = context.load_program("bloom_blending").unwrap();
+
 
         Renderer {
             context: context.clone(),
@@ -91,6 +100,10 @@ impl Renderer {
             bloom_horz_tex: bloom_horz_tex,
             bloom_vert_tex: bloom_vert_tex,
             bloom_blend_tex: bloom_blend_tex,
+            tonemapping_program: tonemapping_program,
+            bloom_filter_program: bloom_filter_program,
+            bloom_blur_program: bloom_blur_program,
+            bloom_blend_program: bloom_blend_program,
         }
     }
 
@@ -105,10 +118,10 @@ impl Renderer {
         // Rendering into HDR framebuffer
         // ===================================================================
         let output = &[("color", &self.quad_tex)];
-        let mut hdr_buffer = MultiOutputFrameBuffer::with_depth_buffer(self.context.get_facade(),
-                                                                       output.iter().cloned(),
-                                                                       &self.depth_texture)
-            .unwrap();
+        let mut hdr_buffer =
+            try!(MultiOutputFrameBuffer::with_depth_buffer(self.context.get_facade(),
+                                                           output.iter().cloned(),
+                                                           &self.depth_texture));
         hdr_buffer.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
 
 
@@ -133,7 +146,6 @@ impl Renderer {
             exposure: 1.0f32
         };
 
-        // TODO: Remove depth buffer
 
         let mut bloom_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
                                                            self.bloom_quad_tex
@@ -141,9 +153,10 @@ impl Renderer {
 
         bloom_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
+
         try!(bloom_buffer.draw(&self.quad_vertex_buffer,
                                &self.quad_index_buffer,
-                               &self.context.load_program("bloom").unwrap(),
+                               &self.bloom_filter_program,
                                &uniforms,
                                &Default::default()));
 
@@ -151,17 +164,16 @@ impl Renderer {
 
         // ============================  blur  ===============================
 
-        let mut bloom_blur_horz_buffer = SimpleFrameBuffer::new(self.context.get_facade(),
-                                                                self.bloom_horz_tex
-                                                                    .to_color_attachment())
-            .unwrap();
+        let mut bloom_blur_horz_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
+                                                                     self.bloom_horz_tex
+                                                                         .to_color_attachment()));
+
         bloom_blur_horz_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
 
-        let mut bloom_blur_vert_buffer = SimpleFrameBuffer::new(self.context.get_facade(),
-                                                                self.bloom_vert_tex
-                                                                    .to_color_attachment())
-            .unwrap();
+        let mut bloom_blur_vert_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
+                                                                     self.bloom_vert_tex
+                                                                         .to_color_attachment()));
         bloom_blur_vert_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
         let mut uniforms_horz_blur = uniform! {
@@ -180,30 +192,20 @@ impl Renderer {
         let mut horizontal = true;      //to switch between horizontal and vertical blur
 
 
-        // bloom_blur_horz_buffer.draw(&self.quad_vertex_buffer,
-        // &self.quad_index_buffer,
-        // &self.bloom_blur_program,
-        // &uniforms_horz_blur,
-        // &Default::default())
-        // .unwrap();
-        //
-        // horizontal = false;
 
         for _ in 0..10 {
             if horizontal {
-                bloom_blur_horz_buffer.draw(&self.quad_vertex_buffer,
-                          &self.quad_index_buffer,
-                          &self.context.load_program("bloom_blur").unwrap(),
-                          &uniforms_horz_blur,
-                          &Default::default())
-                    .unwrap();
+                try!(bloom_blur_horz_buffer.draw(&self.quad_vertex_buffer,
+                                                 &self.quad_index_buffer,
+                                                 &self.bloom_blur_program,
+                                                 &uniforms_horz_blur,
+                                                 &Default::default()));
             } else {
-                bloom_blur_vert_buffer.draw(&self.quad_vertex_buffer,
-                          &self.quad_index_buffer,
-                          &self.context.load_program("bloom_blur").unwrap(),
-                          &uniforms_vert_blur,
-                          &Default::default())
-                    .unwrap();
+                try!(bloom_blur_vert_buffer.draw(&self.quad_vertex_buffer,
+                                                 &self.quad_index_buffer,
+                                                 &self.bloom_blur_program,
+                                                 &uniforms_vert_blur,
+                                                 &Default::default()));
             }
             if first_iteration {
                 uniforms_horz_blur = uniform! {
@@ -217,10 +219,9 @@ impl Renderer {
 
         // ==========================  blending  =============================
 
-        let mut bloom_blend_buffer = SimpleFrameBuffer::new(self.context.get_facade(),
-                                                            self.bloom_blend_tex
-                                                                .to_color_attachment())
-            .unwrap();
+        let mut bloom_blend_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
+                                                                 self.bloom_blend_tex
+                                                                     .to_color_attachment()));
 
         bloom_blend_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
@@ -234,13 +235,11 @@ impl Renderer {
         };
 
 
-
-        bloom_blend_buffer.draw(&self.quad_vertex_buffer,
-                  &self.quad_index_buffer,
-                  &self.context.load_program("bloom_blending").unwrap(),
-                  &uniforms,
-                  &Default::default())
-            .unwrap();
+        try!(bloom_blend_buffer.draw(&self.quad_vertex_buffer,
+                                     &self.quad_index_buffer,
+                                     &self.bloom_blend_program,
+                                     &uniforms,
+                                     &Default::default()));
 
 
         // ===================================================================
@@ -263,12 +262,11 @@ impl Renderer {
         let mut target = self.context.get_facade().draw();
         target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
-        target.draw(&self.quad_vertex_buffer,
-                  &self.quad_index_buffer,
-                  &self.context.load_program("tonemapping").unwrap(),
-                  &uniforms,
-                  &Default::default())
-            .unwrap();
+        try!(target.draw(&self.quad_vertex_buffer,
+                         &self.quad_index_buffer,
+                         &self.tonemapping_program,
+                         &uniforms,
+                         &Default::default()));
 
         try!(target.finish());
 
@@ -296,6 +294,9 @@ impl Renderer {
                             }])
             .unwrap()
     }
+
+
+    fn bloom(&self) {}
 }
 
 #[derive(Copy, Clone)]
