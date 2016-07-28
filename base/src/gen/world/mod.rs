@@ -49,19 +49,6 @@ impl WorldGenerator {
     fn steepness_from_temperature(temperature: f32) -> f32 {
         120.0 * temperature * temperature + 72.0 * temperature + 3.5
     }
-
-    // fn material_from_biome(biome: &Biome) -> GroundMaterial {
-    //     match *biome {
-    //         Biome::GrassLand => GroundMaterial::Grass,
-    //         Biome::Desert => GroundMaterial::Sand,
-    //         Biome::Snow => GroundMaterial::Snow,
-    //         Biome::Forest => GroundMaterial::Mulch,
-    //         Biome::RainForest => GroundMaterial::JungleGrass,
-    //         Biome::Savanna => GroundMaterial::Dirt,
-    //         Biome::Stone => GroundMaterial::Stone,
-    //         Biome::Debug => GroundMaterial::Debug,
-    //     }
-    // }
 }
 
 impl ChunkProvider for WorldGenerator {
