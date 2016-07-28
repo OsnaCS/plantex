@@ -8,6 +8,7 @@ mod axial_point;
 mod axial_vector;
 mod dimension;
 mod random;
+pub mod billboard;
 
 pub use self::cgmath::*;
 pub use self::axial_vector::*;
