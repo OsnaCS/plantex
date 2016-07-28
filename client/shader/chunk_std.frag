@@ -13,5 +13,5 @@ void main() {
     float diffuse = max(0.0, dot(sun, surfaceNormal));
     color = x_color * 0.1 + x_color * diffuse;
     // color = vec3(x_tex_coord.y);
-    color = texture2D(my_texture, x_tex_coord).xyz;
+    color = texture(my_texture, x_tex_coord).xyz;
 }
