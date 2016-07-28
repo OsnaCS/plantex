@@ -24,6 +24,8 @@ pub struct Renderer {
     bloom_horz_tex: Texture2d,
     bloom_vert_tex: Texture2d,
     bloom_blur_program: Program,
+    bloom_blend_tex: Texture2d,
+    bloom_blending_program: Program,
 }
 
 impl Renderer {
@@ -88,6 +90,20 @@ impl Renderer {
                                                       None)
             .unwrap();
 
+        let bloom_blend_tex = Texture2d::empty_with_format(context.get_facade(),
+                                                           UncompressedFloatFormat::F32F32F32F32,
+                                                           MipmapsOption::NoMipmap,
+                                                           resolution.0,
+                                                           resolution.1)
+            .unwrap();
+
+        let bloom_blending_program = Program::from_source(context.get_facade(),
+                                                          include_str!("bloom_blending.vert"),
+                                                          include_str!("bloom_blending.frag"),
+                                                          None)
+            .unwrap();
+
+
         Renderer {
             context: context.clone(),
             quad_tex: quad_tex_temp,
@@ -99,7 +115,9 @@ impl Renderer {
             bloom_program: bloom_program,
             bloom_horz_tex: bloom_horz_tex,
             bloom_vert_tex: bloom_vert_tex,
+            bloom_blend_tex: bloom_blend_tex,
             bloom_blur_program: bloom_blur_program,
+            bloom_blending_program: bloom_blending_program,
         }
     }
 
@@ -127,31 +145,39 @@ impl Renderer {
         // ===================================================================
         // Creating the Bloom framebuffer
         // ===================================================================
-        let debug_show_only_bloom = false;
+
+
+        // =======================  light texture  ===========================
+
+        // Bloom state
+        // 0: Disable Bloom
+        // 1: Enable Bloom
+        // 2: Show only Bloom Map
+        let bloom_state = 1;
 
         let mut uniforms = uniform! {
             decal_texture: &self.quad_tex,
             exposure: 1.0f32
         };
 
-        let mut bloom_buffer = SimpleFrameBuffer::with_depth_buffer(self.context.get_facade(),
+        // TODO: Remove depth buffer
+
+        let mut bloom_buffer = try!(SimpleFrameBuffer::with_depth_buffer(self.context.get_facade(),
                                                                     self.bloom_quad_tex
                                                                         .to_color_attachment(),
-                                                                    &self.depth_texture)
-            .unwrap();
+                                                                    &self.depth_texture));
 
         bloom_buffer.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
-        bloom_buffer.draw(&self.quad_vertex_buffer,
-                  &self.quad_index_buffer,
-                  &self.bloom_program,
-                  &uniforms,
-                  &Default::default())
-            .unwrap();
+        try!(bloom_buffer.draw(&self.quad_vertex_buffer,
+                               &self.quad_index_buffer,
+                               &self.bloom_program,
+                               &uniforms,
+                               &Default::default()));
 
 
 
-        // prepare blur
+        // ============================  blur  ===============================
 
         let mut bloom_blur_horz_buffer = SimpleFrameBuffer::new(self.context.get_facade(),
                                                                 self.bloom_horz_tex
@@ -167,7 +193,8 @@ impl Renderer {
         bloom_blur_vert_buffer.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
         let mut uniforms_horz_blur = uniform! {
-            //for the first iteration: Use the bloom quad texture, from second iteration on this will change to bloom_vert_tex
+            //for the first iteration: Use the bloom quad texture, from second iteration on this
+            // will change to bloom_vert_tex
             image: &self.bloom_quad_tex,
             horizontal: true,
         };
@@ -181,14 +208,14 @@ impl Renderer {
         let mut horizontal = true;      //to switch between horizontal and vertical blur
 
 
-        /*bloom_blur_horz_buffer.draw(&self.quad_vertex_buffer,
-                          &self.quad_index_buffer,
-                          &self.bloom_blur_program,
-                          &uniforms_horz_blur,
-                          &Default::default())
-                    .unwrap();
-
-        horizontal = false;*/
+        // bloom_blur_horz_buffer.draw(&self.quad_vertex_buffer,
+        // &self.quad_index_buffer,
+        // &self.bloom_blur_program,
+        // &uniforms_horz_blur,
+        // &Default::default())
+        // .unwrap();
+        //
+        // horizontal = false;
 
         for _ in 0..10 {
             if horizontal {
@@ -216,32 +243,68 @@ impl Renderer {
             horizontal = !horizontal;
         }
 
+        // ==========================  blending  =============================
 
+        let mut bloom_blend_buffer = SimpleFrameBuffer::new(self.context.get_facade(),
+                                                            self.bloom_blend_tex
+                                                                .to_color_attachment())
+            .unwrap();
+
+        bloom_blend_buffer.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
+
+
+        let u_blend_tex =
+            if horizontal { &self.bloom_vert_tex } else { &self.bloom_horz_tex };
+
+        let uniforms = uniform! {
+            bloom_tex: u_blend_tex,
+            world_tex: &self.quad_tex,
+        };
+
+
+
+        bloom_blend_buffer.draw(&self.quad_vertex_buffer,
+                  &self.quad_index_buffer,
+                  &self.bloom_blending_program,
+                  &uniforms,
+                  &Default::default())
+            .unwrap();
 
 
         // ===================================================================
         // Tonemapping
         // ===================================================================
+        //
+        // if debug_show_only_bloom {
+        // if horizontal {
+        // uniforms = uniform! {
+        // decal_texture: &self.bloom_vert_tex,
+        // exposure: 1.0f32
+        // };
+        // } else {
+        // uniforms = uniform! {
+        // decal_texture: &self.bloom_horz_tex,
+        // exposure: 1.0f32
+        // };
+        //
+        // }
+        // } else {
+        // uniforms = uniform! {
+        // decal_texture: &self.quad_tex,
+        // exposure: 1.0f32
+        // };
+        //
+        // };
 
-        if debug_show_only_bloom {
-            if horizontal {
-                uniforms = uniform! {
-                    decal_texture: &self.bloom_vert_tex,
-                    exposure: 1.0f32
-                };
-            } else {
-                uniforms = uniform! {
-                    decal_texture: &self.bloom_horz_tex,
-                    exposure: 1.0f32
-                };
+        let decal_texture = match bloom_state {
+            0 => &self.quad_tex,
+            2 => u_blend_tex,
+            _ => &self.bloom_blend_tex,
+        };
 
-            }
-        } else {
-            uniforms = uniform! {
-                decal_texture: &self.quad_tex,
-                exposure: 1.0f32
-            };
-
+        let uniforms = uniform! {
+            decal_texture: decal_texture,
+            exposure: 1.0f32,
         };
 
 
@@ -264,20 +327,20 @@ impl Renderer {
 
         VertexBuffer::new(facade,
                           &[Vertex {
-                                position: [-1.0, -1.0, 0.0, 1.0],
-                                texcoord: [0.0, 0.0],
+                                in_position: [-1.0, -1.0, 0.0, 1.0],
+                                in_texcoord: [0.0, 0.0],
                             },
                             Vertex {
-                                position: [1.0, -1.0, 0.0, 1.0],
-                                texcoord: [1.0, 0.0],
+                                in_position: [1.0, -1.0, 0.0, 1.0],
+                                in_texcoord: [1.0, 0.0],
                             },
                             Vertex {
-                                position: [1.0, 1.0, 0.0, 1.0],
-                                texcoord: [1.0, 1.0],
+                                in_position: [1.0, 1.0, 0.0, 1.0],
+                                in_texcoord: [1.0, 1.0],
                             },
                             Vertex {
-                                position: [-1.0, 1.0, 0.0, 1.0],
-                                texcoord: [0.0, 1.0],
+                                in_position: [-1.0, 1.0, 0.0, 1.0],
+                                in_texcoord: [0.0, 1.0],
                             }])
             .unwrap()
     }
@@ -285,8 +348,8 @@ impl Renderer {
 
 #[derive(Copy, Clone)]
 struct Vertex {
-    position: [f32; 4],
-    texcoord: [f32; 2],
+    in_position: [f32; 4],
+    in_texcoord: [f32; 2],
 }
 
-implement_vertex!(Vertex, position, texcoord);
+implement_vertex!(Vertex, in_position, in_texcoord);

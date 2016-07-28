@@ -14,7 +14,8 @@ void main()
 {
     vec2 TexCoords = i.frag_texcoord;
     vec2 tex_offset = 1.0 / textureSize(image, 0); // gets size of single texel
-    vec3 result = texture(image, TexCoords).rgb * weight[0]; // current fragment's contribution
+    // current fragment's contribution:
+    vec3 result = texture(image, TexCoords).rgb * weight[0];
     if(horizontal)
     {
         for(int i = 1; i < 5; ++i)
