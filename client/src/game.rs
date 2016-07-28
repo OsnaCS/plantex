@@ -15,7 +15,6 @@ use view::{SkyView, Sun};
 use super::DayTime;
 use super::weather::Weather;
 use player::Player;
-use control_switcher::ControlSwitcher;
 
 pub struct Game {
     renderer: Renderer,
