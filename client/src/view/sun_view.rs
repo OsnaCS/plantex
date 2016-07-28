@@ -16,9 +16,10 @@ pub struct Sun {
     context: Rc<GameContext>,
 }
 
+const SUN_SIZE: f32 = 35.0;
+
 impl Sun {
     pub fn new(context: Rc<GameContext>) -> Self {
-        const SUN_SIZE: f32 = 35.0;
         const SUN_POS: f32 = 300.0;
         let raw_vertex_buffer = vec![
             Vertex { i_position: [SUN_SIZE, SUN_SIZE, SUN_POS], i_unit_coords: [1.0, 1.0, 0.0]},
@@ -74,8 +75,6 @@ impl Sun {
     }
 
     pub fn update(&mut self, pos: Vector3f) {
-
-        const SUN_SIZE: f32 = 35.0;
         self.position = pos;
         let raw_vertex_buffer = vec![
             Vertex { i_position: [self.position.x+SUN_SIZE,
