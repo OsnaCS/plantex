@@ -15,7 +15,7 @@ pub struct DayTime {
 // `PLUS_TIME_SPEED` is the factor with which the time is sped up, when the
 // speed-up key is pressed
 const DEFAULT_TIME_SPEED: f32 = 1.0;
-const PLUS_TIME_SPEED: f32 = 500.0;
+const PLUS_TIME_SPEED: f32 = 200.0;
 
 
 impl Default for DayTime {
