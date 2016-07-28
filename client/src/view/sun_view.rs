@@ -97,7 +97,7 @@ impl Sun {
             Vertex { i_position: [self.position.x-SUN_SIZE,
                                   self.position.y+SUN_SIZE,
                                   self.position.z],
-                                  i_unit_coords: [-1.0, 1.0, 0.0]}
+                                  i_unit_coords: [-1.0, 1.0, 0.0 ]}
                                   ,
             Vertex { i_position: [self.position.x+SUN_SIZE,
                                   self.position.y-SUN_SIZE,
