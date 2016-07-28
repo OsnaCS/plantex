@@ -9,6 +9,8 @@ use std::rc::Rc;
 pub struct ChunkRenderer {
     /// Chunk shader
     program: Program,
+    /// Shadow map shader
+    shadow_program: Program,
     /// Vertex buffer for a single `HexPillar`, repeated, scaled and colored as
     /// needed to draw chunks.
     pillar_vbuf: VertexBuffer<Vertex>,
@@ -31,6 +33,7 @@ impl ChunkRenderer {
 
         ChunkRenderer {
             program: context.load_program("chunk_std").unwrap(),
+            shadow_program: context.load_program("chunk_shadow").unwrap(),
             pillar_vbuf: VertexBuffer::new(context.get_facade(), &vertices).unwrap(),
             pillar_ibuf: IndexBuffer::new(context.get_facade(),
                                           PrimitiveType::TrianglesList,
@@ -42,6 +45,10 @@ impl ChunkRenderer {
     /// Gets a reference to the shared chunk shader.
     pub fn program(&self) -> &Program {
         &self.program
+    }
+
+    pub fn shadow_program(&self) -> &Program {
+        &self.shadow_program
     }
 
     /// Gets the `VertexBuffer` to use for drawing a pillar

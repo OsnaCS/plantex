@@ -86,7 +86,7 @@ impl DayTime {
 
     /// returns the position of the sun corresponding to time
     /// only mid summer
-    pub fn get_sun_position(&self) -> Vector3f {
+    pub fn get_sun_position(&self) -> Point3f {
 
         let half_year = YEAR_LENGTH as f32 / 2.0;
         let half_day = DAY_LENGTH as f32 / 2.0;
@@ -117,17 +117,18 @@ impl DayTime {
         // returns sun position in cartesian coordinates
         // uses `YEAR_LENGTH` and the current day of the year (month) to influence the
         // path the sun moves on
-        Vector3f::new(theta.sin() * phi.cos(),
-                      theta.sin() * phi.sin() + month_diff / (0.75 * YEAR_LENGTH as f32),
-                      theta.cos() - month_diff / (0.75 * YEAR_LENGTH as f32) + DAY_LENGTHER)
-            .normalize() * SUN_DISTANCE
+        let pos =
+            Vector3f::new(theta.sin() * phi.cos(),
+                          theta.sin() * phi.sin() + month_diff / (0.75 * YEAR_LENGTH as f32),
+                          theta.cos() - month_diff / (0.75 * YEAR_LENGTH as f32) + DAY_LENGTHER)
+                .normalize() * SUN_DISTANCE;
 
-
+        Point3f::new(pos.x, pos.y, pos.z)
     }
 
     /// returns the Vector3f for the directional sunlight
     pub fn get_sun_light_vector(&self) -> Vector3f {
-        Vector3f::new(0.0, 0.0, 0.0) - self.get_sun_position().normalize()
+        Vector3f::new(0.0, 0.0, 0.0) - self.get_sun_position().to_vec().normalize()
     }
 }
 

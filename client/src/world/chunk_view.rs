@@ -3,6 +3,8 @@ use base::math::*;
 use glium::{self, DrawParameters, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
 use glium::backend::Facade;
+use glium::texture::DepthTexture2d;
+use glium::uniforms::SamplerWrapFunction;
 use Camera;
 use util::ToArr;
 use view::{PlantRenderer, PlantView};
@@ -50,10 +52,45 @@ impl ChunkView {
         }
     }
 
-    pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
+    pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
+        };
+        let params = DrawParameters {
+            depth: glium::Depth {
+                write: true,
+                test: DepthTest::IfLess,
+                ..Default::default()
+            },
+            backface_culling: BackfaceCullingMode::CullClockwise,
+            ..Default::default()
+        };
+
+        surface.draw((self.renderer.pillar_vertices(), self.pillar_buf.per_instance().unwrap()),
+                  self.renderer.pillar_indices(),
+                  self.renderer.shadow_program(),
+                  &uniforms,
+                  &params)
+            .unwrap();
+
+        for pillar in &self.pillars {
+            for plant in &pillar.plants {
+                plant.draw_shadow(surface, camera);
+            }
+        }
+    }
+
+    pub fn draw<S: glium::Surface>(&self,
+                                   surface: &mut S,
+                                   camera: &Camera,
+                                   shadow_map: &DepthTexture2d,
+                                   depth_view_proj: &Matrix4<f32>) {
+        let uniforms = uniform! {
+            proj_matrix: camera.proj_matrix().to_arr(),
+            view_matrix: camera.view_matrix().to_arr(),
+            shadow_map: shadow_map.sampled().wrap_function(SamplerWrapFunction::Clamp),
+            depth_view_proj: depth_view_proj.to_arr(),
         };
         let params = DrawParameters {
             depth: glium::Depth {

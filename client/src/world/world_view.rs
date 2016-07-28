@@ -1,6 +1,7 @@
 use base::world::{self, Chunk, ChunkIndex, World};
 use base::math::*;
 use glium::backend::Facade;
+use glium::texture::DepthTexture2d;
 use glium;
 use Camera;
 use std::collections::HashMap;
@@ -61,9 +62,19 @@ impl WorldView {
         self.chunks.remove(&chunk_pos);
     }
 
-    pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
+    pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         for chunkview in self.chunks.values() {
-            chunkview.draw(surface, camera);
+            chunkview.draw_shadow(surface, camera);
+        }
+    }
+
+    pub fn draw<S: glium::Surface>(&self,
+                                   surface: &mut S,
+                                   camera: &Camera,
+                                   shadow_map: &DepthTexture2d,
+                                   depth_view_proj: &Matrix4<f32>) {
+        for chunkview in self.chunks.values() {
+            chunkview.draw(surface, camera, shadow_map, depth_view_proj);
         }
     }
 }

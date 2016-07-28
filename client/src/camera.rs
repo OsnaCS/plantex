@@ -9,6 +9,7 @@ pub struct Camera {
     pub theta: f32,
     pub phi: f32,
     pub aspect_ratio: f32,
+    proj: Matrix4<f32>,
 }
 
 impl Camera {
@@ -19,12 +20,12 @@ impl Camera {
             phi: -0.27,
             theta: 2.6,
             aspect_ratio: aspect_ratio,
+            proj: perspective(deg(60.0), aspect_ratio, 0.1, 3_000.0),
         }
     }
 
     /// returns a camera based on a vector to look at
     pub fn new_from_vector(pos: Point3f, look: Vector3f, aspect_ratio: f32) -> Self {
-
         let mut look_phi = ((look.x) / ((look.x * look.x + look.y * look.y).sqrt())).acos();
         if look.y < 0.0 {
             look_phi = 2.0 * consts::PI - look_phi;
@@ -38,15 +39,17 @@ impl Camera {
             phi: look_phi,
             theta: look_theta,
             aspect_ratio: aspect_ratio,
+            proj: perspective(deg(60.0), aspect_ratio, 0.1, 3_000.0),
         }
-
     }
-
-
 
     /// Returns the projection matrix
     pub fn proj_matrix(&self) -> Matrix4<f32> {
-        perspective(deg(60.0), self.aspect_ratio, 0.1, 3_000.0)
+        self.proj
+    }
+
+    pub fn set_proj_matrix(&mut self, proj: Matrix4<f32>) {
+        self.proj = proj;
     }
 
     /// Returns view matrix

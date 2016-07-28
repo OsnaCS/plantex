@@ -9,16 +9,10 @@ in vec3 normal;
 // height of one unit.
 in float height;
 in vec3 offset;
-in vec3 material_color;
-
-out vec3 x_color;
-out vec3 surfaceNormal;
-// Vertex/Pixel coordinates in shadow map
-out vec4 shadowCoord;
+//in vec3 material_color;
 
 uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
-uniform mat4 depth_view_proj;
 
 void main() {
     vec4 world_coords = vec4(
@@ -26,8 +20,4 @@ void main() {
         position.z * height + offset.z,
         1);
     gl_Position = proj_matrix * view_matrix * world_coords;
-    shadowCoord = depth_view_proj * world_coords;
-
-    surfaceNormal = normal;
-    x_color = material_color;
 }

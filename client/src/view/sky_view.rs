@@ -11,8 +11,7 @@ pub struct SkyView {
     vertex_buffer: VertexBuffer<Vertex>,
     index_buffer: IndexBuffer<u32>,
     program: Program,
-    sun_position: Vector3f,
-
+    sun_position: Point3f,
 }
 
 impl SkyView {
@@ -50,7 +49,7 @@ impl SkyView {
             vertex_buffer: vbuf,
             index_buffer: ibuf,
             program: context.load_program("skydome").unwrap(),
-            sun_position: Vector3f::new(0.0, 0.0, -1000.0),
+            sun_position: Point3f::new(0.0, 0.0, -1000.0),
         }
     }
 
@@ -84,7 +83,7 @@ impl SkyView {
             .unwrap();
     }
 
-    pub fn update(&mut self, pos: Vector3f) {
+    pub fn update(&mut self, pos: Point3f) {
         self.sun_position = pos;
     }
 }
