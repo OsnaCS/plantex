@@ -6,8 +6,14 @@ use base::math::*;
 use base::world::*;
 use std::rc::Rc;
 use super::world_manager::*;
+use std::f32::consts;
 
 const GRAVITY: f32 = 9.81;
+
+// Ghost mode constants
+const DEFAULT_SPEED: f32 = 12.0;
+const SHIFT_SPEED: f32 = 60.0;
+
 /// Represents a `Player` in the world, the `Player` can move up, right, down
 /// left, right with w, a, s, d, jump with space and speed with shift
 pub struct Player {
@@ -20,6 +26,7 @@ pub struct Player {
     timer_vel: f32,
     mouselock: bool,
     shift_speed: f32,
+    is_ghost: bool,
 }
 
 impl Player {
@@ -38,6 +45,7 @@ impl Player {
             velocity: Vector3::new(0.0, 0.0, 0.0),
             mouselock: false,
             shift_speed: 1.0,
+            is_ghost: false,
         }
     }
     /// Gets the actual `Height` of the `HexPillar`
@@ -52,14 +60,48 @@ impl Player {
     pub fn get_camera(&self) -> Camera {
         self.cam
     }
+    pub fn switch_mode(&mut self) {
+        self.is_ghost = !self.is_ghost;
+    }
     /// Updates the `Player` after every iteration
     pub fn update(&mut self, delta: f32) {
-        let height = self.get_ground_height().unwrap_or(0.0) + 1.70;
 
+        if !self.is_ghost {
+            self.normal_update(delta);
+        } else {
+            self.ghost_update(delta);
+        }
+    }
+
+    pub fn ghost_update(&mut self, delta: f32) {
+        let speed = DEFAULT_SPEED * delta * self.shift_speed;
+        if self.acceleration.x == 500.5 {
+            self.cam.move_forward(speed);
+        }
+        if self.acceleration.x == -400.0 {
+            self.cam.move_backward(speed);
+        }
+        if self.acceleration.y == -400.5 {
+            self.cam.move_left(speed);
+        }
+        if self.acceleration.y == 400.5 {
+            self.cam.move_right(speed);
+        }
+        if self.velocity.z == 6.0 {
+            self.cam.move_up(speed);
+        }
+        if self.velocity.z == -6.0 {
+            self.cam.move_down(speed);
+        }
+    }
+
+    pub fn normal_update(&mut self, delta: f32) {
         // Moves the Player forward or backward with the acceleration and delta
         // (1.0 - (-((self.timer_vel * delta) / (1.0))).exp()) -> this is a formula
         // that calculates a
         // number from 0 to 1. So the player has a maximum velocity
+        let height = self.get_ground_height().unwrap_or(0.0) + 1.70;
+
         if self.acceleration.x != 0.0 {
             self.cam.move_forward(self.acceleration.x * delta * delta * self.shift_speed *
                                   (1.0 - (-((self.timer_vel * delta) / (1.0))).exp()));
@@ -169,6 +211,21 @@ impl EventHandler for Player {
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::Space)) => {
+                if self.is_ghost {
+                    self.velocity.z = 0.0;
+                }
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::C)) => {
+                if self.is_ghost {
+                    self.velocity.z = -6.0;
+                }
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::C)) => {
+                if self.is_ghost {
+                    self.velocity.z = 0.0;
+                }
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::LControl)) => {
@@ -188,9 +245,15 @@ impl EventHandler for Player {
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::F)) => {
+                self.cam.change_dir(consts::PI, 0.0);
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::F)) => {
+                self.cam.change_dir(-consts::PI, 0.0);
+                EventResponse::Continue
+            }
+            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::G)) => {
+                self.switch_mode();
                 EventResponse::Continue
             }
             Event::MouseInput(ElementState::Pressed, MouseButton::Left) => {

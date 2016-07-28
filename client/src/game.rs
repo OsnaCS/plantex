@@ -15,6 +15,7 @@ use view::{SkyView, Sun};
 use super::DayTime;
 use super::weather::Weather;
 use player::Player;
+use control_switcher::ControlSwitcher;
 
 pub struct Game {
     renderer: Renderer,
@@ -27,7 +28,7 @@ pub struct Game {
     daytime: DayTime,
     weather: Weather,
     ghost: Ghost,
-    player: Player,
+    player: Player, // control_switcher: ControlSwitcher,
 }
 
 impl Game {
@@ -54,11 +55,17 @@ impl Game {
 =======
             ghost: Ghost::new(context.clone()),
 <<<<<<< HEAD
+<<<<<<< HEAD
             player: Player::new(context.clone()),
 >>>>>>> (WIP) Add walking and jumping
 =======
             player: Player::new(context.clone(), world_manager.clone()),
 >>>>>>> Add player and change chunk
+=======
+            player: Player::new(context.clone(), world_manager.clone()), /* control_switcher:
+                                                                          * ControlSwitcher::
+                                                                          * new(), */
+>>>>>>> (WIP) Add the ghost into the player, ghostclass is unnecessary now
         })
     }
 
@@ -97,7 +104,28 @@ impl Game {
             if event_resp == EventResponse::Quit {
                 break;
             }
+
             self.player.update(delta);
+            // println!("works 1");
+            // if !self.control_switcher.is_ghost() {
+            //     println!("works 1.5");
+            //     let event_resp = self.event_manager
+            //         .poll_events(vec![&mut CloseHandler, &mut self.player]);
+            //     if event_resp == EventResponse::Quit {
+            //         break;
+            //     }
+            //     println!("works 2");
+            //     self.player.update(delta);
+            // } else {
+            //     println!("works 3");
+            //     let event_resp = self.event_manager
+            //         .poll_events(vec![&mut CloseHandler, &mut self.ghost]);
+            //     if event_resp == EventResponse::Quit {
+            //         break;
+            //     }
+            //     println!("works 4");
+            //     self.ghost.update(delta);
+            // }
 
             frames += 1;
             if next_fps_measure < Instant::now() {
@@ -109,6 +137,10 @@ impl Game {
 
         Ok(())
     }
+}
+
+pub fn set_mode(mode: bool) -> bool {
+    mode
 }
 
 fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
