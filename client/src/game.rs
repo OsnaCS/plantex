@@ -67,6 +67,8 @@ impl Game {
 
             self.daytime.update(delta);
 
+            self.sun.update(self.daytime.get_sun_position() * 300.0);
+
             try!(self.renderer.render(&*self.world_manager.get_view(),
                                       &self.player.get_camera(),
                                       &self.sun,

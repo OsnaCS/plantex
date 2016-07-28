@@ -15,7 +15,7 @@ pub struct DayTime {
 // `PLUS_TIME_SPEED` is the factor with which the time is sped up, when the
 // speed-up key is pressed
 const DEFAULT_TIME_SPEED: f32 = 1.0;
-const PLUS_TIME_SPEED: f32 = 1000.0;
+const PLUS_TIME_SPEED: f32 = 200.0;
 
 
 impl Default for DayTime {
@@ -80,7 +80,40 @@ impl DayTime {
 
 
     /// returns the position of the sun corresponding to time
+    /// only mid summer
     pub fn get_sun_position(&self) -> Vector3f {
+        // 0 degrees for mid summer
+        // 60 degrees for hard winter
+        let half_day = DAY_LENGTH as f32 / 2.0;
+
+        let theta;
+        let phi;
+        if self.time_on_day < half_day {
+            // pre noon
+            // sun rising
+            theta = consts::PI - consts::PI * (self.time_on_day / half_day);
+            phi = 0.0;
+        } else {
+            // after noon
+            // sun going down
+            theta = consts::PI * ((self.time_on_day - half_day) / half_day);
+            phi = consts::PI;
+        }
+
+        // for debugging
+        // info!("THETA: {} PHI: {}", theta, phi);
+
+        // returns sun position in cartesian coordinates
+        Vector3f::new(theta.sin() * phi.cos(),
+                      theta.sin() * phi.sin(),
+                      theta.cos())
+
+
+    }
+
+    /// returns the position of the sun corresponding to time
+    /// does not work right now
+    pub fn get_sun_position_real(&self) -> Vector3f {
         // 0 degrees for mid summer
         // 60 degrees for hard winter
         let half_year = YEAR_LENGTH as f32 / 2.0;
