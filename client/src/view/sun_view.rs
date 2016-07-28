@@ -12,6 +12,8 @@ pub struct Sun {
     vertex_buffer: VertexBuffer<Vertex>,
     index_buffer: IndexBuffer<u32>,
     program: Program,
+    position: Vector3f,
+    context: Rc<GameContext>,
 }
 
 impl Sun {
@@ -44,6 +46,8 @@ impl Sun {
             vertex_buffer: vbuf,
             index_buffer: ibuf,
             program: prog,
+            position: Vector3f::new(0.0, 0.0, 0.0),
+            context: context,
         }
     }
 
@@ -73,6 +77,38 @@ impl Sun {
                   &uniforms,
                   &params)
             .unwrap();
+    }
+
+    pub fn update(&mut self, pos: Vector3f) {
+
+        const SUN_SIZE: f32 = 35.0;
+        self.position = pos;
+        let raw_vertex_buffer = vec![
+            Vertex { i_position: [self.position.x+SUN_SIZE,
+                                  self.position.y+SUN_SIZE,
+                                  self.position.z],
+                                  i_unit_coords: [1.0, 1.0, 0.0]},
+
+            Vertex { i_position: [self.position.x-SUN_SIZE,
+                                  self.position.y-SUN_SIZE,
+                                  self.position.z],
+                                  i_unit_coords: [-1.0, -1.0, 0.0]
+                              },
+            Vertex { i_position: [self.position.x-SUN_SIZE,
+                                  self.position.y+SUN_SIZE,
+                                  self.position.z],
+                                  i_unit_coords: [-1.0, 1.0, 0.0]}
+                                  ,
+            Vertex { i_position: [self.position.x+SUN_SIZE,
+                                  self.position.y-SUN_SIZE,
+                                  self.position.z],
+                                  i_unit_coords: [1.0, -1.0, 0.0]}
+                                  ,
+];
+
+        self.vertex_buffer = VertexBuffer::new(self.context.get_facade(), &raw_vertex_buffer)
+            .unwrap();
+
     }
 }
 #[derive(Debug, Copy, Clone)]

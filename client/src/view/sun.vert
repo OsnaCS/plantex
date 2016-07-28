@@ -9,6 +9,6 @@ uniform mat4 u_view_matrix;
 out vec3 x_unit_coords;
 
 void main() {
-gl_Position = u_proj_matrix * u_view_matrix * vec4(i_position, 1);
-x_unit_coords = i_unit_coords;
+    gl_Position = u_proj_matrix * u_view_matrix * vec4(i_position, 1);
+    x_unit_coords = i_unit_coords;
 }
