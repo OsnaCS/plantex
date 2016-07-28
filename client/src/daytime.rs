@@ -55,9 +55,9 @@ impl DayTime {
         self.time_on_day
     }
 
-    // Updates time with the use of `delta` as additionally passed time
-    // `DAY_LENGTH` defines the length of a day in real-life seconds
-    // `YEAR_LENGTH` defines the length of a year in `DAY_LENGTH`s
+    /// Updates time with the use of `delta` as additionally passed time
+    /// `DAY_LENGTH` defines the length of a day in real-life seconds
+    /// `YEAR_LENGTH` defines the length of a year in `DAY_LENGTH`s
     pub fn update(&mut self, delta: f32) {
         // Output of Time
         info!("Year: {} Day: {} Time: {}",
@@ -79,6 +79,7 @@ impl DayTime {
     }
 
 
+    /// returns the position of the sun corresponding to time
     pub fn get_sun_position(&self) -> Vector3f {
         // 0 degrees for mid summer
         // 60 degrees for hard winter
@@ -116,14 +117,13 @@ impl DayTime {
 
     }
 
+    /// returns the Vector3f for the directional sunlight
     pub fn get_sun_light_vector(&self) -> Vector3f {
-        // returns the Vector3f from the sun to the origin
-        // for later calculation of directional sunlight
         Vector3f::new(0.0, 0.0, 0.0) - self.get_sun_position()
     }
 }
 
-// Handler to speed up time with use of key
+/// Handler to speed up time with use of '+' key
 impl EventHandler for DayTime {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
         match *e {
