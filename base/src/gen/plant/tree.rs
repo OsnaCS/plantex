@@ -1,6 +1,6 @@
 //! Generates random trees and tree-like plants.
 
-use prop::plant::{Branch, ControlPoint};
+use prop::plant::{Branch, ControlPoint, Tree};
 use math::*;
 use rand::{Rand, Rng};
 use rand::distributions::range::SampleRange;
@@ -38,6 +38,9 @@ struct Preset {
     /// Together with `branch_segment_length`, this defines the overall branch
     /// length.
     branch_segment_count: Range<u32>,
+    /// Range of branch colors for the whole tree, as distinct ranges for R, G
+    /// and B.
+    branch_color: (Range<f32>, Range<f32>, Range<f32>),
 }
 
 static PRESETS: &'static [Preset] = &[Preset {
@@ -51,6 +54,33 @@ static PRESETS: &'static [Preset] = &[Preset {
                                           branch_diam_reduction: 0.75..0.85,
                                           branch_segment_angle: 5.0..15.0,
                                           branch_segment_count: 1..4,
+                                          branch_color: (0.3..0.33, 0.1..0.13, 0.0..0.02),
+                                      },
+                                      Preset {
+                                          name: "Shrub",
+                                          trunk_diameter: 0.05..0.15,
+                                          trunk_height: 0.5..1.5,
+                                          trunk_diameter_top: 0.6..0.60001,
+                                          min_branch_height: 0.4..0.6,
+                                          branch_diameter_factor: 0.3..0.5,
+                                          branch_angle_deg: 60.0..100.0,
+                                          branch_diam_reduction: 0.70..0.80,
+                                          branch_segment_angle: 15.0..20.0,
+                                          branch_segment_count: 1..4,
+                                          branch_color: (0.15..0.18, 0.03..0.05, 0.0..0.02),
+                                      },
+                                      Preset {
+                                          name: "Cactus",
+                                          trunk_diameter: 0.3..0.5,
+                                          trunk_height: 2.0..4.0,
+                                          trunk_diameter_top: 0.6..0.60001,
+                                          min_branch_height: 0.4..0.6,
+                                          branch_diameter_factor: 0.3..0.5,
+                                          branch_angle_deg: 90.0..90.00001,
+                                          branch_diam_reduction: 0.90..0.95,
+                                          branch_segment_angle: 0.0..0.00001,
+                                          branch_segment_count: 1..2,
+                                          branch_color: (0.0..0.05, 0.3..0.33, 0.0..0.02),
                                       }];
 
 pub struct TreeGen {
@@ -150,12 +180,7 @@ impl TreeGen {
 
         assert!(points.len() >= 2,
                 "should've generated at least 2 points :(");
-        self.branches.push(Branch {
-            points: points,
-            // FIXME Fixed color for now, we should use a configurable random color (or at least
-            // make it brown).
-            color: Vector3f::new(0.0, 1.0, 0.0),
-        });
+        self.branches.push(Branch { points: points });
     }
 
     /// Given the growing direction of the parent branch, calculates a growing
@@ -170,8 +195,12 @@ impl TreeGen {
     fn create_trunk<R: Rng>(&mut self, rng: &mut R) {
         let trunk_diameter = range_sample(&self.preset.trunk_diameter, rng);
         let trunk_height = range_sample(&self.preset.trunk_height, rng);
-        let trunk_diameter_top = range_sample(&self.preset.trunk_diameter_top, rng);
+        let mut trunk_diameter_top = range_sample(&self.preset.trunk_diameter_top, rng);
         let min_branch_height = range_sample(&self.preset.min_branch_height, rng) * trunk_height;
+
+        // The trunk is supposed to get smaller as we go up, so just enforce that rule
+        // here:
+        trunk_diameter_top = trunk_diameter.min(trunk_diameter_top);
 
         debug!("trunk diam {} to {}, height {}, branch start at {}",
                trunk_diameter,
@@ -218,12 +247,7 @@ impl TreeGen {
 
         assert!(points.len() >= 2,
                 "should've generated at least 2 points :(");
-        self.branches.push(Branch {
-            points: points,
-            // FIXME Fixed color for now, we should use a configurable random color (or at least
-            // make it brown).
-            color: Vector3f::new(0.0, 1.0, 0.0),
-        });
+        self.branches.push(Branch { points: points });
 
         debug!("generated tree with {} branches", self.branches.len());
     }
@@ -231,10 +255,16 @@ impl TreeGen {
     /// Generates a random tree according to the stored parameters.
     ///
     /// The tree is returned as a list of branches for now.
-    pub fn generate<R: Rng>(mut self, rng: &mut R) -> Vec<Branch> {
+    pub fn generate<R: Rng>(mut self, rng: &mut R) -> Tree {
         // Recursively create the tree and put all branches in a buffer.
         self.create_trunk(rng);
-        self.branches
+
+        Tree {
+            branches: self.branches,
+            branch_color: Vector3f::new(range_sample(&self.preset.branch_color.0, rng),
+                                        range_sample(&self.preset.branch_color.1, rng),
+                                        range_sample(&self.preset.branch_color.2, rng)),
+        }
     }
 }
 
