@@ -5,10 +5,9 @@ pub enum GroundMaterial {
     Stone,
     Sand,
     Snow,
-    Jungle,
+    JungleGrass,
     Mulch,
-    Grey(f32),
-    Color(f32, f32, f32),
+    Debug,
 }
 
 impl GroundMaterial {
@@ -18,12 +17,11 @@ impl GroundMaterial {
             GroundMaterial::Dirt => [0.38, 0.13, 0.03],
             GroundMaterial::Grass => [0.0, 0.5, 0.0],
             GroundMaterial::Stone => [0.3, 0.3, 0.3],
-            GroundMaterial::Grey(greyv) => [greyv, greyv, greyv],
-            GroundMaterial::Color(r, g, b) => [r, g, b],
             GroundMaterial::Snow => [0.95, 0.95, 1.0],
             GroundMaterial::Sand => [1.0, 1.0, 0.0],
-            GroundMaterial::Jungle => [0.1, 0.4, 0.2],
-            GroundMaterial::Mulch => [0.5, 0.1, 0.1],
+            GroundMaterial::JungleGrass => [0.1, 0.26, 0.04],
+            GroundMaterial::Mulch => [0.4, 0.4, 0.17],
+            GroundMaterial::Debug => [1.0, 0.0, 0.0],
         }
     }
 }

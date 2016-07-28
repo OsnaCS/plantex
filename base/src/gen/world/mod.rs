@@ -1,22 +1,12 @@
 //! Procedurally generating the game world.
+mod biome;
 
 use world::{Chunk, ChunkIndex, ChunkProvider, HeightType, HexPillar};
 use world::{CHUNK_SIZE, GroundMaterial, PILLAR_STEP_HEIGHT, PillarSection, Prop, PropType};
 use rand::Rand;
-use gen::PlantGenerator;
+use gen::{PlantGenerator, seeded_rng};
 use noise::{PermutationTable, open_simplex2, open_simplex3};
-use gen::seeded_rng;
-
-enum Biome {
-    GrassLand,
-    Desert,
-    Snow,
-    Forest,
-    RainForest,
-    Savanna,
-    Stone,
-    WeihnachtsmannLand,
-}
+use gen::world::biome::Biome;
 
 /// Land "fill noise" scaling in x, y, and z direction.
 const LAND_NOISE_SCALE: (f32, f32, f32) = (0.03, 0.03, 0.05);
@@ -53,36 +43,6 @@ impl WorldGenerator {
         self.seed
     }
 
-    fn biome_from_climate(temperature: f32, humidity: f32) -> Biome {
-        match (temperature, humidity) {
-            (0.0...0.2, 0.0...0.2) => Biome::Stone,
-            (0.0...0.2, 0.2...0.4) => Biome::Snow,
-            (0.0...0.2, 0.4...1.0) => Biome::Snow,
-            (0.2...0.4, 0.0...0.2) => Biome::GrassLand,
-            (0.2...0.4, 0.2...0.4) => Biome::GrassLand,
-            (0.2...0.4, 0.4...1.0) => Biome::Forest,
-            (0.4...1.0, 0.0...0.2) => Biome::Desert,
-            (0.4...1.0, 0.2...0.4) => Biome::Savanna,
-            (0.4...1.0, 0.4...1.0) => Biome::RainForest,
-            _ => Biome::WeihnachtsmannLand,
-
-        }
-    }
-
-    fn plant_threshold_from_biome(biome: &Biome) -> f32 {
-        0.05 +
-        match *biome {
-            Biome::GrassLand => 0.3,
-            Biome::Desert => 0.46,
-            Biome::Snow => 0.35,
-            Biome::Forest => 0.25,
-            Biome::RainForest => 0.2,
-            Biome::Savanna => 0.375,
-            Biome::Stone => 0.45,
-            Biome::WeihnachtsmannLand => 1.0,
-        }
-    }
-
     /// trying aproximate the
     /// steepvalues       10   20   60  200
     /// for temperature  0.0  0.2  0.4  1.0
@@ -90,18 +50,18 @@ impl WorldGenerator {
         120.0 * temperature * temperature + 72.0 * temperature + 3.5
     }
 
-    fn material_from_biome(biome: &Biome) -> GroundMaterial {
-        match *biome {
-            Biome::GrassLand => GroundMaterial::Grass,
-            Biome::Desert => GroundMaterial::Sand,
-            Biome::Snow => GroundMaterial::Snow,
-            Biome::Forest => GroundMaterial::Mulch,
-            Biome::RainForest => GroundMaterial::Jungle,
-            Biome::Savanna => GroundMaterial::Dirt,
-            Biome::Stone => GroundMaterial::Stone,
-            Biome::WeihnachtsmannLand => GroundMaterial::Color(1.0, 0.0, 0.0),
-        }
-    }
+    // fn material_from_biome(biome: &Biome) -> GroundMaterial {
+    //     match *biome {
+    //         Biome::GrassLand => GroundMaterial::Grass,
+    //         Biome::Desert => GroundMaterial::Sand,
+    //         Biome::Snow => GroundMaterial::Snow,
+    //         Biome::Forest => GroundMaterial::Mulch,
+    //         Biome::RainForest => GroundMaterial::JungleGrass,
+    //         Biome::Savanna => GroundMaterial::Dirt,
+    //         Biome::Stone => GroundMaterial::Stone,
+    //         Biome::Debug => GroundMaterial::Debug,
+    //     }
+    // }
 }
 
 impl ChunkProvider for WorldGenerator {
@@ -139,8 +99,7 @@ impl ChunkProvider for WorldGenerator {
                                                    &[(x as f32) * 0.15, (y as f32) * 0.15]);
 
 
-            let current_biome = WorldGenerator::biome_from_climate(temperature_noise,
-                                                                   humidity_noise);
+            let current_biome = Biome::from_climate(temperature_noise, humidity_noise);
 
             for i in 0..WORLDGEN_HEIGHT {
                 if i == 0 {
@@ -191,7 +150,7 @@ impl ChunkProvider for WorldGenerator {
             let mut low = 0;
             let mut height = None;
             for i in 0..WORLDGEN_HEIGHT {
-                let material = WorldGenerator::material_from_biome(&current_biome);
+                let material = current_biome.material();
 
                 match (height, column[i]) {
 
@@ -227,7 +186,7 @@ impl ChunkProvider for WorldGenerator {
             let plant_noise = open_simplex2::<f32>(&self.plant_table,
                                                    &[(x as f32) * 0.25, (y as f32) * 0.25]);
 
-            if plant_noise > WorldGenerator::plant_threshold_from_biome(&current_biome) {
+            if plant_noise > current_biome.plant_threshold() {
                 let mut rng = super::seeded_rng(self.seed, "TREE", (pos.q, pos.r));
                 let gen = PlantGenerator::rand(&mut rng);
 
