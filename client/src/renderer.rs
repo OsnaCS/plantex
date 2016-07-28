@@ -1,6 +1,7 @@
 use world::WorldView;
 use glium::Surface;
 use super::{Camera, GameContext};
+use view::Sun;
 use view::SkyView;
 use std::rc::Rc;
 use std::error::Error;
@@ -65,6 +66,7 @@ impl Renderer {
     pub fn render(&mut self,
                   world_view: &WorldView,
                   camera: &Camera,
+                  sun: &Sun,
                   sky_view: &SkyView)
                   -> Result<(), Box<Error>> {
         // ===================================================================
@@ -87,7 +89,7 @@ impl Renderer {
 
         world_view.draw(&mut hdr_buffer, camera);
         sky_view.draw_skydome(&mut hdr_buffer, camera);
-
+        sun.draw_sun(&mut hdr_buffer, camera);
         // ===================================================================
         // Tonemapping
         // ===================================================================
