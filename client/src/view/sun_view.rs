@@ -13,19 +13,17 @@ pub struct Sun {
     index_buffer: IndexBuffer<u32>,
     program: Program,
     position: Vector3f,
-    context: Rc<GameContext>,
 }
 
 const SUN_SIZE: f32 = 35.0;
 
 impl Sun {
     pub fn new(context: Rc<GameContext>) -> Self {
-        const SUN_POS: f32 = 300.0;
         let raw_vertex_buffer = vec![
-            Vertex { i_position: [SUN_SIZE, SUN_SIZE, SUN_POS], i_unit_coords: [1.0, 1.0, 0.0]},
-            Vertex { i_position: [-SUN_SIZE, -SUN_SIZE, SUN_POS], i_unit_coords: [-1.0, -1.0, 0.0]},
-            Vertex { i_position: [-SUN_SIZE, SUN_SIZE, SUN_POS], i_unit_coords: [-1.0, 1.0, 0.0]},
-            Vertex { i_position: [SUN_SIZE, -SUN_SIZE, SUN_POS], i_unit_coords: [1.0, -1.0, 0.0]},
+            Vertex { i_position: [SUN_SIZE, SUN_SIZE, 0.0], i_unit_coords: [1.0, 1.0, 0.0]},
+            Vertex { i_position: [-SUN_SIZE, -SUN_SIZE, 0.0], i_unit_coords: [-1.0, -1.0, 0.0]},
+            Vertex { i_position: [-SUN_SIZE, SUN_SIZE, 0.0], i_unit_coords: [-1.0, 1.0, 0.0]},
+            Vertex { i_position: [SUN_SIZE, -SUN_SIZE, 0.0], i_unit_coords: [1.0, -1.0, 0.0]},
 ];
 
         let vbuf = VertexBuffer::new(context.get_facade(), &raw_vertex_buffer).unwrap();
@@ -42,20 +40,15 @@ impl Sun {
             index_buffer: ibuf,
             program: context.load_program("sun").unwrap(),
             position: Vector3f::new(0.0, 0.0, 0.0),
-            context: context,
         }
     }
 
     pub fn draw_sun<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
 
-        let pos = Point3::new(0.0, 0.0, 0.0);
-
-        let view_matrix =
-            Matrix4::look_at(pos, pos + camera.get_look_at_vector(), Vector3::unit_z());
-
         let uniforms = uniform! {
             u_proj_matrix: camera.proj_matrix().to_arr(),
-            u_view_matrix: view_matrix.to_arr(),
+            u_view_matrix: camera.view_matrix().to_arr(),
+            u_model: Matrix4::from_translation(camera.position.to_vec() + self.position).to_arr(),
         };
         let params = DrawParameters {
             depth: glium::Depth {
@@ -76,32 +69,6 @@ impl Sun {
 
     pub fn update(&mut self, pos: Vector3f) {
         self.position = pos;
-        let raw_vertex_buffer = vec![
-            Vertex { i_position: [self.position.x+SUN_SIZE,
-                                  self.position.y+SUN_SIZE,
-                                  self.position.z],
-                                  i_unit_coords: [1.0, 1.0, 0.0]},
-
-            Vertex { i_position: [self.position.x-SUN_SIZE,
-                                  self.position.y-SUN_SIZE,
-                                  self.position.z],
-                                  i_unit_coords: [-1.0, -1.0, 0.0]
-                              },
-            Vertex { i_position: [self.position.x-SUN_SIZE,
-                                  self.position.y+SUN_SIZE,
-                                  self.position.z],
-                                  i_unit_coords: [-1.0, 1.0, 0.0 ]}
-                                  ,
-            Vertex { i_position: [self.position.x+SUN_SIZE,
-                                  self.position.y-SUN_SIZE,
-                                  self.position.z],
-                                  i_unit_coords: [1.0, -1.0, 0.0]}
-                                  ,
-];
-
-        self.vertex_buffer = VertexBuffer::new(self.context.get_facade(), &raw_vertex_buffer)
-            .unwrap();
-
     }
 }
 #[derive(Debug, Copy, Clone)]
