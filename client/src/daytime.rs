@@ -1,6 +1,7 @@
 use super::event_manager::*;
 use glium::glutin::{ElementState, Event, VirtualKeyCode};
 use std::f32::consts;
+use base::math::*;
 
 #[derive(Debug)]
 pub struct DayTime {
@@ -78,12 +79,11 @@ impl DayTime {
     }
 
 
-
-    pub fn get_sun_light_vector(&self) {
+    pub fn get_sun_position(&self) -> Vector3f {
         // 0 degrees for mid summer
         // 60 degrees for hard winter
-        let mut half_year = YEAR_LENGTH as f32 / 2.0;
-        let mut half_day = DAY_LENGTH as f32 / 2.0;
+        let half_year = YEAR_LENGTH as f32 / 2.0;
+        let half_day = DAY_LENGTH as f32 / 2.0;
 
 
         let mut theta = self.time_day as f32 - half_year;
@@ -103,9 +103,23 @@ impl DayTime {
             theta += consts::PI * ((self.time_on_day - half_day) / half_day)
         }
 
-        let mut phi = self.time_on_day / DAY_LENGTH as f32 * 2.0 * consts::PI;
+        let phi = self.time_on_day / DAY_LENGTH as f32 * 2.0 * consts::PI;
 
-        info!("THETA: {} PHI: {}", theta, phi);
+        // for debugging
+        // info!("THETA: {} PHI: {}", theta, phi);
+
+        // returns sun position in cartesian coordinates
+        Vector3f::new(theta.sin() * phi.cos(),
+                      theta.sin() * phi.sin(),
+                      theta.cos())
+
+
+    }
+
+    pub fn get_sun_light_vector(&self) -> Vector3f {
+        // returns the Vector3f from the sun to the origin
+        // for later calculation of directional sunlight
+        Vector3f::new(0.0, 0.0, 0.0) - self.get_sun_position()
     }
 }
 
@@ -126,9 +140,3 @@ impl EventHandler for DayTime {
 
     }
 }
-
-
-
-// position in theta phi
-
-// lichtvektor
