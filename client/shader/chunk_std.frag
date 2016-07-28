@@ -12,6 +12,25 @@ const vec3 sun = normalize(vec3(1.0, 0.0, 1.0));
 void main() {
     float diffuse = max(0.0, dot(sun, surfaceNormal));
     color = x_color * 0.1 + x_color * diffuse;
-    // color = vec3(x_tex_coord.y);
-    color = texture(my_texture, x_tex_coord).xyz;
+
+    float hexagon_width = sqrt(3.0)*0.5;
+    float step_size = hexagon_width * 0.25;
+
+    float step_x = 4.0;
+    float step_y = 4.0 / hexagon_width;
+
+    if (((mod(step_x * x_tex_coord.x, hexagon_width) < 0.5) || (mod(step_y * x_tex_coord.y, 1.0) < 0.5))
+
+        && (!((mod(step_x * x_tex_coord.x, hexagon_width) < 0.5) && (mod(step_y * x_tex_coord.y, 1.0) < 0.5)))) {
+        color = vec3(1.0, 1.0, 1.0);
+    } else {
+        color = vec3(0.0, 0.0, 0.0);
+    }
+
+    if (x_tex_coord.x == -1.0 && x_tex_coord.y == -1.0) {
+        color = vec3(0.0, 1.0, 1.0);
+    }
+
+    // color = vec3(x_tex_coord.x);
+    // color = texture(my_texture, x_tex_coord).xyz;
 }

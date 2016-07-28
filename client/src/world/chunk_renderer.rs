@@ -178,22 +178,22 @@ fn get_side_hexagon_model(ind1: i32,
     vertices.push(Vertex {
         position: [x1, y1, world::PILLAR_STEP_HEIGHT],
         normal: normal,
-        tex_coord: [0.0, 0.0],
+        tex_coord: [-1.0, -1.0], // tex_coord: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x1, y1, 0.0],
         normal: normal,
-        tex_coord: [0.0, 0.0],
+        tex_coord: [-1.0, -1.0], // tex_coord: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x2, y2, world::PILLAR_STEP_HEIGHT],
         normal: normal,
-        tex_coord: [0.0, 0.0],
+        tex_coord: [-1.0, -1.0], // tex_coord: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x2, y2, 0.0],
         normal: normal,
-        tex_coord: [0.0, 0.0],
+        tex_coord: [-1.0, -1.0], // tex_coord: [0.0, 0.0],
     });
 
     indices.append(&mut vec![cur_len + 0,

@@ -45,11 +45,16 @@ impl ChunkView {
             }
         }
 
+        // let data = vec![
+        //     vec![(0u8, 0u8, 0u8), (0u8, 0u8, 255u8), (0u8, 0u8, 255u8)],
+        //     vec![(0u8, 0u8, 0u8), (0u8, 0u8, 255u8), (0u8, 0u8, 255u8)],
+        //     vec![(255u8, 0u8, 0u8), (0u8, 255u8, 0u8), (0u8, 255u8, 0u8)],
+        // ];
+
         let data = vec![
-            vec![(0u8, 0u8, 0u8), (0u8, 0u8, 255u8), (0u8, 0u8, 255u8)],
-            vec![(0u8, 0u8, 0u8), (0u8, 0u8, 255u8), (0u8, 0u8, 255u8)],
-            vec![(255u8, 0u8, 0u8), (0u8, 255u8, 0u8), (0u8, 255u8, 0u8)],
-        ];
+                vec![(0u8, 0u8, 0u8)],
+                vec![(255u8, 255u8, 255u8)],
+            ];
 
         let tex = Texture2d::new(facade, data).unwrap();
 
