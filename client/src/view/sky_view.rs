@@ -44,16 +44,10 @@ impl SkyView {
                                     &raw_index_buffer)
             .unwrap();
 
-        let prog = Program::from_source(context.get_facade(),
-                                        include_str!("skydome.vert"),
-                                        include_str!("skydome.frag"),
-                                        None)
-            .unwrap();
-
         SkyView {
             vertex_buffer: vbuf,
             index_buffer: ibuf,
-            program: prog,
+            program: context.load_program("skydome").unwrap(),
         }
     }
 

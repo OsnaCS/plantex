@@ -45,16 +45,10 @@ impl Renderer {
                                     &[0u16, 1, 2, 0, 2, 3])
             .unwrap();
 
-        let tonemapping_program = Program::from_source(context.get_facade(),
-                                                       include_str!("tonemapping.vert"),
-                                                       include_str!("tonemapping.frag"),
-                                                       None)
-            .unwrap();
-
         Renderer {
             context: context.clone(),
             quad_tex: quad_tex_temp,
-            tonemapping_program: tonemapping_program,
+            tonemapping_program: context.load_program("tonemapping").unwrap(),
             depth_texture: depth_texture,
             quad_vertex_buffer: Renderer::create_vertex_buf(context.get_facade()),
             quad_index_buffer: ibuf,
