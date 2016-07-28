@@ -42,7 +42,10 @@ impl PlantView {
 
         PlantView {
             vertices: VertexBuffer::new(facade, &vertices).unwrap(),
-            indices: IndexBuffer::new(facade, PrimitiveType::TrianglesList, &indices).unwrap(),
+            indices: IndexBuffer::new(facade,
+                                      PrimitiveType::Patches { vertices_per_patch: 3 },
+                                      &indices)
+                .unwrap(),
             renderer: renderer,
             pos: pos,
         }
@@ -74,10 +77,15 @@ impl PlantView {
     }
 
     pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
+        let tess_level_inner = 10.0 as f32;
+        let tess_level_outer = 10.0 as f32;
+
         let uniforms = uniform! {
             offset: self.pos.to_arr(),
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
+            tess_level_inner: tess_level_inner ,
+            tess_level_outer: tess_level_outer,
         };
 
         let params = DrawParameters {
