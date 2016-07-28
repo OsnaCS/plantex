@@ -36,16 +36,10 @@ impl Sun {
                                     &raw_index_buffer)
             .unwrap();
 
-        let prog = Program::from_source(context.get_facade(),
-                                        include_str!("sun.vert"),
-                                        include_str!("sun.frag"),
-                                        None)
-            .unwrap();
-
         Sun {
             vertex_buffer: vbuf,
             index_buffer: ibuf,
-            program: prog,
+            program: context.load_program("sun").unwrap(),
             position: Vector3f::new(0.0, 0.0, 0.0),
             context: context,
         }
