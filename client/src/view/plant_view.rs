@@ -201,7 +201,7 @@ fn side(vertices: &mut Vec<Vertex>,
 /// generates 3 normalized vectors perpendicular to the given vector
 fn get_points_from_vector(vector: Vector3f) -> [Vector3f; 3] {
     let ortho = random_vec_with_angle(&mut seeded_rng(0x2651aa465abded, (), ()), vector, 90.0);
-    let rot = Basis3::from_axis_angle(vector, Deg::new(120.0).into());
+    let rot = Basis3::from_axis_angle(vector, Deg::new(105.0).into());
     let v0 = rot.rotate_vector(ortho);
     let v1 = rot.rotate_vector(v0);
 
