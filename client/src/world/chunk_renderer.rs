@@ -4,6 +4,7 @@ use std::f32::consts;
 use world::chunk_view::Vertex;
 use glium::{IndexBuffer, Program, VertexBuffer};
 use glium::index::PrimitiveType;
+use glium::texture::Texture2d;
 use GameContext;
 use std::rc::Rc;
 
@@ -15,6 +16,7 @@ pub struct ChunkRenderer {
     pillar_vbuf: VertexBuffer<Vertex>,
     /// Index Buffer for `pillar_vbuf`.
     pillar_ibuf: IndexBuffer<u32>,
+    noise_map: Texture2d,
 }
 
 impl ChunkRenderer {
@@ -37,7 +39,19 @@ impl ChunkRenderer {
                                           PrimitiveType::TrianglesList,
                                           &indices)
                 .unwrap(),
+
+            noise_map: match Texture2d::new(context.get_facade(),
+                                            ChunkRenderer::create_noise(2 as u64)) {
+                Ok(p) => p,
+                Err(_) => panic!("did not work"),
+            },
         }
+    }
+    fn create_noise(s: u64) -> Vec<Vec<f32>> {
+        vec![
+                vec![1.0],
+                vec![1.0],
+            ]
     }
 
     /// Gets a reference to the shared chunk shader.
@@ -85,7 +99,6 @@ fn get_top_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
     // Corner vertices
     for i in 0..6 {
         let (x, y) = hex_corner(world::HEX_OUTER_RADIUS, i);
-        println!("x: {}, y: {}", x, y);
 
         let (a, b) = tex_map(i);
 
