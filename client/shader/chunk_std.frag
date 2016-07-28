@@ -13,12 +13,12 @@ void main() {
     float diffuse = max(0.0, dot(sun, surfaceNormal));
     color = x_color * 0.1 + x_color * diffuse;
 
-    float hexagon_width = sqrt(3.0)*0.5;
 
-    float step_x = 4 * hexagon_width;
-    float step_y = step_x / hexagon_width;
+    float n = 16.0;
+    // 4 * hexagon width
+    float steps = n * sqrt(3.0)*0.5;
 
-    if ((mod(step_x * (x_tex_coord.x), 1.0) < 0.5) != (mod(step_y * x_tex_coord.y, 1.0) < 0.5)) {
+    if ((mod(steps * (x_tex_coord.x), 1.0) < 0.5) != (mod(steps * x_tex_coord.y, 1.0) < 0.5)) {
         color = vec3(1.0, 1.0, 1.0);
     } else {
         color = vec3(0.0, 0.0, 0.0);
