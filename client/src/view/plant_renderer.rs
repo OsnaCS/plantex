@@ -4,14 +4,22 @@ use std::rc::Rc;
 
 pub struct PlantRenderer {
     program: Program,
+    shadow_program: Program,
 }
 
 impl PlantRenderer {
     pub fn new(context: Rc<GameContext>) -> Self {
-        PlantRenderer { program: context.load_program("plant_dummy").unwrap() }
+        PlantRenderer {
+            program: context.load_program("plant_dummy").unwrap(),
+            shadow_program: context.load_program("plant_shadow").unwrap(),
+        }
     }
 
     pub fn program(&self) -> &Program {
         &self.program
+    }
+
+    pub fn shadow_program(&self) -> &Program {
+        &self.shadow_program
     }
 }
