@@ -60,10 +60,10 @@ impl DayTime {
     /// `YEAR_LENGTH` defines the length of a year in `DAY_LENGTH`s
     pub fn update(&mut self, delta: f32) {
         // Output of Time
-        info!("Year: {} Day: {} Time: {}",
-              self.time_year,
-              self.time_day,
-              self.time_on_day);
+        debug!("Year: {} Day: {} Time: {}",
+               self.time_year,
+               self.time_day,
+               self.time_on_day);
 
         // Checks if one day has passed
         self.time_on_day += delta * self.speed;
