@@ -14,6 +14,7 @@ mod game;
 mod game_context;
 mod ghost;
 mod renderer;
+mod weather;
 mod world;
 mod world_manager;
 mod event_manager;

@@ -5,6 +5,7 @@ use view::Sun;
 use view::SkyView;
 use std::rc::Rc;
 use std::error::Error;
+use super::weather::Weather;
 use glium::texture::texture2d::Texture2d;
 use glium::texture::{DepthFormat, DepthTexture2d, MipmapsOption, UncompressedFloatFormat};
 use glium::framebuffer::MultiOutputFrameBuffer;
@@ -67,6 +68,7 @@ impl Renderer {
                   world_view: &WorldView,
                   camera: &Camera,
                   sun: &Sun,
+                  weather: &mut Weather,
                   sky_view: &SkyView)
                   -> Result<(), Box<Error>> {
         // ===================================================================
@@ -88,8 +90,11 @@ impl Renderer {
         hdr_buffer.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
 
         world_view.draw(&mut hdr_buffer, camera);
+
         sky_view.draw_skydome(&mut hdr_buffer, camera);
         sun.draw_sun(&mut hdr_buffer, camera);
+        weather.draw(&mut hdr_buffer, camera);
+
         // ===================================================================
         // Tonemapping
         // ===================================================================
