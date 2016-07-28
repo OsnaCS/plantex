@@ -19,7 +19,9 @@ mod world_manager;
 mod event_manager;
 pub mod view;
 pub mod util;
+pub mod daytime;
 
+pub use daytime::*;
 pub use camera::Camera;
 pub use config::Config;
 pub use event_manager::*;
