@@ -32,7 +32,7 @@ void main() {
         view[1][2] = 0.0;
     }
 
-    if(form == 2){
+    if(form == 2 || form == 3){
         view[0][0] = 1.0;
         view[0][1] = 0.0;
         view[0][2] = 0.0;

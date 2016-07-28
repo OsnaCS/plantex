@@ -35,6 +35,7 @@ pub struct Particle {
     velocity: f32,
     trans_x: f32,
     trans_y: f32,
+    trans_z: f32,
 }
 
 #[derive(Copy, Clone)]
@@ -81,6 +82,7 @@ impl Particle {
             velocity: velocity,
             trans_x: rand::random::<f32>() * 6.28,
             trans_y: rand::random::<f32>() * 6.28,
+            trans_z: rand::random::<f32>() * 6.28,
         }
     }
 }
@@ -110,7 +112,7 @@ impl Weather {
             context: context,
             camera: camera,
             particle_buf: sections,
-            form: Form::None,
+            form: Form::Pollen,
         }
     }
 
@@ -164,6 +166,14 @@ impl Weather {
                                              Vector4f::new(0.0, 0.0, 0.5, 0.0),
                                              Vector4f::new(0.0, 0.0, 0.0, 1.0));
             }
+            Form::Pollen => {
+                color = Vector4f::new(0.5, 0.5, 0.5, 1.0);
+
+                scaling = Matrix4::from_cols(Vector4f::new(0.05, 0.0, 0.0, 0.0),
+                                             Vector4f::new(0.0, 0.05, 0.0, 0.0),
+                                             Vector4f::new(0.0, 0.0, 0.05, 0.0),
+                                             Vector4f::new(0.0, 0.0, 0.0, 1.0));
+            }
             _ => (),
         };
 
@@ -194,8 +204,13 @@ impl Weather {
             return;
         }
         self.camera = *camera;
-        if self.particles.len() < 2000 {
-            let count = 2000 - self.particles.len();
+        let max_count: usize;
+        match self.form {
+            Form::Pollen => max_count = 50,
+            _ => max_count = 2000,
+        }
+        if self.particles.len() < max_count {
+            let count = max_count - self.particles.len();
             for _ in 0..count {
                 self.particles.push(Particle::new(camera.position));
             }
@@ -223,6 +238,14 @@ impl Weather {
                 Form::Rain => {
                     instance.position[2] = instance.position[2] - ((particle.velocity + 0.5) * 1.0)
                 }
+                Form::Pollen => {
+                    instance.position[0] += particle.trans_x.sin() * 0.025;
+                    instance.position[1] += particle.trans_y.cos() * 0.025;
+                    instance.position[2] += (particle.trans_z.sin() - 0.7) * 0.01;
+                    particle.trans_y += 3.14 * 0.005 * (rand::random::<f32>() - 0.5);
+                    particle.trans_x += 3.14 * 0.005 * (rand::random::<f32>() - 0.5);
+                    particle.trans_z += 3.14 * 0.005 * (rand::random::<f32>() - 0.1);
+                }
                 _ => (),
 
             }
@@ -233,15 +256,21 @@ impl Weather {
             let tmp = pix_vec - cam_vec;
             let len = ((tmp.x * tmp.x) + (tmp.y * tmp.y)).sqrt();
 
-            if len > BOX_SIZE || len < -BOX_SIZE {
-                instance.position[0] = instance.position[0] - (2.0 * tmp.x);
-                instance.position[1] = instance.position[1] - (2.0 * tmp.y);
+
+            let size = match self.form {
+                Form::Pollen => BOX_SIZE / 4.0,
+                _ => 1.0,
+            };
+
+            if len > BOX_SIZE - size || len < -BOX_SIZE - size {
+                instance.position[0] = instance.position[0] - (1.95 * tmp.x);
+                instance.position[1] = instance.position[1] - (1.95 * tmp.y);
             }
-            if instance.position[2] < self.camera.position.z - BOX_SIZE {
-                instance.position[2] += 2.0 * BOX_SIZE;
+            if instance.position[2] < self.camera.position.z - BOX_SIZE / size {
+                instance.position[2] += 1.9 * (BOX_SIZE / size);
             }
-            if instance.position[2] > self.camera.position.z + BOX_SIZE {
-                instance.position[2] -= 2.0 * BOX_SIZE;
+            if instance.position[2] > self.camera.position.z + BOX_SIZE / size {
+                instance.position[2] -= 1.9 * (BOX_SIZE / size);
             }
         }
     }
