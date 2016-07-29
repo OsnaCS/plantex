@@ -60,9 +60,9 @@ impl Chunk {
         let chunk_size: PillarIndexComponent = CHUNK_SIZE.into();
 
         if pos.q >= 0 && pos.q < chunk_size && pos.r >= 0 && pos.r < chunk_size {
-            None
-        } else {
             Some(&self.pillars[(pos.r as usize) * (CHUNK_SIZE as usize) + (pos.q as usize)])
+        } else {
+            None
         }
     }
 
