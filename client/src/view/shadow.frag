@@ -26,7 +26,8 @@ float ShadowCalc(vec4 fragPosLightSpace) {
     float closestDepth = texture(shadowMap, projCoords).r;
     float currentDepth = projCoords.z;
 
-    // calculat shadow bias to prevent "shadow acne" http://learnopengl.com/img/advanced-lighting/shadow_mapping_acne_diagram.png
+    // calculat shadow bias to prevent "shadow acne"
+    // http://learnopengl.com/img/advanced-lighting/shadow_mapping_acne_diagram.png
     // will result in "peter panning" to fix this tell OpenGl to cull front face.
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
 
