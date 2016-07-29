@@ -2,9 +2,8 @@
 
 Nothing to see here yet ...
 
-
 > [![Build Status](https://travis-ci.org/OsnaCS/plantex.svg?branch=master)](https://travis-ci.org/OsnaCS/plantex)
-[![License](https://img.shields.io/github/license/OsnaCS/plantex.svg)]()
+[![License](https://img.shields.io/github/license/OsnaCS/plantex.svg)](http://www.apache.org/licenses/LICENSE-2.0) [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](http://opensource.org/licenses/MIT)
 
 > Documentation: [**`base`**](https://osnacs.github.io/plantex/base/index.html),
                  [**`client`**](https://osnacs.github.io/plantex/client/index.html),
