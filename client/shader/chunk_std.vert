@@ -34,4 +34,5 @@ void main() {
     x_color = material_color;
     x_radius = radius;
     x_tex_coord = tex_coord;
+
 }

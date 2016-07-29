@@ -8,6 +8,7 @@ use util::ToArr;
 use view::{PlantRenderer, PlantView};
 use world::ChunkRenderer;
 use std::rc::Rc;
+use glium::uniforms::MinifySamplerFilter;
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
@@ -69,7 +70,8 @@ impl ChunkView {
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
-            my_texture: self.renderer.noise_map.sampled().wrap_function(::glium::uniforms::SamplerWrapFunction::Clamp),
+            my_texture:  self.renderer.noise_map.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear)
+                .wrap_function(::glium::uniforms::SamplerWrapFunction::Repeat),
         };
         let params = DrawParameters {
             depth: glium::Depth {

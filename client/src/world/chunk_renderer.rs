@@ -42,7 +42,6 @@ impl ChunkRenderer {
                                           PrimitiveType::TrianglesList,
                                           &indices)
                 .unwrap(),
-
             noise_map: match Texture2d::new(context.get_facade(),
                                             ChunkRenderer::create_noise(2 as u64)) {
                 Ok(p) => p,
@@ -50,15 +49,16 @@ impl ChunkRenderer {
             },
         }
     }
-    fn create_noise(seed: u64) -> Vec<Vec<f32>> {
+    fn create_noise(seed: u64) -> Vec<Vec<(f32, f32, f32)>> {
         let mut texture_rng = seeded_rng(seed, 13, ());
         let table = PermutationTable::rand(&mut texture_rng);
 
         let mut v = vec![Vec::new(); 256];
-
         for i in 0..256 {
             for j in 0..256 {
-                v[i].push((open_simplex2::<f32>(&table, &[(i as f32), (j as f32)]) + 1.0) / 2.0);
+                let s = (open_simplex2::<f32>(&table, &[(i as f32) * 0.25, (j as f32) * 0.25]) +
+                         1.0) / 2.0;
+                v[i].push((s, s, s));
             }
         }
         v
@@ -203,29 +203,30 @@ fn get_side_hexagon_model(ind1: i32,
     let (x2, y2) = hex_corner(world::HEX_OUTER_RADIUS, ind2);
     let normal = [y1 + y2, x1 + x2, 0.0];
 
+    // TODO: tex_coords fix
     vertices.push(Vertex {
         position: [x1, y1, world::PILLAR_STEP_HEIGHT],
         normal: normal,
         radius: 0.0,
-        tex_coord: [-1.0, -1.0], // tex_coord: [0.0, 0.0],
+        tex_coord: [0.0, 1.0],
     });
     vertices.push(Vertex {
         position: [x1, y1, 0.0],
         normal: normal,
         radius: 0.0,
-        tex_coord: [-1.0, -1.0], // tex_coord: [0.0, 0.0],
+        tex_coord: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x2, y2, world::PILLAR_STEP_HEIGHT],
         normal: normal,
         radius: 0.0,
-        tex_coord: [-1.0, -1.0], // tex_coord: [0.0, 0.0],
+        tex_coord: [1.0, 1.0],
     });
     vertices.push(Vertex {
         position: [x2, y2, 0.0],
         normal: normal,
         radius: 0.0,
-        tex_coord: [-1.0, -1.0], // tex_coord: [0.0, 0.0],
+        tex_coord: [1.0, 0.0],
     });
 
     indices.append(&mut vec![cur_len + 0,
