@@ -11,6 +11,7 @@ use std::time::{Duration, Instant};
 use std::rc::Rc;
 use std::net::{SocketAddr, TcpStream};
 use std::error::Error;
+
 use view::{SkyView, Sun};
 use super::DayTime;
 use super::weather::Weather;

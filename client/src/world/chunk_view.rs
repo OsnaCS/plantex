@@ -156,35 +156,6 @@ impl ChunkView {
                   &params)
             .unwrap();
 
-        // Draw outline
-        let outline_params = DrawParameters {
-            depth: glium::Depth {
-                write: true,
-                test: DepthTest::IfLess,
-                ..Default::default()
-            },
-            ..Default::default()
-        };
-
-        let outline_uniforms = uniform! {
-            outline_pos: self.renderer.outline.position().to_arr(),
-            proj_matrix: camera.proj_matrix().to_arr(),
-            view_matrix: camera.view_matrix().to_arr(),
-            transformation: [
-                [1.5, 0.0, 0.0, 0.0],
-                [0.0, 1.5, 0.0, 0.0],
-                [0.0, 0.0, 1.5, 0.0],
-                [0.0, 0.0, 0.0, 1.0f32]
-            ],
-        };
-
-        surface.draw(self.renderer.outline.vertices(),
-                  self.renderer.outline.indices(),
-                  self.renderer.outline.program(),
-                  &outline_uniforms,
-                  &outline_params)
-            .unwrap();
-
         for pillar in &self.pillars {
             for plant in &pillar.plants {
                 plant.draw(surface, camera);
