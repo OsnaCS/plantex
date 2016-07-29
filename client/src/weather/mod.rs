@@ -121,7 +121,7 @@ impl Weather {
             camera: camera,
             particle_buf: sections,
             actual_buf: sections2,
-            form: Form::Pollen,
+            form: Form::None,
             strength: Strength::Medium,
         }
     }
