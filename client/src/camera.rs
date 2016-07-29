@@ -8,6 +8,7 @@ pub struct Camera {
     // used to calculate the look_at_point
     pub theta: f32,
     pub phi: f32,
+    pub aspect_ratio: f32,
 }
 
 // Initinal values
@@ -17,13 +18,24 @@ impl Default for Camera {
             position: Point3::new(0.0, 0.0, 60.0),
             phi: -0.27,
             theta: 2.6,
+            aspect_ratio: 16.0 / 9.0,
         }
     }
 }
 
 impl Camera {
+    /// Create new Camera with given aspect ratio
+    pub fn new(aspect_ratio: f32) -> Camera {
+        Camera {
+            position: Point3::new(0.0, 0.0, 60.0),
+            phi: -0.27,
+            theta: 2.6,
+            aspect_ratio: aspect_ratio,
+        }
+    }
+
     /// returns a camera based on a vector to look at
-    pub fn new_from_vector(pos: Point3f, look: Vector3f) -> Self {
+    pub fn new_from_vector(pos: Point3f, look: Vector3f, aspect_ratio: f32) -> Self {
 
         let mut look_phi = ((look.x) / ((look.x * look.x + look.y * look.y).sqrt())).acos();
         if look.y < 0.0 {
@@ -37,6 +49,7 @@ impl Camera {
             position: pos,
             phi: look_phi,
             theta: look_theta,
+            aspect_ratio: aspect_ratio,
         }
 
     }
@@ -45,7 +58,7 @@ impl Camera {
 
     /// Returns the projection matrix
     pub fn proj_matrix(&self) -> Matrix4<f32> {
-        perspective(deg(60.0), 16.0 / 9.0, 0.1, 3_000.0)
+        perspective(deg(60.0), self.aspect_ratio, 0.1, 3_000.0)
     }
 
     /// Returns view matrix
