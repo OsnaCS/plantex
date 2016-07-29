@@ -11,6 +11,8 @@ pub struct SkyView {
     vertex_buffer: VertexBuffer<Vertex>,
     index_buffer: IndexBuffer<u32>,
     program: Program,
+    sun_position: Vector3f,
+
 }
 
 impl SkyView {
@@ -48,6 +50,7 @@ impl SkyView {
             vertex_buffer: vbuf,
             index_buffer: ibuf,
             program: context.load_program("skydome").unwrap(),
+            sun_position: Vector3f::new(0.0, 0.0, -1000.0),
         }
     }
 
@@ -62,6 +65,7 @@ impl SkyView {
         let uniforms = uniform! {
             u_proj_matrix: camera.proj_matrix().to_arr(),
             u_view_matrix: view_matrix.to_arr(),
+            u_sun_pos: self.sun_position.to_arr(),
         };
         let params = DrawParameters {
             depth: glium::Depth {
@@ -78,6 +82,10 @@ impl SkyView {
                   &uniforms,
                   &params)
             .unwrap();
+    }
+
+    pub fn update(&mut self, pos: Vector3f) {
+        self.sun_position = pos;
     }
 }
 

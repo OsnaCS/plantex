@@ -5,6 +5,7 @@ in vec3 i_unit_coords;
 
 uniform mat4 u_proj_matrix;
 uniform mat4 u_view_matrix;
+uniform vec3 u_sun_pos;
 
 out vec3 x_unit_coords;
 

@@ -2,6 +2,8 @@
 
 in vec3 x_unit_coords;
 
+uniform vec3 u_sun_pos;
+
 out vec3 color;
 
 #define PI 3.141592653589793
