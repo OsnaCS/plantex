@@ -110,7 +110,7 @@ impl Weather {
         let vec: Vec<Particle> = Vec::new();
         let index_buffer = glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip);
         let weather_program = context.load_program("weather").unwrap();
-        let camera = Camera::default();
+        let camera = Camera::new(context.get_config().resolution.aspect_ratio());
         let sections = glium::VertexBuffer::new(context.get_facade(), &[]).unwrap();
         let sections2 = glium::VertexBuffer::new(context.get_facade(), &[]).unwrap();
         Weather {

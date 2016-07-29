@@ -11,18 +11,6 @@ pub struct Camera {
     pub aspect_ratio: f32,
 }
 
-// Initinal values
-impl Default for Camera {
-    fn default() -> Camera {
-        Camera {
-            position: Point3::new(0.0, 0.0, 60.0),
-            phi: -0.27,
-            theta: 2.6,
-            aspect_ratio: 16.0 / 9.0,
-        }
-    }
-}
-
 impl Camera {
     /// Create new Camera with given aspect ratio
     pub fn new(aspect_ratio: f32) -> Camera {
