@@ -6,9 +6,11 @@ use base::math::*;
 use base::world::*;
 use std::rc::Rc;
 use super::world_manager::*;
+use std::f32;
 
 
 const GRAVITY: f32 = 9.81;
+
 /// Represents a `Player` in the world, the `Player` can move up, right, down
 /// left, right with w, a, s, d, jump with space and speed with shift
 pub struct Player {
@@ -21,6 +23,7 @@ pub struct Player {
     timer_vel: f32,
     mouselock: bool,
     shift_speed: f32,
+    step_size: f32,
 }
 
 impl Player {
@@ -39,15 +42,71 @@ impl Player {
             velocity: Vector3::new(0.0, 0.0, 0.0),
             mouselock: false,
             shift_speed: 1.0,
+            step_size: 2.5,
         }
     }
     /// Gets the actual `Height` of the `HexPillar`
-    pub fn get_ground_height(&mut self) -> Option<f32> {
+    pub fn get_ground_height(&mut self) -> (Option<f32>, Option<f32>) {
         let height_delta = 1.0;
         let mut height = 0.0;
+        let mut above = 0.0;
         let world = self.world_manager.get_world();
         let real_pos = Point2f::new(self.cam.position.x, self.cam.position.y);
         let pillar_index = PillarIndex(AxialPoint::from_real(real_pos));
+        let vec_len =
+            world.pillar_at(pillar_index).map(|pillar| pillar.sections().len()).unwrap_or(0);
+        println!("Pillar {:?}", world.pillar_at(pillar_index));
+
+        let pillar_vec = world.pillar_at(pillar_index).map(|pillar| pillar.sections());
+
+        if pillar_vec.is_some() {
+            let new_pillar_vec = pillar_vec.unwrap();
+
+            if vec_len == 1 {
+                height = new_pillar_vec[0].top.to_real();
+                above = f32::INFINITY;
+            } else {
+                for i in 0..vec_len {
+                    if i != vec_len - 1 {
+                        if new_pillar_vec[i].top.to_real() < self.cam.position.z &&
+                           self.cam.position.z < new_pillar_vec[i + 1].bottom.to_real() {
+                            height = new_pillar_vec[i].top.to_real();
+                            above = new_pillar_vec[i + 1].bottom.to_real();;
+                            break;
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        height = new_pillar_vec[i].top.to_real();
+                        above = f32::INFINITY;
+                        break;
+                    }
+                }
+            }
+        }
+
+
+
+        // if height > self.cam.position.z - height_delta {
+        //     self.acceleration.x = 0.0;
+        //     height = self.cam.position.z - 1.75;
+        // }
+
+
+
+
+
+
+
+        (Some(height), Some(above))
+    }
+    pub fn get_ground_height_at(&self) -> Option<f32> {
+        let height_delta = 1.0;
+        let mut height = 0.0;
+        let world = self.world_manager.get_world();
+        let next_pos = Point2f::new(self.cam.position.x + self.velocity.x,
+                                    self.cam.position.y + self.velocity.y);
+        let pillar_index = PillarIndex(AxialPoint::from_real(next_pos));
         let vec_len =
             world.pillar_at(pillar_index).map(|pillar| pillar.sections().len()).unwrap_or(0);
         println!("Pillar {:?}", world.pillar_at(pillar_index));
@@ -76,13 +135,8 @@ impl Player {
                 }
             }
         }
-        // if height > self.cam.position.z - height_delta {
-        //     self.acceleration.x = 0.0;
-        //     height = self.cam.position.z - 1.75;
-        // }
         Some(height)
     }
-
     // pub fn check_collision(&self) -> Vector3f {
     //     let mut vec = Vector3f::new(0.0, 0.0, 0.0);
     //     let world = self.world_manager.get_world();
@@ -128,8 +182,10 @@ impl Player {
     /// Updates the `Player` after every iteration
     pub fn update(&mut self, delta: f32) {
 
-        let height = self.get_ground_height().unwrap_or(0.0) + 1.75;
-        println!("============= {:?}", height);
+
+        let height = (self.get_ground_height().0).unwrap_or(0.0) + 1.75;
+        let above = (self.get_ground_height().1).unwrap_or(0.0) + 1.75;
+        println!("==== height {:?},  ======= above {:?}", height, above);
         // Moves the Player forward or backward with the acceleration and delta
         // (1.0 - (-((self.timer_vel * delta) / (1.0))).exp()) -> this is a formula
         // that calculates a
@@ -139,7 +195,7 @@ impl Player {
                               (1.0 - (-((self.timer_vel * delta) / (1.0))).exp());
         } else {
             if self.velocity.x > 0.5 {
-                self.velocity.x /= 2.0;
+                self.velocity.x /= 1.1;
             } else {
                 self.velocity.x = 0.0;
             }
@@ -164,30 +220,30 @@ impl Player {
             }
         } else {
             if self.velocity.y > 0.5 {
-                self.velocity.y /= 2.0;
+                self.velocity.y /= 1.1;
             } else {
                 self.velocity.y = 0.0;
             }
         }
+
         // Let the player jump with the given start-velocity
         if self.velocity.z != 0.0 {
-            self.cam.move_up(self.velocity.z * self.timer_jump * delta -
-                             self.timer_jump * self.timer_jump * delta * delta * GRAVITY);
-
+            let mut velz = self.velocity.z * self.timer_jump * delta -
+                           self.timer_jump * self.timer_jump * delta * delta * GRAVITY;
             self.timer_jump += 1.0;
-
+            if self.cam.position.z + velz > above {
+                self.velocity.z = 0.0;
+                self.timer_jump = 1.0;
+            } else {
+                self.cam.move_up(velz);
+            }
             // Needed: Update to reflect multiple level pillars
             if self.cam.position.z < height {
                 self.velocity.z = 0.0;
                 self.timer_jump = 1.0;
             }
         }
-        // Places the `Player` on the actual `HexPillar` if the position of the
-        // `Player` is less than
-        // the `HexPillar`
-        if self.velocity.z == 0.0 && self.cam.position.z < height {
-            self.cam.position.z = height;
-        }
+
         // Checks if the `Player` is higher than the actual `Player` on wich he is
         // standing and let
         // him fall on that
@@ -199,7 +255,19 @@ impl Player {
                 self.timer_jump = 1.0;
             }
         }
-
+        let next_height = self.get_ground_height_at();
+        if height > self.cam.position.z + self.step_size {
+            println!("==== height {:?} cam z {:?}", height, self.cam.position.z);
+            // self.velocity.x = 0.0;
+            // self.velocity.y = 0.0;
+        } else {
+            // Places the `Player` on the actual `HexPillar` if the position of the
+            // `Player` is less than
+            // the `HexPillar`
+            if self.velocity.z == 0.0 && self.cam.position.z < height {
+                self.cam.position.z = height;
+            }
+        }
         //       let velo = self.check_collision();
         self.cam.move_forward(self.velocity.x);
         self.cam
