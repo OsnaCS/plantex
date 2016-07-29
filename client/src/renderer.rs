@@ -16,6 +16,7 @@ use glium::index::PrimitiveType;
 use glium::backend::Facade;
 use glium::framebuffer::ToColorAttachment;
 use glium::backend::glutin_backend::GlutinFacade;
+use glium;
 
 const SHADOW_MAP_SIZE: u32 = 2048;
 const SHADOW_ORTHO_WIDTH: f32 = 200.0;
@@ -193,8 +194,9 @@ impl Renderer {
         //                  Brightness Adaption Data Structures
         // ===================================================================
 
-        try!(self.adapt_brightness());
+        let avg_luminance = try!(self.adapt_brightness());
 
+        let exposure = (2.0 * avg_luminance) as f32;
 
 
         // ===================================================================
@@ -211,7 +213,7 @@ impl Renderer {
 
         let uniforms = uniform! {
             decal_texture: &self.quad_tex,
-            exposure: 1.0f32
+            exposure: exposure,
         };
 
         let mut bloom_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
@@ -320,7 +322,7 @@ impl Renderer {
 
         let uniforms = uniform! {
             decal_texture: decal_texture,
-            exposure: 1.0f32,
+            exposure: exposure,
         };
 
 
@@ -418,7 +420,7 @@ impl Renderer {
     //                         Brightness Adaption
     // ===================================================================
 
-    fn adapt_brightness(&self) -> Result<(), Box<Error>> {
+    fn adapt_brightness(&self) -> Result<f32, Box<Error>> {
         let mut adaption_buffers: Vec<SimpleFrameBuffer> = Vec::with_capacity(10);
 
         let mut image = &self.quad_tex;
@@ -445,12 +447,26 @@ impl Renderer {
 
         }
 
-        Ok(())
 
+        // Read only pixel in the lowest level texture from lum_texs.
+        // never change a working system. Yeah, it's that complicated.
+        let buf: Vec<Vec<(f32, f32, f32, f32)>> = self.lum_texs
+            .last()
+            .unwrap()
+            .main_level()
+            .first_layer()
+            .into_image(None)
+            .unwrap()
+            .raw_read(&glium::Rect {
+                left: 0,
+                bottom: 0,
+                width: 1,
+                height: 1,
+            });
 
+        let pixel = buf[0][0];
 
-
-
+        Ok(Vector3f::new(pixel.0, pixel.1, pixel.2).dot(Vector3f::new(0.2126, 0.7152, 0.0722)))
     }
 }
 
