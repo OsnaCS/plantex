@@ -19,23 +19,16 @@ implement_vertex!(Vertex, point);
 
 #[derive(Debug, Copy, Clone)]
 pub enum Form {
-    #[allow(dead_code)]
     None = 0,
-    #[allow(dead_code)]
     Rain = 1,
-    #[allow(dead_code)]
     Snow = 2,
-    #[allow(dead_code)]
     Pollen = 3,
 }
 
 #[derive(Debug, Copy, Clone)]
 pub enum Strength {
-    #[allow(dead_code)]
     Weak = 1,
-    #[allow(dead_code)]
     Medium = 2,
-    #[allow(dead_code)]
     Heavy = 3,
 }
 
