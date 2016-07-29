@@ -21,8 +21,6 @@ pub struct ChunkRenderer {
     pillar_vbuf: VertexBuffer<Vertex>,
     /// Index Buffer for `pillar_vbuf`.
     pillar_ibuf: IndexBuffer<u32>,
-
-    pub outline: HexagonOutline,
 }
 
 impl ChunkRenderer {
@@ -46,7 +44,6 @@ impl ChunkRenderer {
                                           PrimitiveType::TrianglesList,
                                           &indices)
                 .unwrap(),
-            outline: HexagonOutline::new(context),
         }
     }
 
@@ -75,6 +72,7 @@ pub struct HexagonOutline {
     vbuf: VertexBuffer<Vertex>,
     ibuf: IndexBuffer<u32>,
     pub pos: Vector3f,
+    pub display: bool,
 }
 
 impl HexagonOutline {
@@ -97,6 +95,7 @@ impl HexagonOutline {
             ibuf: IndexBuffer::new(context.get_facade(), PrimitiveType::LinesList, &indices)
                 .unwrap(),
             pos: Vector3f::new(0.0, 0.0, 50.0),
+            display: false,
         }
     }
 
