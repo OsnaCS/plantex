@@ -6,7 +6,6 @@ publish = false
 version = "0.1.0"
 
 [dependencies]
-glium = "0.15.0"
 log = "0.3.6"
 clap = "2"
 toml = "0.1"
@@ -15,3 +14,7 @@ rand = "0.3"
 
 [dependencies.base]
 path = "../base"
+
+[dependencies.glium]
+git = "https://github.com/jonas-schievink/glium.git"
+branch = "unifast"
