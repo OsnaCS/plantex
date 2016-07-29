@@ -28,6 +28,16 @@ pub enum Form {
     Pollen = 3,
 }
 
+#[derive(Debug, Copy, Clone)]
+pub enum Strength {
+    #[allow(dead_code)]
+    Weak = 1,
+    #[allow(dead_code)]
+    Medium = 2,
+    #[allow(dead_code)]
+    Heavy = 3,
+}
+
 #[derive(Copy, Clone)]
 pub struct Particle {
     vertices: [Vertex; 4],
@@ -95,7 +105,10 @@ pub struct Weather {
     context: Rc<GameContext>,
     camera: Camera,
     particle_buf: VertexBuffer<Instance>,
+    actual_buf: VertexBuffer<Instance>,
     form: Form,
+    strength: Strength,
+    time: f32,
 }
 
 impl Weather {
@@ -105,6 +118,7 @@ impl Weather {
         let weather_program = context.load_program("weather").unwrap();
         let camera = Camera::default();
         let sections = glium::VertexBuffer::new(context.get_facade(), &[]).unwrap();
+        let sections2 = glium::VertexBuffer::new(context.get_facade(), &[]).unwrap();
         Weather {
             particles: vec,
             program: weather_program,
@@ -112,7 +126,10 @@ impl Weather {
             context: context,
             camera: camera,
             particle_buf: sections,
-            form: Form::Pollen,
+            actual_buf: sections2,
+            form: Form::Rain,
+            strength: Strength::Weak,
+            time: 0.0,
         }
     }
 
@@ -194,7 +211,7 @@ impl Weather {
             };
 
 
-        surface.draw((&vertex_buffer, self.particle_buf.per_instance().unwrap()),
+        surface.draw((&vertex_buffer, self.actual_buf.per_instance().unwrap()),
                   &self.indices,
                   &self.program,
                   &uniforms,
@@ -206,18 +223,23 @@ impl Weather {
     }
 
 
-    pub fn update(&mut self, camera: &Camera) {
+    pub fn update(&mut self, camera: &Camera, time: f32) {
+        if self.time == time {
+            return;
+        } else {
+            self.time += 1.0;
+        }
         if self.form as u8 == 0 {
             return;
         }
         self.camera = *camera;
         let max_count: usize;
         match self.form {
-            Form::Pollen => max_count = 50,
-            _ => max_count = 2000,
+            Form::Pollen => max_count = 25 * self.strength as usize,
+            _ => max_count = 750 * self.strength as usize,
         }
         if self.particles.len() < max_count {
-            let count = max_count - self.particles.len();
+            let count = max_count / 10;
             for _ in 0..count {
                 self.particles.push(Particle::new(camera.position));
             }
@@ -232,6 +254,7 @@ impl Weather {
         }
 
         let mut mapping = self.particle_buf.map();
+        let mut tmp2 = Vec::new();
         for (particle, instance) in &mut self.particles.iter_mut().zip(mapping.iter_mut()) {
             match self.form {
                 Form::Snow => {
@@ -279,6 +302,23 @@ impl Weather {
             if instance.position[2] > self.camera.position.z + BOX_SIZE / size {
                 instance.position[2] -= 1.9 * (BOX_SIZE / size);
             }
+            let tmp_point = Point3::new(instance.position[0],
+                                        instance.position[1],
+                                        instance.position[2]);
+
+            if ((tmp_point - camera.position).dot(camera.get_look_at_vector())) > 0.0 {
+                tmp2.push(Instance {
+                    position: [instance.position[0], instance.position[1], instance.position[2]],
+                })
+            }
         }
+        let vertex_buffer = glium::VertexBuffer::new(self.context.get_facade(), &tmp2).unwrap();
+
+        self.actual_buf = vertex_buffer;
+    }
+
+    pub fn set_weather(&mut self, form: Form, strength: Strength) {
+        self.form = form;
+        self.strength = strength;
     }
 }
