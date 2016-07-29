@@ -15,6 +15,7 @@ use view::{SkyView, Sun};
 use super::DayTime;
 use super::weather::Weather;
 use player::Player;
+use control_switcher::ControlSwitcher;
 
 pub struct Game {
     renderer: Renderer,
@@ -25,9 +26,13 @@ pub struct Game {
     sun: Sun,
     sky_view: SkyView,
     daytime: DayTime,
+<<<<<<< HEAD
     weather: Weather,
     ghost: Ghost,
     player: Player, // control_switcher: ControlSwitcher,
+=======
+    control_switcher: ControlSwitcher,
+>>>>>>> Add control_switcher
 }
 
 impl Game {
@@ -53,6 +58,7 @@ impl Game {
             sky_view: SkyView::new(context.clone()),
             daytime: DayTime::default(),
 <<<<<<< HEAD
+<<<<<<< HEAD
             weather: world_weather,
             player: player,
 =======
@@ -75,6 +81,10 @@ impl Game {
                                                                   * ControlSwitcher::
                                                                   * new(), */
 >>>>>>> (WIP) Add walking through caves
+=======
+            control_switcher: ControlSwitcher::new(Player::new(context.clone(), world_manager),
+                                                   Ghost::new(context.clone())),
+>>>>>>> Add control_switcher
         })
     }
 
@@ -87,6 +97,11 @@ impl Game {
         let mut time_prev = Instant::now();
 
         loop {
+<<<<<<< HEAD
+=======
+            self.world_manager.update_world(self.control_switcher.get_camera().position);
+
+>>>>>>> Add control_switcher
             let time_now = Instant::now();
             let duration_delta = time_now.duration_since(time_prev);
             // delta in seconds
@@ -103,18 +118,24 @@ impl Game {
             self.sun.update(self.daytime.get_sun_position());
 
             try!(self.renderer.render(&*self.world_manager.get_view(),
+<<<<<<< HEAD
                                       &self.player.get_camera(),
                                       &self.sun,
                                       &mut self.weather,
+=======
+                                      &self.control_switcher.get_camera(),
+>>>>>>> Add control_switcher
                                       &self.sky_view));
 
             let event_resp = self.event_manager
-                .poll_events(vec![&mut CloseHandler, &mut self.player, &mut self.daytime]);
+                .poll_events(vec![&mut CloseHandler,
+                                  &mut self.control_switcher,
+                                  &mut self.daytime]);
             if event_resp == EventResponse::Quit {
                 break;
             }
 
-            self.player.update(delta);
+            self.control_switcher.update(delta);
             // println!("works 1");
             // if !self.control_switcher.is_ghost() {
             //     println!("works 1.5");

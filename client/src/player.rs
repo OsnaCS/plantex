@@ -42,55 +42,45 @@ impl Player {
         }
     }
     /// Gets the actual `Height` of the `HexPillar`
-    pub fn get_ground_height(&self) -> Option<f32> {
+    pub fn get_ground_height(&mut self) -> Option<f32> {
+        let height_delta = 1.0;
+        let mut height = 0.0;
         let world = self.world_manager.get_world();
         let real_pos = Point2f::new(self.cam.position.x, self.cam.position.y);
         let pillar_index = PillarIndex(AxialPoint::from_real(real_pos));
         let vec_len =
             world.pillar_at(pillar_index).map(|pillar| pillar.sections().len()).unwrap_or(0);
         println!("Pillar {:?}", world.pillar_at(pillar_index));
-        // println!("-----------------------{:?}",
-        // world.pillar_at(pillar_index).map(|pillar|
-        // pillar.sections().len()).unwrap_or(0));
-        // println!("-----------------------{:?}",
-        //          world.pillar_at(pillar_index)
-        //              .map(|pillar| pillar.sections()[vec_len - 1].top.to_real()));
-        // if world.pillar_at(pillar_index)
-        // .map(|pillar| pillar.sections()[vec_len -
-        // 1].top.to_real()).is_some() {
-        //     for i in 0..vec_len {
-        //         // No more pillars above the player
-        //         if self.cam.position.z < world.pillar_at(pillar_index)
-        // .map(|pillar| pillar.sections()[i].top.to_real()) &&
-        // world.pillar_at(pillar_index)
-        // .map(|pillar| pillar.sections().len()).unwrap_or(0) == vec_len
-        // - 1 {
-        //             if {
 
-        //             }
-        //         }
-        //         // One or more pillars above the player
-        //         else {
-
-        //         }
-        //     }
         let pillar_vec = world.pillar_at(pillar_index).map(|pillar| pillar.sections());
 
         if pillar_vec.is_some() {
             let new_pillar_vec = pillar_vec.unwrap();
 
             if vec_len == 1 {
-                return Some(new_pillar_vec[0].top.to_real());
-            }
-            if vec_len == 2 && new_pillar_vec[0].bottom.to_real() > self.cam.position.z {
-
-                Some(new_pillar_vec[0].top.to_real())
+                height = new_pillar_vec[0].top.to_real();
             } else {
-                world.pillar_at(pillar_index).map(|pillar| pillar.sections()[1].top.to_real())
+                for i in 0..vec_len {
+                    if i != vec_len - 1 {
+                        if new_pillar_vec[i].top.to_real() < self.cam.position.z &&
+                           self.cam.position.z < new_pillar_vec[i + 1].bottom.to_real() {
+                            height = new_pillar_vec[i].top.to_real();
+                            break;
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        height = new_pillar_vec[i].top.to_real();
+                        break;
+                    }
+                }
             }
-        } else {
-            None
         }
+        // if height > self.cam.position.z - height_delta {
+        //     self.acceleration.x = 0.0;
+        //     height = self.cam.position.z - 1.75;
+        // }
+        Some(height)
     }
 
     // pub fn check_collision(&self) -> Vector3f {
@@ -130,6 +120,9 @@ impl Player {
     /// Getter method for the `Camera`
     pub fn get_camera(&self) -> Camera {
         self.cam
+    }
+    pub fn set_camera(&mut self, cam: Camera) {
+        self.cam = cam;
     }
 
     /// Updates the `Player` after every iteration
