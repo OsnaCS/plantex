@@ -39,7 +39,6 @@ impl Ghost {
         }
     }
     pub fn update(&mut self, delta: f32) {
-        println!("works 5");
         let factored_speed = self.speed * delta;
 
         if self.forward {
@@ -83,7 +82,6 @@ impl EventHandler for Ghost {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
         match *e {
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::W)) => {
-                println!("GHost works W");
                 self.forward = true;
                 EventResponse::Continue
             }
