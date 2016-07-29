@@ -36,14 +36,18 @@ impl Game {
         let server = try!(TcpStream::connect(server));
         let facade = try!(create_context(&config));
         let context = Rc::new(GameContext::new(facade, config.clone()));
+<<<<<<< HEAD
         let world_weather = Weather::new(context.clone());
         let player = Ghost::new(context.clone());
+=======
+        let world_manager = WorldManager::new(create_chunk_provider(context.get_config()),
+                                              context.clone());
+>>>>>>> (WIP) Add walking through caves
 
         Ok(Game {
             renderer: Renderer::new(context.clone()),
             event_manager: EventManager::new(context.get_facade().clone()),
-            world_manager: WorldManager::new(create_chunk_provider(context.get_config()),
-                                             context.clone()),
+            world_manager: world_manager.clone(),
             server: server,
             sun: Sun::new(context.clone()),
             sky_view: SkyView::new(context.clone()),
@@ -53,6 +57,7 @@ impl Game {
             player: player,
 =======
             ghost: Ghost::new(context.clone()),
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
             player: Player::new(context.clone()),
@@ -65,6 +70,11 @@ impl Game {
                                                                           * ControlSwitcher::
                                                                           * new(), */
 >>>>>>> (WIP) Add the ghost into the player, ghostclass is unnecessary now
+=======
+            player: Player::new(context.clone(), world_manager), /* control_switcher:
+                                                                  * ControlSwitcher::
+                                                                  * new(), */
+>>>>>>> (WIP) Add walking through caves
         })
     }
 
