@@ -26,7 +26,7 @@ const SHIFT_SPEED: f32 = 60.0;
 impl Ghost {
     pub fn new(context: Rc<GameContext>) -> Self {
         Ghost {
-            cam: Camera::default(),
+            cam: Camera::new(context.get_config().resolution.aspect_ratio()),
             context: context,
             speed: DEFAULT_SPEED,
             forward: false,
