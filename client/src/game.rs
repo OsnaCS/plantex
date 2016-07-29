@@ -19,6 +19,7 @@ use base::math::*;
 use base::world::PillarIndex;
 use base::world::HexPillar;
 use std::f32::consts;
+use base::world::GroundMaterial;
 
 pub struct Point {
     x: f32,
@@ -90,13 +91,90 @@ pub struct HexGrid2D {
 
 impl HexGrid2D {
     pub fn new(radius: i32) -> (HexGrid2D) {
+        if radius>4 {
+            println!("ViewRange limite at 4!");
+        }
         let mut hexagons = Vec::new();
+        hexagons.push(Hexagon::new(0.0,0.0));
+        if radius>0{
+            hexagons.push(Hexagon::new(-1.0,0.5));
+            hexagons.push(Hexagon::new(0.0,1.0));
+            hexagons.push(Hexagon::new(1.0,0.5));
+            hexagons.push(Hexagon::new(1.0,-0.5));
+            hexagons.push(Hexagon::new(0.0,-1.0));
+            hexagons.push(Hexagon::new(-1.0,-0.5));
+        }
+        if radius>1{
+            hexagons.push(Hexagon::new(-2.0,1.0));
+            hexagons.push(Hexagon::new(-2.0,0.0));
+            hexagons.push(Hexagon::new(-2.0,-1.0));
+            hexagons.push(Hexagon::new(-1.0,1.5));
+            hexagons.push(Hexagon::new(-1.0,-1.5));
+            hexagons.push(Hexagon::new(0.0,2.0));
+            hexagons.push(Hexagon::new(0.0,2.0));
+            hexagons.push(Hexagon::new(1.0,1.5));
+            hexagons.push(Hexagon::new(1.0,-1.5));
+            hexagons.push(Hexagon::new(2.0,1.0));
+            hexagons.push(Hexagon::new(2.0,0.0));
+            hexagons.push(Hexagon::new(2.0,-1.0));
+        }
+        if radius>2{
+            hexagons.push(Hexagon::new(-3.0,0.5));
+            hexagons.push(Hexagon::new(-3.0,1.5));
+            hexagons.push(Hexagon::new(-3.0,-0.5));
+            hexagons.push(Hexagon::new(-3.0,-1.5));
+            hexagons.push(Hexagon::new(-2.0,2.0));
+            hexagons.push(Hexagon::new(-2.0,-2.0));
+            hexagons.push(Hexagon::new(-1.0,2.5));
+            hexagons.push(Hexagon::new(-1.0,-2.5));
+            hexagons.push(Hexagon::new(0.0,3.0));
+            hexagons.push(Hexagon::new(0.0,-3.0));
+            hexagons.push(Hexagon::new(1.0,2.5));
+            hexagons.push(Hexagon::new(1.0,-2.5));
+            hexagons.push(Hexagon::new(2.0,2.0));
+            hexagons.push(Hexagon::new(2.0,-2.0));
+            hexagons.push(Hexagon::new(3.0,0.5));
+            hexagons.push(Hexagon::new(3.0,-0.5));
+            hexagons.push(Hexagon::new(3.0,1.5));
+            hexagons.push(Hexagon::new(3.0,-1.5));
+        }
+        if radius>3{
+            hexagons.push(Hexagon::new(-4.0,0.0));
+            hexagons.push(Hexagon::new(-4.0,1.0));
+            hexagons.push(Hexagon::new(-4.0,2.0));
+            hexagons.push(Hexagon::new(-4.0,-1.0));
+            hexagons.push(Hexagon::new(-4.0,-2.0));
+            hexagons.push(Hexagon::new(-3.0,2.5));
+            hexagons.push(Hexagon::new(-3.0,-2.5));
+            hexagons.push(Hexagon::new(-2.0,3.0));
+            hexagons.push(Hexagon::new(-2.0,-3.0));
+            hexagons.push(Hexagon::new(-1.0,3.5));
+            hexagons.push(Hexagon::new(-1.0,-3.5));
+            hexagons.push(Hexagon::new(0.0,4.0));
+            hexagons.push(Hexagon::new(0.0,-4.0));
+            hexagons.push(Hexagon::new(1.0,3.5));
+            hexagons.push(Hexagon::new(1.0,-3.5));
+            hexagons.push(Hexagon::new(2.0,3.0));
+            hexagons.push(Hexagon::new(2.0,-3.0));
+            hexagons.push(Hexagon::new(3.0,2.5));
+            hexagons.push(Hexagon::new(3.0,-2.5));
+            hexagons.push(Hexagon::new(4.0,0.0));
+            hexagons.push(Hexagon::new(4.0,1.0));
+            hexagons.push(Hexagon::new(4.0,-1.0));
+            hexagons.push(Hexagon::new(4.0,2.0));
+            hexagons.push(Hexagon::new(4.0,-2.0));
+        }
+        /*let mut hexagons = Vec::new();
+        println!("{}:{}",0.0,0.0);
+        hexagons.push(Hexagon::new(0.0,0.0));
         for i in -radius..radius {
             for j in radius..radius * 2 {
+                println!("{}:{}",i as f32, j as f32 / 2.0);
+                println!("{}:{}",i as f32, -j as f32 / 2.0);
                 hexagons.push(Hexagon::new(i as f32, j as f32 / 2.0));
                 hexagons.push(Hexagon::new(i as f32, -j as f32 / 2.0));
             }
-        }
+        }*/
         HexGrid2D { hexagons: hexagons }
     }
     pub fn get_hex_with_intersect(&self, vec: Vector3f) -> (Vec<&Hexagon>) {
@@ -157,13 +235,21 @@ impl Game {
 
             time_prev = Instant::now();
 
-            // println!("{:?}",
-            // get_pillarsection_looking_at(&self.world_manager.get_world(),
-            //                           self.player.get_camera()));
-            println!("{:?}",
-                     get_pillarsectionpos_looking_at(&self.world_manager.get_world(),
-                                                     self.player.get_camera(),
-                                                     &hexgrid2d));
+            // Display Outline of Hexagon looking at
+            let vec = get_pillarsectionpos_looking_at(&self.world_manager.get_world(),
+                                                      self.player.get_camera(),
+                                                      &hexgrid2d);
+            match vec {
+                Some(mut n) => {
+                    let mut view = self.world_manager.get_mut_view();
+                    view.outline.display = true;
+                    view.outline.pos = n;
+                }
+                None => {
+                    let mut view = self.world_manager.get_mut_view();
+                    view.outline.display = false;
+                }
+            }
 
             try!(self.renderer.render(&*self.world_manager.get_view(),
                                       &self.player.get_camera(),
@@ -193,11 +279,13 @@ fn get_pillarsectionpos_looking_at(world: &World,
                                    -> Option<Vector3f> {
     let look_vec = cam.get_look_at_vector().normalize();
     let hexagons = hexgrid.get_hex_with_intersect(look_vec);
+    println!("---------------");
     for hexagon in hexagons {
-        let real_pos = Point2f::new(cam.position.x +
-                                    (look_vec[0] * world::HEX_INNER_RADIUS * hexagon.x as f32),
-                                    cam.position.y +
-                                    (look_vec[1] * world::HEX_INNER_RADIUS * hexagon.y as f32));
+        println!("{:?}:{:?}",hexagon.x,hexagon.y);
+        let real_pos = Point2f::new(cam.position.x + look_vec[0] * world::HEX_INNER_RADIUS * hexagon.x/* +
+                                    (look_vec[0] * world::HEX_INNER_RADIUS * hexagon.x as f32)*/,
+                                    cam.position.y + look_vec[1] * world::HEX_INNER_RADIUS * hexagon.y/* +
+                                    (look_vec[1] * world::HEX_INNER_RADIUS * hexagon.y as f32)*/);
         let mut pillar_index = PillarIndex(AxialPoint::from_real(real_pos));
         if pillar_index.0.q < 0 {
             pillar_index.0.q *= -1;
@@ -206,25 +294,19 @@ fn get_pillarsectionpos_looking_at(world: &World,
             pillar_index.0.r *= -1;
         }
         let pillar_at_position = world.pillar_at(pillar_index);
+        let height: f32 = ((hexagon.x * hexagon.x + hexagon.y * hexagon.y) as f32);
+        // println!("{:?}", height.sqrt());
         match pillar_at_position {
             Some(n) => {
-                match get_pillar_section_at_position(n,
-                                                     cam.position.z +
-                                                     (look_vec[2] * world::PILLAR_STEP_HEIGHT *
-                                                      hexagon.max as f32)) {
+                match get_pillar_section_at_position(n, cam.position.z + look_vec[2] * world::HEX_INNER_RADIUS) {// +(look_vec[2] * world::PILLAR_STEP_HEIGHT *height.sqrt())
                     Some(_) => {
-                        println!("{}-{}-{}",
-                                 pillar_index.0.q,
-                                 pillar_index.0.r,
-                                 cam.position.z +
-                                 (look_vec[2] * world::PILLAR_STEP_HEIGHT * hexagon.max as f32));
+                        // println!("{}:{}:{}", hexagon.x, hexagon.y, hexagon.max);
                         return Some(Vector3f {
-                            x: cam.position.x +
-                               (look_vec[0] * world::HEX_INNER_RADIUS * hexagon.x as f32),
-                            y: cam.position.y +
-                               (look_vec[1] * world::HEX_INNER_RADIUS * hexagon.y as f32),
-                            z: cam.position.z +
-                               (look_vec[2] * world::PILLAR_STEP_HEIGHT * hexagon.max as f32),
+                            x: cam.position.x  + look_vec[0] * world::HEX_INNER_RADIUS * hexagon.x/*+
+                               (look_vec[0] * world::HEX_INNER_RADIUS * hexagon.x as f32)*/,
+                            y: cam.position.y  + look_vec[1] * world::HEX_INNER_RADIUS * hexagon.y/*+
+                               (look_vec[1] * world::HEX_INNER_RADIUS * hexagon.y as f32)*/,
+                            z: cam.position.z  + look_vec[2] * world::HEX_INNER_RADIUS/*+ (look_vec[2] * world::PILLAR_STEP_HEIGHT * hexagon.max as f32)*/,
                         });
                     }
                     None => {}
@@ -237,13 +319,10 @@ fn get_pillarsectionpos_looking_at(world: &World,
 }
 
 fn get_pillar_section_at_position(pillar: &HexPillar, pos_z: f32) -> Option<&PillarSection> {
-    for section in pillar.sections() {
-        if (section.top.0 as f32) > pos_z && (section.bottom.0 as f32) < pos_z {
-            println!("{:?} - {:?} : {:?} => {:?}",
-                     section.top.0,
-                     section.bottom.0,
-                     pos_z,
-                     section);
+    for mut section in pillar.sections() {
+        //println!("{:?}:{:?}",section.top,section.bottom);
+        if (section.top.0 as f32)/2.0 > pos_z && (section.bottom.0 as f32)/2.0 < pos_z {
+            //println!("SECTION: {:?}", section);
             return Some(section);
         }
     }

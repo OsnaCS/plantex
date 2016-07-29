@@ -9,6 +9,7 @@ use std::sync::mpsc::{Receiver, Sender, TryRecvError, channel};
 use base::world::{CHUNK_SIZE, ChunkIndex};
 use base::math::*;
 use world::WorldView;
+use std::cell::RefMut;
 
 #[derive(Clone)]
 pub struct WorldManager {
@@ -115,6 +116,11 @@ impl WorldManager {
     /// Returns an immutable reference to the world view.
     pub fn get_view(&self) -> Ref<WorldView> {
         Ref::map(self.shared.borrow(), |shared| &shared.world_view)
+    }
+
+    /// Returns an mutable reference to the world view.
+    pub fn get_mut_view(&self) -> RefMut<WorldView> {
+        RefMut::map(self.shared.borrow_mut(), |shared| &mut shared.world_view)
     }
 
     /// Starts to generate all chunks within `load_distance` (config parameter)

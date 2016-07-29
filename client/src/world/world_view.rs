@@ -1,13 +1,16 @@
 use base::world::{self, Chunk, ChunkIndex, World};
 use base::math::*;
 use glium::backend::Facade;
-use glium;
+use glium::{self, BackfaceCullingMode, DepthTest, DrawParameters, IndexBuffer, VertexBuffer};
+use glium::index::PrimitiveType;
 use Camera;
 use std::collections::HashMap;
 use std::rc::Rc;
 use view::PlantRenderer;
 use world::ChunkRenderer;
+use world::HexagonOutline;
 use GameContext;
+use util::ToArr;
 
 pub use world::chunk_view::ChunkView;
 pub use view::PlantView;
@@ -17,6 +20,7 @@ pub struct WorldView {
     chunks: HashMap<ChunkIndex, ChunkView>,
     chunk_renderer: Rc<ChunkRenderer>,
     plant_renderer: Rc<PlantRenderer>,
+    pub outline: HexagonOutline,
 }
 
 impl WorldView {
@@ -42,6 +46,7 @@ impl WorldView {
             chunks: chunks,
             chunk_renderer: chunk_renderer,
             plant_renderer: plant_renderer,
+            outline: HexagonOutline::new(context),
         }
     }
 
@@ -64,6 +69,37 @@ impl WorldView {
     pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         for chunkview in self.chunks.values() {
             chunkview.draw(surface, camera);
+        }
+        if self.outline.display {
+            // Draw outline
+            let outline_params = DrawParameters {
+                depth: glium::Depth {
+                    write: true,
+                    test: DepthTest::IfLess,
+                    ..Default::default()
+                },
+                ..Default::default()
+            };
+
+            // println!("DRAW: {:?}", self.outline.position().to_arr());
+            let outline_uniforms = uniform! {
+              outline_pos: self.outline.position().to_arr(),
+              proj_matrix: camera.proj_matrix().to_arr(),
+              view_matrix: camera.view_matrix().to_arr(),
+              transformation: [
+                  [1.5, 0.0, 0.0, 0.0],
+                  [0.0, 1.5, 0.0, 0.0],
+                  [0.0, 0.0, 1.5, 0.0],
+                  [0.0, 0.0, 0.0, 1.0f32]
+              ],
+            };
+
+            surface.draw(self.outline.vertices(),
+                      self.outline.indices(),
+                      self.outline.program(),
+                      &outline_uniforms,
+                      &outline_params)
+                .unwrap();
         }
     }
 }
