@@ -2,9 +2,9 @@
 in vec3 position;
 in vec3 point;
 out vec2 out_position;
-uniform vec4 color;
 out vec4 out_color;
 
+uniform vec4 color;
 uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
 uniform mat4 scaling_matrix;

@@ -1,7 +1,7 @@
 extern crate rand;
 
-use glium::{self, DrawParameters, Program, VertexBuffer};
-use glium::draw_parameters::DepthTest;
+use glium::{self, DrawParameters, LinearBlendingFactor, Program, VertexBuffer};
+use glium::draw_parameters::{BlendingFunction, DepthTest};
 use super::camera::Camera;
 use util::ToArr;
 use base::math::*;
@@ -129,6 +129,13 @@ impl Weather {
             depth: glium::Depth {
                 write: true,
                 test: DepthTest::IfLess,
+                ..Default::default()
+            },
+            blend: glium::Blend {
+                color: BlendingFunction::Addition {
+                    source: LinearBlendingFactor::SourceAlpha,
+                    destination: LinearBlendingFactor::OneMinusSourceAlpha,
+                },
                 ..Default::default()
             },
             ..Default::default()
