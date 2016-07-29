@@ -103,7 +103,6 @@ pub struct Weather {
     actual_buf: VertexBuffer<Instance>,
     form: Form,
     strength: Strength,
-    time: f32,
 }
 
 impl Weather {
@@ -122,9 +121,8 @@ impl Weather {
             camera: camera,
             particle_buf: sections,
             actual_buf: sections2,
-            form: Form::None,
-            strength: Strength::Weak,
-            time: 0.0,
+            form: Form::Pollen,
+            strength: Strength::Medium,
         }
     }
 
@@ -218,12 +216,7 @@ impl Weather {
     }
 
 
-    pub fn update(&mut self, camera: &Camera, time: f32, world_manager: &super::WorldManager) {
-        if self.time == time {
-            return;
-        } else {
-            self.time += 1.0;
-        }
+    pub fn update(&mut self, camera: &Camera, delta: f32, world_manager: &super::WorldManager) {
         if self.form as u8 == 0 {
             return;
         }
@@ -253,7 +246,7 @@ impl Weather {
         for (particle, instance) in &mut self.particles.iter_mut().zip(mapping.iter_mut()) {
             match self.form {
                 Form::Snow => {
-                    instance.position[2] = instance.position[2] - (particle.velocity * 0.1);
+                    instance.position[2] = instance.position[2] - (particle.velocity * 3.0 * delta);
                     instance.position[0] += particle.trans_x.sin() * 0.05;
                     instance.position[1] += particle.trans_y.cos() * 0.05;
                     particle.trans_y += PI * 0.005 * (rand::random::<f32>() - 0.5);
@@ -261,12 +254,13 @@ impl Weather {
                 }
 
                 Form::Rain => {
-                    instance.position[2] = instance.position[2] - ((particle.velocity + 0.5) * 1.0)
+                    instance.position[2] = instance.position[2] -
+                                           ((particle.velocity + 0.5) * 50.0 * delta)
                 }
                 Form::Pollen => {
                     instance.position[0] += particle.trans_x.sin() * 0.025;
                     instance.position[1] += particle.trans_y.cos() * 0.025;
-                    instance.position[2] += (particle.trans_z.sin() - 0.7) * 0.01;
+                    instance.position[2] += (particle.trans_z.sin() - 0.7) * 0.5 * delta;
                     particle.trans_y += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_x += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_z += PI * 0.005 * (rand::random::<f32>() - 0.1);
