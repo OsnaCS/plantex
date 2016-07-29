@@ -72,7 +72,7 @@ impl Game {
             time_prev = Instant::now();
 
             self.daytime.update(delta);
-
+            self.sky_view.update(self.daytime.get_sun_position());
             self.sun.update(self.daytime.get_sun_position());
 
             try!(self.renderer.render(&*self.world_manager.get_view(),
