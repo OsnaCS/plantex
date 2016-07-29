@@ -47,8 +47,13 @@ impl World {
         let out = self.chunks.get(&ChunkIndex(chunk_pos)).map(|chunk| {
             // TODO: use `%` operator once it's implemented
             // let inner_pos = pos % (super::CHUNK_SIZE as i32);
-            let inner_pos = AxialPoint::new(pos.0.q % (super::CHUNK_SIZE as i32),
-                                            pos.0.r % (super::CHUNK_SIZE as i32));
+            let mut inner_pos = AxialPoint::new(pos.0.q % (super::CHUNK_SIZE as i32),
+                                                pos.0.r % (super::CHUNK_SIZE as i32));
+            if chunk_pos.q != chunk_pos.r {
+                let tmp = inner_pos.q;
+                inner_pos.q = inner_pos.r;
+                inner_pos.r = tmp;
+            }
             &chunk[inner_pos]
         });
 
