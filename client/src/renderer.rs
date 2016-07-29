@@ -21,7 +21,7 @@ pub struct Renderer {
     quad_vertex_buffer: VertexBuffer<Vertex>,
     quad_index_buffer: IndexBuffer<u16>,
     resolution: (u32, u32),
-    bloom_quad_tex: Texture2d,
+    bloom_filter_tex: Texture2d,
     bloom_horz_tex: Texture2d,
     bloom_vert_tex: Texture2d,
     bloom_blend_tex: Texture2d,
@@ -54,11 +54,11 @@ impl Renderer {
             .unwrap();
 
 
-        let bloom_quad_tex = Texture2d::empty_with_format(context.get_facade(),
-                                                          UncompressedFloatFormat::F32F32F32F32,
-                                                          MipmapsOption::NoMipmap,
-                                                          resolution.0,
-                                                          resolution.1)
+        let bloom_filter_tex = Texture2d::empty_with_format(context.get_facade(),
+                                                            UncompressedFloatFormat::F32F32F32F32,
+                                                            MipmapsOption::NoMipmap,
+                                                            resolution.0,
+                                                            resolution.1)
             .unwrap();
 
 
@@ -87,7 +87,7 @@ impl Renderer {
             .unwrap();
 
 
-        let tonemapping_program = context.load_program("reinhard").unwrap();
+        let tonemapping_program = context.load_program("tonemapping").unwrap();
         let bloom_filter_program = context.load_program("bloom_filter").unwrap();
         let bloom_blur_program = context.load_program("bloom_blur").unwrap();
         let bloom_blend_program = context.load_program("bloom_blending").unwrap();
@@ -96,12 +96,11 @@ impl Renderer {
         Renderer {
             context: context.clone(),
             quad_tex: quad_tex_temp,
-            tonemapping_program: tonemapping_program,
             depth_texture: depth_texture,
             quad_vertex_buffer: Renderer::create_vertex_buf(context.get_facade()),
             quad_index_buffer: ibuf,
             resolution: resolution,
-            bloom_quad_tex: bloom_quad_tex,
+            bloom_filter_tex: bloom_filter_tex,
             bloom_horz_tex: bloom_horz_tex,
             bloom_vert_tex: bloom_vert_tex,
             bloom_blend_tex: bloom_blend_tex,
@@ -167,7 +166,7 @@ impl Renderer {
 
 
         let mut bloom_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
-                                                           self.bloom_quad_tex
+                                                           self.bloom_filter_tex
                                                                .to_color_attachment()));
 
         bloom_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
@@ -198,7 +197,7 @@ impl Renderer {
         let mut uniforms_horz_blur = uniform! {
             //for the first iteration: Use the bloom quad texture, from second iteration on this
             // will change to bloom_vert_tex
-            image: &self.bloom_quad_tex,
+            image: &self.bloom_filter_tex,
             horizontal: true,
         };
         let uniforms_vert_blur = uniform! {
@@ -335,31 +334,33 @@ impl Renderer {
             .unwrap();
 
 
-        self.bloom_quad_tex = Texture2d::empty_with_format(context.get_facade(),
-                                                           UncompressedFloatFormat::F32F32F32F32,
-                                                           MipmapsOption::NoMipmap,
-                                                           resolution.0,
-                                                           resolution.1)
+        self.bloom_filter_tex = Texture2d::empty_with_format(self.context.get_facade(),
+                                                             UncompressedFloatFormat::F32F32F32F32,
+                                                             MipmapsOption::NoMipmap,
+                                                             self.resolution.0,
+                                                             self.resolution.1)
             .unwrap();
 
-        self.bloom_program = Program::from_source(context.get_facade(),
-                                                  include_str!("bloom.vert"),
-                                                  include_str!("bloom.frag"),
-                                                  None)
-            .unwrap();
 
-        self.bloom_horz_tex = Texture2d::empty_with_format(context.get_facade(),
+        self.bloom_horz_tex = Texture2d::empty_with_format(self.context.get_facade(),
                                                            UncompressedFloatFormat::F32F32F32F32,
                                                            MipmapsOption::NoMipmap,
-                                                           resolution.0,
-                                                           resolution.1)
+                                                           self.resolution.0,
+                                                           self.resolution.1)
             .unwrap();
 
-        self.bloom_vert_tex = Texture2d::empty_with_format(context.get_facade(),
+        self.bloom_vert_tex = Texture2d::empty_with_format(self.context.get_facade(),
                                                            UncompressedFloatFormat::F32F32F32F32,
                                                            MipmapsOption::NoMipmap,
-                                                           resolution.0,
-                                                           resolution.1)
+                                                           self.resolution.0,
+                                                           self.resolution.1)
+            .unwrap();
+
+        self.bloom_blend_tex = Texture2d::empty_with_format(self.context.get_facade(),
+                                                            UncompressedFloatFormat::F32F32F32F32,
+                                                            MipmapsOption::NoMipmap,
+                                                            self.resolution.0,
+                                                            self.resolution.1)
             .unwrap();
     }
 }
