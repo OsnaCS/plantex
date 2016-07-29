@@ -4,7 +4,7 @@ use self::tree::TreeGen;
 use gen::world::biome::Biome;
 use prop::Plant;
 
-use rand::{Rand, Rng};
+use rand::Rng;
 
 /// Plant generation entry point.
 ///
