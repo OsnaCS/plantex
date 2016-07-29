@@ -69,7 +69,7 @@ fn test_scale() {
 fn test_aspect_ratio() {
     let test1 = Dimension2::new(3, 5);
 
-    assert_eq!(test1.aspect_ratio(), 3 / 5);
+    assert_eq!(test1.aspect_ratio(), 3.0 / 5.0);
 }
 #[test]
 fn test_fitting() {
