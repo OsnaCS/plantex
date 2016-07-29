@@ -51,7 +51,6 @@ impl World {
         }
         let chunk_pos = new_pos.0 / chunk_size;
         let out = self.chunks.get(&ChunkIndex(chunk_pos)).map(|chunk| {
-
             let mut inner_pos = pos.0 % chunk_size;
             if inner_pos.q < 0 {
                 inner_pos.q += chunk_size;

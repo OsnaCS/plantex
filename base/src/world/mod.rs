@@ -49,7 +49,7 @@ pub struct ChunkIndex(pub math::AxialPoint);
 
 /// Represents a discretized height.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
-pub struct HeightType(u16);
+pub struct HeightType(pub u16);
 
 impl HeightType {
     /// Creates a `HeightType` with a given discrete height.
