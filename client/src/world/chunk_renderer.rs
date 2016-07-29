@@ -7,6 +7,9 @@ use glium::index::PrimitiveType;
 use glium::texture::Texture2d;
 use GameContext;
 use std::rc::Rc;
+use base::gen::seeded_rng;
+use base::noise::{PermutationTable, open_simplex2};
+use base::rand::Rand;
 
 pub struct ChunkRenderer {
     /// Chunk shader
@@ -16,7 +19,7 @@ pub struct ChunkRenderer {
     pillar_vbuf: VertexBuffer<Vertex>,
     /// Index Buffer for `pillar_vbuf`.
     pillar_ibuf: IndexBuffer<u32>,
-    noise_map: Texture2d,
+    pub noise_map: Texture2d,
 }
 
 impl ChunkRenderer {
@@ -47,11 +50,19 @@ impl ChunkRenderer {
             },
         }
     }
-    fn create_noise(s: u64) -> Vec<Vec<f32>> {
-        vec![
-                vec![1.0],
-                vec![1.0],
-            ]
+    fn create_noise(seed: u64) -> Vec<Vec<f32>> {
+        let mut texture_rng = seeded_rng(seed, 13, ());
+        let table = PermutationTable::rand(&mut texture_rng);
+
+        let mut v = vec![Vec::new(); 256];
+
+        for i in 0..256 {
+            for j in 0..256 {
+                v[i].push((open_simplex2::<f32>(&table, &[(i as f32), (j as f32)]) + 1.0) / 2.0);
+            }
+        }
+        v
+
     }
 
     /// Gets a reference to the shared chunk shader.
@@ -105,6 +116,7 @@ fn get_top_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
         vertices.push(Vertex {
             position: [x, y, world::PILLAR_STEP_HEIGHT],
             normal: [0.0, 0.0, 1.0],
+            radius: 1.0,
             // TODO: Set top texture coordinates
             tex_coord: [a, b],
         });
@@ -114,6 +126,7 @@ fn get_top_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
     vertices.push(Vertex {
         position: [0.0, 0.0, world::PILLAR_STEP_HEIGHT],
         normal: [0.0, 0.0, 1.0],
+        radius: 0.0,
         // TODO: Set top texture coordinates
         tex_coord: [0.5, 0.5],
     });
@@ -149,6 +162,7 @@ fn get_bottom_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) 
         vertices.push(Vertex {
             position: [x, y, 0.0],
             normal: [0.0, 0.0, -1.0],
+            radius: 1.0,
             tex_coord: [a, b],
         });
     }
@@ -156,6 +170,7 @@ fn get_bottom_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) 
     vertices.push(Vertex {
         position: [0.0, 0.0, 0.0],
         normal: [0.0, 0.0, -1.0],
+        radius: 0.0,
         tex_coord: [0.5, 0.5],
     });
     indices.append(&mut vec![cur_len + 1,
@@ -191,21 +206,25 @@ fn get_side_hexagon_model(ind1: i32,
     vertices.push(Vertex {
         position: [x1, y1, world::PILLAR_STEP_HEIGHT],
         normal: normal,
+        radius: 0.0,
         tex_coord: [-1.0, -1.0], // tex_coord: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x1, y1, 0.0],
         normal: normal,
+        radius: 0.0,
         tex_coord: [-1.0, -1.0], // tex_coord: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x2, y2, world::PILLAR_STEP_HEIGHT],
         normal: normal,
+        radius: 0.0,
         tex_coord: [-1.0, -1.0], // tex_coord: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x2, y2, 0.0],
         normal: normal,
+        radius: 0.0,
         tex_coord: [-1.0, -1.0], // tex_coord: [0.0, 0.0],
     });
 

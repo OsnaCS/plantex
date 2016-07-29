@@ -4,9 +4,9 @@
 //!   defines a few own type
 //! - the world module is all about saving and managing the game world
 
-extern crate rand;
+pub extern crate rand;
 extern crate num_traits;
-extern crate noise;
+pub extern crate noise;
 #[macro_use]
 extern crate log;
 extern crate rustc_serialize;
