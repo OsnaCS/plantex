@@ -1,12 +1,10 @@
 # :seedling: Plantex: open-world game about plants :evergreen_tree: :leaves: :herb: :palm_tree:
 
-Nothing to see here yet ...
+[![Build Status](https://travis-ci.org/OsnaCS/plantex.svg?branch=master)](https://travis-ci.org/OsnaCS/plantex)
+[![License](https://img.shields.io/github/license/OsnaCS/plantex.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](http://opensource.org/licenses/MIT)
 
-
-> [![Build Status](https://travis-ci.org/OsnaCS/plantex.svg?branch=master)](https://travis-ci.org/OsnaCS/plantex)
-[![License](https://img.shields.io/github/license/OsnaCS/plantex.svg)]()
-
-> Documentation: [**`base`**](https://osnacs.github.io/plantex/base/index.html),
+Documentation: [**`base`**](https://osnacs.github.io/plantex/base/index.html),
                  [**`client`**](https://osnacs.github.io/plantex/client/index.html),
                  [**`server`**](https://osnacs.github.io/plantex/server/index.html)
 
@@ -21,10 +19,10 @@ $ cargo build
 To compile and run the client, run:
 
 ```bash
-$ cargo run --bin plantex
+$ cargo run --release --bin plantex
 ```
 
-Use `plantex-server` to run the server. **Note**: if you want to build with optimizations (much better performance), add the `--release` flag!
+Use `plantex-server` to run the server.
 
 
 ## License
