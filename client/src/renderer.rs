@@ -20,7 +20,7 @@ const SHADOW_MAP_SIZE: u32 = 1024;
 const SHADOW_ORTHO_WIDTH: f32 = 300.0;
 const SHADOW_ORTHO_HEIGHT: f32 = 300.0;
 const SHADOW_ORTHO_NEAR: f32 = 100.0;
-const SHADOW_ORTHO_FAR: f32 = 400.0;
+const SHADOW_ORTHO_FAR: f32 = 600.0;
 
 pub struct Renderer {
     context: Rc<GameContext>,
