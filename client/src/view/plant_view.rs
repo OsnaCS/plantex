@@ -152,13 +152,12 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
 
         indices.extend(segment_indices.into_iter().map(|i| i + offset + old_index_offset));
     }
-
     let vert_len = vertices.len() as u32;
     indices.extend_from_slice(&[vert_len - 3, vert_len - 2, vert_len - 1]);
 }
 
-/// generates 3 normalized vectors perpendicular to the given vector
-fn get_points_from_vector(vector: Vector3f) -> [Vector3f; 3] {
+/// generates 3 normalized vectors  perpendicular to the given vector
+fn get_points_from_vector(vector: Vector3f) -> [Vector3f; 4] {
     let ortho = random_vec_with_angle(&mut seeded_rng(0x2651aa465abded, (), ()), vector, 90.0);
     let rot = Basis3::from_axis_angle(vector.normalize(), Deg::new(120.0).into());
     let v0 = rot.rotate_vector(ortho);
