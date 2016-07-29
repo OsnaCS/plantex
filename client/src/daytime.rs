@@ -32,7 +32,9 @@ impl Default for DayTime {
 const DAY_LENGTH: f32 = 720.0;
 const YEAR_LENGTH: u32 = 12;
 
-const MONTH_DIFFERENCE: f32 = 3.1415 / 18.0;
+
+// lengthens the day by a static offset
+const DAY_LENGTHER: f32 = 0.0;
 
 
 impl DayTime {
@@ -82,12 +84,19 @@ impl DayTime {
     /// returns the position of the sun corresponding to time
     /// only mid summer
     pub fn get_sun_position(&self) -> Vector3f {
-        // 0 degrees for mid summer
-        // 60 degrees for hard winter
+
+        let half_year = YEAR_LENGTH as f32 / 2.0; //
         let half_day = DAY_LENGTH as f32 / 2.0;
 
         let theta;
         let phi;
+
+        let mut month_diff = self.time_day as f32 - half_year;//
+        if month_diff < 0.0 {
+            //
+            month_diff *= -1.0//
+        }//
+
         if self.time_on_day < half_day {
             // pre noon
             // sun rising
@@ -104,48 +113,12 @@ impl DayTime {
         // info!("THETA: {} PHI: {}", theta, phi);
 
         // returns sun position in cartesian coordinates
+        // uses `YEAR_LENGTH` and the current day of the year (month) to influence the
+        // path the sun moves on
         Vector3f::new(theta.sin() * phi.cos(),
-                      theta.sin() * phi.sin(),
-                      theta.cos())
-
-
-    }
-
-    /// returns the position of the sun corresponding to time
-    /// does not work right now
-    pub fn get_sun_position_real(&self) -> Vector3f {
-        // 0 degrees for mid summer
-        // 60 degrees for hard winter
-        let half_year = YEAR_LENGTH as f32 / 2.0;
-        let half_day = DAY_LENGTH as f32 / 2.0;
-
-
-        let mut theta = self.time_day as f32 - half_year;
-        if theta < 0.0 {
-            theta *= -1.0;
-        }
-        // theta now is the day difference from the highest day, sunposition-wise
-        theta *= MONTH_DIFFERENCE;
-
-        if self.time_on_day < half_day {
-            // pre noon
-            // sun rising
-            theta += consts::PI - consts::PI * (self.time_on_day / half_day)
-        } else {
-            // after noon
-            // sun going down
-            theta += consts::PI * ((self.time_on_day - half_day) / half_day)
-        }
-
-        let phi = self.time_on_day / DAY_LENGTH as f32 * 2.0 * consts::PI;
-
-        // for debugging
-        // info!("THETA: {} PHI: {}", theta, phi);
-
-        // returns sun position in cartesian coordinates
-        Vector3f::new(theta.sin() * phi.cos(),
-                      theta.sin() * phi.sin(),
-                      theta.cos())
+                      theta.sin() * phi.sin() + month_diff / (0.75 * YEAR_LENGTH as f32),
+                      theta.cos() - month_diff / (0.75 * YEAR_LENGTH as f32) + DAY_LENGTHER)
+            .normalize()
 
 
     }
