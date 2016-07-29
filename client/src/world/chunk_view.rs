@@ -1,6 +1,6 @@
 use base::world::{Chunk, HexPillar, PropType};
 use base::math::*;
-use glium::{self, DrawParameters, VertexBuffer};
+use glium::{self, DrawParameters, IndexBuffer, Program, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
 use glium::backend::Facade;
 use glium::texture::DepthTexture2d;
@@ -10,6 +10,7 @@ use Camera;
 use util::ToArr;
 use view::{PlantRenderer, PlantView};
 use world::ChunkRenderer;
+use world::HexagonOutline;
 use std::rc::Rc;
 use base::world::ground::GroundMaterial;
 
@@ -64,11 +65,16 @@ impl ChunkView {
         }
     }
 
+    pub fn get_outline(&self) -> &HexagonOutline {
+        &self.renderer.outline
+    }
+
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
         };
+
         let params = DrawParameters {
             depth: glium::Depth {
                 write: true,
@@ -142,11 +148,41 @@ impl ChunkView {
             ..Default::default()
         };
 
+        // Draw hexagons
         surface.draw((self.renderer.pillar_vertices(), self.pillar_buf.per_instance().unwrap()),
                   self.renderer.pillar_indices(),
                   self.renderer.program(),
                   &uniforms,
                   &params)
+            .unwrap();
+
+        // Draw outline
+        let outline_params = DrawParameters {
+            depth: glium::Depth {
+                write: true,
+                test: DepthTest::IfLess,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let outline_uniforms = uniform! {
+            outline_pos: self.renderer.outline.position().to_arr(),
+            proj_matrix: camera.proj_matrix().to_arr(),
+            view_matrix: camera.view_matrix().to_arr(),
+            transformation: [
+                [1.5, 0.0, 0.0, 0.0],
+                [0.0, 1.5, 0.0, 0.0],
+                [0.0, 0.0, 1.5, 0.0],
+                [0.0, 0.0, 0.0, 1.0f32]
+            ],
+        };
+
+        surface.draw(self.renderer.outline.vertices(),
+                  self.renderer.outline.indices(),
+                  self.renderer.outline.program(),
+                  &outline_uniforms,
+                  &outline_params)
             .unwrap();
 
         for pillar in &self.pillars {
