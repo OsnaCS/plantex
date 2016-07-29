@@ -128,7 +128,7 @@ impl Weather {
             camera: camera,
             particle_buf: sections,
             actual_buf: sections2,
-            form: Form::Rain,
+            form: Form::None,
             strength: Strength::Weak,
             time: 0.0,
         }
