@@ -87,7 +87,7 @@ impl Renderer {
             .unwrap();
 
 
-        let tonemapping_program = context.load_program("tonemapping").unwrap();
+        let tonemapping_program = context.load_program("reinhard").unwrap();
         let bloom_filter_program = context.load_program("bloom_filter").unwrap();
         let bloom_blur_program = context.load_program("bloom_blur").unwrap();
         let bloom_blend_program = context.load_program("bloom_blending").unwrap();
@@ -137,6 +137,7 @@ impl Renderer {
             try!(MultiOutputFrameBuffer::with_depth_buffer(self.context.get_facade(),
                                                            output.iter().cloned(),
                                                            &self.depth_texture));
+
         hdr_buffer.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
 
 
