@@ -9,6 +9,7 @@ use base::prop::plant::{Plant, Tree};
 use std::rc::Rc;
 use super::PlantRenderer;
 use base::prop::plant::ControlPoint;
+use glium::draw_parameters::PolygonMode;
 
 /// Graphical representation of a 'base::Plant'
 pub struct PlantView {
@@ -43,7 +44,7 @@ impl PlantView {
         PlantView {
             vertices: VertexBuffer::new(facade, &vertices).unwrap(),
             indices: IndexBuffer::new(facade,
-                                      PrimitiveType::Patches { vertices_per_patch: 3 },
+                                      PrimitiveType::Patches { vertices_per_patch: 6 },
                                       &indices)
                 .unwrap(),
             renderer: renderer,
@@ -77,8 +78,8 @@ impl PlantView {
     }
 
     pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
-        let tess_level_inner = 10.0 as f32;
-        let tess_level_outer = 10.0 as f32;
+        let tess_level_inner = 5.0 as f32;
+        let tess_level_outer = 5.0 as f32;
 
         let uniforms = uniform! {
             offset: self.pos.to_arr(),
@@ -95,6 +96,7 @@ impl PlantView {
                 ..Default::default()
             },
             backface_culling: BackfaceCullingMode::CullCounterClockwise,
+            // polygon_mode: PolygonMode::Line,
             ..Default::default()
         };
 
@@ -137,7 +139,12 @@ fn get_vertices_for_branch(start: &ControlPoint,
             color: color.to_arr(),
         });
     }
-    indices.extend_from_slice(&[cur_len + 2, cur_len + 0, cur_len + 1]);
+    indices.append(&mut vec![cur_len + 0,
+                             cur_len + 1,
+                             cur_len + 2,
+                             cur_len + 2,
+                             cur_len + 3,
+                             cur_len + 0]);
 
     // Top
     cur_len = vertices.len() as u32;
@@ -150,11 +157,17 @@ fn get_vertices_for_branch(start: &ControlPoint,
             color: color.to_arr(),
         });
     }
-    indices.extend_from_slice(&[cur_len + 1, cur_len + 0, cur_len + 2]);
+    indices.append(&mut vec![cur_len + 0,
+                             cur_len + 3,
+                             cur_len + 2,
+                             cur_len + 2,
+                             cur_len + 1,
+                             cur_len + 0]);
 
     side(vertices, indices, color, start, end, ortho[0], ortho[1]);
     side(vertices, indices, color, start, end, ortho[1], ortho[2]);
-    side(vertices, indices, color, start, end, ortho[2], ortho[0]);
+    side(vertices, indices, color, start, end, ortho[2], ortho[3]);
+    side(vertices, indices, color, start, end, ortho[3], ortho[0]);
 }
 
 /// Creates Vertexbuffer and IndexBuffer for a Side of the plants
@@ -166,7 +179,6 @@ fn side(vertices: &mut Vec<Vertex>,
         first_normal: Vector3f,
         second_normal: Vector3f) {
     let cur_len = vertices.len() as u32;
-
     vertices.extend_from_slice(&[Vertex {
                                      position: (end.point + first_normal * end.diameter).to_arr(),
                                      normal: (first_normal + second_normal).normalize().to_arr(),
@@ -198,12 +210,13 @@ fn side(vertices: &mut Vec<Vertex>,
                                 cur_len + 3]);
 }
 
-/// generates 3 normalized vectors perpendicular to the given vector
-fn get_points_from_vector(vector: Vector3f) -> [Vector3f; 3] {
+/// generates 3 normalized vectors  perpendicular to the given vector
+fn get_points_from_vector(vector: Vector3f) -> [Vector3f; 4] {
     let ortho = random_vec_with_angle(&mut seeded_rng(0x2651aa465abded, (), ()), vector, 90.0);
-    let rot = Basis3::from_axis_angle(vector, Deg::new(105.0).into());
+    let rot = Basis3::from_axis_angle(vector, Deg::new(90.0).into());
     let v0 = rot.rotate_vector(ortho);
     let v1 = rot.rotate_vector(v0);
+    let v2 = rot.rotate_vector(v1);
 
-    [ortho.normalize(), v0.normalize(), v1.normalize()]
+    [ortho.normalize(), v0.normalize(), v1.normalize(), v2.normalize()]
 }

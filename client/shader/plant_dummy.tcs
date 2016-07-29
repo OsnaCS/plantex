@@ -1,6 +1,6 @@
 #version 400
 
-layout(vertices = 3) out;
+layout(vertices = 6) out;
 
 in vec3 vPosition[];
 in vec3 material_color[];
@@ -18,13 +18,14 @@ uniform float tess_level_outer;
 void main() {
     tcs_color = material_color[gl_InvocationID];
     tcs_normal = surfaceNormal[gl_InvocationID];
-
     tcPosition[ID] = vPosition[ID];
-    
+
     if (ID == 0) {
         gl_TessLevelInner[0] = tess_level_inner;
+        gl_TessLevelInner[1] = tess_level_inner;
         gl_TessLevelOuter[0] = tess_level_outer;
         gl_TessLevelOuter[1] = tess_level_outer;
         gl_TessLevelOuter[2] = tess_level_outer;
+        gl_TessLevelOuter[3] = tess_level_outer;
     }
 }

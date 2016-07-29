@@ -61,7 +61,6 @@ impl Game {
         let mut frames = 0;
         let mut next_fps_measure = Instant::now() + Duration::from_secs(1);
         let mut time_prev = Instant::now();
-        let hexgrid2d = HexGrid2D::new(4);
         loop {
             self.world_manager.update_world(self.control_switcher.get_camera().position);
 
