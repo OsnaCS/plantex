@@ -39,16 +39,24 @@ impl World {
     /// Returns the hex pillar at the given world position, iff the
     /// corresponding chunk is loaded.
     pub fn pillar_at(&self, pos: PillarIndex) -> Option<&HexPillar> {
+        let chunk_size = super::CHUNK_SIZE as i32;
         // TODO: use `/` operator once it's implemented
         // let chunk_pos = pos / (super::CHUNK_SIZE as i32);
-        let chunk_pos = AxialPoint::new(pos.0.q / (super::CHUNK_SIZE as i32),
-                                        pos.0.r / (super::CHUNK_SIZE as i32));
+        let chunk_pos = pos.0 / chunk_size;
 
         let out = self.chunks.get(&ChunkIndex(chunk_pos)).map(|chunk| {
             // TODO: use `%` operator once it's implemented
             // let inner_pos = pos % (super::CHUNK_SIZE as i32);
-            let inner_pos = AxialPoint::new(pos.0.q % (super::CHUNK_SIZE as i32),
-                                            pos.0.r % (super::CHUNK_SIZE as i32));
+            let mut inner_pos = pos.0 % chunk_size;
+            if inner_pos.q < 0 {
+                inner_pos.q += chunk_size;
+            }
+            if inner_pos.r < 0 {
+                inner_pos.r += chunk_size;
+            }
+            if chunk_pos.q != chunk_pos.r {
+                ::std::mem::swap(&mut inner_pos.r, &mut inner_pos.q);
+            }
             &chunk[inner_pos]
         });
 

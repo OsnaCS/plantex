@@ -5,6 +5,7 @@ use glium::draw_parameters::{BlendingFunction, DepthTest};
 use super::camera::Camera;
 use util::ToArr;
 use base::math::*;
+use base::world::PillarIndex;
 use GameContext;
 use std::rc::Rc;
 
@@ -223,7 +224,7 @@ impl Weather {
     }
 
 
-    pub fn update(&mut self, camera: &Camera, time: f32) {
+    pub fn update(&mut self, camera: &Camera, time: f32, world_manager: &super::WorldManager) {
         if self.time == time {
             return;
         } else {
@@ -305,8 +306,40 @@ impl Weather {
             let tmp_point = Point3::new(instance.position[0],
                                         instance.position[1],
                                         instance.position[2]);
+            let mut height = 0.0;
 
-            if ((tmp_point - camera.position).dot(camera.get_look_at_vector())) > 0.0 {
+            let world = world_manager.get_world();
+            let relevant_pos = Point2f::new(instance.position[0], instance.position[1]);
+            let pillar_index = PillarIndex(AxialPoint::from_real(relevant_pos));
+            let vec_len = world.pillar_at(pillar_index)
+                .map(|pillar| pillar.sections().len())
+                .unwrap_or(0);
+            let pillar_vec = world.pillar_at(pillar_index).map(|pillar| pillar.sections());
+            if pillar_vec.is_some() {
+                let new_pillar_vec = pillar_vec.unwrap();
+
+                if vec_len == 1 {
+                    height = new_pillar_vec[0].top.to_real();
+                } else {
+                    for i in 0..vec_len {
+                        if i != vec_len - 1 {
+                            if new_pillar_vec[i].top.to_real() < instance.position[2] &&
+                               instance.position[2] < new_pillar_vec[i + 1].bottom.to_real() {
+                                height = new_pillar_vec[i].top.to_real();
+                                break;
+                            } else {
+                                continue;
+                            }
+                        } else {
+                            height = new_pillar_vec[i].top.to_real();
+                            break;
+                        }
+                    }
+                }
+            }
+            // let vec = world.pillar_at(pillar_index);
+            if ((tmp_point - camera.position).dot(camera.get_look_at_vector())) > 0.0 &&
+               instance.position[2] > height {
                 tmp2.push(Instance {
                     position: [instance.position[0], instance.position[1], instance.position[2]],
                 })

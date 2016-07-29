@@ -60,8 +60,11 @@ impl Game {
         let mut time_prev = Instant::now();
 
         loop {
+            self.weather.update(&self.player.get_camera(),
+                                self.daytime.get_time_on_day(),
+                                &self.world_manager);
             self.world_manager.update_world(self.player.get_camera().position);
-            self.weather.update(&self.player.get_camera(), self.daytime.get_time_on_day());
+
 
             let time_now = Instant::now();
             let duration_delta = time_now.duration_since(time_prev);
