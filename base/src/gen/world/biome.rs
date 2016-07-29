@@ -1,4 +1,5 @@
 use world::GroundMaterial;
+use gen::plant::tree::{PRESETS, Preset};
 
 pub enum Biome {
     GrassLand,
