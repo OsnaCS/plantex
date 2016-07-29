@@ -9,6 +9,7 @@ use base::prop::plant::{Plant, Tree};
 use std::rc::Rc;
 use super::PlantRenderer;
 use base::prop::plant::ControlPoint;
+use glium::draw_parameters::PolygonMode;
 
 /// Graphical representation of a 'base::Plant'
 pub struct PlantView {
@@ -38,7 +39,7 @@ impl PlantView {
         PlantView {
             vertices: VertexBuffer::new(facade, &vertices).unwrap(),
             indices: IndexBuffer::new(facade,
-                                      PrimitiveType::Patches { vertices_per_patch: 3 },
+                                      PrimitiveType::Patches { vertices_per_patch: 6 },
                                       &indices)
                 .unwrap(),
             renderer: renderer,
@@ -72,8 +73,8 @@ impl PlantView {
     }
 
     pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
-        let tess_level_inner = 10.0 as f32;
-        let tess_level_outer = 10.0 as f32;
+        let tess_level_inner = 5.0 as f32;
+        let tess_level_outer = 5.0 as f32;
 
         let uniforms = uniform! {
             offset: self.pos.to_arr(),
@@ -91,6 +92,7 @@ impl PlantView {
                 ..Default::default()
             },
             backface_culling: BackfaceCullingMode::CullCounterClockwise,
+            // polygon_mode: PolygonMode::Line,
             ..Default::default()
         };
 
@@ -144,7 +146,6 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
         }
     }
 
-
     for offset in 0..(old_cps.len() as u32) - 1 {
         let offset = offset * 3;
         let segment_indices = [0, 1, 3, 4, 3, 1, 1, 2, 4, 5, 4, 2, 2, 0, 5, 3, 5, 0];
@@ -162,6 +163,7 @@ fn get_points_from_vector(vector: Vector3f) -> [Vector3f; 3] {
     let rot = Basis3::from_axis_angle(vector.normalize(), Deg::new(120.0).into());
     let v0 = rot.rotate_vector(ortho);
     let v1 = rot.rotate_vector(v0);
+    let v2 = rot.rotate_vector(v1);
 
-    [ortho.normalize(), v0.normalize(), v1.normalize()]
+    [ortho.normalize(), v0.normalize(), v1.normalize(), v2.normalize()]
 }
