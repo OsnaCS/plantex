@@ -88,17 +88,16 @@ impl DayTime {
     /// only mid summer
     pub fn get_sun_position(&self) -> Vector3f {
 
-        let half_year = YEAR_LENGTH as f32 / 2.0; //
+        let half_year = YEAR_LENGTH as f32 / 2.0;
         let half_day = DAY_LENGTH as f32 / 2.0;
 
         let theta;
         let phi;
 
-        let mut month_diff = self.time_day as f32 - half_year;//
+        let mut month_diff = self.time_day as f32 - half_year;
         if month_diff < 0.0 {
-            //
-            month_diff *= -1.0//
-        }//
+            month_diff *= -1.0
+        }
 
         if self.time_on_day < half_day {
             // pre noon
