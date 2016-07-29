@@ -36,6 +36,9 @@ const YEAR_LENGTH: u32 = 12;
 // lengthens the day by a static offset
 const DAY_LENGTHER: f32 = 0.0;
 
+// Distance of the path of the sun to the player
+const SUN_DISTANCE: f32 = 300.0;
+
 
 impl DayTime {
     pub fn set_time(&mut self, time_year: u32, time_day: u32, time_on_day: f32) {
@@ -118,14 +121,14 @@ impl DayTime {
         Vector3f::new(theta.sin() * phi.cos(),
                       theta.sin() * phi.sin() + month_diff / (0.75 * YEAR_LENGTH as f32),
                       theta.cos() - month_diff / (0.75 * YEAR_LENGTH as f32) + DAY_LENGTHER)
-            .normalize()
+            .normalize() * SUN_DISTANCE
 
 
     }
 
     /// returns the Vector3f for the directional sunlight
     pub fn get_sun_light_vector(&self) -> Vector3f {
-        Vector3f::new(0.0, 0.0, 0.0) - self.get_sun_position()
+        Vector3f::new(0.0, 0.0, 0.0) - self.get_sun_position().normalize()
     }
 }
 
