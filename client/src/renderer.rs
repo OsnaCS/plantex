@@ -15,6 +15,7 @@ use glium::{IndexBuffer, Program, VertexBuffer};
 use glium::index::PrimitiveType;
 use glium::backend::Facade;
 use glium::framebuffer::ToColorAttachment;
+use glium::backend::glutin_backend::GlutinFacade;
 
 const SHADOW_MAP_SIZE: u32 = 2048;
 const SHADOW_ORTHO_WIDTH: f32 = 200.0;
@@ -44,6 +45,8 @@ pub struct Renderer {
     bloom_filter_program: Program,
     bloom_blur_program: Program,
     bloom_blend_program: Program,
+    adaption_shrink_program: Program,
+    lum_texs: Vec<Texture2d>,
 }
 
 impl Renderer {
@@ -64,11 +67,14 @@ impl Renderer {
                                                            SHADOW_MAP_SIZE)
             .unwrap();
 
+        let lum_texs = initialize_luminosity(context.get_facade());
+
         let tonemapping_program = context.load_program("tonemapping").unwrap();
         let bloom_filter_program = context.load_program("bloom_filter").unwrap();
         let bloom_blur_program = context.load_program("bloom_blur").unwrap();
         let bloom_blend_program = context.load_program("bloom_blending").unwrap();
         let shadow_debug_program = context.load_program("shadow_debug").unwrap();
+        let adaption_shrink_program = context.load_program("adaption_shrink").unwrap();
 
         let mut this = Renderer {
             context: context.clone(),
@@ -88,6 +94,8 @@ impl Renderer {
             bloom_filter_program: bloom_filter_program,
             bloom_blur_program: bloom_blur_program,
             bloom_blend_program: bloom_blend_program,
+            adaption_shrink_program: adaption_shrink_program,
+            lum_texs: lum_texs,
         };
 
         // Create all textures with correct screen size
@@ -179,6 +187,15 @@ impl Renderer {
         sky_view.draw_skydome(&mut hdr_buffer, camera);
         sun.draw_sun(&mut hdr_buffer, camera);
         weather.draw(&mut hdr_buffer, camera);
+
+
+        // ===================================================================
+        //                  Brightness Adaption Data Structures
+        // ===================================================================
+
+        try!(self.adapt_brightness());
+
+
 
         // ===================================================================
         // Creating the Bloom framebuffer
@@ -395,6 +412,46 @@ impl Renderer {
                                                             self.resolution.1)
             .unwrap();
     }
+
+
+    // ===================================================================
+    //                         Brightness Adaption
+    // ===================================================================
+
+    fn adapt_brightness(&self) -> Result<(), Box<Error>> {
+        let mut adaption_buffers: Vec<SimpleFrameBuffer> = Vec::with_capacity(10);
+
+        let mut image = &self.quad_tex;
+
+        for i in 0..10 {
+            adaption_buffers.push(try!(SimpleFrameBuffer::new(self.context.get_facade(),
+                                                              self.lum_texs[i]
+                                                                  .to_color_attachment())));
+
+
+            if i != 0 {
+                image = &self.lum_texs[i - 1];
+            }
+
+            let uniforms = uniform!{
+                image: image,
+            };
+
+            try!(adaption_buffers[i].draw(&self.quad_vertex_buffer,
+                                          &self.quad_index_buffer,
+                                          &self.adaption_shrink_program,
+                                          &uniforms,
+                                          &Default::default()));
+
+        }
+
+        Ok(())
+
+
+
+
+
+    }
 }
 
 #[derive(Copy, Clone)]
@@ -404,3 +461,25 @@ struct Vertex {
 }
 
 implement_vertex!(Vertex, in_position, in_texcoord);
+
+
+
+
+
+// ===================================================================
+//                  Brightness Adaption Data Structures
+// ===================================================================
+
+
+fn initialize_luminosity(facade: &GlutinFacade) -> Vec<Texture2d> {
+    let mut lum: Vec<Texture2d> = Vec::with_capacity(10);
+    for i in 0..10 {
+        lum.push(Texture2d::empty_with_format(facade,
+                                              UncompressedFloatFormat::F32F32F32F32,
+                                              MipmapsOption::NoMipmap,
+                                              (2 as u32).pow((9 - i) as u32),
+                                              (2 as u32).pow((9 - i) as u32))
+            .unwrap());
+    }
+    lum
+}
