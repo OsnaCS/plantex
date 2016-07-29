@@ -65,7 +65,7 @@ impl Particle {
 
         radius = radius * BOX_SIZE;
 
-        let angle = Rad::new(rand::random::<f32>() * 6.28);
+        let angle = Rad::new(rand::random::<f32>() * std::f32::consts::PI * 2);
 
         let mut velocity = rand::random::<f32>();
         if velocity < 0.25 {
@@ -84,9 +84,9 @@ impl Particle {
                                   cam_pos.y + radius * Rad::cos(angle),
                                   cam_pos.z + BOX_SIZE),
             velocity: velocity,
-            trans_x: rand::random::<f32>() * 6.28,
-            trans_y: rand::random::<f32>() * 6.28,
-            trans_z: rand::random::<f32>() * 6.28,
+            trans_x: rand::random::<f32>() * std::f32::consts::PI * 2,
+            trans_y: rand::random::<f32>() * std::f32::consts::PI * 2,
+            trans_z: rand::random::<f32>() * std::f32::consts::PI * 2,
         }
     }
 }
@@ -255,8 +255,10 @@ impl Weather {
                     instance.position[2] = instance.position[2] - (particle.velocity * 0.1);
                     instance.position[0] += particle.trans_x.sin() * 0.05;
                     instance.position[1] += particle.trans_y.cos() * 0.05;
-                    particle.trans_y += 3.14 * 0.005 * (rand::random::<f32>() - 0.5);
-                    particle.trans_x += 3.14 * 0.005 * (rand::random::<f32>() - 0.5);
+                    particle.trans_y += std::f32::consts::PI * 0.005 *
+                                        (rand::random::<f32>() - 0.5);
+                    particle.trans_x += std::f32::consts::PI * 0.005 *
+                                        (rand::random::<f32>() - 0.5);
                 }
 
                 Form::Rain => {
@@ -266,9 +268,12 @@ impl Weather {
                     instance.position[0] += particle.trans_x.sin() * 0.025;
                     instance.position[1] += particle.trans_y.cos() * 0.025;
                     instance.position[2] += (particle.trans_z.sin() - 0.7) * 0.01;
-                    particle.trans_y += 3.14 * 0.005 * (rand::random::<f32>() - 0.5);
-                    particle.trans_x += 3.14 * 0.005 * (rand::random::<f32>() - 0.5);
-                    particle.trans_z += 3.14 * 0.005 * (rand::random::<f32>() - 0.1);
+                    particle.trans_y += std::f32::consts::PI * 0.005 *
+                                        (rand::random::<f32>() - 0.5);
+                    particle.trans_x += std::f32::consts::PI * 0.005 *
+                                        (rand::random::<f32>() - 0.5);
+                    particle.trans_z += std::f32::consts::PI * 0.005 *
+                                        (rand::random::<f32>() - 0.1);
                 }
                 _ => (),
 
