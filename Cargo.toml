@@ -25,3 +25,6 @@ path = "client"
 
 [dependencies.server]
 path = "server"
+
+[profile.release]
+codegen-units = 3
