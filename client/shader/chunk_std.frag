@@ -15,26 +15,20 @@ out vec3 color;
 
 // FIXME This should be a `sampler2DShadow`, but glium doesn't expose it
 uniform sampler2D shadow_map;
-<<<<<<< a2ef8fabfc8560d50448076b951bccdc2e776d39
-const float SHADOW_BIAS = 0.005;    // Prevent "acne" :D
-=======
 // Shadow map height/width in pixels:
 // TODO Set from Rust code so it's always consistent
 uniform float shadow_map_size = 1024;
 // Percentage-closer filtering (square) radius in pixels
 const int SHADOW_PCF_RADIUS = 2;
 
-const vec3 sun = normalize(vec3(1.0, 0.0, 1.0));
 const float SHADOW_BIAS = 0.00001;    // FIXME does this even work?
->>>>>>> PCF shadows
-const float AMBIENT = 0.1;
+const float AMBIENT = 0.2;
 
 const vec3 sun = normalize(vec3(1.0, 0.0, 1.0));
 
 void main() {
-    float diffuse = max(0.0, dot(sun, surfaceNormal));
-
-    color = x_color * AMBIENT + x_color * diffuse;
+float diffuse = max(0.0, dot(sun, surfaceNormal));
+    color = x_color * AMBIENT + x_color * diffuse * (1.0 - shadowFactor);
 
 
     vec3 lightCoords = shadowCoord.xyz / shadowCoord.w;
@@ -55,13 +49,11 @@ void main() {
     // (in Pixels)
     const int PCF_PIXELS = 1 + 2 * SHADOW_PCF_RADIUS;
 
-    // Divide by number of pixels we sampled, then by 2 to get it into a range
-    // from 0 to 0.5
-    shadowFactor /= PCF_PIXELS * PCF_PIXELS * 2;
+    // Divide by number of pixels we sampled, to get  a range from 0 to 1
+    shadowFactor /= PCF_PIXELS * PCF_PIXELS;
 
     // FIXME Be smarter about this calculation - We simply make the whole color
     // darker
-    color = color * (0.7 - shadowFactor);
     // TODO: More grounds and make it better ;D
     if(x_ground == 1) {
         if (x_radius > 0.98) {
@@ -90,4 +82,8 @@ void main() {
     // }
     // color *= diffuse;
     // hack to make brighter
+=======
+    // Do the normal light calculation. Ambient light is not affected by shadow,
+    // other lights are coming from the sun so they're affected.
+    >>>>>>> Fix the lighting equation
 }
