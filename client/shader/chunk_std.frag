@@ -16,12 +16,9 @@ const int SHADOW_PCF_RADIUS = 2;
 
 const vec3 sun = normalize(vec3(1.0, 0.0, 1.0));
 const float SHADOW_BIAS = 0.00001;    // FIXME does this even work?
-const float AMBIENT = 0.1;
+const float AMBIENT = 0.2;
 
 void main() {
-    float diffuse = max(0.0, dot(sun, surfaceNormal));
-    color = x_color * AMBIENT + x_color * diffuse;
-
     vec3 lightCoords = shadowCoord.xyz / shadowCoord.w;
     lightCoords = lightCoords * 0.5 + 0.5;
     float pixelOffset = 1.0 / shadow_map_size;
@@ -40,11 +37,11 @@ void main() {
     // (in Pixels)
     const int PCF_PIXELS = 1 + 2 * SHADOW_PCF_RADIUS;
 
-    // Divide by number of pixels we sampled, then by 2 to get it into a range
-    // from 0 to 0.5
-    shadowFactor /= PCF_PIXELS * PCF_PIXELS * 2;
+    // Divide by number of pixels we sampled, to get  a range from 0 to 1
+    shadowFactor /= PCF_PIXELS * PCF_PIXELS;
 
-    // FIXME Be smarter about this calculation - We simply make the whole color
-    // darker
-    color = color * (0.7 - shadowFactor);
+    // Do the normal light calculation. Ambient light is not affected by shadow,
+    // other lights are coming from the sun so they're affected.
+    float diffuse = max(0.0, dot(sun, surfaceNormal));
+    color = x_color * AMBIENT + x_color * diffuse * (1.0 - shadowFactor);
 }
