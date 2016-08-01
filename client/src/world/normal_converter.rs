@@ -1,6 +1,6 @@
 use base::math::*;
 
-
+/// Converts a height map into a normal map
 pub fn convert(map: Vec<Vec<f32>>, scale: f32) -> Vec<Vec<(f32, f32, f32)>> {
     let mut normals: Vec<Vec<(f32, f32, f32)>> =
         vec![vec![(0.0,0.0,0.0); map[0].len() as usize]; map.len() as usize];
@@ -24,7 +24,7 @@ pub fn convert(map: Vec<Vec<f32>>, scale: f32) -> Vec<Vec<(f32, f32, f32)>> {
     normals
 }
 
-
+/// Finds Moore (8-Way) Neighbours for a position in a map
 fn neighbours(map: &Vec<Vec<f32>>, pos: (i32, i32)) -> [f32; 9] {
     let ref tmap = *map;
     let mut iter = 0;

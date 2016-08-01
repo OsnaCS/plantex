@@ -13,12 +13,15 @@ in float height;
 in vec3 offset;
 in vec3 material_color;
 
-out vec3 x_color;
+out vec3 x_material_color;
 out vec3 surfaceNormal;
 // Vertex/Pixel coordinates in shadow map
 out vec4 shadowCoord;
 out float x_radius;
 out vec2 x_tex_coords;
+
+// vertex normal, position & tex coords
+out vec3 x_position;
 
 uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
@@ -33,7 +36,9 @@ void main() {
     shadowCoord = depth_view_proj * world_coords;
 
     surfaceNormal = normal;
-    x_color = material_color;
+    x_material_color = material_color;
     x_radius = radius;
     x_tex_coords = tex_coords;
+
+    x_position = position;
 }
