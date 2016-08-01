@@ -12,12 +12,14 @@ in vec2 tex_coord;
 in float height;
 in vec3 offset;
 in vec3 material_color;
+in int ground;
 
 out vec3 x_color;
 out vec3 toLight;
 out vec3 surfaceNormal;
 out float x_radius;
 out vec2 x_tex_coord;
+flat out int x_ground;
 
 uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
@@ -34,5 +36,6 @@ void main() {
     x_color = material_color;
     x_radius = radius;
     x_tex_coord = tex_coord;
+    x_ground = ground;
 
 }

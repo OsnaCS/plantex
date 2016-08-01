@@ -7,6 +7,7 @@ use glium::index::PrimitiveType;
 use glium::texture::Texture2d;
 use GameContext;
 use std::rc::Rc;
+use std::error::Error;
 use super::tex_generator;
 
 pub struct ChunkRenderer {
@@ -17,7 +18,9 @@ pub struct ChunkRenderer {
     pillar_vbuf: VertexBuffer<Vertex>,
     /// Index Buffer for `pillar_vbuf`.
     pillar_ibuf: IndexBuffer<u32>,
-    pub noise_map: Texture2d,
+    pub noise_sand: Texture2d,
+    pub noise_snow: Texture2d,
+    pub noise_grass: Texture2d,
 }
 
 impl ChunkRenderer {
@@ -40,11 +43,15 @@ impl ChunkRenderer {
                                           PrimitiveType::TrianglesList,
                                           &indices)
                 .unwrap(),
-            noise_map: match Texture2d::new(context.get_facade(),
-                                            tex_generator::create_noise(2 as u64)) {
-                Ok(p) => p,
-                Err(_) => panic!("did not work"),
-            },
+            noise_sand: Texture2d::new(context.get_facade(),
+                                       tex_generator::create_sand(2 as u64).1)
+                .unwrap(),
+            noise_snow: Texture2d::new(context.get_facade(),
+                                       tex_generator::create_snow(2 as u64).1)
+                .unwrap(),
+            noise_grass: Texture2d::new(context.get_facade(),
+                                        tex_generator::create_grass(2 as u64).1)
+                .unwrap(),
         }
     }
 

@@ -4,8 +4,11 @@ in vec3 x_color;
 in vec3 surfaceNormal;
 in float x_radius;
 in vec2 x_tex_coord;
+flat in int x_ground;
 
-uniform sampler2D my_texture;
+uniform sampler2D sand_texture;
+uniform sampler2D grass_texture;
+uniform sampler2D snow_texture;
 
 out vec3 color;
 
@@ -17,13 +20,31 @@ void main() {
     color = x_color;
 
     // TODO: Doc
-
-    // check for border
-    if (x_radius > 0.98) {
-      color *= texture(my_texture, x_tex_coord).xyz * 0.75;
+    if(x_ground == 1) {
+        if (x_radius > 0.98) {
+            color *= texture(grass_texture, x_tex_coord).xyz * 0.75;
+        } else {
+            color *= texture(grass_texture, x_tex_coord).xyz;
+        }
+    } else if(x_ground == 2) {
+        if (x_radius > 0.98) {
+          color *= texture(sand_texture, x_tex_coord).xyz * 0.75;
+        } else {
+          color *= texture(sand_texture, x_tex_coord).xyz;
+        }
     } else {
-      color *= texture(my_texture, x_tex_coord).xyz;
+        if (x_radius > 0.98) {
+          color *= texture(snow_texture, x_tex_coord).xyz * 0.75;
+        } else {
+          color *= texture(snow_texture, x_tex_coord).xyz;
+        }
     }
+    // check for border
+    // if (x_radius > 0.98) {
+    //   color *= texture(my_texture, x_tex_coord).xyz * 0.75;
+    // } else {
+    //   color *= texture(my_texture, x_tex_coord).xyz;
+    // }
     // color *= diffuse;
     // hack to make brighter
     color *= 1.3;
