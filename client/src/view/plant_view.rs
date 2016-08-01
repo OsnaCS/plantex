@@ -9,6 +9,7 @@ use base::prop::plant::{Plant, Tree};
 use std::rc::Rc;
 use super::PlantRenderer;
 use base::prop::plant::ControlPoint;
+use glium::draw_parameters::PolygonMode;
 
 /// Graphical representation of a 'base::Plant'
 pub struct PlantView {
@@ -178,35 +179,44 @@ fn side(vertices: &mut Vec<Vertex>,
         first_normal: Vector3f,
         second_normal: Vector3f) {
     let cur_len = vertices.len() as u32;
-    vertices.extend_from_slice(&[Vertex {
-                                     position: (end.point + first_normal * end.diameter).to_arr(),
-                                     normal: (first_normal + second_normal).normalize().to_arr(),
-                                     color: color.to_arr(),
-                                 },
-                                 Vertex {
-                                     position: (end.point + second_normal * end.diameter).to_arr(),
-                                     normal: (first_normal + second_normal).normalize().to_arr(),
-                                     color: color.to_arr(),
-                                 },
-                                 Vertex {
-                                     position: (start.point + first_normal * start.diameter)
-                                         .to_arr(),
-                                     normal: (first_normal + second_normal).normalize().to_arr(),
-                                     color: color.to_arr(),
-                                 },
-                                 Vertex {
-                                     position: (start.point + second_normal * start.diameter)
-                                         .to_arr(),
-                                     normal: (first_normal + second_normal).normalize().to_arr(),
-                                     color: color.to_arr(),
-                                 }]);
+    vertices.push(Vertex {
+        position: [end.point.x + first_normal.x * end.diameter,
+                   end.point.y + first_normal.y * end.diameter,
+                   end.point.z + first_normal.z * end.diameter],
+        normal: (first_normal + second_normal).normalize().to_arr(),
+        color: color.to_arr(),
+    });
 
-    indices.extend_from_slice(&[cur_len + 2,
-                                cur_len + 0,
-                                cur_len + 1,
-                                cur_len + 2,
-                                cur_len + 1,
-                                cur_len + 3]);
+    vertices.push(Vertex {
+        position: [end.point.x + second_normal.x * end.diameter,
+                   end.point.y + second_normal.y * end.diameter,
+                   end.point.z + second_normal.z * end.diameter],
+        normal: (first_normal + second_normal).normalize().to_arr(),
+        color: color.to_arr(),
+    });
+
+    vertices.push(Vertex {
+        position: [start.point.x + first_normal.x * start.diameter,
+                   start.point.y + first_normal.y * start.diameter,
+                   start.point.z + first_normal.z * start.diameter],
+        normal: (first_normal + second_normal).normalize().to_arr(),
+        color: color.to_arr(),
+    });
+
+    vertices.push(Vertex {
+        position: [start.point.x + second_normal.x * start.diameter,
+                   start.point.y + second_normal.y * start.diameter,
+                   start.point.z + second_normal.z * start.diameter],
+        normal: (first_normal + second_normal).normalize().to_arr(),
+        color: color.to_arr(),
+    });
+
+    indices.append(&mut vec![cur_len + 0,
+                             cur_len + 1,
+                             cur_len + 2,
+                             cur_len + 2,
+                             cur_len + 3,
+                             cur_len + 0]);
 }
 
 /// generates 3 normalized vectors  perpendicular to the given vector

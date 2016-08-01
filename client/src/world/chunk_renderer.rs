@@ -2,7 +2,8 @@
 use base::world;
 use std::f32::consts;
 use world::chunk_view::Vertex;
-use glium::{IndexBuffer, Program, VertexBuffer};
+use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
+use glium::{self, DrawParameters, IndexBuffer, Program, VertexBuffer};
 use glium::index::PrimitiveType;
 use GameContext;
 use std::rc::Rc;
