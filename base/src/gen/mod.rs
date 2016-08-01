@@ -3,8 +3,8 @@
 
 extern crate fnv;
 
-mod plant;
-mod world;
+pub mod plant;
+pub mod world;
 
 pub use self::world::WorldGenerator;
 pub use self::plant::PlantGenerator;

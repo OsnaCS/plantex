@@ -1,5 +1,5 @@
 //! Procedurally generating the game world.
-mod biome;
+pub mod biome;
 
 use world::{Chunk, ChunkIndex, ChunkProvider, HeightType, HexPillar};
 use world::{CHUNK_SIZE, GroundMaterial, PILLAR_STEP_HEIGHT, PillarSection, Prop, PropType};
@@ -175,7 +175,7 @@ impl ChunkProvider for WorldGenerator {
 
             if plant_noise > current_biome.plant_threshold() {
                 let mut rng = super::seeded_rng(self.seed, "TREE", (pos.q, pos.r));
-                let gen = PlantGenerator::rand(&mut rng);
+                let gen = PlantGenerator::rand(&mut rng, current_biome);
 
                 // put the tree at the highest position
                 let height = match sections.last() {
@@ -189,7 +189,9 @@ impl ChunkProvider for WorldGenerator {
                 });
             }
 
-            HexPillar::new(sections, props)
+            HexPillar::new(sections,
+                           props,
+                           Biome::from_climate(temperature_noise, humidity_noise))
         }))
     }
 
