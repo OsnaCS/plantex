@@ -3,10 +3,12 @@ pub mod biome;
 
 use world::{Chunk, ChunkIndex, ChunkProvider, HeightType, HexPillar};
 use world::{CHUNK_SIZE, GroundMaterial, PILLAR_STEP_HEIGHT, PillarSection, Prop, PropType};
-use rand::Rand;
+use rand::{Rand, Rng};
 use gen::{PlantGenerator, seeded_rng};
 use noise::{PermutationTable, open_simplex2, open_simplex3};
 use gen::world::biome::Biome;
+use prop::plant::Plant;
+use gen::plant::tree::PlantType;
 
 /// Land "fill noise" scaling in x, y, and z direction.
 const LAND_NOISE_SCALE: (f32, f32, f32) = (0.03, 0.03, 0.05);
@@ -175,9 +177,25 @@ impl ChunkProvider for WorldGenerator {
 
             if plant_noise > current_biome.plant_threshold() {
                 let mut rng = super::seeded_rng(self.seed, "TREE", (pos.q, pos.r));
-                let gen = PlantGenerator::rand(&mut rng, current_biome);
 
-                // put the tree at the highest position
+                let tmp = current_biome.plant_distribution();
+                let plant_type = *rng.choose(&tmp).unwrap();
+
+                let type_index = match plant_type {
+                    PlantType::RegularTree => 0,
+                    PlantType::Shrub => 1,
+                    PlantType::Cactus => 2,
+                    PlantType::JungleTree => 3,
+                    PlantType::ClumpOfGrass => 4,
+                    PlantType::Conifer => 5,
+                    PlantType::OakTree => 6,
+                };
+
+                let plant_instance = rng.gen_range(0, 5);
+                let plant_index = 7 * plant_instance + type_index;
+
+
+                //     // put the tree at the highest position
                 let height = match sections.last() {
                     Some(section) => section.top,
                     None => HeightType::from_units(0),
@@ -185,8 +203,11 @@ impl ChunkProvider for WorldGenerator {
 
                 props.push(Prop {
                     baseline: height,
-                    prop: PropType::Plant(gen.generate(&mut rng)),
+                    prop: PropType::Plant(PlantGenerator::new(PlantType::RegularTree)
+                        .generate(&mut rng)),
+                    plant_index: plant_index as usize,
                 });
+
             }
 
             HexPillar::new(sections,
@@ -195,6 +216,21 @@ impl ChunkProvider for WorldGenerator {
         }))
     }
 
+    fn get_plant_list(&self) -> Vec<Plant> {
+        let mut rng = super::seeded_rng(self.seed, "TREE", 42);
+
+        let mut vec = Vec::new();
+        for _ in 0..5 {
+            vec.push(PlantGenerator::new(PlantType::RegularTree).generate(&mut rng));
+            vec.push(PlantGenerator::new(PlantType::Shrub).generate(&mut rng));
+            vec.push(PlantGenerator::new(PlantType::Cactus).generate(&mut rng));
+            vec.push(PlantGenerator::new(PlantType::JungleTree).generate(&mut rng));
+            vec.push(PlantGenerator::new(PlantType::ClumpOfGrass).generate(&mut rng));
+            vec.push(PlantGenerator::new(PlantType::Conifer).generate(&mut rng));
+            vec.push(PlantGenerator::new(PlantType::OakTree).generate(&mut rng));
+        }
+        vec
+    }
 
     fn is_chunk_loadable(&self, _: ChunkIndex) -> bool {
         // All chunks can be generated from nothing

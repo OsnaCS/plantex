@@ -1,4 +1,5 @@
 use world::GroundMaterial;
+use gen::plant::tree::PlantType;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Biome {
@@ -58,6 +59,107 @@ impl Biome {
             (0.4...1.0, 0.2...0.4) => Biome::Savanna,
             (0.4...1.0, 0.4...1.0) => Biome::RainForest,
             _ => Biome::Debug,
+        }
+    }
+
+    pub fn plant_distribution(&self) -> [PlantType; 10] {
+        match *self {
+            Biome::GrassLand => {
+                [PlantType::RegularTree,
+                 PlantType::RegularTree,
+                 PlantType::RegularTree,
+                 PlantType::RegularTree,
+                 PlantType::RegularTree,
+                 PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass]
+            }
+            Biome::Desert => {
+                [PlantType::Cactus,
+                 PlantType::Cactus,
+                 PlantType::Cactus,
+                 PlantType::Cactus,
+                 PlantType::Cactus,
+                 PlantType::Cactus,
+                 PlantType::Cactus,
+                 PlantType::Cactus,
+                 PlantType::Cactus,
+                 PlantType::Cactus]
+            }
+            Biome::Snow => {
+                [PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer]
+            }
+            Biome::Forest => {
+                [PlantType::RegularTree,
+                 PlantType::RegularTree,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::ClumpOfGrass,
+                 PlantType::Conifer,
+                 PlantType::Shrub,
+                 PlantType::Shrub]
+            }
+            Biome::RainForest => {
+                [PlantType::JungleTree,
+                 PlantType::JungleTree,
+                 PlantType::JungleTree,
+                 PlantType::JungleTree,
+                 PlantType::JungleTree,
+                 PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass,
+                 PlantType::Shrub,
+                 PlantType::Shrub,
+                 PlantType::RegularTree]
+            }
+            Biome::Savanna => {
+                [PlantType::Shrub,
+                 PlantType::Shrub,
+                 PlantType::Shrub,
+                 PlantType::Shrub,
+                 PlantType::Shrub,
+                 PlantType::Shrub,
+                 PlantType::Shrub,
+                 PlantType::Shrub,
+                 PlantType::Shrub,
+                 PlantType::Shrub]
+            }
+            Biome::Stone => {
+                [PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer]
+            }
+            Biome::Debug => {
+                [PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer,
+                 PlantType::Conifer]
+            }
         }
     }
 }
