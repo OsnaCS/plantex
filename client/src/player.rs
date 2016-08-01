@@ -29,12 +29,7 @@ pub struct Player {
 impl Player {
     pub fn new(context: Rc<GameContext>, world_manager: WorldManager) -> Self {
         Player {
-            cam: Camera {
-                position: Point3::new(15.0, 10.0, 50.0),
-                phi: -0.27,
-                theta: 2.6,
-                aspect_ratio: context.get_config().resolution.aspect_ratio(),
-            },
+            cam: Camera::new(context.get_config().resolution.aspect_ratio()),
             world_manager: world_manager,
             context: context,
             timer_jump: 1.0,

@@ -48,6 +48,31 @@ impl PlantView {
         }
     }
 
+    pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
+        let uniforms = uniform! {
+            offset: self.pos.to_arr(),
+            proj_matrix: camera.proj_matrix().to_arr(),
+            view_matrix: camera.view_matrix().to_arr(),
+        };
+
+        let params = DrawParameters {
+            depth: glium::Depth {
+                write: true,
+                test: DepthTest::IfLess,
+                ..Default::default()
+            },
+            backface_culling: BackfaceCullingMode::CullClockwise,
+            ..Default::default()
+        };
+
+        surface.draw(&self.vertices,
+                  &self.indices,
+                  &self.renderer.shadow_program(),
+                  &uniforms,
+                  &params)
+            .unwrap();
+    }
+
     pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         let uniforms = uniform! {
             offset: self.pos.to_arr(),

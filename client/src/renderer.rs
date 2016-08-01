@@ -1,3 +1,4 @@
+use base::math::*;
 use world::WorldView;
 use glium::Surface;
 use super::{Camera, GameContext};
@@ -5,19 +6,33 @@ use view::Sun;
 use view::SkyView;
 use std::rc::Rc;
 use std::error::Error;
+use std::env;
 use super::weather::Weather;
 use glium::texture::texture2d::Texture2d;
 use glium::texture::{DepthFormat, DepthTexture2d, MipmapsOption, UncompressedFloatFormat};
-use glium::framebuffer::{MultiOutputFrameBuffer, SimpleFrameBuffer};
+use glium::framebuffer::SimpleFrameBuffer;
 use glium::{IndexBuffer, Program, VertexBuffer};
 use glium::index::PrimitiveType;
 use glium::backend::Facade;
 use glium::framebuffer::ToColorAttachment;
 
+const SHADOW_MAP_SIZE: u32 = 2048;
+const SHADOW_ORTHO_WIDTH: f32 = 200.0;
+const SHADOW_ORTHO_HEIGHT: f32 = 200.0;
+const SHADOW_ORTHO_NEAR: f32 = 100.0;
+const SHADOW_ORTHO_FAR: f32 = 600.0;
+
 pub struct Renderer {
     context: Rc<GameContext>,
+    /// Screen-sized texture the scene is rendered into and then post-processed.
     quad_tex: Texture2d,
+    /// Depth texture used by the normal render.
     depth_texture: DepthTexture2d,
+    /// Depth texture rendered to from sun perspective.
+    shadow_map: DepthTexture2d,
+    /// Render the shadow map to the screen instead of the world.
+    shadow_debug: bool,
+    shadow_debug_program: Program,
     quad_vertex_buffer: VertexBuffer<Vertex>,
     quad_index_buffer: IndexBuffer<u16>,
     resolution: (u32, u32),
@@ -33,84 +48,84 @@ pub struct Renderer {
 
 impl Renderer {
     pub fn new(context: Rc<GameContext>) -> Self {
-        let resolution = context.get_facade().get_framebuffer_dimensions();
-        let quad_tex_temp = Texture2d::empty_with_format(context.get_facade(),
-                                                         UncompressedFloatFormat::F32F32F32F32,
-                                                         MipmapsOption::NoMipmap,
-                                                         resolution.0,
-                                                         resolution.1)
-            .unwrap();
 
-        let depth_texture = DepthTexture2d::empty_with_format(context.get_facade(),
-                                                              DepthFormat::F32,
-                                                              MipmapsOption::NoMipmap,
-                                                              resolution.0,
-                                                              resolution.1)
-            .unwrap();
-
+        // FIXME The index buffer is useless, switch to using `NoIndices` and
+        // `TriangleStrip`
         let ibuf = IndexBuffer::new(context.get_facade(),
                                     PrimitiveType::TrianglesList,
                                     &[0u16, 1, 2, 0, 2, 3])
             .unwrap();
 
 
-        let bloom_filter_tex = Texture2d::empty_with_format(context.get_facade(),
-                                                            UncompressedFloatFormat::F32F32F32F32,
-                                                            MipmapsOption::NoMipmap,
-                                                            resolution.0,
-                                                            resolution.1)
-            .unwrap();
-
-
-
-        let bloom_horz_tex = Texture2d::empty_with_format(context.get_facade(),
-                                                          UncompressedFloatFormat::F32F32F32F32,
-                                                          MipmapsOption::NoMipmap,
-                                                          resolution.0,
-                                                          resolution.1)
-            .unwrap();
-
-        let bloom_vert_tex = Texture2d::empty_with_format(context.get_facade(),
-                                                          UncompressedFloatFormat::F32F32F32F32,
-                                                          MipmapsOption::NoMipmap,
-                                                          resolution.0,
-                                                          resolution.1)
-            .unwrap();
-
-
-
-        let bloom_blend_tex = Texture2d::empty_with_format(context.get_facade(),
-                                                           UncompressedFloatFormat::F32F32F32F32,
+        let shadow_map = DepthTexture2d::empty_with_format(context.get_facade(),
+                                                           DepthFormat::I16,
                                                            MipmapsOption::NoMipmap,
-                                                           resolution.0,
-                                                           resolution.1)
+                                                           SHADOW_MAP_SIZE,
+                                                           SHADOW_MAP_SIZE)
             .unwrap();
-
 
         let tonemapping_program = context.load_program("tonemapping").unwrap();
         let bloom_filter_program = context.load_program("bloom_filter").unwrap();
         let bloom_blur_program = context.load_program("bloom_blur").unwrap();
         let bloom_blend_program = context.load_program("bloom_blending").unwrap();
+        let shadow_debug_program = context.load_program("shadow_debug").unwrap();
 
-
-        Renderer {
+        let mut this = Renderer {
             context: context.clone(),
-            quad_tex: quad_tex_temp,
-            depth_texture: depth_texture,
+            quad_tex: Texture2d::empty(context.get_facade(), 1, 1).unwrap(),
+            tonemapping_program: tonemapping_program,
+            depth_texture: DepthTexture2d::empty(context.get_facade(), 1, 1).unwrap(),
+            shadow_map: shadow_map,
+            shadow_debug: env::var("SHADOW_DEBUG").is_ok(),
+            shadow_debug_program: shadow_debug_program,
             quad_vertex_buffer: Renderer::create_vertex_buf(context.get_facade()),
             quad_index_buffer: ibuf,
-            resolution: resolution,
-            bloom_filter_tex: bloom_filter_tex,
-            bloom_horz_tex: bloom_horz_tex,
-            bloom_vert_tex: bloom_vert_tex,
-            bloom_blend_tex: bloom_blend_tex,
-            tonemapping_program: tonemapping_program,
+            resolution: (0, 0),
+            bloom_filter_tex: Texture2d::empty(context.get_facade(), 1, 1).unwrap(),
+            bloom_horz_tex: Texture2d::empty(context.get_facade(), 1, 1).unwrap(),
+            bloom_vert_tex: Texture2d::empty(context.get_facade(), 1, 1).unwrap(),
+            bloom_blend_tex: Texture2d::empty(context.get_facade(), 1, 1).unwrap(),
             bloom_filter_program: bloom_filter_program,
             bloom_blur_program: bloom_blur_program,
             bloom_blend_program: bloom_blend_program,
-        }
+        };
+
+        // Create all textures with correct screen size
+        this.render_update();
+        this
     }
 
+    /// Renders `world_view` into the renderer's shadow map from the
+    /// perspective of the sun, whose position is `sun_pos`.
+    ///
+    /// Returns the MVP matrix used.
+    fn render_shadow_map(&mut self,
+                         world_view: &WorldView,
+                         sun_pos: Point3f,
+                         camera: Point3f)
+                         -> Result<Matrix4<f32>, Box<Error>> {
+        let mut shadow_target = try!(SimpleFrameBuffer::depth_only(self.context
+                                                                       .get_facade(),
+                                                                   &self.shadow_map));
+        shadow_target.clear_depth(1.0);
+
+        // Render the world from the perspective of the sun.
+        let mut cam_pos = camera.to_vec();
+        cam_pos.z = 70.0;
+        let mut sun_cam = Camera::new_from_vector(sun_pos + cam_pos,
+                                                  -sun_pos.to_vec(),
+                                                  SHADOW_ORTHO_WIDTH / SHADOW_ORTHO_HEIGHT);
+        // Set an orthographic projection matrix.
+        sun_cam.set_proj_matrix(ortho(-SHADOW_ORTHO_WIDTH / 2.0,
+                                      SHADOW_ORTHO_WIDTH / 2.0,
+                                      -SHADOW_ORTHO_HEIGHT / 2.0,
+                                      SHADOW_ORTHO_HEIGHT / 2.0,
+                                      SHADOW_ORTHO_NEAR,
+                                      SHADOW_ORTHO_FAR));
+        world_view.draw_shadow(&mut shadow_target, &sun_cam);
+
+        Ok(sun_cam.proj_matrix() * sun_cam.view_matrix())
+    }
 
     /// Is called once every main loop iteration
     pub fn render(&mut self,
@@ -129,19 +144,38 @@ impl Renderer {
         }
 
         // ===================================================================
+        // Creating shadow map
+        // ===================================================================
+        let depth_mvp = try!(self.render_shadow_map(world_view, sun.position(), camera.position));
+
+        // ===================================================================
         // Rendering into HDR framebuffer
         // ===================================================================
-        let output = &[("color", &self.quad_tex)];
-        let mut hdr_buffer =
-            try!(MultiOutputFrameBuffer::with_depth_buffer(self.context.get_facade(),
-                                                           output.iter().cloned(),
-                                                           &self.depth_texture));
-
+        let mut hdr_buffer = try!(SimpleFrameBuffer::with_depth_buffer(self.context.get_facade(),
+                                                                       &self.quad_tex,
+                                                                       &self.depth_texture));
         hdr_buffer.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
 
+        if self.shadow_debug {
+            let mut target = self.context.get_facade().draw();
+            target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
+            try!(target.draw(&self.quad_vertex_buffer,
+                             &self.quad_index_buffer,
+                             &self.shadow_debug_program,
+                             &uniform!{
+                          decal_texture: &self.shadow_map,
+                      },
+                             &Default::default()));
+            try!(target.finish());
+            return Ok(());
+        }
 
-        world_view.draw(&mut hdr_buffer, camera);
-
+        let sun_dir = (-sun.position().to_vec()).normalize();
+        world_view.draw(&mut hdr_buffer,
+                        camera,
+                        &self.shadow_map,
+                        &depth_mvp,
+                        sun_dir);
         sky_view.draw_skydome(&mut hdr_buffer, camera);
         sun.draw_sun(&mut hdr_buffer, camera);
         weather.draw(&mut hdr_buffer, camera);
@@ -149,7 +183,6 @@ impl Renderer {
         // ===================================================================
         // Creating the Bloom framebuffer
         // ===================================================================
-
 
         // =======================  light texture  ===========================
 
@@ -163,7 +196,6 @@ impl Renderer {
             decal_texture: &self.quad_tex,
             exposure: 1.0f32
         };
-
 
         let mut bloom_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
                                                            self.bloom_filter_tex
