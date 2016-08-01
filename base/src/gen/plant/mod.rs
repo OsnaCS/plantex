@@ -25,9 +25,3 @@ impl PlantGenerator {
         PlantGenerator::Tree(TreeGen::rand(rng, biome))
     }
 }
-
-// impl Rand for PlantGenerator {
-//     fn rand<R: Rng>(rng: &mut R) -> Self {
-//         PlantGenerator::Tree(TreeGen::rand(rng))
-//     }
-// }

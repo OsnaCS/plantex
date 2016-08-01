@@ -443,9 +443,6 @@ impl TreeGen {
             preset: preset,
             branches: Vec::new(),
         }
-
-
-
     }
 }
 
