@@ -1,8 +1,6 @@
- #version 140
+ #version 330
 in vec3 position;
 in vec3 point;
-out vec2 out_position;
-out vec4 out_color;
 
 uniform vec4 color;
 uniform mat4 proj_matrix;
@@ -10,11 +8,12 @@ uniform mat4 view_matrix;
 uniform mat4 scaling_matrix;
 uniform int form;
 
-
+out vec2 out_position;
+out vec4 out_color;
 
 void main() {
 
-    mat4 world_matrix = mat4(
+    mat4 world_matrix = mat4 (
         1.0, 0.0, 0.0, 0.0,
         0.0, 1.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
@@ -22,7 +21,7 @@ void main() {
 
     mat4 view = view_matrix * world_matrix;
 
-    if(form == 1){
+    if (form == 1) {
         view[0][0] = 1.0;
         view[0][1] = 0.0;
         view[0][2] = 0.0;
@@ -32,7 +31,7 @@ void main() {
         view[1][2] = 0.0;
     }
 
-    if(form == 2 || form == 3){
+    if (form == 2 || form == 3) {
         view[0][0] = 1.0;
         view[0][1] = 0.0;
         view[0][2] = 0.0;

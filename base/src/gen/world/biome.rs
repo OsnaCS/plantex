@@ -1,6 +1,6 @@
 use world::GroundMaterial;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Biome {
     GrassLand,
     Desert,

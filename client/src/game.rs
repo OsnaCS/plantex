@@ -36,9 +36,9 @@ impl Game {
         let server = try!(TcpStream::connect(server));
         let facade = try!(create_context(&config));
         let context = Rc::new(GameContext::new(facade, config.clone()));
-        let world_weather = Weather::new(context.clone());
         let world_manager = WorldManager::new(create_chunk_provider(context.get_config()),
                                               context.clone());
+        let world_weather = Weather::new(context.clone());
 
         Ok(Game {
             renderer: Renderer::new(context.clone()),
