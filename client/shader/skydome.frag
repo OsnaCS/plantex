@@ -98,6 +98,10 @@ void main() {
     // But because this is only functional for the upper hemisphere,
     // the phi for the lower hemisphere is calculated in the if statement
     float phi = acos(unit_vector.x);
+
+// SHIT
+    phi = acos( (unit_vector.x) / sqrt(unit_vector.x * unit_vector.x + unit_vector.y * unit_vector.y) );
+
     if (unit_vector.y < 0) {
         phi = 2*PI - phi;
     }
@@ -114,6 +118,25 @@ void main() {
 
     float sun_z = normalize(u_sun_pos).z;
     float sun_x = normalize(u_sun_pos).x;
+    float sun_y = normalize(u_sun_pos).y;
+    float sun_phi = acos(sun_x);
+
+// SHIT
+    sun_phi = acos( (sun_x) / sqrt(sun_x * sun_x + sun_y * sun_y) );
+
+    if (sun_y < 0) {
+        sun_phi = 2*PI - sun_phi;
+    }
+
+    // distance between current vertex and sun in phi direction
+    // divided by 2*PI to get a value between 0 and 1
+    // (where 1 corresponds to 2*PI (360 degrees))
+    float phi_diff = abs(phi-sun_phi)/(2*PI);
+    if (phi_diff > 0.5) {
+        phi_diff = 1.0 - phi_diff;
+    }
+
+    phi_diff *= 2.0;
 
     float sun_start;
 
@@ -123,20 +146,37 @@ void main() {
         sun_start = sunset_start;
     }
 
+    // sky colors corresponding to time
+    // night
     if (sun_z < nighttime) {
         color = nightblue_color;
+        // color = vec3(phi_diff, 0,0 );
+
+    // night to sunrise OR sunset to night
     } else if (sun_z > nighttime && sun_z < sun_start) {
         float size = sun_start - nighttime;
         float diff = sun_z - nighttime;
         float percent= diff/size;
         color = (nightblue_color + (sunset_color - nightblue_color) * percent);
+        color = mix(color, nightblue_color, phi_diff);
+        // color = vec3(phi_diff, 0,0 );
+
+    // sunrise to high_noon OR high_noon to sunset
     } else if (sun_z > sun_start && sun_z < high_noon_start) {
         float size = high_noon_start - sun_start;
         float diff = sun_z - sun_start;
         float percent= diff/size;
         color = (sunset_color + (high_noon_color - sunset_color) * percent);
+        color = mix(color, nightblue_color, phi_diff);
+        // color = vec3(phi_diff, 0,0 );
+
+        // color = mix(vec3(1,0,0), vec3(0,1,0), phi_diff);
+
+    // high_noon
     } else if (sun_z > high_noon_start) {
         color = high_noon_color;
+        // color = vec3(phi_diff, 0,0 );
+
     }
 
 
