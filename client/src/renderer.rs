@@ -47,7 +47,9 @@ pub struct Renderer {
     bloom_blur_program: Program,
     bloom_blend_program: Program,
     adaption_shrink_program: Program,
-    lum_texs: Vec<Texture2d>,
+    // relative_luminance_program: Program,
+    lum_texs: Vec<Texture2d>, // lum_relative_tex: Texture2d,
+    last_lum: f32,
 }
 
 impl Renderer {
@@ -70,12 +72,24 @@ impl Renderer {
 
         let lum_texs = initialize_luminosity(context.get_facade());
 
+        let last_lum = 2.0;
+
+        // let lum_relative_tex = Texture2d::empty_with_format(context.get_facade(),
+        // UncompressedFloatFormat::F32F32,
+        // MipmapsOption::NoMipmap,
+        // resolution.0,
+        // resolution.1)
+        // .unwrap();
+
+
         let tonemapping_program = context.load_program("tonemapping").unwrap();
         let bloom_filter_program = context.load_program("bloom_filter").unwrap();
         let bloom_blur_program = context.load_program("bloom_blur").unwrap();
         let bloom_blend_program = context.load_program("bloom_blending").unwrap();
         let shadow_debug_program = context.load_program("shadow_debug").unwrap();
         let adaption_shrink_program = context.load_program("adaption_shrink").unwrap();
+        // let relative_luminance_program =
+        // context.load_program("relative_luminance").unwrap();
 
         let mut this = Renderer {
             context: context.clone(),
@@ -96,7 +110,8 @@ impl Renderer {
             bloom_blur_program: bloom_blur_program,
             bloom_blend_program: bloom_blend_program,
             adaption_shrink_program: adaption_shrink_program,
-            lum_texs: lum_texs,
+            lum_texs: lum_texs, // lum_relative_tex: lum_relative_tex,
+            last_lum: last_lum,
         };
 
         // Create all textures with correct screen size
@@ -194,9 +209,14 @@ impl Renderer {
         //                  Brightness Adaption Data Structures
         // ===================================================================
 
-        let avg_luminance = try!(self.adapt_brightness());
 
-        let exposure = (2.0 * avg_luminance) as f32;
+        let t = 0.3;
+        let adapt = try!(self.adapt_brightness());
+        self.last_lum = (1.0 - t) * self.last_lum + t * adapt;
+
+        let exposure = self.last_lum;
+        // info!("exp: {}", exposure);
+
 
 
         // ===================================================================
@@ -260,7 +280,7 @@ impl Renderer {
         let mut first_iteration = true; //to know when we need to switch uniforms_horz_blur
         let mut horizontal = true;      //to switch between horizontal and vertical blur
 
-        for _ in 0..10 {
+        for _ in 0..20 {
             if horizontal {
                 try!(bloom_blur_horz_buffer.draw(&self.quad_vertex_buffer,
                                                  &self.quad_index_buffer,
@@ -421,6 +441,24 @@ impl Renderer {
     // ===================================================================
 
     fn adapt_brightness(&self) -> Result<f32, Box<Error>> {
+        // let mut rel_luminance_buffer =
+        // try!(SimpleFrameBuffer::new(self.context.get_facade(),
+        // self.lum_relative_tex
+        // .to_color_attachment()));
+        //
+        // let uniforms = uniform!{
+        // image: &self.quad_tex,
+        // };
+        //
+        //
+        //
+        // try!(rel_luminance_buffer.draw(&self.quad_vertex_buffer,
+        // &self.quad_index_buffer,
+        // &self.relative_luminance_program,
+        // &uniforms,
+        // &Default::default()));
+        //
+        //
         let mut adaption_buffers: Vec<SimpleFrameBuffer> = Vec::with_capacity(10);
 
         let mut image = &self.quad_tex;
@@ -466,7 +504,15 @@ impl Renderer {
 
         let pixel = buf[0][0];
 
-        Ok(Vector3f::new(pixel.0, pixel.1, pixel.2).dot(Vector3f::new(0.2126, 0.7152, 0.0722)))
+        let avg_luminance = Vector3f::new(pixel.0, pixel.1, pixel.2)
+            .dot(Vector3f::new(0.2126, 0.7152, 0.0722));
+
+        let adapted_luminance = (1.0 / ((avg_luminance + 1.0).log2())).min(6.0).max(1.1);
+
+
+
+
+        Ok(adapted_luminance)
     }
 }
 
@@ -493,8 +539,8 @@ fn initialize_luminosity(facade: &GlutinFacade) -> Vec<Texture2d> {
         lum.push(Texture2d::empty_with_format(facade,
                                               UncompressedFloatFormat::F32F32F32F32,
                                               MipmapsOption::NoMipmap,
-                                              (2 as u32).pow((9 - i) as u32),
-                                              (2 as u32).pow((9 - i) as u32))
+                                              (2 as u32).pow((9 - i)),
+                                              (2 as u32).pow((9 - i)))
             .unwrap());
     }
     lum
