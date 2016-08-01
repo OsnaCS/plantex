@@ -14,7 +14,7 @@ in vec3 material_color;
 out vec3 x_color;
 out vec3 surfaceNormal;
 // Vertex/Pixel coordinates in shadow map
-out vec4 shadowCoord;
+out vec4 shadowCoordT;
 
 uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
@@ -26,7 +26,7 @@ void main() {
         position.z * height + offset.z,
         1);
     gl_Position = proj_matrix * view_matrix * world_coords;
-    shadowCoord = depth_view_proj * world_coords;
+    shadowCoordT = depth_view_proj * world_coords;
 
     surfaceNormal = normal;
     x_color = material_color;
