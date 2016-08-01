@@ -28,7 +28,7 @@ const float AMBIENT = 0.2;
 
 void main() {
     // Shadow map height/width in pixels:
-    float SHADOW_MAP_SIZE = textureSize(shadow_map, 0);
+    float SHADOW_MAP_SIZE = textureSize(shadow_map, 0).x;
 
     vec3 lightCoords = shadowCoord.xyz / shadowCoord.w;
     lightCoords = lightCoords * 0.5 + 0.5;
@@ -63,5 +63,20 @@ void main() {
     float diffuse = max(0.0, dot(-sun_dir, surfaceNormal));
     color = x_color * AMBIENT + x_color * diffuse * (1.0 - shadowFactor);
 
-    color = texture(normals, x_tex_coords).rgb;
+    if (x_radius > 0.98) {
+        color = texture(normals, x_tex_coords).rgb;
+    } else {
+        color = texture(normals, x_tex_coords).rgb;
+    }
+
+    // color = texture(normals, x_tex_coords).rgb;
+
+    // BORDERS
+    // check for border
+    // if (x_radius > 0.98) {
+    //   color *= texture(normals, x_tex_coordx).xyz * 0.75;
+    // } else {
+    //   color *= texture(normals, x_tex_coordx).xyz;
+    // }
+
 }

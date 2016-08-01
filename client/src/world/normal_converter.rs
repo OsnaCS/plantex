@@ -9,7 +9,7 @@ pub fn convert(map: Vec<Vec<f32>>, scale: f32) -> Vec<Vec<(f32, f32, f32)>> {
 
     for i in 0..map.len() {
         for j in 0..map[0].len() {
-            arr = neighbours(&map, (i as usize, j as usize));
+            arr = neighbours(&map, (i as i32, j as i32));
             n.x = scale *
                   -(arr[8 as usize] - arr[6 as usize] + 2.0 * (arr[5 as usize] - arr[3 as usize]) +
                     arr[2 as usize] - arr[0 as usize]);
@@ -25,7 +25,7 @@ pub fn convert(map: Vec<Vec<f32>>, scale: f32) -> Vec<Vec<(f32, f32, f32)>> {
 }
 
 
-fn neighbours(map: &Vec<Vec<f32>>, pos: (usize, usize)) -> [f32; 9] {
+fn neighbours(map: &Vec<Vec<f32>>, pos: (i32, i32)) -> [f32; 9] {
     let ref tmap = *map;
     let mut iter = 0;
     let mut arr: [f32; 9] = [0.0; 9];
@@ -42,5 +42,6 @@ fn neighbours(map: &Vec<Vec<f32>>, pos: (usize, usize)) -> [f32; 9] {
             iter += 1;
         }
     }
+    info!("{:?}", arr);
     arr
 }
