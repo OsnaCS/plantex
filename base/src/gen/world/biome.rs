@@ -1,5 +1,6 @@
 use world::GroundMaterial;
 
+#[derive(Clone, Debug)]
 pub enum Biome {
     GrassLand,
     Desert,
@@ -9,6 +10,12 @@ pub enum Biome {
     Savanna,
     Stone,
     Debug,
+}
+
+impl Default for Biome {
+    fn default() -> Biome {
+        Biome::Debug
+    }
 }
 
 impl Biome {
