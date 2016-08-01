@@ -24,6 +24,11 @@ impl HexPillar {
         &self.sections
     }
 
+    /// Returns a slice of this pillar's sections.
+    pub fn sections_mut(&mut self) -> &mut Vec<PillarSection> {
+        &mut self.sections
+    }
+
     /// Returns a slice of this pillar's props.
     pub fn props(&self) -> &[Prop] {
         &self.props
