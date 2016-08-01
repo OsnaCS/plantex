@@ -19,7 +19,7 @@ void main() {
 
     color = x_color;
 
-    // TODO: Doc
+    // TODO: More grounds and make it better ;D
     if(x_ground == 1) {
         if (x_radius > 0.98) {
             color *= texture(grass_texture, x_tex_coord).xyz * 0.75;
