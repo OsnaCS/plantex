@@ -98,7 +98,8 @@ void main() {
     // But because this is only functional for the upper hemisphere,
     // the phi for the lower hemisphere is calculated in the if statement
 
-    float phi = acos( (unit_vector.x) / sqrt(unit_vector.x * unit_vector.x + unit_vector.y * unit_vector.y) );
+    float phi = acos( (unit_vector.x) /
+        sqrt(unit_vector.x * unit_vector.x + unit_vector.y * unit_vector.y) );
     if (unit_vector.y < 0) {
         phi = 2*PI - phi;
     }
