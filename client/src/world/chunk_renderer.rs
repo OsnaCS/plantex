@@ -7,9 +7,7 @@ use glium::index::PrimitiveType;
 use glium::texture::Texture2d;
 use GameContext;
 use std::rc::Rc;
-use base::gen::seeded_rng;
-use base::noise::{PermutationTable, open_simplex2};
-use base::rand::Rand;
+use super::tex_generator;
 
 pub struct ChunkRenderer {
     /// Chunk shader
@@ -43,26 +41,11 @@ impl ChunkRenderer {
                                           &indices)
                 .unwrap(),
             noise_map: match Texture2d::new(context.get_facade(),
-                                            ChunkRenderer::create_noise(2 as u64)) {
+                                            tex_generator::create_noise(2 as u64)) {
                 Ok(p) => p,
                 Err(_) => panic!("did not work"),
             },
         }
-    }
-    fn create_noise(seed: u64) -> Vec<Vec<(f32, f32, f32)>> {
-        let mut texture_rng = seeded_rng(seed, 13, ());
-        let table = PermutationTable::rand(&mut texture_rng);
-
-        let mut v = vec![Vec::new(); 256];
-        for i in 0..256 {
-            for j in 0..256 {
-                let s = (open_simplex2::<f32>(&table, &[(i as f32) * 0.25, (j as f32) * 0.25]) +
-                         1.0) / 2.0;
-                v[i].push((s, s, s));
-            }
-        }
-        v
-
     }
 
     /// Gets a reference to the shared chunk shader.
@@ -208,25 +191,25 @@ fn get_side_hexagon_model(ind1: i32,
         position: [x1, y1, world::PILLAR_STEP_HEIGHT],
         normal: normal,
         radius: 0.0,
-        tex_coord: [0.0, 1.0],
+        tex_coord: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x1, y1, 0.0],
         normal: normal,
         radius: 0.0,
-        tex_coord: [0.0, 0.0],
+        tex_coord: [0.7, 0.0],
     });
     vertices.push(Vertex {
         position: [x2, y2, world::PILLAR_STEP_HEIGHT],
         normal: normal,
         radius: 0.0,
-        tex_coord: [1.0, 1.0],
+        tex_coord: [0.0, 0.5],
     });
     vertices.push(Vertex {
         position: [x2, y2, 0.0],
         normal: normal,
         radius: 0.0,
-        tex_coord: [1.0, 0.0],
+        tex_coord: [0.7, 0.5],
     });
 
     indices.append(&mut vec![cur_len + 0,

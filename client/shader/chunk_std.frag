@@ -20,7 +20,7 @@ void main() {
 
     // check for border
     if (x_radius > 0.98) {
-      color *= texture(my_texture, x_tex_coord).xyz * 0.25;
+      color *= texture(my_texture, x_tex_coord).xyz * 0.75;
     } else {
       color *= texture(my_texture, x_tex_coord).xyz;
     }
