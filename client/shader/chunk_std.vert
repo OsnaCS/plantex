@@ -3,6 +3,8 @@
 // Per-vertex attributes
 in vec3 position;
 in vec3 normal;
+in float radius;
+in vec2 tex_coords;
 
 // Per-instance attributes:
 // Height in units, not world coordinates, since the "pillar prototype" has a
@@ -15,6 +17,8 @@ out vec3 x_color;
 out vec3 surfaceNormal;
 // Vertex/Pixel coordinates in shadow map
 out vec4 shadowCoord;
+out float x_radius;
+out vec2 x_tex_coords;
 
 uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
@@ -30,4 +34,6 @@ void main() {
 
     surfaceNormal = normal;
     x_color = material_color;
+    x_radius = radius;
+    x_tex_coords = tex_coords;
 }

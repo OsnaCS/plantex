@@ -4,12 +4,21 @@ in vec4 shadowCoord;
 in vec3 x_color;
 in vec3 surfaceNormal;
 
+in float x_radius;
+in vec2 x_tex_coords;
+
+
+
 out vec3 color;
 
 // Vector from the camera to the sun
 uniform vec3 sun_dir;
 // FIXME This should be a `sampler2DShadow`, but glium doesn't expose it
 uniform sampler2D shadow_map;
+
+uniform sampler2D my_texture;
+uniform sampler2D normals;
+
 // Percentage-closer filtering (square) radius in pixels
 const int SHADOW_PCF_RADIUS = 1;
 
@@ -53,4 +62,6 @@ void main() {
     // other lights are coming from the sun so they're affected.
     float diffuse = max(0.0, dot(-sun_dir, surfaceNormal));
     color = x_color * AMBIENT + x_color * diffuse * (1.0 - shadowFactor);
+
+    color = texture(normals, x_tex_coords).rgb;
 }

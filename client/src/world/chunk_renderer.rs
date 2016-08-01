@@ -1,10 +1,14 @@
 use base::world;
+use base::math::SQRT_3;
 use std::f32::consts;
 use world::chunk_view::Vertex;
 use glium::{IndexBuffer, Program, VertexBuffer};
 use glium::index::PrimitiveType;
+use glium::texture::Texture2d;
 use GameContext;
 use std::rc::Rc;
+use super::tex_generator;
+use super::normal_converter;
 
 pub struct ChunkRenderer {
     /// Chunk shader
@@ -16,6 +20,8 @@ pub struct ChunkRenderer {
     pillar_vbuf: VertexBuffer<Vertex>,
     /// Index Buffer for `pillar_vbuf`.
     pillar_ibuf: IndexBuffer<u32>,
+    pub noise_map: Texture2d,
+    pub normal_map: Texture2d,
 }
 
 impl ChunkRenderer {
@@ -39,6 +45,18 @@ impl ChunkRenderer {
                                           PrimitiveType::TrianglesList,
                                           &indices)
                 .unwrap(),
+
+            noise_map: match Texture2d::new(context.get_facade(),
+                                            tex_generator::create_noise(2u64)) {
+                Ok(p) => p,
+                Err(_) => panic!("Could not load noise map for texturing"),
+            },
+
+            normal_map: match Texture2d::new(context.get_facade(),
+               normal_converter::convert(tex_generator::create_height_map_for_snow(2u64), 1.0)) {
+                Ok(p) => p,
+                Err(_) => panic!("did not work"),
+            },
         }
     }
 
@@ -71,21 +89,41 @@ fn hex_corner(size: f32, i: i32) -> (f32, f32) {
     (size * angle_rad.cos(), size * angle_rad.sin())
 }
 
+/// Calculate texture coordinates
+fn tex_map(i: i32) -> (f32, f32) {
+    match i {
+        0 => (1.0 - (0.5 - SQRT_3 / 4.0), 0.25),
+        1 => (1.0 - (0.5 - SQRT_3 / 4.0), 0.75),
+        2 => (0.5, 1.0),
+        3 => (0.5 - SQRT_3 / 4.0, 0.75),
+        4 => (0.5 - SQRT_3 / 4.0, 0.25),
+        5 => (0.5, 0.0),
+        // TODO: ERROR HANDLING
+        _ => (0.0, 0.0),
+    }
+}
+
 /// Calculates the top face of the Hexagon and normals
 fn get_top_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
     let cur_len = vertices.len() as u32;
     for i in 0..6 {
         let (x, y) = hex_corner(world::HEX_OUTER_RADIUS, i);
 
+        let (a, b) = tex_map(i);
+
         vertices.push(Vertex {
             position: [x, y, world::PILLAR_STEP_HEIGHT],
             normal: [0.0, 0.0, 1.0],
+            radius: 1.0,
+            tex_coords: [a, b],
         });
     }
 
     vertices.push(Vertex {
         position: [0.0, 0.0, world::PILLAR_STEP_HEIGHT],
         normal: [0.0, 0.0, 1.0],
+        radius: 0.0,
+        tex_coords: [0.5, 0.5],
     });
 
     indices.append(&mut vec![cur_len + 0,
@@ -114,16 +152,23 @@ fn get_bottom_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) 
     for i in 0..6 {
         let (x, y) = hex_corner(world::HEX_OUTER_RADIUS, i);
 
+        let (a, b) = tex_map(i);
+
         vertices.push(Vertex {
             position: [x, y, 0.0],
             normal: [0.0, 0.0, -1.0],
+            radius: 1.0,
+            tex_coords: [a, b],
         });
     }
 
     vertices.push(Vertex {
         position: [0.0, 0.0, 0.0],
         normal: [0.0, 0.0, -1.0],
+        radius: 0.0,
+        tex_coords: [0.5, 0.5],
     });
+
     indices.append(&mut vec![cur_len + 1,
                              cur_len + 6,
                              cur_len + 0,
@@ -157,18 +202,26 @@ fn get_side_hexagon_model(ind1: i32,
     vertices.push(Vertex {
         position: [x1, y1, world::PILLAR_STEP_HEIGHT],
         normal: normal,
+        radius: 0.0,
+        tex_coords: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x1, y1, 0.0],
         normal: normal,
+        radius: 0.0,
+        tex_coords: [0.7, 0.0],
     });
     vertices.push(Vertex {
         position: [x2, y2, world::PILLAR_STEP_HEIGHT],
         normal: normal,
+        radius: 0.0,
+        tex_coords: [0.0, 0.5],
     });
     vertices.push(Vertex {
         position: [x2, y2, 0.0],
         normal: normal,
+        radius: 0.0,
+        tex_coords: [0.7, 0.5],
     });
 
     indices.append(&mut vec![cur_len + 0,
