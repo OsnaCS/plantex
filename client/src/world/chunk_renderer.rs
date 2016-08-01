@@ -7,7 +7,6 @@ use glium::index::PrimitiveType;
 use glium::texture::Texture2d;
 use GameContext;
 use std::rc::Rc;
-use std::error::Error;
 use super::tex_generator;
 use super::normal_converter;
 

@@ -118,20 +118,20 @@ impl ChunkView {
                 test: DepthTest::IfLess,
                 ..Default::default()
             },
-            backface_culling: BackfaceCullingMode::CullClockwise,
+            backface_culling: BackfaceCullingMode::CullCounterClockwise,
             ..Default::default()
         };
 
         surface.draw((self.renderer.pillar_vertices(), self.pillar_buf.per_instance().unwrap()),
                   self.renderer.pillar_indices(),
-                  self.renderer.shadow_program(),
+                  self.renderer.program(),
                   &uniforms,
                   &params)
             .unwrap();
 
         for pillar in &self.pillars {
             for plant in &pillar.plants {
-                plant.draw_shadow(surface, camera);
+                plant.draw(surface, camera);
             }
         }
     }
