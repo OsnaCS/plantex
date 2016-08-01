@@ -16,7 +16,7 @@ impl Camera {
     /// Create new Camera with given aspect ratio
     pub fn new(aspect_ratio: f32) -> Camera {
         Camera {
-            position: Point3::new(0.0, 0.0, 60.0),
+            position: Point3::new(15.0, 10.0, 50.0),
             phi: -0.27,
             theta: 2.6,
             aspect_ratio: aspect_ratio,
