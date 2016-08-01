@@ -65,10 +65,6 @@ impl ChunkView {
         }
     }
 
-    pub fn get_outline(&self) -> &HexagonOutline {
-        &self.renderer.outline
-    }
-
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
