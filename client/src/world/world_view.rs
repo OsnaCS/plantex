@@ -86,8 +86,8 @@ impl WorldView {
             // Draw outline
             let outline_params = DrawParameters {
                 depth: glium::Depth {
-                    write: true,
-                    test: DepthTest::IfLess,
+                    write: false,
+                    test: DepthTest::Overwrite,
                     ..Default::default()
                 },
                 ..Default::default()
