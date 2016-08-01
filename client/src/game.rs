@@ -18,7 +18,7 @@ use player::Player;
 use control_switcher::ControlSwitcher;
 use base::world::PillarSection;
 use base::world;
-// use base::world::HeightType; //used in function later
+use base::world::HeightType;
 use base::math::*;
 use base::world::PillarIndex;
 use base::world::HexPillar;
@@ -92,10 +92,9 @@ impl Game {
 
             // Display Outline of Hexagon looking at
             let vec = get_pillarsectionpos_looking_at(&self.world_manager.get_world(),
-                                                      self.player.get_camera(),
-                                                      &hexgrid2d);
+                                                      self.control_switcher.get_camera());
             match vec {
-                Some(mut n) => {
+                Some(n) => {
                     let mut view = self.world_manager.get_mut_view();
                     view.outline.display = true;
                     view.outline.pos = n;
@@ -139,8 +138,8 @@ fn remove_hexagon_at(pillar: &mut HexPillar, height: f32) {
     let bottom = height - height % world::PILLAR_STEP_HEIGHT;
 
     let mut i = 0;
-    for mut section in pillar.sections() {
-        if section.top.to_real() >= height {
+    for section in pillar.sections() {
+        if section.top.to_real() >= bottom {
             break;
         }
         i += 1;
@@ -162,88 +161,6 @@ fn remove_hexagon_at(pillar: &mut HexPillar, height: f32) {
     }
 }
 
-fn get_pillarsectionpos_looking_at(world: &World,
-                                   cam: Camera,
-                                   hexgrid: &HexGrid2D)
-                                   -> Option<Vector3f> {
-    let mut cam_pos = cam.position;
-    let mut look_vec = cam.get_look_at_vector().normalize();
-    let view_distance = 4.0;
-
-    let mut step = 1.0;
-    while ((look_vec.x * look_vec.x + look_vec.y * look_vec.y + look_vec.z * look_vec.z)
-        .sqrt() <= view_distance) {
-
-        let mut factor = world::PILLAR_STEP_HEIGHT * step;
-        step += 1.0;
-        look_vec = cam.get_look_at_vector().normalize() * factor;
-
-        let mut view_pos = Point2f::new(cam_pos.x + look_vec.x, cam_pos.y + look_vec.y);
-        let mut pillar_index = PillarIndex(AxialPoint::from_real(view_pos));
-        let final_pos = match world.pillar_at(pillar_index) {
-            Some(n) => get_pillar_section_at_position(n, cam_pos.z + look_vec.z),
-            None => None,
-        };
-
-        match final_pos {
-            Some(n) => {
-                return Some(Vector3f::new((cam_pos.x + look_vec.x) -
-                                          (cam_pos.x + look_vec.x) % world::HEX_OUTER_RADIUS,
-                                          (cam_pos.y + look_vec.y) -
-                                          (cam_pos.y + look_vec.y) % world::HEX_INNER_RADIUS,
-                                          (cam_pos.z + look_vec.z) -
-                                          ((cam_pos.z + look_vec.z) % world::PILLAR_STEP_HEIGHT)))
-            }
-            None => {}
-        };
-    }
-    None
-}
-
-fn get_pillar_section_at_position(pillar: &HexPillar, pos_z: f32) -> Option<&PillarSection> {
-    for mut section in pillar.sections() {
-        if section.top.to_real() > pos_z && section.bottom.to_real() < pos_z {
-            return Some(section);
-        }
-    }
-    None
-}
-
-fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
-    Box::new(WorldGenerator::with_seed(config.seed))
-}
-
-// no comment
-// just because not used at the moment. will be used later!
-// need sorted pillars
-// fn remove_hexagon_at(pillar: &mut HexPillar, height: f32) {
-// let bottom = height - height % world::PILLAR_STEP_HEIGHT;
-//
-// let mut i = 0;
-// for section in pillar.sections() {
-// if section.top.to_real() >= bottom {
-// break;
-// }
-// i += 1;
-// }
-//
-// let mut pillar_section = pillar.sections_mut();
-// if pillar_section[i].top.to_real() != height + world::PILLAR_STEP_HEIGHT {
-// let sec = PillarSection {
-// ground: pillar_section[i].ground.clone(),
-// top: pillar_section[i].top,
-// bottom: HeightType::from_units((height / world::PILLAR_STEP_HEIGHT) as u16),
-// };
-// pillar_section.insert(i, sec);
-// i -= 1;
-// }
-// pillar_section[i].top = HeightType::from_units(height as u16);
-// if pillar_section[i].top == pillar_section[i].bottom {
-// pillar_section.remove(i);
-// }
-// }
-
-
 fn get_pillarsectionpos_looking_at(world: &World, cam: Camera) -> Option<Vector3f> {
     let cam_pos = cam.position;
     let mut look_vec = cam.get_look_at_vector().normalize();
@@ -258,13 +175,7 @@ fn get_pillarsectionpos_looking_at(world: &World, cam: Camera) -> Option<Vector3
         look_vec = cam.get_look_at_vector().normalize() * factor;
 
         let view_pos = Point2f::new(cam_pos.x + look_vec.x, cam_pos.y + look_vec.y);
-        let mut pillar_index = PillarIndex(AxialPoint::from_real(view_pos));
-        if pillar_index.0.q < 0 {
-            pillar_index.0.q *= -1;
-        }
-        if pillar_index.0.r < 0 {
-            pillar_index.0.r *= -1;
-        }
+        let pillar_index = PillarIndex(AxialPoint::from_real(view_pos));
         let final_pos = match world.pillar_at(pillar_index) {
             Some(n) => get_pillar_section_at_position(n, cam_pos.z + look_vec.z),
             None => None,
@@ -273,9 +184,9 @@ fn get_pillarsectionpos_looking_at(world: &World, cam: Camera) -> Option<Vector3
         match final_pos {
             Some(_) => {
                 return Some(Vector3f::new((cam_pos.x + look_vec.x) -
-                                          (cam_pos.x + look_vec.x) % world::HEX_INNER_RADIUS,
+                                          (cam_pos.x + look_vec.x) % world::HEX_OUTER_RADIUS,
                                           (cam_pos.y + look_vec.y) -
-                                          (cam_pos.y + look_vec.y) % world::HEX_OUTER_RADIUS,
+                                          (cam_pos.y + look_vec.y) % world::HEX_INNER_RADIUS,
                                           (cam_pos.z + look_vec.z) -
                                           ((cam_pos.z + look_vec.z) % world::PILLAR_STEP_HEIGHT)))
             }
@@ -292,6 +203,10 @@ fn get_pillar_section_at_position(pillar: &HexPillar, pos_z: f32) -> Option<&Pil
         }
     }
     None
+}
+
+fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
+    Box::new(WorldGenerator::with_seed(config.seed))
 }
 
 /// Creates the OpenGL context and prints useful information about the
