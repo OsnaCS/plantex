@@ -40,10 +40,16 @@ impl World {
     /// corresponding chunk is loaded.
     pub fn pillar_at(&self, pos: PillarIndex) -> Option<&HexPillar> {
         let chunk_size = super::CHUNK_SIZE as i32;
-
+        let mut new_pos = pos;
         // TODO: use `/` operator once it's implemented
         // let chunk_pos = pos / (super::CHUNK_SIZE as i32);
-        let chunk_pos = pos.0 / chunk_size;
+        if new_pos.0.q < 0 {
+            new_pos.0.q -= 15;
+        }
+        if new_pos.0.r < 0 {
+            new_pos.0.r -= 15;
+        }
+        let chunk_pos = new_pos.0 / chunk_size;
         let out = self.chunks.get(&ChunkIndex(chunk_pos)).map(|chunk| {
 
             let mut inner_pos = pos.0 % chunk_size;
