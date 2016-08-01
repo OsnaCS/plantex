@@ -121,7 +121,7 @@ impl ChunkProvider for WorldGenerator {
                     }
                     (Some(h), false) => {
                         // Create a section of height `h` and start over
-                        sections.push(PillarSection::new(GroundMaterial::Dirt,
+                        sections.push(PillarSection::new(GroundMaterial::Grass,
                                                          HeightType::from_units(low),
                                                          HeightType::from_units(low + h)));
                         height = None;
