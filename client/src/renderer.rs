@@ -157,7 +157,7 @@ impl Renderer {
         // 0: Disable Bloom
         // 1: Enable Bloom
         // 2: Show only Bloom Map
-        let bloom_state = 0;
+        let bloom_state = 1;
 
         let uniforms = uniform! {
             decal_texture: &self.quad_tex,
