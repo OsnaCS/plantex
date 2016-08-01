@@ -1,5 +1,6 @@
 use super::{GroundMaterial, HeightType};
 use prop;
+use gen::world::biome::Biome;
 
 /// Represents one pillar of hexgonal shape in the game world.
 ///
@@ -9,13 +10,15 @@ use prop;
 pub struct HexPillar {
     sections: Vec<PillarSection>,
     props: Vec<Prop>,
+    biome: Biome,
 }
 
 impl HexPillar {
-    pub fn new(sections: Vec<PillarSection>, props: Vec<Prop>) -> Self {
+    pub fn new(sections: Vec<PillarSection>, props: Vec<Prop>, biome: Biome) -> Self {
         HexPillar {
             sections: sections,
             props: props,
+            biome: biome,
         }
     }
 
@@ -27,6 +30,10 @@ impl HexPillar {
     /// Returns a slice of this pillar's props.
     pub fn props(&self) -> &[Prop] {
         &self.props
+    }
+
+    pub fn biome(&self) -> &Biome {
+        &self.biome
     }
 }
 

@@ -189,7 +189,9 @@ impl ChunkProvider for WorldGenerator {
                 });
             }
 
-            HexPillar::new(sections, props)
+            HexPillar::new(sections,
+                           props,
+                           Biome::from_climate(temperature_noise, humidity_noise))
         }))
     }
 
