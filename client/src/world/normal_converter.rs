@@ -32,7 +32,7 @@ fn neighbours(map: &Vec<Vec<f32>>, pos: (i32, i32)) -> [f32; 9] {
 
     for p in 0..3 {
         for q in 0..3 {
-            //        println!("{}{}", p, q);
+            // println!("{}{}", p, q);
             if tmap.get((pos.0 + p - 1) as usize).is_none() ||
                tmap[(pos.0 + p - 1) as usize].get((pos.1 + q - 1) as usize).is_none() {
                 arr[iter] = tmap[pos.0 as usize][pos.1 as usize];
@@ -42,6 +42,6 @@ fn neighbours(map: &Vec<Vec<f32>>, pos: (i32, i32)) -> [f32; 9] {
             iter += 1;
         }
     }
-    info!("{:?}", arr);
+    // info!("{:?}", arr);
     arr
 }
