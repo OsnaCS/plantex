@@ -19,6 +19,8 @@ void main() {
 
     float z = unit_vector.z;
 
+    // color = vec3 (1.0,0.0,0.0);
+
     float upperblue = 1.0;
     float blue = 0.729;
     float lightblue = 0.459;
@@ -51,41 +53,42 @@ void main() {
         // difference between the two colors will be shifted
         // on the lower border the difference to the upper border
         // (times a shift-`percent`) is added
-        sunset_color = (blue_color + (upperblue_color - blue_color) * percent);
+        sunset_color = mix(blue_color, upperblue_color, percent);
     } else if (z < blue && z >= lightblue) {
         float size = blue - lightblue;
         float diff = z - lightblue;
         float percent = diff/size;
-        sunset_color = (lightblue_color + (blue_color - lightblue_color) * percent);
+        sunset_color = mix(lightblue_color, blue_color, percent);
     } else if (z < lightblue && z >= dirtyblue) {
         float size = lightblue - dirtyblue;
         float diff = z - dirtyblue;
         float percent = diff/size;
-        sunset_color = (dirtyblue_color + (lightblue_color - dirtyblue_color) * percent);
+        sunset_color = mix(dirtyblue_color, lightblue_color, percent);
     } else if ( z < dirtyblue && z >= dirtyyellow) {
         float size = dirtyblue - dirtyyellow;
         float diff = z - dirtyyellow;
         float percent = diff/size;
-        sunset_color = (dirtyyellow_color + (dirtyblue_color - dirtyyellow_color) * percent);
+        sunset_color = mix(dirtyyellow_color, dirtyblue_color, percent);
     } else if (z < dirtyyellow && z >= yellow) {
         float size = dirtyyellow - yellow;
         float diff = z - yellow;
         float percent = diff/size;
-        sunset_color = (yellow_color + (dirtyyellow_color - yellow_color) * percent);
+        sunset_color = mix(yellow_color, dirtyyellow_color, percent);
     } else if (z < yellow && z >= red) {
         float size = yellow - red;
         float diff = z - red;
         float percent = diff/size;
-        sunset_color = (red_color + (yellow_color - red_color) * percent);
+        sunset_color = mix(red_color, yellow_color, percent);
     } else if (z < red && z >= bottomred) {
         float size = red - bottomred;
         float diff = z - bottomred;
         float percent = diff/size;
-        sunset_color = (bottomred_color + (red_color - bottomred_color) * percent);
+        sunset_color = mix(bottomred_color, red_color, percent);
     } else if (z < bottomred && z >= black) {
         float size = bottomred - black;
         float diff = z - black;
         float percent = diff/size;
+        sunset_color = mix(black_color, bottomred_color, percent);
         sunset_color = (black_color + (bottomred_color - black_color) * percent);
     } else {
         sunset_color = black_color;
