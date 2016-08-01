@@ -16,9 +16,9 @@ use glium::index::PrimitiveType;
 use glium::backend::Facade;
 use glium::framebuffer::ToColorAttachment;
 
-const SHADOW_MAP_SIZE: u32 = 1024;
-const SHADOW_ORTHO_WIDTH: f32 = 300.0;
-const SHADOW_ORTHO_HEIGHT: f32 = 300.0;
+const SHADOW_MAP_SIZE: u32 = 2048;
+const SHADOW_ORTHO_WIDTH: f32 = 200.0;
+const SHADOW_ORTHO_HEIGHT: f32 = 200.0;
 const SHADOW_ORTHO_NEAR: f32 = 100.0;
 const SHADOW_ORTHO_FAR: f32 = 600.0;
 
@@ -111,7 +111,7 @@ impl Renderer {
 
         // Render the world from the perspective of the sun.
         let mut cam_pos = camera.to_vec();
-        cam_pos.z = 0.0;
+        cam_pos.z = 70.0;
         let mut sun_cam = Camera::new_from_vector(sun_pos + cam_pos,
                                                   -sun_pos.to_vec(),
                                                   SHADOW_ORTHO_WIDTH / SHADOW_ORTHO_HEIGHT);
@@ -170,7 +170,8 @@ impl Renderer {
             return Ok(());
         }
 
-        world_view.draw(&mut hdr_buffer, camera, &self.shadow_map, &depth_mvp);
+        let sun_dir = (-sun.position().to_vec()).normalize();
+        world_view.draw(&mut hdr_buffer, camera, &self.shadow_map, &depth_mvp, sun_dir);
         sky_view.draw_skydome(&mut hdr_buffer, camera);
         sun.draw_sun(&mut hdr_buffer, camera);
         weather.draw(&mut hdr_buffer, camera);

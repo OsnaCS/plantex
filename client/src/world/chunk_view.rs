@@ -100,12 +100,14 @@ impl ChunkView {
                                    surface: &mut S,
                                    camera: &Camera,
                                    shadow_map: &DepthTexture2d,
-                                   depth_view_proj: &Matrix4<f32>) {
+                                   depth_view_proj: &Matrix4<f32>,
+                                   sun_dir: Vector3f) {
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
             shadow_map: shadow_map.sampled().wrap_function(SamplerWrapFunction::Clamp),
             depth_view_proj: depth_view_proj.to_arr(),
+            sun_dir: sun_dir.to_arr(),
         };
         let params = DrawParameters {
             depth: glium::Depth {

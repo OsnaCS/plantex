@@ -72,9 +72,10 @@ impl WorldView {
                                    surface: &mut S,
                                    camera: &Camera,
                                    shadow_map: &DepthTexture2d,
-                                   depth_view_proj: &Matrix4<f32>) {
+                                   depth_view_proj: &Matrix4<f32>,
+                                   sun_dir: Vector3f) {
         for chunkview in self.chunks.values() {
-            chunkview.draw(surface, camera, shadow_map, depth_view_proj);
+            chunkview.draw(surface, camera, shadow_map, depth_view_proj, sun_dir);
         }
     }
 }
