@@ -2,14 +2,11 @@
 use base::world;
 use std::f32::consts;
 use world::chunk_view::Vertex;
-use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
-use glium::{self, DrawParameters, IndexBuffer, Program, VertexBuffer};
+use glium::{IndexBuffer, Program, VertexBuffer};
 use glium::index::PrimitiveType;
 use GameContext;
 use std::rc::Rc;
 use base::math::*;
-use Camera;
-use util::ToArr;
 
 pub struct ChunkRenderer {
     /// Chunk shader
