@@ -8,6 +8,7 @@ use util::ToArr;
 use view::{PlantRenderer, PlantView};
 use world::ChunkRenderer;
 use std::rc::Rc;
+use glium::uniforms::MinifySamplerFilter;
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
@@ -43,6 +44,18 @@ impl ChunkView {
             }
         }
 
+        // let data = vec![
+        //     vec![(0u8, 0u8, 0u8), (0u8, 0u8, 255u8), (0u8, 0u8, 255u8)],
+        //     vec![(0u8, 0u8, 0u8), (0u8, 0u8, 255u8), (0u8, 0u8, 255u8)],
+        //     vec![(255u8, 0u8, 0u8), (0u8, 255u8, 0u8), (0u8, 255u8, 0u8)],
+        // ];
+
+        // let data = vec![
+        //         vec![(0u8, 0u8, 0u8)],
+        //         vec![(255u8, 255u8, 255u8)],
+        //     ];
+
+
         ChunkView {
             renderer: chunk_renderer,
             pillars: pillars,
@@ -51,9 +64,14 @@ impl ChunkView {
     }
 
     pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
+
+
+
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
+            my_texture:  self.renderer.noise_map.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear)
+                .wrap_function(::glium::uniforms::SamplerWrapFunction::Repeat),
         };
         let params = DrawParameters {
             depth: glium::Depth {
@@ -86,9 +104,11 @@ impl ChunkView {
 pub struct Vertex {
     pub position: [f32; 3],
     pub normal: [f32; 3],
+    pub radius: f32,
+    pub tex_coord: [f32; 2],
 }
 
-implement_vertex!(Vertex, position, normal);
+implement_vertex!(Vertex, position, normal, radius, tex_coord);
 
 /// Instance data for each pillar section.
 #[derive(Debug, Copy, Clone)]
