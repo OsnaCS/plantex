@@ -3,13 +3,9 @@
 in vec4 shadowCoord;
 in vec3 x_material_color;
 in vec3 surfaceNormal;
-
 in vec3 x_position;
-
 in float x_radius;
 in vec2 x_tex_coords;
-
-
 
 out vec3 color;
 
@@ -28,6 +24,7 @@ const vec3 sun = normalize(vec3(1.0, 0.0, 1.0));
 const float SHADOW_BIAS = 0.00001;    // FIXME does this even work?
 const float AMBIENT = 0.2;
 
+/// Calculates Tangent Binormal Normal (tbn) Matrix
 mat3 cotangent_frame(vec3 normal, vec3 pos, vec2 uv) {
     vec3 dp1 = dFdx(pos);
     vec3 dp2 = dFdy(pos);
@@ -44,6 +41,13 @@ mat3 cotangent_frame(vec3 normal, vec3 pos, vec2 uv) {
 }
 
 void main() {
+
+    // =================
+    // PURE SHADOW STUFF
+    // =================
+
+    // TODO: Maybe put this into a method?
+
     // Shadow map height/width in pixels:
     float SHADOW_MAP_SIZE = textureSize(shadow_map, 0).x;
 
@@ -75,6 +79,9 @@ void main() {
     // Divide by number of pixels we sampled, to get  a range from 0 to 1
     shadowFactor /= PCF_PIXELS * PCF_PIXELS;
 
+    // ==================
+    // LIGHT CALCULATIONS
+    // ==================
 
     // Calculate normal map relative to surface
     vec3 normal_map = texture(normals, x_tex_coords).rgb;
@@ -92,24 +99,28 @@ void main() {
     float diffuse = max(0.0, dot(-sun_dir, real_normal));
 
     // Calculate diffuse color
-    vec3 diffuse_color = texture(my_texture, x_tex_coords).rgb;
+    vec3 diffuse_color = texture(my_texture, x_tex_coords).rgb * x_material_color;
 
 
-    // for showing normal map as texture
+    // DEBUG: for showing normal map as texture
     // vec3 normal_color_map = texture(normals, x_tex_coords).rgb;
 
-
-    const vec3 specular_color = vec3(1.0, 1.0, 1.0);
-    vec3 camera_dir = normalize(-x_position);
-    vec3 half_direction = normalize(normalize(-sun_dir) + camera_dir);
-    float specular = pow(max(dot(half_direction, real_normal), 0.0), 16.0);
+    // FIXME: specular color calculation is off
+    // const vec3 specular_color = vec3(1.0, 1.0, 1.0);
+    // vec3 camera_dir = normalize(-x_position);
+    // vec3 half_direction = normalize(normalize(-sun_dir) + camera_dir);
+    // float specular = pow(max(dot(half_direction, real_normal), 0.0), 16.0);
 
     // Final color calculation
-    // color = x_material_color * AMBIENT + x_material_color * diffuse * (1.0 - shadowFactor);
-    color = x_material_color * AMBIENT + diffuse_color * diffuse + specular_color * specular;
-    // color = x_material_color * ambient + x_material_color * diffuse * (1.0 - shadowFactor);
+    color = diffuse_color * AMBIENT + diffuse_color * diffuse;
 
-    // Set Border
+    // TODO: FIXME Shadow broken for now
+    // color = diffuse_color * AMBIENT + diffuse_color * diffuse * (1.0 - shadowFactor);
+
+    // TODO: Perhaps add specular component
+    // color += specular_color * specular;
+
+    // Set Border to distinguish hexagons
     if (x_radius > 0.98) {
         color *= 0.3;
     }
