@@ -210,17 +210,22 @@ impl PlantType {
                     trunk_height: 5.9..6.0,
                     trunk_diameter_top: 0.3..0.5,
                     min_branch_height: 0.5..0.51,
-                    branch_chance: 4.0,
+                    branch_chance: 6.0,
                     branch_diameter_factor: 0.3..0.5,
                     branch_angle_deg: 90.0..90.0001,
                     branch_diam_reduction: 0.6..0.7,
-                    branch_segment_length: 11.25..11.26,
-                    branch_segment_angle: 5.0..15.0,
+                    branch_segment_length: 0.5..0.65,
+                    branch_segment_angle: 3.0..5.0,
                     branch_segment_count: 3..4,
-                    branch_color: (0.1..0.15, 0.1..0.15, 0.9..0.95),
+                    branch_color: (0.2..0.21, 0.45..0.46, 0.2..0.21),
                     height_branchlength_dependence: {
                         fn f(height: f32) -> f32 {
-                            1.1 - 0.3 * (height - 4.5) * (height - 4.5)
+                            let mut result = 25.0 - 7.6 * (height - 4.5) * (height - 4.5);
+                            if result <= 0.0 {
+                                println!("{:?}, {:?}", height, result);
+                                result = 0.1;
+                            }
+                            result
                         }
                         f
                     },
@@ -321,7 +326,7 @@ impl TreeGen {
 
             // In a loop, get the length of the next segment from the current diameter.
             for _ in 0..segment_count {
-                assert!(height_branchlength_dependence(start.z) != 0.0);
+                // assert!(height_branchlength_dependence(start.z) > 0.0);
                 let length = height_branchlength_dependence(start.z) *
                              segment_dist(segment_length, diam);
                 diam *= diam_factor;

@@ -203,7 +203,7 @@ impl ChunkProvider for WorldGenerator {
 
                 props.push(Prop {
                     baseline: height,
-                    prop: PropType::Plant(PlantGenerator::new(PlantType::RegularTree)
+                    prop: PropType::Plant(PlantGenerator::new(PlantType::OakTree)
                         .generate(&mut rng)),
                     plant_index: plant_index as usize,
                 });

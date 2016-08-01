@@ -69,8 +69,8 @@ impl Biome {
                  PlantType::RegularTree,
                  PlantType::RegularTree,
                  PlantType::RegularTree,
-                 PlantType::RegularTree,
-                 PlantType::ClumpOfGrass,
+                 PlantType::OakTree,
+                 PlantType::OakTree,
                  PlantType::ClumpOfGrass,
                  PlantType::ClumpOfGrass,
                  PlantType::ClumpOfGrass,
@@ -104,8 +104,8 @@ impl Biome {
                 [PlantType::RegularTree,
                  PlantType::RegularTree,
                  PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
+                 PlantType::OakTree,
+                 PlantType::OakTree,
                  PlantType::Conifer,
                  PlantType::ClumpOfGrass,
                  PlantType::Conifer,
@@ -117,16 +117,16 @@ impl Biome {
                  PlantType::JungleTree,
                  PlantType::JungleTree,
                  PlantType::JungleTree,
-                 PlantType::JungleTree,
+                 PlantType::OakTree,
                  PlantType::ClumpOfGrass,
                  PlantType::ClumpOfGrass,
-                 PlantType::Shrub,
+                 PlantType::OakTree,
                  PlantType::Shrub,
                  PlantType::RegularTree]
             }
             Biome::Savanna => {
-                [PlantType::Shrub,
-                 PlantType::Shrub,
+                [PlantType::OakTree,
+                 PlantType::ClumpOfGrass,
                  PlantType::Shrub,
                  PlantType::Shrub,
                  PlantType::Shrub,
@@ -143,22 +143,22 @@ impl Biome {
                  PlantType::Conifer,
                  PlantType::Conifer,
                  PlantType::Conifer,
-                 PlantType::Conifer,
+                 PlantType::OakTree,
                  PlantType::Conifer,
                  PlantType::Conifer,
                  PlantType::Conifer]
             }
             Biome::Debug => {
-                [PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer]
+                [PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass,
+                 PlantType::ClumpOfGrass]
             }
         }
     }
