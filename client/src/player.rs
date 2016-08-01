@@ -52,6 +52,7 @@ impl Player {
         let mut above = 0.0;
         let world = self.world_manager.get_world();
         let real_pos = Point2f::new(self.cam.position.x, self.cam.position.y);
+        println!("Real Pos  ________________{:?}", real_pos);
         let pillar_index = PillarIndex(AxialPoint::from_real(real_pos));
         let vec_len =
             world.pillar_at(pillar_index).map(|pillar| pillar.sections().len()).unwrap_or(0);
