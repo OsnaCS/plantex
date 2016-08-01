@@ -1,6 +1,6 @@
 use base::world::{Chunk, HexPillar, PropType};
 use base::math::*;
-use glium::{self, DrawParameters, IndexBuffer, Program, VertexBuffer};
+use glium::{self, DrawParameters, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
 use glium::backend::Facade;
 use glium::texture::DepthTexture2d;
@@ -10,7 +10,6 @@ use Camera;
 use util::ToArr;
 use view::{PlantRenderer, PlantView};
 use world::ChunkRenderer;
-use world::HexagonOutline;
 use std::rc::Rc;
 use base::world::ground::GroundMaterial;
 

@@ -9,7 +9,6 @@ use base::prop::plant::{Plant, Tree};
 use std::rc::Rc;
 use super::PlantRenderer;
 use base::prop::plant::ControlPoint;
-use glium::draw_parameters::PolygonMode;
 
 /// Graphical representation of a 'base::Plant'
 pub struct PlantView {

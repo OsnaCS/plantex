@@ -30,10 +30,12 @@ use player::Player;
 use control_switcher::ControlSwitcher;
 use base::world::PillarSection;
 use base::world;
-use base::world::HeightType;
+// use base::world::HeightType; //used in function later
 use base::math::*;
 use base::world::PillarIndex;
 use base::world::HexPillar;
+use base::world::World;
+use camera::Camera;
 
 pub struct Game {
     renderer: Renderer,
@@ -101,7 +103,7 @@ impl Game {
             self.sun.update(self.daytime.get_sun_position());
             // Display Outline of Hexagon looking at
             let vec = get_pillarsectionpos_looking_at(&self.world_manager.get_world(),
-                                                      self.player.get_camera());
+                                                      self.control_switcher.get_camera());
             match vec {
                 Some(n) => {
                     let mut view = self.world_manager.get_mut_view();
@@ -146,33 +148,36 @@ fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
     Box::new(WorldGenerator::with_seed(config.seed))
 }
 
+// no comment
+// just because not used at the moment. will be used later!
 // need sorted pillars
-fn remove_hexagon_at(pillar: &mut HexPillar, height: f32) {
-    let bottom = height - height % world::PILLAR_STEP_HEIGHT;
+// fn remove_hexagon_at(pillar: &mut HexPillar, height: f32) {
+// let bottom = height - height % world::PILLAR_STEP_HEIGHT;
+//
+// let mut i = 0;
+// for section in pillar.sections() {
+// if section.top.to_real() >= bottom {
+// break;
+// }
+// i += 1;
+// }
+//
+// let mut pillar_section = pillar.sections_mut();
+// if pillar_section[i].top.to_real() != height + world::PILLAR_STEP_HEIGHT {
+// let sec = PillarSection {
+// ground: pillar_section[i].ground.clone(),
+// top: pillar_section[i].top,
+// bottom: HeightType::from_units((height / world::PILLAR_STEP_HEIGHT) as u16),
+// };
+// pillar_section.insert(i, sec);
+// i -= 1;
+// }
+// pillar_section[i].top = HeightType::from_units(height as u16);
+// if pillar_section[i].top == pillar_section[i].bottom {
+// pillar_section.remove(i);
+// }
+// }
 
-    let mut i = 0;
-    for section in pillar.sections() {
-        if section.top.to_real() >= bottom {
-            break;
-        }
-        i += 1;
-    }
-
-    let mut pillar_section = pillar.sections_mut();
-    if pillar_section[i].top.to_real() != height + world::PILLAR_STEP_HEIGHT {
-        let sec = PillarSection {
-            ground: pillar_section[i].ground.clone(),
-            top: pillar_section[i].top,
-            bottom: HeightType::from_units((height / world::PILLAR_STEP_HEIGHT) as u16),
-        };
-        pillar_section.insert(i, sec);
-        i -= 1;
-    }
-    pillar_section[i].top = HeightType::from_units(height as u16);
-    if pillar_section[i].top == pillar_section[i].bottom {
-        pillar_section.remove(i);
-    }
-}
 
 fn get_pillarsectionpos_looking_at(world: &World, cam: Camera) -> Option<Vector3f> {
     let cam_pos = cam.position;
@@ -222,10 +227,6 @@ fn get_pillar_section_at_position(pillar: &HexPillar, pos_z: f32) -> Option<&Pil
         }
     }
     None
-}
-
-fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
-    Box::new(WorldGenerator::with_seed(config.seed))
 }
 
 /// Creates the OpenGL context and prints useful information about the

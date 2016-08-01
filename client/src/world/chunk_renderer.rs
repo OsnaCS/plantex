@@ -3,8 +3,7 @@ use base::world;
 use base::math::SQRT_3;
 use std::f32::consts;
 use world::chunk_view::Vertex;
-use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
-use glium::{self, DrawParameters, IndexBuffer, Program, VertexBuffer};
+use glium::{IndexBuffer, Program, VertexBuffer};
 use glium::index::PrimitiveType;
 use glium::texture::Texture2d;
 use GameContext;
@@ -12,6 +11,7 @@ use std::rc::Rc;
 use super::tex_generator;
 use super::normal_converter;
 use base::world::ground::GroundMaterial;
+use base::math::*;
 
 pub struct ChunkRenderer {
     /// Chunk shader
