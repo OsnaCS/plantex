@@ -58,7 +58,9 @@ pub fn create_grass(seed: u64) -> (Vec<Vec<f32>>, Vec<Vec<(f32, f32, f32)>>) {
         }
     }
 
+
     (grass_height_map, tex_map)
+}
 pub fn create_noise(seed: u64) -> Vec<Vec<(f32, f32, f32)>> {
     let mut texture_rng = seeded_rng(seed, 13, ());
     let table = PermutationTable::rand(&mut texture_rng);

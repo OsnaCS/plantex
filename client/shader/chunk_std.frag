@@ -3,16 +3,15 @@
 in vec4 shadowCoord;
 in vec3 x_color;
 in vec3 surfaceNormal;
-in float x_radius;
-in vec2 x_tex_coord;
 flat in int x_ground;
+
+in float x_radius;
+in vec2 x_tex_coords;
 
 uniform sampler2D sand_texture;
 uniform sampler2D grass_texture;
 uniform sampler2D snow_texture;
 
-in float x_radius;
-in vec2 x_tex_coords;
 
 
 
@@ -35,6 +34,8 @@ const float AMBIENT = 0.2;
 const vec3 sun = normalize(vec3(1.0, 0.0, 1.0));
 
 void main() {
+
+    float shadowFactor = 0.0;
     float diffuse = max(0.0, dot(-sun_dir, surfaceNormal));
     color = x_color * AMBIENT + x_color * diffuse * (1.0 - shadowFactor);
 
@@ -44,7 +45,6 @@ void main() {
     vec3 lightCoords = shadowCoord.xyz / shadowCoord.w;
     lightCoords = lightCoords * 0.5 + 0.5;
     float pixelOffset = 1.0 / SHADOW_MAP_SIZE;
-    float shadowFactor = 0.0;
 
     for (int y = -SHADOW_PCF_RADIUS; y <= SHADOW_PCF_RADIUS; y++) {
         for (int x = -SHADOW_PCF_RADIUS; x <= SHADOW_PCF_RADIUS; x++) {
@@ -74,28 +74,28 @@ void main() {
     // TODO: More grounds and make it better ;D
     if(x_ground == 1) {
         if (x_radius > 0.98) {
-            color *= texture(grass_texture, x_tex_coord).xyz * 0.75;
+            color *= texture(grass_texture, x_tex_coords).xyz * 0.75;
         } else {
-            color *= texture(grass_texture, x_tex_coord).xyz;
+            color *= texture(grass_texture, x_tex_coords).xyz;
         }
     } else if(x_ground == 2) {
         if (x_radius > 0.98) {
-          color *= texture(sand_texture, x_tex_coord).xyz * 0.75;
+          color *= texture(sand_texture, x_tex_coords).xyz * 0.75;
         } else {
-          color *= texture(sand_texture, x_tex_coord).xyz;
+          color *= texture(sand_texture, x_tex_coords).xyz;
         }
     } else {
         if (x_radius > 0.98) {
-          color *= texture(snow_texture, x_tex_coord).xyz * 0.75;
+          color *= texture(snow_texture, x_tex_coords).xyz * 0.75;
         } else {
-          color *= texture(snow_texture, x_tex_coord).xyz;
+          color *= texture(snow_texture, x_tex_coords).xyz;
         }
     }
     // check for border
     // if (x_radius > 0.98) {
-    //   color *= texture(my_texture, x_tex_coord).xyz * 0.75;
+    //   color *= texture(my_texture, x_tex_coords).xyz * 0.75;
     // } else {
-    //   color *= texture(my_texture, x_tex_coord).xyz;
+    //   color *= texture(my_texture, x_tex_coords).xyz;
     // }
     // color *= diffuse;
     // hack to make brighter

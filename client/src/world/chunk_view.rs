@@ -11,7 +11,6 @@ use util::ToArr;
 use view::{PlantRenderer, PlantView};
 use world::ChunkRenderer;
 use std::rc::Rc;
-use glium::uniforms::MinifySamplerFilter;
 use base::world::ground::GroundMaterial;
 
 /// Graphical representation of the `base::Chunk`.

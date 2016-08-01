@@ -16,8 +16,6 @@ in int ground;
 
 out vec3 x_color;
 out vec3 surfaceNormal;
-out float x_radius;
-out vec2 x_tex_coord;
 flat out int x_ground;
 // Vertex/Pixel coordinates in shadow map
 out vec4 shadowCoord;
