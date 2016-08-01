@@ -39,7 +39,7 @@ void main() {
     color = x_color * AMBIENT + x_color * diffuse * (1.0 - shadowFactor);
 
     // Shadow map height/width in pixels:
-    float SHADOW_MAP_SIZE = textureSize(shadow_map, 0);
+    float SHADOW_MAP_SIZE = textureSize(shadow_map, 0).x;
 
     vec3 lightCoords = shadowCoord.xyz / shadowCoord.w;
     lightCoords = lightCoords * 0.5 + 0.5;
