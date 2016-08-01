@@ -33,6 +33,7 @@ impl Player {
                 position: Point3::new(15.0, 10.0, 50.0),
                 phi: -0.27,
                 theta: 2.6,
+                aspect_ratio: context.get_config().resolution.aspect_ratio(),
             },
             world_manager: world_manager,
             context: context,
@@ -47,16 +48,13 @@ impl Player {
     }
     /// Gets the actual `Height` of the `HexPillar`
     pub fn get_ground_height(&mut self) -> (Option<f32>, Option<f32>) {
-        let height_delta = 1.0;
         let mut height = 0.0;
         let mut above = 0.0;
         let world = self.world_manager.get_world();
         let real_pos = Point2f::new(self.cam.position.x, self.cam.position.y);
-        println!("Real Pos  ________________{:?}", real_pos);
         let pillar_index = PillarIndex(AxialPoint::from_real(real_pos));
         let vec_len =
             world.pillar_at(pillar_index).map(|pillar| pillar.sections().len()).unwrap_or(0);
-        println!("Pillar {:?}", world.pillar_at(pillar_index));
 
         let pillar_vec = world.pillar_at(pillar_index).map(|pillar| pillar.sections());
 
@@ -86,91 +84,8 @@ impl Player {
             }
         }
 
-
-
-        // if height > self.cam.position.z - height_delta {
-        //     self.acceleration.x = 0.0;
-        //     height = self.cam.position.z - 1.75;
-        // }
-
-
-
-
-
-
-
         (Some(height), Some(above))
     }
-    pub fn get_ground_height_at(&self) -> Option<f32> {
-        let height_delta = 1.0;
-        let mut height = 0.0;
-        let world = self.world_manager.get_world();
-        let next_pos = Point2f::new(self.cam.position.x + self.velocity.x,
-                                    self.cam.position.y + self.velocity.y);
-        let pillar_index = PillarIndex(AxialPoint::from_real(next_pos));
-        let vec_len =
-            world.pillar_at(pillar_index).map(|pillar| pillar.sections().len()).unwrap_or(0);
-        println!("Pillar {:?}", world.pillar_at(pillar_index));
-
-        let pillar_vec = world.pillar_at(pillar_index).map(|pillar| pillar.sections());
-
-        if pillar_vec.is_some() {
-            let new_pillar_vec = pillar_vec.unwrap();
-
-            if vec_len == 1 {
-                height = new_pillar_vec[0].top.to_real();
-            } else {
-                for i in 0..vec_len {
-                    if i != vec_len - 1 {
-                        if new_pillar_vec[i].top.to_real() < self.cam.position.z &&
-                           self.cam.position.z < new_pillar_vec[i + 1].bottom.to_real() {
-                            height = new_pillar_vec[i].top.to_real();
-                            break;
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        height = new_pillar_vec[i].top.to_real();
-                        break;
-                    }
-                }
-            }
-        }
-        Some(height)
-    }
-    // pub fn check_collision(&self) -> Vector3f {
-    //     let mut vec = Vector3f::new(0.0, 0.0, 0.0);
-    //     let world = self.world_manager.get_world();
-    //     let height = self.cam.position.z;
-    //     let mut tmp_height: f32;
-    //     let mut tmp_bottom: f32;
-    //     let height_delta = 1.0;
-
-    //     let real_pos = Point2f::new(self.cam.position.x + self.velocity.x,
-    //                                 self.cam.position.y + self.velocity.y);
-    //     let pillar_index = PillarIndex(AxialPoint::from_real(real_pos));
-
-    //     let mut vec_len =
-    // world.pillar_at(pillar_index).map(|pillar|
-    // pillar.sections().len()).unwrap_or(0);
-    // let pillar_vec = world.pillar_at(pillar_index).map(|pillar|
-    // pillar.sections());
-    //     if pillar_vec.is_some() {
-    //         for i in 0..vec_len {
-    //             let new_pillar_vec = pillar_vec.unwrap();
-    //             tmp_height = new_pillar_vec[i].top.to_real();
-    //             tmp_bottom = new_pillar_vec[i].bottom.to_real();
-
-    //             if height - -height_delta > tmp_bottom && tmp_bottom != 0.0 {
-    //                 vec.z = tmp_bottom;
-    //             }
-    //         }
-    //         vec
-    //     } else {
-    //         vec.z = height;
-    //         vec
-    //     }
-    // }
 
     /// Getter method for the `Camera`
     pub fn get_camera(&self) -> Camera {
@@ -186,7 +101,6 @@ impl Player {
 
         let height = (self.get_ground_height().0).unwrap_or(0.0) + 1.75;
         let above = (self.get_ground_height().1).unwrap_or(0.0) + 1.75;
-        println!("==== height {:?},  ======= above {:?}", height, above);
         // Moves the Player forward or backward with the acceleration and delta
         // (1.0 - (-((self.timer_vel * delta) / (1.0))).exp()) -> this is a formula
         // that calculates a
@@ -229,8 +143,8 @@ impl Player {
 
         // Let the player jump with the given start-velocity
         if self.velocity.z != 0.0 {
-            let mut velz = self.velocity.z * self.timer_jump * delta -
-                           self.timer_jump * self.timer_jump * delta * delta * GRAVITY;
+            let velz = self.velocity.z * self.timer_jump * delta -
+                       self.timer_jump * self.timer_jump * delta * delta * GRAVITY;
             self.timer_jump += 1.0;
             if self.cam.position.z + velz > above {
                 self.velocity.z = 0.0;
@@ -256,9 +170,7 @@ impl Player {
                 self.timer_jump = 1.0;
             }
         }
-        let next_height = self.get_ground_height_at();
         if height > self.cam.position.z + self.step_size {
-            println!("==== height {:?} cam z {:?}", height, self.cam.position.z);
             // self.velocity.x = 0.0;
             // self.velocity.y = 0.0;
         } else {
@@ -269,17 +181,11 @@ impl Player {
                 self.cam.position.z = height;
             }
         }
-        //       let velo = self.check_collision();
+
         self.cam.move_forward(self.velocity.x);
         self.cam
             .move_right(self.velocity.y);
-        // self.cam
-        // .move_up(velo.z);
 
-
-        // self.velocity.x = 0.0;
-        // self.velocity.y = 0.0;
-        // self.velocity.z = 0.0;
 
     }
 }
