@@ -12,6 +12,17 @@ use std::rc::Rc;
 use std::net::{SocketAddr, TcpStream};
 use std::error::Error;
 
+use base::world::World;
+use camera::Camera;
+use base::world::PillarSection;
+use base::world;
+use base::world::HeightType;
+use base::math::*;
+use base::world::PillarIndex;
+use base::world::HexPillar;
+use std::f32::consts;
+use base::world::GroundMaterial;
+
 use view::{SkyView, Sun};
 use super::DayTime;
 use super::weather::Weather;
@@ -122,7 +133,6 @@ fn create_context(config: &Config) -> Result<GlutinFacade, Box<Error>> {
 
     // initialize window builder
     let mut window_builder = glutin::WindowBuilder::new();
-
     // check for window mode and set params
     match config.window_mode {
         WindowMode::Windowed => (),
@@ -133,7 +143,6 @@ fn create_context(config: &Config) -> Result<GlutinFacade, Box<Error>> {
             window_builder = window_builder.with_decorations(false);
         }
     }
-
     // check for vsync
     if config.vsync {
         window_builder = window_builder.with_vsync();
