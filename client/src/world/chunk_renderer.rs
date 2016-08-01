@@ -7,6 +7,7 @@ use glium::index::PrimitiveType;
 use glium::texture::Texture2d;
 use GameContext;
 use std::rc::Rc;
+use std::error::Error;
 use super::tex_generator;
 use super::normal_converter;
 
@@ -20,6 +21,9 @@ pub struct ChunkRenderer {
     pillar_vbuf: VertexBuffer<Vertex>,
     /// Index Buffer for `pillar_vbuf`.
     pillar_ibuf: IndexBuffer<u32>,
+    pub noise_sand: Texture2d,
+    pub noise_snow: Texture2d,
+    pub noise_grass: Texture2d,
     pub noise_map: Texture2d,
     pub normal_map: Texture2d,
 }
@@ -37,6 +41,9 @@ impl ChunkRenderer {
         get_side_hexagon_model(3, 4, &mut vertices, &mut indices);
         get_side_hexagon_model(2, 3, &mut vertices, &mut indices);
 
+        // TODO: Maybe fix function return type instead of
+        // calling create_sand(...).1
+        // Are we only using the first value?
         ChunkRenderer {
             program: context.load_program("chunk_std").unwrap(),
             shadow_program: context.load_program("chunk_shadow").unwrap(),
@@ -44,6 +51,15 @@ impl ChunkRenderer {
             pillar_ibuf: IndexBuffer::new(context.get_facade(),
                                           PrimitiveType::TrianglesList,
                                           &indices)
+                .unwrap(),
+            noise_sand: Texture2d::new(context.get_facade(),
+                                       tex_generator::create_sand(2 as u64).1)
+                .unwrap(),
+            noise_snow: Texture2d::new(context.get_facade(),
+                                       tex_generator::create_snow(2 as u64).1)
+                .unwrap(),
+            noise_grass: Texture2d::new(context.get_facade(),
+                                        tex_generator::create_grass(2 as u64).1)
                 .unwrap(),
 
             noise_map: match Texture2d::new(context.get_facade(),
@@ -106,6 +122,7 @@ fn tex_map(i: i32) -> (f32, f32) {
 /// Calculates the top face of the Hexagon and normals
 fn get_top_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
     let cur_len = vertices.len() as u32;
+    // Corner vertices
     for i in 0..6 {
         let (x, y) = hex_corner(world::HEX_OUTER_RADIUS, i);
 
@@ -119,6 +136,7 @@ fn get_top_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
         });
     }
 
+    // Central Vertex
     vertices.push(Vertex {
         position: [0.0, 0.0, world::PILLAR_STEP_HEIGHT],
         normal: [0.0, 0.0, 1.0],
@@ -199,6 +217,7 @@ fn get_side_hexagon_model(ind1: i32,
     let (x2, y2) = hex_corner(world::HEX_OUTER_RADIUS, ind2);
     let normal = [y1 + y2, x1 + x2, 0.0];
 
+    // TODO: tex_coords fix
     vertices.push(Vertex {
         position: [x1, y1, world::PILLAR_STEP_HEIGHT],
         normal: normal,

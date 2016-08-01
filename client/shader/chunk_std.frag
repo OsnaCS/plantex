@@ -6,6 +6,7 @@ in vec3 surfaceNormal;
 in vec3 x_position;
 in float x_radius;
 in vec2 x_tex_coords;
+flat in int x_ground;
 
 out vec3 color;
 
@@ -16,6 +17,11 @@ uniform sampler2D shadow_map;
 
 uniform sampler2D my_texture;
 uniform sampler2D normals;
+
+// Surface textures
+uniform sampler2D sand_texture;
+uniform sampler2D grass_texture;
+uniform sampler2D snow_texture;
 
 // Percentage-closer filtering (square) radius in pixels
 const int SHADOW_PCF_RADIUS = 1;
@@ -98,8 +104,28 @@ void main() {
     // Calculate diffuse light
     float diffuse = max(0.0, dot(-sun_dir, real_normal));
 
-    // Calculate diffuse color
-    vec3 diffuse_color = texture(my_texture, x_tex_coords).rgb * x_material_color;
+    // =============
+    // Determine which surface texture to use
+    // Andy & Helena
+    // FIXME Be smarter about this calculation - We simply make the whole color
+    // darker
+    // TODO: More grounds and make it better ;D
+
+    vec3 diffuse_color;
+    if (x_ground == 1) {
+        diffuse_color = texture(grass_texture, x_tex_coords).rgb * x_material_color;
+    } else if (x_ground == 2) {
+        diffuse_color = texture(sand_texture, x_tex_coords).rgb * x_material_color;
+    } else if (x_ground == 3) {
+        diffuse_color = texture(snow_texture, x_tex_coords).rgb * x_material_color;
+    }
+
+    // =============
+
+    // TODO: temp fix
+    // This is how we should calculate the diffuse color component
+    // Substitute in the chosen texture
+    // vec3 diffuse_color = texture(my_texture, x_tex_coords).rgb * x_material_color;
 
 
     // DEBUG: for showing normal map as texture
@@ -124,5 +150,4 @@ void main() {
     if (x_radius > 0.98) {
         color *= 0.3;
     }
-
 }

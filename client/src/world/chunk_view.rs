@@ -11,6 +11,7 @@ use util::ToArr;
 use view::{PlantRenderer, PlantView};
 use world::ChunkRenderer;
 use std::rc::Rc;
+use base::world::ground::GroundMaterial;
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
@@ -30,7 +31,6 @@ impl ChunkView {
                                  facade: &F)
                                  -> Self {
 
-
         let mut sections = Vec::new();
         let mut pillars = Vec::new();
 
@@ -38,8 +38,19 @@ impl ChunkView {
             let pos = offset.to_real() + axial.to_real();
             pillars.push(PillarView::from_pillar(pos, pillar, plant_renderer.clone(), facade));
             for section in pillar.sections() {
+                let g = match section.ground {
+                    GroundMaterial::Grass => 1,
+                    GroundMaterial::Sand => 2,
+                    GroundMaterial::Snow => 3,
+                    GroundMaterial::Dirt => 4,
+                    GroundMaterial::Stone => 5,
+                    GroundMaterial::JungleGrass => 6,
+                    GroundMaterial::Mulch => 7,
+                    GroundMaterial::Debug => 8,
+                };
                 sections.push(Instance {
                     material_color: section.ground.get_color(),
+                    ground: g,
                     offset: [pos.x, pos.y, section.bottom.to_real()],
                     height: (section.top.units() - section.bottom.units()) as f32,
                 });
@@ -57,6 +68,9 @@ impl ChunkView {
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
+            sand_texture:  self.renderer.noise_sand.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+            snow_texture:  self.renderer.noise_snow.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+            grass_texture: self.renderer.noise_grass.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
         };
         let params = DrawParameters {
             depth: glium::Depth {
@@ -104,20 +118,20 @@ impl ChunkView {
                 test: DepthTest::IfLess,
                 ..Default::default()
             },
-            backface_culling: BackfaceCullingMode::CullCounterClockwise,
+            backface_culling: BackfaceCullingMode::CullClockwise,
             ..Default::default()
         };
 
         surface.draw((self.renderer.pillar_vertices(), self.pillar_buf.per_instance().unwrap()),
                   self.renderer.pillar_indices(),
-                  self.renderer.program(),
+                  self.renderer.shadow_program(),
                   &uniforms,
                   &params)
             .unwrap();
 
         for pillar in &self.pillars {
             for plant in &pillar.plants {
-                plant.draw(surface, camera);
+                plant.draw_shadow(surface, camera);
             }
         }
     }
@@ -138,6 +152,7 @@ implement_vertex!(Vertex, position, normal, radius, tex_coords);
 /// Instance data for each pillar section.
 #[derive(Debug, Copy, Clone)]
 pub struct Instance {
+    ground: i32,
     /// Material color.
     material_color: [f32; 3],
     /// Offset in world coordinates.
@@ -146,7 +161,7 @@ pub struct Instance {
     height: f32,
 }
 
-implement_vertex!(Instance, material_color, offset, height);
+implement_vertex!(Instance, material_color, offset, ground, height);
 
 pub struct PillarView {
     plants: Vec<PlantView>,

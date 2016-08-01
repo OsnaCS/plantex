@@ -1,5 +1,6 @@
 use base::math::*;
 
+
 /// Converts a height map into a normal map
 pub fn convert(map: Vec<Vec<f32>>, scale: f32) -> Vec<Vec<(f32, f32, f32)>> {
     let mut normals: Vec<Vec<(f32, f32, f32)>> =

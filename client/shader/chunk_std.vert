@@ -12,6 +12,7 @@ in vec2 tex_coords;
 in float height;
 in vec3 offset;
 in vec3 material_color;
+in int ground;
 
 // -----------------------
 
@@ -20,6 +21,7 @@ out vec3 surfaceNormal;
 out float x_radius;
 out vec2 x_tex_coords;
 out vec3 x_material_color;
+flat out int x_ground;
 
 // Vertex/Pixel coordinates in shadow map
 out vec4 shadowCoord;
@@ -44,4 +46,5 @@ void main() {
     x_radius = radius;
     x_tex_coords = tex_coords;
     x_position = position;
+    x_ground = ground;
 }
