@@ -171,7 +171,11 @@ impl Renderer {
         }
 
         let sun_dir = (-sun.position().to_vec()).normalize();
-        world_view.draw(&mut hdr_buffer, camera, &self.shadow_map, &depth_mvp, sun_dir);
+        world_view.draw(&mut hdr_buffer,
+                        camera,
+                        &self.shadow_map,
+                        &depth_mvp,
+                        sun_dir);
         sky_view.draw_skydome(&mut hdr_buffer, camera);
         sun.draw_sun(&mut hdr_buffer, camera);
         weather.draw(&mut hdr_buffer, camera);
