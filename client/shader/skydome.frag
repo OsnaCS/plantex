@@ -19,8 +19,6 @@ void main() {
 
     float z = unit_vector.z;
 
-    // color = vec3 (1.0,0.0,0.0);
-
     float upperblue = 1.0;
     float blue = 0.729;
     float lightblue = 0.459;
