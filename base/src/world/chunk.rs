@@ -13,6 +13,7 @@ use std::iter::Iterator;
 /// `AxialPoint`.
 ///
 /// [1]: http://www.redblobgames.com/grids/hexagons/#map-storage
+#[derive(Debug)]
 pub struct Chunk {
     /// All pillars are layed out in this one dimensional vector which saves
     /// all rows (same r-value) consecutive.

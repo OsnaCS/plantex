@@ -193,6 +193,7 @@ impl ChunkProvider for WorldGenerator {
         }))
     }
 
+
     fn is_chunk_loadable(&self, _: ChunkIndex) -> bool {
         // All chunks can be generated from nothing
         true
