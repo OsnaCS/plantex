@@ -103,6 +103,9 @@ pub struct Weather {
     actual_buf: VertexBuffer<Instance>,
     form: Form,
     strength: Strength,
+    wind: Vector2f,
+    wind_speed: f32,
+    delta_time: f32,
 }
 
 impl Weather {
@@ -123,6 +126,9 @@ impl Weather {
             actual_buf: sections2,
             form: Form::None,
             strength: Strength::Medium,
+            wind: Vector2f::new(rand::random::<f32>(), rand::random::<f32>()),
+            wind_speed: (rand::random::<f32>() + 0.2) * 5.0,
+            delta_time: 0.0,
         }
     }
 
@@ -131,9 +137,6 @@ impl Weather {
         if self.form as u8 == 0 {
             return;
         }
-
-
-
 
         let params = DrawParameters {
             depth: glium::Depth {
@@ -218,18 +221,35 @@ impl Weather {
 
     pub fn update(&mut self, camera: &Camera, delta: f32, world_manager: &super::WorldManager) {
         if self.form as u8 == 0 {
+            if self.particles.len() > 0 {
+                for _ in 0..self.particles.len() / 20 {
+                    self.particles.pop();
+                }
+            }
             return;
         }
+        self.delta_time += delta;
+
+        if self.delta_time >= 90.0 {
+            self.wind.x += (rand::random::<f32>() * 0.4) - 0.2;
+            self.wind.y += (rand::random::<f32>() * 0.4) - 0.2;
+            self.wind_speed = (rand::random::<f32>() + 0.2) * 5.0;
+            self.delta_time = 0.0;
+        }
+
         self.camera = *camera;
         let max_count: usize;
         match self.form {
-            Form::Pollen => max_count = 25 * self.strength as usize,
+            Form::Pollen => max_count = 40 * self.strength as usize,
             _ => max_count = 750 * self.strength as usize,
+        }
+        if self.particles.len() > max_count {
+            self.particles.clear();
         }
         if self.particles.len() < max_count {
             let count = max_count / 10;
             for _ in 0..count {
-                self.particles.push(Particle::new(camera.position));
+                self.particles.push(Particle::new(camera.position * rand::random::<f32>()));
             }
             let mut tmp = Vec::new();
             for particle in self.particles.iter() {
@@ -247,23 +267,31 @@ impl Weather {
             match self.form {
                 Form::Snow => {
                     instance.position[2] = instance.position[2] - (particle.velocity * 3.0 * delta);
-                    instance.position[0] += particle.trans_x.sin() * 0.05;
-                    instance.position[1] += particle.trans_y.cos() * 0.05;
+                    instance.position[0] += (particle.trans_x.sin() * 0.05 +
+                                             (self.wind.x * self.wind_speed) * delta) *
+                                            0.5;
+                    instance.position[1] += (particle.trans_y.cos() * 0.05 +
+                                             (self.wind.y * self.wind_speed) * delta) *
+                                            0.5;
                     particle.trans_y += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_x += PI * 0.005 * (rand::random::<f32>() - 0.5);
                 }
 
                 Form::Rain => {
+                    instance.position[0] += ((self.wind.x * self.wind_speed) * delta) * 2.0;
+                    instance.position[1] += ((self.wind.y * self.wind_speed) * delta) * 2.0;
                     instance.position[2] = instance.position[2] -
                                            ((particle.velocity + 0.5) * 50.0 * delta)
                 }
                 Form::Pollen => {
-                    instance.position[0] += particle.trans_x.sin() * 0.025;
-                    instance.position[1] += particle.trans_y.cos() * 0.025;
-                    instance.position[2] += (particle.trans_z.sin() - 0.7) * 0.5 * delta;
+                    instance.position[0] +=
+                        (particle.trans_x.sin() * delta * (self.wind.x * self.wind_speed)) * 2.0;
+                    instance.position[1] +=
+                        (particle.trans_y.cos() * delta * (self.wind.y * self.wind_speed)) * 2.0;
+                    instance.position[2] += (particle.trans_z.sin() - 0.5) * 0.5 * delta;
                     particle.trans_y += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_x += PI * 0.005 * (rand::random::<f32>() - 0.5);
-                    particle.trans_z += PI * 0.005 * (rand::random::<f32>() - 0.1);
+                    particle.trans_z += PI * 0.005 * (rand::random::<f32>() - 0.3);
                 }
                 _ => (),
 
@@ -277,7 +305,7 @@ impl Weather {
 
 
             let size = match self.form {
-                Form::Pollen => BOX_SIZE / 4.0,
+                Form::Pollen => BOX_SIZE / 5.0,
                 _ => 1.0,
             };
 
@@ -295,7 +323,6 @@ impl Weather {
                                         instance.position[1],
                                         instance.position[2]);
             let mut height = 0.0;
-
             let world = world_manager.get_world();
             let relevant_pos = Point2f::new(instance.position[0], instance.position[1]);
             let pillar_index = PillarIndex(AxialPoint::from_real(relevant_pos));
@@ -325,7 +352,6 @@ impl Weather {
                     }
                 }
             }
-            // let vec = world.pillar_at(pillar_index);
             if ((tmp_point - camera.position).dot(camera.get_look_at_vector())) > 0.0 &&
                instance.position[2] > height {
                 tmp2.push(Instance {

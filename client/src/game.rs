@@ -71,13 +71,13 @@ impl Game {
             // delta in seconds
             let delta = ((duration_delta.subsec_nanos() / 1_000) as f32) / 1_000_000.0 +
                         duration_delta.as_secs() as f32;
+            time_prev = Instant::now();
 
             self.weather.update(&self.control_switcher.get_camera(),
                                 delta,
                                 &self.world_manager);
             self.world_manager.update_world(self.control_switcher.get_camera().position);
 
-            time_prev = Instant::now();
 
             self.daytime.update(delta);
             self.sky_view.update(self.daytime.get_sun_position());
