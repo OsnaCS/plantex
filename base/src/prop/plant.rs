@@ -32,7 +32,7 @@ pub struct Branch {
     pub is_trunk: bool,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct ControlPoint {
     /// The location of this point in model coordinates (relative to the tree
     /// position).
