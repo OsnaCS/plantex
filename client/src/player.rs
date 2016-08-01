@@ -43,15 +43,64 @@ impl Player {
             velocity: Vector3::new(0.0, 0.0, 0.0),
             mouselock: false,
             shift_speed: 1.0,
-            step_size: 2.5,
+            step_size: 1.0,
         }
     }
+    // pub fn get_ground_height_at(&mut self, pos_x: f32, pos_y: f32) ->
+    // (Option<f32>, Option<f32>) {
+    //     let mut height = 0.0;
+    //     let mut above = 0.0;
+    //     let world = self.world_manager.get_world();
+    //     let real_pos = Point2f::new(pos_x, pos_y);
+    //     let pillar_index = PillarIndex(AxialPoint::from_real(real_pos));
+    //     let vec_len =
+    // world.pillar_at(pillar_index).map(|pillar|
+    // pillar.sections().len()).unwrap_or(0);
+
+    // let pillar_vec = world.pillar_at(pillar_index).map(|pillar|
+    // pillar.sections());
+
+    //     if pillar_vec.is_some() {
+    //         let new_pillar_vec = pillar_vec.unwrap();
+
+    //         if vec_len == 1 {
+    //             height = new_pillar_vec[0].top.to_real();
+    //             above = f32::INFINITY;
+    //         } else {
+    //             for i in 0..vec_len {
+    //                 if i != vec_len - 1 {
+    // if new_pillar_vec[i].top.to_real() < self.cam.position.z
+    // &&
+    // self.cam.position.z < new_pillar_vec[i +
+    // 1].bottom.to_real() {
+    //                         height = new_pillar_vec[i].top.to_real();
+    //                         above = new_pillar_vec[i + 1].bottom.to_real();
+    //                         break;
+    //                     } else {
+    //                         continue;
+    //                     }
+    //                 } else {
+    //                     height = new_pillar_vec[i].top.to_real();
+    //                     above = f32::INFINITY;
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     (Some(height), Some(above))
+    // }
+
     /// Gets the actual `Height` of the `HexPillar`
-    pub fn get_ground_height(&mut self) -> (Option<f32>, Option<f32>) {
+    pub fn get_ground_height(&mut self, add_velo: bool) -> (Option<f32>, Option<f32>) {
         let mut height = 0.0;
         let mut above = 0.0;
         let world = self.world_manager.get_world();
-        let real_pos = Point2f::new(self.cam.position.x, self.cam.position.y);
+        let mut real_pos = Point2f::new(self.cam.position.x, self.cam.position.y);
+        if add_velo {
+            real_pos.x += self.velocity.x;
+            real_pos.y += self.velocity.y;
+        }
         let pillar_index = PillarIndex(AxialPoint::from_real(real_pos));
         let vec_len =
             world.pillar_at(pillar_index).map(|pillar| pillar.sections().len()).unwrap_or(0);
@@ -70,7 +119,7 @@ impl Player {
                         if new_pillar_vec[i].top.to_real() < self.cam.position.z &&
                            self.cam.position.z < new_pillar_vec[i + 1].bottom.to_real() {
                             height = new_pillar_vec[i].top.to_real();
-                            above = new_pillar_vec[i + 1].bottom.to_real();;
+                            above = new_pillar_vec[i + 1].bottom.to_real();
                             break;
                         } else {
                             continue;
@@ -86,7 +135,98 @@ impl Player {
 
         (Some(height), Some(above))
     }
+    pub fn get_ground_height_y(&mut self, add_velo: bool) -> (Option<f32>, Option<f32>) {
+        let mut height = 0.0;
+        let mut above = 0.0;
+        let world = self.world_manager.get_world();
+        let mut real_pos = Point2f::new(self.cam.position.x, self.cam.position.y);
+        if add_velo {
+            if self.velocity.y > 0.0 {
+                real_pos.y += self.velocity.y + 0.5;
+            } else {
+                real_pos.y += self.velocity.y - 0.5;
+            }
+        }
+        let pillar_index = PillarIndex(AxialPoint::from_real(real_pos));
+        let vec_len =
+            world.pillar_at(pillar_index).map(|pillar| pillar.sections().len()).unwrap_or(0);
 
+        let pillar_vec = world.pillar_at(pillar_index).map(|pillar| pillar.sections());
+
+        if pillar_vec.is_some() {
+            let new_pillar_vec = pillar_vec.unwrap();
+
+            if vec_len == 1 {
+                height = new_pillar_vec[0].top.to_real();
+                above = f32::INFINITY;
+            } else {
+                for i in 0..vec_len {
+                    if i != vec_len - 1 {
+                        if new_pillar_vec[i].top.to_real() < self.cam.position.z &&
+                           self.cam.position.z < new_pillar_vec[i + 1].bottom.to_real() {
+                            height = new_pillar_vec[i].top.to_real();
+                            above = new_pillar_vec[i + 1].bottom.to_real();
+                            break;
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        height = new_pillar_vec[i].top.to_real();
+                        above = f32::INFINITY;
+                        break;
+                    }
+                }
+            }
+        }
+
+        (Some(height), Some(above))
+    }
+    pub fn get_ground_height_x(&mut self, add_velo: bool) -> (Option<f32>, Option<f32>) {
+        let mut height = 0.0;
+        let mut above = 0.0;
+        let world = self.world_manager.get_world();
+        let mut real_pos = Point2f::new(self.cam.position.x, self.cam.position.y);
+        if add_velo {
+            if self.velocity.x > 0.0 {
+                real_pos.x += self.velocity.x + 0.5;
+            } else {
+                real_pos.x += self.velocity.x - 0.5;
+            }
+        }
+        let pillar_index = PillarIndex(AxialPoint::from_real(real_pos));
+        let vec_len =
+            world.pillar_at(pillar_index).map(|pillar| pillar.sections().len()).unwrap_or(0);
+
+        let pillar_vec = world.pillar_at(pillar_index).map(|pillar| pillar.sections());
+
+        if pillar_vec.is_some() {
+            let new_pillar_vec = pillar_vec.unwrap();
+
+            if vec_len == 1 {
+                height = new_pillar_vec[0].top.to_real();
+                above = f32::INFINITY;
+            } else {
+                for i in 0..vec_len {
+                    if i != vec_len - 1 {
+                        if new_pillar_vec[i].top.to_real() < self.cam.position.z &&
+                           self.cam.position.z < new_pillar_vec[i + 1].bottom.to_real() {
+                            height = new_pillar_vec[i].top.to_real();
+                            above = new_pillar_vec[i + 1].bottom.to_real();
+                            break;
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        height = new_pillar_vec[i].top.to_real();
+                        above = f32::INFINITY;
+                        break;
+                    }
+                }
+            }
+        }
+
+        (Some(height), Some(above))
+    }
     /// Getter method for the `Camera`
     pub fn get_camera(&self) -> Camera {
         self.cam
@@ -98,19 +238,23 @@ impl Player {
     /// Updates the `Player` after every iteration
     pub fn update(&mut self, delta: f32) {
 
+        // Get current pillar floor (`height`) and the ceiling (`above`)
+        let height = (self.get_ground_height(false).0).unwrap_or(0.0) + 1.75;
+        let above = (self.get_ground_height(false).1).unwrap_or(0.0) + 1.75;
 
-        let height = (self.get_ground_height().0).unwrap_or(0.0) + 1.75;
-        let above = (self.get_ground_height().1).unwrap_or(0.0) + 1.75;
-        // Moves the Player forward or backward with the acceleration and delta
+        // Move the Player forward or backward with the acceleration and delta
         // (1.0 - (-((self.timer_vel * delta) / (1.0))).exp()) -> this is a formula
         // that calculates a
         // number from 0 to 1. So the player has a maximum velocity
+
         if self.acceleration.x != 0.0 {
             self.velocity.x = self.acceleration.x * delta * delta * self.shift_speed *
                               (1.0 - (-((self.timer_vel * delta) / (1.0))).exp());
-        } else {
-            if self.velocity.x > 0.5 {
-                self.velocity.x /= 1.1;
+        }
+        // Reduce x velocity every tick
+        else {
+            if self.velocity.x > 0.0001 {
+                self.velocity.x /= 1.4;
             } else {
                 self.velocity.x = 0.0;
             }
@@ -122,7 +266,8 @@ impl Player {
         if self.acceleration.x == 0.0 {
             self.timer_vel = 1.0;
         }
-        // Moves the Player left and right with the acceleration and delta
+
+        // Move the Player left and right with the acceleration and delta
         if self.acceleration.y != 0.0 {
             self.velocity.y = self.acceleration.y * delta * delta *
                               (1.0 - (-((self.timer_vel * delta) / (1.0))).exp());
@@ -133,9 +278,11 @@ impl Player {
             if self.acceleration.y == 0.0 {
                 self.timer_vel = 1.0;
             }
-        } else {
-            if self.velocity.y > 0.5 {
-                self.velocity.y /= 1.1;
+        }
+        // Reduce y velocity every tick
+        else {
+            if self.velocity.y > 0.0001 {
+                self.velocity.y /= 1.4;
             } else {
                 self.velocity.y = 0.0;
             }
@@ -143,9 +290,11 @@ impl Player {
 
         // Let the player jump with the given start-velocity
         if self.velocity.z != 0.0 {
+
             let velz = self.velocity.z * self.timer_jump * delta -
                        self.timer_jump * self.timer_jump * delta * delta * GRAVITY;
             self.timer_jump += 1.0;
+
             if self.cam.position.z + velz > above {
                 self.velocity.z = 0.0;
                 self.timer_jump = 1.0;
@@ -156,6 +305,8 @@ impl Player {
             if self.cam.position.z < height {
                 self.velocity.z = 0.0;
                 self.timer_jump = 1.0;
+                self.cam.position.z = height;
+                println!("============ update height");
             }
         }
 
@@ -165,28 +316,50 @@ impl Player {
         if self.cam.position.z > height && self.velocity.z == 0.0 {
             self.cam
                 .move_down((self.timer_jump * self.timer_jump * delta * delta * GRAVITY) / 16.0);
+
+            // moveZ = -((self.timer_jump * self.timer_jump * delta * delta * GRAVITY) /
+            // 16.0);
             self.timer_jump += 1.0;
             if self.cam.position.z < height {
                 self.timer_jump = 1.0;
-            }
-        }
-        if height > self.cam.position.z + self.step_size {
-            // self.velocity.x = 0.0;
-            // self.velocity.y = 0.0;
-        } else {
-            // Places the `Player` on the actual `HexPillar` if the position of the
-            // `Player` is less than
-            // the `HexPillar`
-            if self.velocity.z == 0.0 && self.cam.position.z < height {
                 self.cam.position.z = height;
             }
         }
+        // if height > self.cam.position.z + self.step_size {
 
-        self.cam.move_forward(self.velocity.x);
-        self.cam
-            .move_right(self.velocity.y);
+        // } else {
+        //     // Places the `Player` on the actual `HexPillar` if the position of the
+        //     // `Player` is less than
+        //     // the `HexPillar`
 
+        // }
+        println!("Velocity.x {:?} Velocity.y {:?}",
+                 self.velocity.x,
+                 self.velocity.y);
+        let next_height_x = (self.get_ground_height_x(true).0).unwrap_or(0.0) + 1.75;
+        let next_height_y = (self.get_ground_height_y(true).0).unwrap_or(0.0) + 1.75;
+        let delta = next_height_x - height;
+        if self.velocity.z == 0.0 && self.cam.position.z < height && delta > 3.0 {
+            self.cam.position.z = height;
+        }
+        // let next_above = (self.get_ground_height_x(true).1).unwrap_or(0.0) + 1.75;
+        println!("height {:?} next_height {:?}", height, next_height_x);
+        if next_height_x > self.step_size + height {
+            println!("Height error ---------------x{:?}", next_height_x);
+            self.velocity.x = 0.0;
+        } else {
+            self.cam.move_forward(self.velocity.x);
 
+            // self.cam.move_right(self.velocity.y);
+        }
+
+        if next_height_y > self.step_size + height {
+            println!("Height error ---------------y {:?}", next_height_y);
+            self.velocity.y = 0.0;
+        } else {
+            // self.cam.move_forward(self.velocity.x);
+            self.cam.move_right(self.velocity.y);
+        }
     }
 }
 /// `EventHandler` for the `Player`
@@ -194,7 +367,7 @@ impl EventHandler for Player {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
         match *e {
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::W)) => {
-                self.acceleration.x = 500.5;
+                self.acceleration.x = 100.5;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::W)) => {
@@ -202,7 +375,7 @@ impl EventHandler for Player {
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::S)) => {
-                self.acceleration.x = -400.0;
+                self.acceleration.x = -80.0;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::S)) => {
@@ -210,7 +383,7 @@ impl EventHandler for Player {
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::A)) => {
-                self.acceleration.y = -400.5;
+                self.acceleration.y = -80.0;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::A)) => {
@@ -218,7 +391,7 @@ impl EventHandler for Player {
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::D)) => {
-                self.acceleration.y = 400.5;
+                self.acceleration.y = 80.0;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::D)) => {
@@ -226,7 +399,7 @@ impl EventHandler for Player {
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::Space)) => {
-                self.velocity.z = 6.0;
+                self.velocity.z = 4.5;
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::Space)) => {
