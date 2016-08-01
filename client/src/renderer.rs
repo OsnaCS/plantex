@@ -17,6 +17,7 @@ use glium::backend::Facade;
 use glium::framebuffer::ToColorAttachment;
 use glium::backend::glutin_backend::GlutinFacade;
 use glium;
+use glium::uniforms::SamplerWrapFunction;
 
 const SHADOW_MAP_SIZE: u32 = 2048;
 const SHADOW_ORTHO_WIDTH: f32 = 200.0;
@@ -65,6 +66,35 @@ impl Renderer {
 
         let shadow_map = DepthTexture2d::empty_with_format(context.get_facade(),
                                                            DepthFormat::I16,
+        let bloom_filter_tex = Texture2d::empty_with_format(context.get_facade(),
+                                                            UncompressedFloatFormat::F32F32F32F32,
+                                                            MipmapsOption::NoMipmap,
+                                                            resolution.0,
+                                                            resolution.1)
+            .unwrap();
+
+
+
+        let bloom_horz_tex = Texture2d::empty_with_format(context.get_facade(),
+                                                          UncompressedFloatFormat::F32F32F32F32,
+                                                          MipmapsOption::NoMipmap,
+                                                          resolution.0,
+                                                          resolution.1)
+            .unwrap();
+
+
+
+        let bloom_vert_tex = Texture2d::empty_with_format(context.get_facade(),
+                                                          UncompressedFloatFormat::F32F32F32F32,
+                                                          MipmapsOption::NoMipmap,
+                                                          resolution.0,
+                                                          resolution.1)
+            .unwrap();
+
+
+
+        let bloom_blend_tex = Texture2d::empty_with_format(context.get_facade(),
+                                                           UncompressedFloatFormat::F32F32F32F32,
                                                            MipmapsOption::NoMipmap,
                                                            SHADOW_MAP_SIZE,
                                                            SHADOW_MAP_SIZE)
@@ -265,14 +295,16 @@ impl Renderer {
                                                                          .to_color_attachment()));
         bloom_blur_vert_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
+
+      
         let mut uniforms_horz_blur = uniform! {
             //for the first iteration: Use the bloom quad texture, from second iteration on this
             // will change to bloom_vert_tex
-            image: &self.bloom_filter_tex,
+            image: glium::uniforms::Sampler::new(&self.bloom_filter_tex).wrap_function(SamplerWrapFunction::Clamp),
             horizontal: true,
         };
         let uniforms_vert_blur = uniform! {
-            image: &self.bloom_horz_tex,
+            image: glium::uniforms::Sampler::new(&self.bloom_horz_tex).wrap_function(SamplerWrapFunction::Clamp),
             horizontal: false,
         };
 
@@ -296,7 +328,7 @@ impl Renderer {
             }
             if first_iteration {
                 uniforms_horz_blur = uniform! {
-                    image: &self.bloom_vert_tex,
+                    image: glium::uniforms::Sampler::new(&self.bloom_vert_tex).wrap_function(SamplerWrapFunction::Clamp),
                     horizontal: true,
                 };
                 first_iteration = false;
@@ -534,7 +566,7 @@ implement_vertex!(Vertex, in_position, in_texcoord);
 
 
 fn initialize_luminosity(facade: &GlutinFacade) -> Vec<Texture2d> {
-    let mut lum: Vec<Texture2d> = Vec::with_capacity(10);
+    let mut lum = Vec::with_capacity(10);
     for i in 0..10 {
         lum.push(Texture2d::empty_with_format(facade,
                                               UncompressedFloatFormat::F32F32F32F32,
