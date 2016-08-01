@@ -92,6 +92,16 @@ void main() {
     // Calculate normal map relative to surface
     vec3 normal_map = texture(normals, x_tex_coords).rgb;
 
+    // vec3 normal_map;
+    // if (x_ground == 1) {
+    //     normal_map = texture(grass_texture, x_tex_coords).rgb;
+    // } else if (x_ground == 2) {
+    //     normal_map = texture(sand_texture, x_tex_coords).rgb;
+    // } else if (x_ground == 3) {
+    //     normal_map = texture(snow_texture, x_tex_coords).rgb;
+    // }
+
+
     // Calculate Tangent Binormal Normal (tbn) Matrix to multiply with normal_map
     // to convert to real normals
     mat3 tbn = cotangent_frame(surfaceNormal, x_position, x_tex_coords);
@@ -111,14 +121,18 @@ void main() {
     // darker
     // TODO: More grounds and make it better ;D
 
-    vec3 diffuse_color;
-    if (x_ground == 1) {
-        diffuse_color = texture(grass_texture, x_tex_coords).rgb * x_material_color;
-    } else if (x_ground == 2) {
-        diffuse_color = texture(sand_texture, x_tex_coords).rgb * x_material_color;
-    } else if (x_ground == 3) {
-        diffuse_color = texture(snow_texture, x_tex_coords).rgb * x_material_color;
-    }
+    // vec3 diffuse_color;
+    // if (x_ground == 1) {
+    //     diffuse_color = texture(grass_texture, x_tex_coords).rgb;
+    // } else if (x_ground == 2) {
+    //     diffuse_color = texture(sand_texture, x_tex_coords).rgb;
+    // } else if (x_ground == 3) {
+    //     diffuse_color = texture(snow_texture, x_tex_coords).rgb;
+    // }
+
+    // diffuse_color *= x_material_color;
+
+    vec3 diffuse_color = x_material_color;
 
     // =============
 
@@ -133,9 +147,9 @@ void main() {
 
     // FIXME: specular color calculation is off
     // const vec3 specular_color = vec3(1.0, 1.0, 1.0);
-    // vec3 camera_dir = normalize(-x_position);
-    // vec3 half_direction = normalize(normalize(-sun_dir) + camera_dir);
-    // float specular = pow(max(dot(half_direction, real_normal), 0.0), 16.0);
+    // vec3 camera_di half_direction = normalize(normalize(-sun_dir) + camera_dir);
+    // float specular = pow(max(dot(half_direction, real_normal), 0.0), 16.0);r = normalize(-x_position);
+    // vec3
 
     // Final color calculation
     color = diffuse_color * AMBIENT + diffuse_color * diffuse;
