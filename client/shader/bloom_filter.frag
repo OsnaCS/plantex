@@ -20,7 +20,7 @@ void main() {
 
     // transform proper brightness. Values adapt for eye vision, for explanation see:
     // https://en.wikipedia.org/wiki/Luma_%28video%29#Use_of_relative_luminance
-    if (dot(col, vec3(0.2126, 0.7152, 0.0722)) > 0.5) {
+    if (dot(col, vec3(0.2126, 0.7152, 0.0722)) > 1.0) {
         out_color = vec4(col, 1.0);
     } else {
         out_color = vec4(0);
