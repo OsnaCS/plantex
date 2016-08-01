@@ -9,6 +9,7 @@ use GameContext;
 use std::rc::Rc;
 use std::error::Error;
 use super::tex_generator;
+use super::normal_converter;
 
 pub struct ChunkRenderer {
     /// Chunk shader
@@ -23,6 +24,8 @@ pub struct ChunkRenderer {
     pub noise_sand: Texture2d,
     pub noise_snow: Texture2d,
     pub noise_grass: Texture2d,
+    pub noise_map: Texture2d,
+    pub normal_map: Texture2d,
 }
 
 impl ChunkRenderer {
@@ -55,6 +58,18 @@ impl ChunkRenderer {
             noise_grass: Texture2d::new(context.get_facade(),
                                         tex_generator::create_grass(2 as u64).1)
                 .unwrap(),
+
+            noise_map: match Texture2d::new(context.get_facade(),
+                                            tex_generator::create_noise(2u64)) {
+                Ok(p) => p,
+                Err(_) => panic!("Could not load noise map for texturing"),
+            },
+
+            normal_map: match Texture2d::new(context.get_facade(),
+               normal_converter::convert(tex_generator::create_height_map_for_snow(2u64), 1.0)) {
+                Ok(p) => p,
+                Err(_) => panic!("did not work"),
+            },
         }
     }
 
@@ -114,8 +129,7 @@ fn get_top_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
             position: [x, y, world::PILLAR_STEP_HEIGHT],
             normal: [0.0, 0.0, 1.0],
             radius: 1.0,
-            // TODO: Set top texture coordinates
-            tex_coord: [a, b],
+            tex_coords: [a, b],
         });
     }
 
@@ -124,8 +138,7 @@ fn get_top_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {
         position: [0.0, 0.0, world::PILLAR_STEP_HEIGHT],
         normal: [0.0, 0.0, 1.0],
         radius: 0.0,
-        // TODO: Set top texture coordinates
-        tex_coord: [0.5, 0.5],
+        tex_coords: [0.5, 0.5],
     });
 
     indices.append(&mut vec![cur_len + 0,
@@ -160,7 +173,8 @@ fn get_bottom_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) 
             position: [x, y, 0.0],
             normal: [0.0, 0.0, -1.0],
             radius: 1.0,
-            tex_coord: [a, b],
+
+            tex_coords: [a, b],
         });
     }
 
@@ -168,8 +182,9 @@ fn get_bottom_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) 
         position: [0.0, 0.0, 0.0],
         normal: [0.0, 0.0, -1.0],
         radius: 0.0,
-        tex_coord: [0.5, 0.5],
+        tex_coords: [0.5, 0.5],
     });
+
     indices.append(&mut vec![cur_len + 1,
                              cur_len + 6,
                              cur_len + 0,
@@ -205,25 +220,25 @@ fn get_side_hexagon_model(ind1: i32,
         position: [x1, y1, world::PILLAR_STEP_HEIGHT],
         normal: normal,
         radius: 0.0,
-        tex_coord: [0.0, 0.0],
+        tex_coords: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x1, y1, 0.0],
         normal: normal,
         radius: 0.0,
-        tex_coord: [0.7, 0.0],
+        tex_coords: [0.7, 0.0],
     });
     vertices.push(Vertex {
         position: [x2, y2, world::PILLAR_STEP_HEIGHT],
         normal: normal,
         radius: 0.0,
-        tex_coord: [0.0, 0.5],
+        tex_coords: [0.0, 0.5],
     });
     vertices.push(Vertex {
         position: [x2, y2, 0.0],
         normal: normal,
         radius: 0.0,
-        tex_coord: [0.7, 0.5],
+        tex_coords: [0.7, 0.5],
     });
 
     indices.append(&mut vec![cur_len + 0,

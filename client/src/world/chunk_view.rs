@@ -5,6 +5,7 @@ use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
 use glium::backend::Facade;
 use glium::texture::DepthTexture2d;
 use glium::uniforms::SamplerWrapFunction;
+use glium::uniforms::MinifySamplerFilter;
 use Camera;
 use util::ToArr;
 use view::{PlantRenderer, PlantView};
@@ -108,6 +109,9 @@ impl ChunkView {
             shadow_map: shadow_map.sampled().wrap_function(SamplerWrapFunction::Clamp),
             depth_view_proj: depth_view_proj.to_arr(),
             sun_dir: sun_dir.to_arr(),
+            my_texture:  self.renderer.noise_map.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear)
+                .wrap_function(::glium::uniforms::SamplerWrapFunction::Repeat),
+            normals: &self.renderer.normal_map,
         };
         let params = DrawParameters {
             depth: glium::Depth {
@@ -141,10 +145,10 @@ pub struct Vertex {
     pub position: [f32; 3],
     pub normal: [f32; 3],
     pub radius: f32,
-    pub tex_coord: [f32; 2],
+    pub tex_coords: [f32; 2],
 }
 
-implement_vertex!(Vertex, position, normal, radius, tex_coord);
+implement_vertex!(Vertex, position, normal, radius, tex_coords);
 
 /// Instance data for each pillar section.
 #[derive(Debug, Copy, Clone)]
