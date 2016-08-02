@@ -1,7 +1,6 @@
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::program;
 use glium::Program;
-use glium::program;
 use super::Config;
 use std::fs::File;
 use std::io::{self, Read};

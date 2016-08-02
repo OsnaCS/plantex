@@ -23,14 +23,7 @@ use super::DayTime;
 use super::weather::Weather;
 use player::Player;
 use control_switcher::ControlSwitcher;
-use base::world::PillarSection;
-use base::world;
-use base::world::HeightType;
-use base::math::*;
-use base::world::PillarIndex;
-use base::world::{ChunkIndex, HexPillar};
-use base::world::World;
-use camera::Camera;
+use base::world::HexPillar;
 
 pub struct Game {
     renderer: Renderer,
