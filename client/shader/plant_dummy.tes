@@ -1,0 +1,112 @@
+#version 400
+
+layout(quads, equal_spacing, ccw) in;
+
+patch in vec3 tcs_color;
+patch in vec3 tcs_normal;
+
+in vec3 tcPosition[];
+
+out vec3 tePosition;
+out vec3 tePatchDistance;
+
+out vec3 tes_normal;
+out vec3 tes_color;
+out vec3 tes_pos;
+
+
+uniform vec3 offset;
+uniform mat4 proj_matrix;
+uniform mat4 view_matrix;
+
+void main() {
+
+    /*float u = gl_TessCoord.x, v = gl_TessCoord.y;
+
+    mat4 Px = mat4(
+        tcPosition[0].x, tcPosition[1].x, tcPosition[2].x, tcPosition[5].x,
+        tcPosition[6].x, tcPosition[7].x, tcPosition[8].x, tcPosition[11].x,
+        tcPosition[1].x, tcPosition[9].x, tcPosition[10].x, tcPosition[11].x,
+        tcPosition[12].x, tcPosition[13].x, tcPosition[14].x, tcPosition[15].x );
+
+
+    mat4 Py = mat4(
+        tcPosition[0].y, tcPosition[1].y, tcPosition[2].y, tcPosition[3].y,
+        tcPosition[4].y, tcPosition[5].y, tcPosition[6].y, tcPosition[7].y,
+        tcPosition[8].y, tcPosition[9].y, tcPosition[10].y, tcPosition[11].y,
+        tcPosition[12].y, tcPosition[13].y, tcPosition[14].y, tcPosition[15].y );
+
+
+    mat4 Pz = mat4(
+        tcPosition[0].z, tcPosition[1].z, tcPosition[2].z, tcPosition[3].z,
+        tcPosition[4].z, tcPosition[5].z, tcPosition[6].z, tcPosition[7].z,
+        tcPosition[8].z, tcPosition[9].z, tcPosition[10].z, tcPosition[11].z,
+        tcPosition[12].z, tcPosition[13].z, tcPosition[14].z, tcPosition[15].z );
+
+    mat4 cx = B * Px * BT;
+    mat4 cy = B * Py * BT;
+    mat4 cz = B * Pz * BT;
+
+    vec4 U = vec4(u*u*u, u*u, u, 1);
+    vec4 V = vec4(v*v*v, v*v, v, 1);
+    float x = dot(cx * V, U);
+    float y = dot(cy * V, U);
+    float z = dot(cz * V, U);
+    tePosition =  vec3(x, y, z);
+    tePatchDistance = vec4(u, v, 1-u, 1-v);
+    gl_Position = Projection * Modelview * vec4(x+offset.x, y+offset.y, z+offset.z, 1);
+*/
+
+
+    /*vec3 a= tcPosition[0];
+    vec3 b= tcPosition[1];
+    vec3 c= tcPosition[2];
+    vec3 d= tcPosition[5];
+
+    vec3 ab=(tcPosition[0]-tcPosition[1])*0.5+tcPosition[1];
+    vec3 bc=(tcPosition[1]-tcPosition[2])*0.5+tcPosition[2];
+    vec3 cd=(tcPosition[2]-tcPosition[5])*0.5+tcPosition[5];
+    vec3 da=(tcPosition[5]-tcPosition[0])*0.5+tcPosition[0];
+    vec3 mid=(ab-cd)*0.5+cd+tcs_normal*0.5;
+
+    float t1 = length(a-gl_TessCoord)/length(a-b);
+    float t2 = length(da-gl_TessCoord)/length(da-bc);
+    float t3 = length(d-gl_TessCoord)/length(d-c);
+
+
+
+    vec3 x1=(1.0-t1)*(1.0-t1)*(1.0-t1)* + (t1*t1*t1-3.0*t1*t1+3.0*t1)*ab +(t1*t1*t1)*b;
+    vec3 x2=(1.0-t2)*(1.0-t2)*(1.0-t2)*+(t2*t2*t2-3.0*t2*t2+3.0*t2)*mid+(t2*t2*t2)*bc;
+    vec3 x3=(1.0-t3)*(1.0-t3)*(1.0-t3)*+(t3*t3*t3-3.0*t3*t3+3.0*t3)*cd+(t3*t3*t3)*c;*/
+
+
+    tes_normal = tcs_normal;
+    float u = gl_TessCoord.x, v = gl_TessCoord.y;
+    vec3 a = mix(tcPosition[0], tcPosition[1], u);
+    vec3 b = mix(tcPosition[3], tcPosition[4], u);
+    tePosition = mix(a, b, v);
+
+    vec3 ab=(tcPosition[0]-tcPosition[1])*0.5+tcPosition[1];
+    vec3 cd=(tcPosition[3]-tcPosition[4])*0.5+tcPosition[4];
+    vec3 x=(tcPosition[0]-tcPosition[3])*0.5+tcPosition[3];
+
+    vec3 mid= (ab-cd)*0.5+cd;
+
+    float len = length(mid-x);
+
+    float t1 = len-(length(mid-tePosition));
+
+    /*float t1 = length(tcPosition[0]-gl_TessCoord);
+    float t2 = length(da-gl_TessCoord)/length(da-bc);
+    float t3 = length(d-gl_TessCoord)/length(d-c);*/
+
+    vec3 normal=(t1*t1*t1-3.0*t1*t1+3.0*t1)*tcs_normal*0.2;
+    /*vec3 x2=(t2*t2*t2-3.0*t2*t2+3.0*t2)*mid;
+    vec3 x3=(t3*t3*t3-3.0*t3*t3+3.0*t3)*cd;*/
+
+    tePosition = tePosition+normal;
+
+    gl_Position = proj_matrix * view_matrix * vec4(tePosition+offset, 1);
+
+    tes_color = tcPosition[0];
+}

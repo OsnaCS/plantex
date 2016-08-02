@@ -23,7 +23,14 @@ use super::DayTime;
 use super::weather::Weather;
 use player::Player;
 use control_switcher::ControlSwitcher;
-use base::world::HexPillar;
+use base::world::PillarSection;
+use base::world;
+use base::world::HeightType;
+use base::math::*;
+use base::world::PillarIndex;
+use base::world::{ChunkIndex, HexPillar};
+use base::world::World;
+use camera::Camera;
 
 pub struct Game {
     renderer: Renderer,
@@ -105,6 +112,22 @@ impl Game {
                 }
             }
 
+            // Display Outline of Hexagon looking at
+            let vec = get_pillarsectionpos_looking_at(&self.world_manager.get_world(),
+                                                      self.control_switcher.get_camera());
+            match vec {
+                Some(n) => {
+                    // self.remove_hexagon_at(n);
+                    let mut view = self.world_manager.get_mut_view();
+                    view.outline.display = true;
+                    view.outline.pos = n;
+                }
+                None => {
+                    let mut view = self.world_manager.get_mut_view();
+                    view.outline.display = false;
+                }
+            }
+
             try!(self.renderer.render(&*self.world_manager.get_view(),
                                       &self.control_switcher.get_camera(),
                                       &self.sun,
@@ -133,7 +156,6 @@ impl Game {
     }
 
     // need sorted pillars
-    //
     // fn remove_hexagon_at(&mut self, pos: Vector3f) {
     // let view_pos = Point2f::new(pos.x, pos.y);
     // let pillar_index = PillarIndex(AxialPoint::from_real(view_pos));

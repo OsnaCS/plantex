@@ -179,6 +179,7 @@ impl WorldManager {
             }
         }
     }
+
     // NOT USED UNTIL NOW
     // pub fn recalulate_chunk(&mut self, pos: Point3f) {
     // let shared = self.shared.borrow_mut();
