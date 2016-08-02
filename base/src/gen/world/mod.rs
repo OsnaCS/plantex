@@ -179,9 +179,9 @@ impl ChunkProvider for WorldGenerator {
                 let mut rng = super::seeded_rng(self.seed, "TREE", (pos.q, pos.r));
 
                 let tmp = current_biome.plant_distribution();
-                let plant_type = *rng.choose(&tmp).unwrap();
+                let plant_type = rng.choose(tmp).unwrap();
 
-                let type_index = match plant_type {
+                let type_index = match *plant_type {
                     PlantType::RegularTree => 0,
                     PlantType::Shrub => 1,
                     PlantType::Cactus => 2,
@@ -203,7 +203,7 @@ impl ChunkProvider for WorldGenerator {
 
                 props.push(Prop {
                     baseline: height,
-                    prop: PropType::Plant(PlantGenerator::new(PlantType::OakTree)
+                    prop: PropType::Plant(PlantGenerator::new(PlantType::ClumpOfGrass)
                         .generate(&mut rng)),
                     plant_index: plant_index as usize,
                 });

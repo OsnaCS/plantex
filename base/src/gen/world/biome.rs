@@ -62,103 +62,77 @@ impl Biome {
         }
     }
 
-    pub fn plant_distribution(&self) -> [PlantType; 10] {
+    pub fn plant_distribution(&self) -> &'static [PlantType] {
         match *self {
             Biome::GrassLand => {
-                [PlantType::RegularTree,
-                 PlantType::RegularTree,
-                 PlantType::RegularTree,
-                 PlantType::RegularTree,
-                 PlantType::OakTree,
-                 PlantType::OakTree,
-                 PlantType::ClumpOfGrass,
-                 PlantType::ClumpOfGrass,
-                 PlantType::ClumpOfGrass,
-                 PlantType::ClumpOfGrass]
+                static PLANTS: &'static [PlantType] = &[PlantType::RegularTree,
+                                                        PlantType::RegularTree,
+                                                        PlantType::OakTree,
+                                                        PlantType::ClumpOfGrass,
+                                                        PlantType::ClumpOfGrass];
+                PLANTS
             }
             Biome::Desert => {
-                [PlantType::Cactus,
-                 PlantType::Cactus,
-                 PlantType::Cactus,
-                 PlantType::Cactus,
-                 PlantType::Cactus,
-                 PlantType::Cactus,
-                 PlantType::Cactus,
-                 PlantType::Cactus,
-                 PlantType::Cactus,
-                 PlantType::Cactus]
+                static PLANTS: &'static [PlantType] = &[PlantType::Cactus];
+                PLANTS
             }
             Biome::Snow => {
-                [PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer]
+                static PLANTS: &'static [PlantType] = &[PlantType::Conifer];
+                PLANTS
             }
             Biome::Forest => {
-                [PlantType::RegularTree,
-                 PlantType::RegularTree,
-                 PlantType::Conifer,
-                 PlantType::OakTree,
-                 PlantType::OakTree,
-                 PlantType::Conifer,
-                 PlantType::ClumpOfGrass,
-                 PlantType::Conifer,
-                 PlantType::Shrub,
-                 PlantType::Shrub]
+                static PLANTS: &'static [PlantType] = &[PlantType::RegularTree,
+                                                        PlantType::RegularTree,
+                                                        PlantType::Conifer,
+                                                        PlantType::OakTree,
+                                                        PlantType::OakTree,
+                                                        PlantType::Conifer,
+                                                        PlantType::ClumpOfGrass,
+                                                        PlantType::Conifer,
+                                                        PlantType::Shrub,
+                                                        PlantType::Shrub];
+                PLANTS
             }
             Biome::RainForest => {
-                [PlantType::JungleTree,
-                 PlantType::JungleTree,
-                 PlantType::JungleTree,
-                 PlantType::JungleTree,
-                 PlantType::OakTree,
-                 PlantType::ClumpOfGrass,
-                 PlantType::ClumpOfGrass,
-                 PlantType::OakTree,
-                 PlantType::Shrub,
-                 PlantType::RegularTree]
+                static PLANTS: &'static [PlantType] = &[PlantType::JungleTree,
+                                                        PlantType::JungleTree,
+                                                        PlantType::JungleTree,
+                                                        PlantType::JungleTree,
+                                                        PlantType::OakTree,
+                                                        PlantType::ClumpOfGrass,
+                                                        PlantType::ClumpOfGrass,
+                                                        PlantType::OakTree,
+                                                        PlantType::Shrub,
+                                                        PlantType::RegularTree];
+                PLANTS
             }
             Biome::Savanna => {
-                [PlantType::OakTree,
-                 PlantType::ClumpOfGrass,
-                 PlantType::Shrub,
-                 PlantType::Shrub,
-                 PlantType::Shrub,
-                 PlantType::Shrub,
-                 PlantType::Shrub,
-                 PlantType::Shrub,
-                 PlantType::Shrub,
-                 PlantType::Shrub]
+                static PLANTS: &'static [PlantType] = &[PlantType::OakTree,
+                                                        PlantType::ClumpOfGrass,
+                                                        PlantType::Shrub,
+                                                        PlantType::Shrub,
+                                                        PlantType::Shrub,
+                                                        PlantType::Shrub,
+                                                        PlantType::Shrub,
+                                                        PlantType::Shrub,
+                                                        PlantType::Shrub,
+                                                        PlantType::Shrub];
+                PLANTS
             }
             Biome::Stone => {
-                [PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::OakTree,
-                 PlantType::Conifer,
-                 PlantType::Conifer,
-                 PlantType::Conifer]
+                static PLANTS: &'static [PlantType] = &[PlantType::Conifer,
+                                                        PlantType::Conifer,
+                                                        PlantType::Conifer,
+                                                        PlantType::Conifer,
+                                                        PlantType::OakTree,
+                                                        PlantType::Conifer,
+                                                        PlantType::Conifer,
+                                                        PlantType::Conifer];
+                PLANTS
             }
             Biome::Debug => {
-                [PlantType::ClumpOfGrass,
-                 PlantType::ClumpOfGrass,
-                 PlantType::ClumpOfGrass,
-                 PlantType::ClumpOfGrass,
-                 PlantType::ClumpOfGrass,
-                 PlantType::ClumpOfGrass,
-                 PlantType::ClumpOfGrass,
-                 PlantType::ClumpOfGrass,
-                 PlantType::ClumpOfGrass,
-                 PlantType::ClumpOfGrass]
+                static PLANTS: &'static [PlantType] = &[PlantType::ClumpOfGrass];
+                PLANTS
             }
         }
     }

@@ -167,7 +167,7 @@ impl PlantType {
                     branch_diameter_factor: 0.3..0.5,
                     branch_angle_deg: 60.0..100.0,
                     branch_diam_reduction: 0.70..0.80,
-                    branch_segment_length: 8.0..10.0,
+                    branch_segment_length: 8.0..9.0,
                     branch_segment_angle: 25.0..30.0,
                     branch_segment_count: 1..4,
                     branch_color: (0.1..0.25, 0.6..0.8, 0.0..0.06),
@@ -326,7 +326,7 @@ impl TreeGen {
 
             // In a loop, get the length of the next segment from the current diameter.
             for _ in 0..segment_count {
-                // assert!(height_branchlength_dependence(start.z) > 0.0);
+                assert!(height_branchlength_dependence(start.z) > 0.0);
                 let length = height_branchlength_dependence(start.z) *
                              segment_dist(segment_length, diam);
                 diam *= diam_factor;
