@@ -167,7 +167,8 @@ void main() {
     // FIXME: specular color calculation is off
     // const vec3 specular_color = vec3(1.0, 1.0, 1.0);
     // vec3 camera_di half_direction = normalize(normalize(-sun_dir) + camera_dir);
-    // float specular = pow(max(dot(half_direction, real_normal), 0.0), 16.0);r = normalize(-x_position);
+    // float specular = pow(max(dot(half_direction, real_normal), 0.0), 16.0);
+    // r = normalize(-x_position);
     // vec3
 
     // Final color calculation
