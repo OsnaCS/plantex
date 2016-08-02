@@ -6,7 +6,7 @@
 //
 //
 
-out vec2 FragColor;
+out float FragColor;
 
 in VertexData {
     vec2 frag_texcoord;
@@ -16,5 +16,5 @@ uniform sampler2D image;
 
 void main()
 {
-    FragColor = vec2(texture(image, i.frag_texcoord).r, 1.0);
+    FragColor = texture(image, i.frag_texcoord).r;
 }
