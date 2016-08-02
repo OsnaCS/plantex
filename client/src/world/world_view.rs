@@ -1,4 +1,4 @@
-use base::world::{self, Chunk, ChunkIndex, PropType};
+use base::world::{self, Chunk, ChunkIndex};
 use base::prop::Plant;
 use base::math::*;
 use glium::backend::Facade;

@@ -128,15 +128,14 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
         cps
     };
 
-
     for window in cps.windows(3) {
         let prev_cp = window[0];
         let curr_cp = window[1];
         let next_cp = window[2];
-
         let dir = prev_cp.point - next_cp.point;
 
-        for curr_point in &get_points_from_vector(dir) {
+        let tmp = get_points_from_vector(dir);
+        for curr_point in &tmp {
             vertices.push(Vertex {
                 position: (curr_cp.point + curr_point * curr_cp.diameter).to_arr(),
                 color: color.to_arr(),
@@ -159,7 +158,9 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
 
 /// generates 3 normalized vectors perpendicular to the given vector
 fn get_points_from_vector(vector: Vector3f) -> [Vector3f; 3] {
-    let ortho = random_vec_with_angle(&mut seeded_rng(0x2651aa465abded, (), ()), vector, 90.0);
+    let ortho = random_vec_with_angle(&mut seeded_rng(0x2651aa465abded, (), ()),
+                                      vector.normalize(),
+                                      90.0);
     let rot = Basis3::from_axis_angle(vector.normalize(), Deg::new(120.0).into());
     let v0 = rot.rotate_vector(ortho);
     let v1 = rot.rotate_vector(v0);
