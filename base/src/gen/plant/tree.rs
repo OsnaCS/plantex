@@ -43,9 +43,16 @@ pub struct Preset {
     /// Together with `branch_segment_length`, this defines the overall branch
     /// length.
     branch_segment_count: Range<u32>,
-    /// Range of branch colors for the whole tree, as distinct ranges for R, G
-    /// and B.
-    branch_color: (Range<f32>, Range<f32>, Range<f32>),
+    /// The color of the trunk :^)
+    trunk_color: (Range<f32>, Range<f32>, Range<f32>),
+    /// The color of the leafs :^)
+    leaf_color: (Range<f32>, Range<f32>, Range<f32>),
+    /// At which recursion depth should the color switch.
+    /// x > 3 basically means only trunk_color will be used (because plants are
+    /// generated with a max depth of 3). The actual trunk though will always
+    /// get trunk_color, even if leaf_depth is 0.
+    leaf_depth: u16,
+
     /// for conifer trees the branches become smaller with height
     height_branchlength_dependence: fn(f32) -> f32,
 }
@@ -78,7 +85,9 @@ impl PlantType {
                     branch_segment_length: 11.25..11.26,
                     branch_segment_angle: 5.0..15.0,
                     branch_segment_count: 1..4,
-                    branch_color: (0.3..0.33, 0.9..0.99, 0.0..0.02),
+                    trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
+                    leaf_color: (0.3..0.33, 0.9..0.99, 0.0..0.02),
+                    leaf_depth: 2,
                     height_branchlength_dependence: {
                         fn f(_: f32) -> f32 {
                             1.0
@@ -101,7 +110,9 @@ impl PlantType {
                     branch_segment_length: 11.25..11.26,
                     branch_segment_angle: 15.0..20.0,
                     branch_segment_count: 1..4,
-                    branch_color: (0.9..0.99, 0.1..0.11, 0.0..0.05),
+                    trunk_color: (0.9..0.99, 0.1..0.11, 0.0..0.05),
+                    leaf_color: (0.9..0.99, 0.1..0.11, 0.0..0.05),
+                    leaf_depth: 4,
                     height_branchlength_dependence: {
                         fn f(_: f32) -> f32 {
                             1.0
@@ -124,7 +135,9 @@ impl PlantType {
                     branch_segment_length: 2.0..4.0,
                     branch_segment_angle: 0.0..0.00001,
                     branch_segment_count: 1..2,
-                    branch_color: (0.3..0.59, 0.75..0.88, 0.08..0.15),
+                    trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
+                    leaf_color: (0.3..0.59, 0.75..0.88, 0.08..0.15),
+                    leaf_depth: 2,
                     height_branchlength_dependence: {
                         fn f(_: f32) -> f32 {
                             1.0
@@ -147,7 +160,9 @@ impl PlantType {
                     branch_segment_length: 11.25..11.26,
                     branch_segment_angle: 10.0..13.0,
                     branch_segment_count: 3..4,
-                    branch_color: (0.3..0.33, 0.1..0.11, 0.9..0.99),
+                    trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
+                    leaf_color: (0.9..0.99, 0.1..0.11, 0.9..0.99),
+                    leaf_depth: 3,
                     height_branchlength_dependence: {
                         fn f(_: f32) -> f32 {
                             1.0
@@ -170,7 +185,9 @@ impl PlantType {
                     branch_segment_length: 8.0..9.0,
                     branch_segment_angle: 25.0..30.0,
                     branch_segment_count: 1..4,
-                    branch_color: (0.1..0.25, 0.6..0.8, 0.0..0.06),
+                    trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
+                    leaf_color: (0.1..0.25, 0.6..0.8, 0.0..0.06),
+                    leaf_depth: 2,
                     height_branchlength_dependence: {
                         fn f(_: f32) -> f32 {
                             1.0
@@ -193,8 +210,9 @@ impl PlantType {
                     branch_segment_length: 11.25..11.26,
                     branch_segment_angle: 1.0..2.0,
                     branch_segment_count: 1..4,
-                    // dark green
-                    branch_color: (0.13..0.18, 0.2..0.22, 0.05..0.09),
+                    trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
+                    leaf_color: (0.1..0.15, 0.15..0.18, 0.05..0.09),
+                    leaf_depth: 1,
                     height_branchlength_dependence: {
                         fn f(height: f32) -> f32 {
                             (1.0 - 0.125 * height)
@@ -217,7 +235,9 @@ impl PlantType {
                     branch_segment_length: 0.5..0.65,
                     branch_segment_angle: 3.0..5.0,
                     branch_segment_count: 3..4,
-                    branch_color: (0.2..0.21, 0.45..0.46, 0.2..0.21),
+                    trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
+                    leaf_color: (0.2..0.21, 0.45..0.46, 0.2..0.21),
+                    leaf_depth: 2,
                     height_branchlength_dependence: {
                         fn f(height: f32) -> f32 {
                             let mut result = 25.0 - 7.6 * (height - 4.5) * (height - 4.5);
@@ -256,14 +276,13 @@ impl TreeGen {
                              rng: &mut R,
                              start: Point3f,
                              dir: Vector3f,
-                             depth: u32,
+                             depth: u16,
                              parent_diam: f32,
                              height_branchlength_dependence: fn(_: f32) -> f32) {
         if depth > 3 {
             // Limit recursion
             return;
         }
-
         // Current normalized growing direction, variated slightly as segments are
         // generated
         let mut dir = dir.normalize();
@@ -307,7 +326,7 @@ impl TreeGen {
                 last = point;
 
                 // FIXME Make branch spawn chance configurable
-                if rng.gen_weighted_bool(depth * 3) {
+                if rng.gen_weighted_bool(depth as u32 * 3) {
                     // Build a vector for the branch direction (Z is up)
                     let dir = self.gen_branch_direction(rng, dir);
                     self.create_branch(rng,
@@ -342,7 +361,17 @@ impl TreeGen {
 
         assert!(points.len() >= 2,
                 "should've generated at least 2 points :(");
-        self.branches.push(Branch { points: points });
+        self.branches.push(Branch {
+            points: points,
+            is_trunk: self.preset.leaf_depth > depth,
+        });
+
+        // if depth == 3 {
+        println!("{:?} > {:?}, {:?}",
+                 self.preset.leaf_depth,
+                 depth,
+                 self.preset.leaf_depth > depth);
+        // }
     }
 
     /// Given the growing direction of the parent branch, calculates a growing
@@ -418,7 +447,10 @@ impl TreeGen {
             });
         }
 
-        self.branches.push(Branch { points: points });
+        self.branches.push(Branch {
+            points: points,
+            is_trunk: true,
+        });
 
         debug!("generated tree with {} branches", self.branches.len());
     }
@@ -432,9 +464,12 @@ impl TreeGen {
 
         Tree {
             branches: self.branches,
-            branch_color: Vector3f::new(range_sample(&self.preset.branch_color.0, rng),
-                                        range_sample(&self.preset.branch_color.1, rng),
-                                        range_sample(&self.preset.branch_color.2, rng)),
+            trunk_color: Vector3f::new(range_sample(&self.preset.trunk_color.0, rng),
+                                       range_sample(&self.preset.trunk_color.1, rng),
+                                       range_sample(&self.preset.trunk_color.2, rng)),
+            leaf_color: Vector3f::new(range_sample(&self.preset.leaf_color.0, rng),
+                                      range_sample(&self.preset.leaf_color.1, rng),
+                                      range_sample(&self.preset.leaf_color.2, rng)),
         }
     }
 
