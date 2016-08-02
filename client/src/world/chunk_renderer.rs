@@ -1,6 +1,5 @@
 
 use base::world;
-use base::math::SQRT_3;
 use std::f32::consts;
 use world::chunk_view::Vertex;
 use glium::{IndexBuffer, Program, VertexBuffer};

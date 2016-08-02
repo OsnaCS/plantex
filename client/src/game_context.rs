@@ -1,7 +1,6 @@
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::program;
 use glium::Program;
-use glium::program;
 use super::Config;
 use std::fs::File;
 use std::io::{self, Read};
@@ -42,7 +41,7 @@ impl GameContext {
 
         let mut vert = try!(File::open(&format!("client/shader/{}.vert", shader)));
         let mut frag = try!(File::open(&format!("client/shader/{}.frag", shader)));
-        let geo_file = File::open(&format!("client/shader/{}.geo", shader));
+        // let geo_file = File::open(&format!("client/shader/{}.geo", shader));
 
         let mut vert_buf = String::new();
         let mut frag_buf = String::new();

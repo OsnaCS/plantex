@@ -179,19 +179,18 @@ impl WorldManager {
             }
         }
     }
-
-    pub fn recalulate_chunk(&mut self, pos: Point3f) {
-        let mut shared = self.shared.borrow_mut();
-
-        let mut tmp = AxialPoint::new(pos.x as i32 / (CHUNK_SIZE as i32),
-                                      pos.y as i32 / (CHUNK_SIZE as i32));
-        let mut index = ChunkIndex(tmp);
-        // Get the Chunk irgendwie
-        // shared.world_view.refresh_chunk(index,
-        // self.get_world().chunk_at(index).unwrap(),
-        // self.context.get_facade());
-        //
-    }
+    // NOT USED UNTIL NOW
+    // pub fn recalulate_chunk(&mut self, pos: Point3f) {
+    // let shared = self.shared.borrow_mut();
+    // let tmp = AxialPoint::new(pos.x as i32 / (CHUNK_SIZE as i32),
+    // pos.y as i32 / (CHUNK_SIZE as i32));
+    // let index = ChunkIndex(tmp);
+    // Get the Chunk irgendwie
+    // shared.world_view.refresh_chunk(index,
+    // self.get_world().chunk_at(index).unwrap(),
+    // self.context.get_facade());
+    //
+    // }
 }
 
 

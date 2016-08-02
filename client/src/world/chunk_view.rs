@@ -1,5 +1,4 @@
 use base::world::{Chunk, ChunkIndex, HexPillar, PropType, World};
-use base::world::chunk::ChunkPillars;
 use base::math::*;
 use glium::{self, DrawParameters, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
@@ -113,7 +112,18 @@ impl ChunkView {
             let pos = self.offset.to_real() + axial.to_real();
             pillars.push(PillarView::from_pillar(pos, pillar, self.plant_renderer.clone(), facade));
             for section in pillar.sections() {
+                let g = match section.ground {
+                    GroundMaterial::Grass => 1,
+                    GroundMaterial::Sand => 2,
+                    GroundMaterial::Snow => 3,
+                    GroundMaterial::Dirt => 4,
+                    GroundMaterial::Stone => 5,
+                    GroundMaterial::JungleGrass => 1,
+                    GroundMaterial::Mulch => 7,
+                    GroundMaterial::Debug => 8,
+                };
                 sections.push(Instance {
+                    ground: g,
                     material_color: section.ground.get_color(),
                     offset: [pos.x, pos.y, section.bottom.to_real()],
                     height: (section.top.units() - section.bottom.units()) as f32,

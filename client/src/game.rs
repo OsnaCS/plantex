@@ -11,31 +11,19 @@ use std::time::{Duration, Instant};
 use std::rc::Rc;
 use std::net::{SocketAddr, TcpStream};
 use std::error::Error;
-
 use base::world::World;
 use camera::Camera;
 use base::world::PillarSection;
 use base::world;
-use base::world::HeightType;
+// use base::world::HeightType; //WILL BE USED LATER
 use base::math::*;
 use base::world::PillarIndex;
-use base::world::HexPillar;
-use std::f32::consts;
-use base::world::GroundMaterial;
-
 use view::{SkyView, Sun};
 use super::DayTime;
 use super::weather::Weather;
 use player::Player;
 use control_switcher::ControlSwitcher;
-use base::world::PillarSection;
-use base::world;
-use base::world::HeightType;
-use base::math::*;
-use base::world::PillarIndex;
-use base::world::{ChunkIndex, HexPillar};
-use base::world::World;
-use camera::Camera;
+use base::world::HexPillar;
 
 pub struct Game {
     renderer: Renderer,
@@ -145,51 +133,49 @@ impl Game {
     }
 
     // need sorted pillars
-    fn remove_hexagon_at(&mut self, pos: Vector3f) {
-        let view_pos = Point2f::new(pos.x, pos.y);
-        let pillar_index = PillarIndex(AxialPoint::from_real(view_pos));
-
-        match self.world_manager.mut_world().pillar_at_mut(pillar_index) {
-            Some(pillar) => {
-                let bottom = pos.z - pos.z % world::PILLAR_STEP_HEIGHT;
-                let mut i: usize = 0;
-                for section in pillar.sections() {
-                    if section.top.to_real() >= bottom {
-                        break;
-                    }
-                    i += 1;
-                }
-                let mut pillar_section = pillar.sections_mut();
-                if pillar_section.len() > i {
-                    if pillar_section[i].top.to_real() != pos.z + world::PILLAR_STEP_HEIGHT {
-                        let sec = PillarSection {
-                            ground: pillar_section[i].ground.clone(),
-                            top: pillar_section[i].top,
-                            bottom:
-                                HeightType::from_units((pos.z / world::PILLAR_STEP_HEIGHT) as u16),
-                        };
-                        pillar_section.insert(i, sec);
-                        if i > 0 {
-                            i -= 1;
-                        }
-                    }
-                    pillar_section[i].top =
-                        HeightType::from_units(HeightType::from_real(pos.z) as u16);
-                    if pillar_section[i].top == pillar_section[i].bottom {
-                        pillar_section.remove(i);
-                    }
-                } else {
-                    return;
-                }
-            }
-            None => return,
-        };
-        self.world_manager.recalulate_chunk(Point3f::new(pos.x, pos.y, pos.z));
-    }
-}
-
-fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
-    Box::new(WorldGenerator::with_seed(config.seed))
+    //
+    // fn remove_hexagon_at(&mut self, pos: Vector3f) {
+    // let view_pos = Point2f::new(pos.x, pos.y);
+    // let pillar_index = PillarIndex(AxialPoint::from_real(view_pos));
+    //
+    // match self.world_manager.mut_world().pillar_at_mut(pillar_index) {
+    // Some(pillar) => {
+    // let bottom = pos.z - pos.z % world::PILLAR_STEP_HEIGHT;
+    // let mut i: usize = 0;
+    // for section in pillar.sections() {
+    // if section.top.to_real() >= bottom {
+    // break;
+    // }
+    // i += 1;
+    // }
+    // let mut pillar_section = pillar.sections_mut();
+    // if pillar_section.len() > i {
+    // if pillar_section[i].top.to_real() != pos.z + world::PILLAR_STEP_HEIGHT {
+    // let sec = PillarSection {
+    // ground: pillar_section[i].ground.clone(),
+    // top: pillar_section[i].top,
+    // bottom:
+    // HeightType::from_units((pos.z / world::PILLAR_STEP_HEIGHT) as u16),
+    // };
+    // pillar_section.insert(i, sec);
+    // if i > 0 {
+    // i -= 1;
+    // }
+    // }
+    // pillar_section[i].top =
+    // HeightType::from_units(HeightType::from_real(pos.z) as u16);
+    // if pillar_section[i].top == pillar_section[i].bottom {
+    // pillar_section.remove(i);
+    // }
+    // } else {
+    // return;
+    // }
+    // }
+    // None => return,
+    // };
+    // self.world_manager.recalulate_chunk(Point3f::new(pos.x, pos.y, pos.z));
+    // }
+    //
 }
 
 fn get_pillarsectionpos_looking_at(world: &World, cam: Camera) -> Option<Vector3f> {
@@ -208,7 +194,7 @@ fn get_pillarsectionpos_looking_at(world: &World, cam: Camera) -> Option<Vector3
         let pillar_index = PillarIndex(AxialPoint::from_real(view_pos));
 
         let mut height = cam_pos.z + look_vec.z;
-        height -= (height % world::PILLAR_STEP_HEIGHT);
+        height -= height % world::PILLAR_STEP_HEIGHT;
         // height -= world::PILLAR_STEP_HEIGHT;
 
         let final_pos = match world.pillar_at(pillar_index) {
