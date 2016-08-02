@@ -19,7 +19,7 @@ const float AMBIENT = 0.2;
 
 void main() {
     // Shadow map height/width in pixels:
-    float SHADOW_MAP_SIZE = textureSize(shadow_map, 0);
+    float SHADOW_MAP_SIZE = textureSize(shadow_map, 0).x;
 
     vec3 lightCoords = shadowCoord.xyz / shadowCoord.w;
     lightCoords = lightCoords * 0.5 + 0.5;

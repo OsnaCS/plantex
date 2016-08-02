@@ -1,7 +1,7 @@
 use base::math::*;
 use world::WorldView;
 use glium::Surface;
-use super::{Camera, GameContext};
+use super::{Camera, GameContext, Frustum};
 use view::Sun;
 use view::SkyView;
 use std::rc::Rc;
@@ -44,6 +44,7 @@ pub struct Renderer {
     bloom_filter_program: Program,
     bloom_blur_program: Program,
     bloom_blend_program: Program,
+    frustum: Frustum,
 }
 
 impl Renderer {
@@ -88,6 +89,7 @@ impl Renderer {
             bloom_filter_program: bloom_filter_program,
             bloom_blur_program: bloom_blur_program,
             bloom_blend_program: bloom_blend_program,
+            frustum: Frustum::new(),
         };
 
         // Create all textures with correct screen size
@@ -136,6 +138,15 @@ impl Renderer {
                   sky_view: &SkyView)
                   -> Result<(), Box<Error>> {
         // ===================================================================
+        // set up frustum
+        // ===================================================================
+        let look_up = Vector3f::new(0., 0., 1.);
+        //180° fov break stuff xD
+        &self.frustum.set_cam_internals(110., camera.aspect_ratio, 50.0, 100.0);
+        //this can probably be moved to new
+        &self.frustum.set_cam_def(camera.position, camera.get_look_at_vector(), look_up);
+
+        // ===================================================================
         // check dimensions
         // ===================================================================
         let new_res = self.context.get_facade().get_framebuffer_dimensions();
@@ -175,7 +186,8 @@ impl Renderer {
                         camera,
                         &self.shadow_map,
                         &depth_mvp,
-                        sun_dir);
+                        sun_dir,
+                        &self.frustum);
         sky_view.draw_skydome(&mut hdr_buffer, camera);
         sun.draw_sun(&mut hdr_buffer, camera);
         weather.draw(&mut hdr_buffer, camera);
