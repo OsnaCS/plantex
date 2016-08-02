@@ -11,7 +11,6 @@ use std::cmp;
 /// Parameters for the tree generator.
 #[derive(Debug)]
 pub struct Preset {
-    name: &'static str,
     /// Diameter of the first branch we create (the trunk).
     trunk_diameter: Range<f32>,
     /// Trunk height. Note that branches going upward can increase plant height
@@ -66,6 +65,7 @@ pub enum PlantType {
     ClumpOfGrass,
     Conifer,
     OakTree,
+    Flower,
 }
 
 impl PlantType {
@@ -73,7 +73,6 @@ impl PlantType {
         match *self {
             PlantType::RegularTree => {
                 Preset {
-                    name: "'Regular' Tree",
                     trunk_diameter: 0.3..0.5,
                     trunk_height: 3.0..6.0,
                     trunk_diameter_top: 0.2..0.4,
@@ -98,7 +97,6 @@ impl PlantType {
             }
             PlantType::Shrub => {
                 Preset {
-                    name: "Shrub",
                     trunk_diameter: 0.05..0.15,
                     trunk_height: 0.5..1.5,
                     trunk_diameter_top: 0.6..0.60001,
@@ -110,9 +108,9 @@ impl PlantType {
                     branch_segment_length: 11.25..11.26,
                     branch_segment_angle: 15.0..20.0,
                     branch_segment_count: 1..4,
-                    trunk_color: (0.9..0.99, 0.1..0.11, 0.0..0.05),
-                    leaf_color: (0.9..0.99, 0.1..0.11, 0.0..0.05),
-                    leaf_depth: 4,
+                    trunk_color: (0.3..0.4, 0.03..0.07, 0.0..0.03),
+                    leaf_color: (0.6..0.8, 0.06..0.07, 0.0..0.03),
+                    leaf_depth: 1,
                     height_branchlength_dependence: {
                         fn f(_: f32) -> f32 {
                             1.0
@@ -123,7 +121,6 @@ impl PlantType {
             }
             PlantType::Cactus => {
                 Preset {
-                    name: "Cactus",
                     trunk_diameter: 0.6..0.60001,
                     trunk_height: 2.0..4.0,
                     trunk_diameter_top: 0.6..0.60001,
@@ -148,21 +145,20 @@ impl PlantType {
             }
             PlantType::JungleTree => {
                 Preset {
-                    name: "Jungle Tree",
                     trunk_diameter: 1.0..2.0,
                     trunk_height: 17.0..21.0,
                     trunk_diameter_top: 0.6..1.0,
-                    min_branch_height: 0.6..0.7,
+                    min_branch_height: 0.7..0.8,
                     branch_chance: 1.2,
                     branch_diameter_factor: 0.3..0.5,
-                    branch_angle_deg: 80.0..100.0,
+                    branch_angle_deg: 80.0..115.0,
                     branch_diam_reduction: 0.5..0.75,
                     branch_segment_length: 11.25..11.26,
-                    branch_segment_angle: 10.0..13.0,
+                    branch_segment_angle: 10.0..20.0,
                     branch_segment_count: 3..4,
-                    trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
-                    leaf_color: (0.9..0.99, 0.1..0.11, 0.9..0.99),
-                    leaf_depth: 3,
+                    trunk_color: (0.2..0.3, 0.1..0.2, 0.07..0.17),
+                    leaf_color: (0.1..0.2, 0.2..0.5, 0.0..0.1),
+                    leaf_depth: 1,
                     height_branchlength_dependence: {
                         fn f(_: f32) -> f32 {
                             1.0
@@ -173,7 +169,6 @@ impl PlantType {
             }
             PlantType::ClumpOfGrass => {
                 Preset {
-                    name: "Clump Of Grass",
                     trunk_diameter: 0.03..0.8,
                     trunk_height: 0.3..0.8,
                     trunk_diameter_top: 0.03..0.8,
@@ -185,8 +180,8 @@ impl PlantType {
                     branch_segment_length: 8.0..9.0,
                     branch_segment_angle: 25.0..30.0,
                     branch_segment_count: 1..4,
-                    trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
-                    leaf_color: (0.1..0.25, 0.6..0.8, 0.0..0.06),
+                    trunk_color: (0.2..0.25, 0.7..0.8, 0.0..0.02),
+                    leaf_color: (0.0..0.05, 0.3..0.4, 0.8..1.0),
                     leaf_depth: 2,
                     height_branchlength_dependence: {
                         fn f(_: f32) -> f32 {
@@ -198,7 +193,6 @@ impl PlantType {
             }
             PlantType::Conifer => {
                 Preset {
-                    name: "Conifer",
                     trunk_diameter: 0.5..0.8,
                     trunk_height: 5.0..8.0,
                     trunk_diameter_top: 0.3..0.5,
@@ -223,7 +217,6 @@ impl PlantType {
             }
             PlantType::OakTree => {
                 Preset {
-                    name: "Oak Tree",
                     trunk_diameter: 0.4..0.6,
                     trunk_height: 5.9..6.0,
                     trunk_diameter_top: 0.3..0.5,
@@ -246,6 +239,31 @@ impl PlantType {
                                 result = 0.1;
                             }
                             result
+                        }
+                        f
+                    },
+                }
+            }
+
+            PlantType::Flower => {
+                Preset {
+                    trunk_diameter: 0.1..0.12,
+                    trunk_height: 0.8..1.5,
+                    trunk_diameter_top: 0.4..0.6,
+                    min_branch_height: 0.9..0.91,
+                    branch_chance: 10.0,
+                    branch_diameter_factor: 0.45..0.55,
+                    branch_angle_deg: 80.0..95.0,
+                    branch_diam_reduction: 0.9..0.95,
+                    branch_segment_length: 11.25..11.26,
+                    branch_segment_angle: 3.0..7.0,
+                    branch_segment_count: 1..5,
+                    trunk_color: (0.3..0.33, 0.9..0.99, 0.0..0.02),
+                    leaf_color: (0.4..0.8, 0.05..0.1, 0.4..0.6),
+                    leaf_depth: 1,
+                    height_branchlength_dependence: {
+                        fn f(_: f32) -> f32 {
+                            1.0
                         }
                         f
                     },

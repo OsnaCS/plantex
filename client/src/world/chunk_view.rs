@@ -144,6 +144,7 @@ implement_vertex!(Instance, material_color, offset, height);
 
 pub struct PillarView {
     plants: Vec<PlantView>,
+
 }
 
 impl PillarView {

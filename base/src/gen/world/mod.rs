@@ -189,10 +189,11 @@ impl ChunkProvider for WorldGenerator {
                     PlantType::ClumpOfGrass => 4,
                     PlantType::Conifer => 5,
                     PlantType::OakTree => 6,
+                    PlantType::Flower => 7,
                 };
 
                 let plant_instance = rng.gen_range(0, 5);
-                let plant_index = 7 * plant_instance + type_index;
+                let plant_index = 8 * plant_instance + type_index;
 
 
                 //     // put the tree at the highest position
@@ -205,8 +206,7 @@ impl ChunkProvider for WorldGenerator {
                     baseline: height,
                     // for now, you can here set which plants should be placed
                     // all over the world
-                    prop: PropType::Plant(PlantGenerator::new(PlantType::Conifer)
-                        .generate(&mut rng)),
+                    prop: PropType::Plant(PlantGenerator::new(PlantType::Shrub).generate(&mut rng)),
                     plant_index: plant_index as usize,
                 });
 
@@ -230,6 +230,7 @@ impl ChunkProvider for WorldGenerator {
             vec.push(PlantGenerator::new(PlantType::ClumpOfGrass).generate(&mut rng));
             vec.push(PlantGenerator::new(PlantType::Conifer).generate(&mut rng));
             vec.push(PlantGenerator::new(PlantType::OakTree).generate(&mut rng));
+            vec.push(PlantGenerator::new(PlantType::Flower).generate(&mut rng));
         }
         vec
     }
