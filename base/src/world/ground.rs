@@ -16,9 +16,9 @@ impl GroundMaterial {
         match *self {
             GroundMaterial::Dirt => [0.38, 0.13, 0.03],
             GroundMaterial::Grass => [0.0, 0.5, 0.0],
-            GroundMaterial::Stone => [0.3, 0.3, 0.3],
+            GroundMaterial::Stone => [0.5, 0.5, 0.5],
             GroundMaterial::Snow => [0.95, 0.95, 1.0],
-            GroundMaterial::Sand => [1.0, 1.0, 0.0],
+            GroundMaterial::Sand => [0.945, 0.86, 0.49],
             GroundMaterial::JungleGrass => [0.1, 0.26, 0.04],
             GroundMaterial::Mulch => [0.4, 0.4, 0.17],
             GroundMaterial::Debug => [1.0, 0.0, 0.0],
