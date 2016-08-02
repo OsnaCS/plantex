@@ -105,10 +105,14 @@ impl ChunkView {
             shadow_map: shadow_map.sampled().wrap_function(SamplerWrapFunction::Clamp),
             depth_view_proj: depth_view_proj.to_arr(),
             sun_dir: sun_dir.to_arr(),
-                        sand_texture:  self.renderer.noise_sand.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
-            snow_texture:  self.renderer.noise_snow.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
-            grass_texture: self.renderer.noise_grass.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
-            stone_texture: self.renderer.noise_stone.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+            sand_texture: self.renderer.noise_sand.sampled()
+                .minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+            snow_texture: self.renderer.noise_snow.sampled()
+                .minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+            grass_texture: self.renderer.noise_grass.sampled()
+                .minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+            stone_texture: self.renderer.noise_stone.sampled()
+                .minify_filter(MinifySamplerFilter::NearestMipmapLinear),
             normal_sand: &self.renderer.normal_sand,
             normal_snow: &self.renderer.normal_snow,
             normal_grass: &self.renderer.normal_grass,
