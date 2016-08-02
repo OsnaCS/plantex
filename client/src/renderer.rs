@@ -306,7 +306,7 @@ impl Renderer {
         let mut first_iteration = true; //to know when we need to switch uniforms_horz_blur
         let mut horizontal = true;      //to switch between horizontal and vertical blur
 
-        for _ in 0..6 {
+        for _ in 0..8 {
             if horizontal {
                 try!(bloom_blur_horz_buffer.draw(&self.quad_vertex_buffer,
                                                  &self.quad_index_buffer,
