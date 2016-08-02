@@ -56,22 +56,23 @@ impl ChunkView {
                 i += 1;
                 pillars.push(PillarView::from_pillar(pos, pillar, plant_renderer.clone(), facade));
                 for section in pillar.sections() {
-                let g = match section.ground {
-                    GroundMaterial::Grass => 1,
-                    GroundMaterial::Sand => 2,
-                    GroundMaterial::Snow => 3,
-                    GroundMaterial::Dirt => 4,
-                    GroundMaterial::Stone => 5,
-                    GroundMaterial::JungleGrass => 1,
-                    GroundMaterial::Mulch => 7,
-                    GroundMaterial::Debug => 8,
-                };
-                sections.push(Instance {
-                    material_color: section.ground.get_color(),
-                    ground: g,
-                    offset: [pos.x, pos.y, section.bottom.to_real()],
-                    height: (section.top.units() - section.bottom.units()) as f32,
-                });
+                    let g = match section.ground {
+                        GroundMaterial::Grass => 1,
+                        GroundMaterial::Sand => 2,
+                        GroundMaterial::Snow => 3,
+                        GroundMaterial::Dirt => 4,
+                        GroundMaterial::Stone => 5,
+                        GroundMaterial::JungleGrass => 1,
+                        GroundMaterial::Mulch => 7,
+                        GroundMaterial::Debug => 8,
+                    };
+                    sections.push(Instance {
+                        material_color: section.ground.get_color(),
+                        ground: g,
+                        offset: [pos.x, pos.y, section.bottom.to_real()],
+                        height: (section.top.units() - section.bottom.units()) as f32,
+                    });
+                }
             }
         }
 
@@ -223,7 +224,6 @@ implement_vertex!(Instance, material_color, offset, ground, height);
 
 pub struct PillarView {
     plants: Vec<PlantView>,
-
 }
 
 impl PillarView {
