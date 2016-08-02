@@ -45,6 +45,11 @@ void main() {
     x_material_color = material_color;
     x_radius = radius;
     x_tex_coords = tex_coords;
+
+    if(tex_coords.y > 1.5){
+        x_tex_coords.y = height;
+    }
+
     x_position = position;
     x_ground = ground;
 }

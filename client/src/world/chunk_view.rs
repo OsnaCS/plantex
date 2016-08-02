@@ -108,17 +108,23 @@ impl ChunkView {
             sun_dir: sun_dir.to_arr(),
 
             sand_texture:  self.renderer.noise_sand.sampled()
-                .minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+                .minify_filter(MinifySamplerFilter::NearestMipmapLinear)
+                .wrap_function(SamplerWrapFunction::Repeat),
             snow_texture:  self.renderer.noise_snow.sampled()
-                .minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+                .minify_filter(MinifySamplerFilter::NearestMipmapLinear)
+                .wrap_function(SamplerWrapFunction::Repeat),
             grass_texture: self.renderer.noise_grass.sampled()
-                .minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+                .minify_filter(MinifySamplerFilter::NearestMipmapLinear)
+                .wrap_function(SamplerWrapFunction::Repeat),
             stone_texture: self.renderer.noise_stone.sampled()
-                .minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+                .minify_filter(MinifySamplerFilter::NearestMipmapLinear)
+                .wrap_function(SamplerWrapFunction::Repeat),
             dirt_texture: self.renderer.noise_dirt.sampled()
-                .minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+                .minify_filter(MinifySamplerFilter::NearestMipmapLinear)
+                .wrap_function(SamplerWrapFunction::Repeat),
             mulch_texture: self.renderer.noise_mulch.sampled()
-                .minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+                .minify_filter(MinifySamplerFilter::NearestMipmapLinear)
+                .wrap_function(SamplerWrapFunction::Repeat),
 
             normal_sand: &self.renderer.normal_sand,
             normal_snow: &self.renderer.normal_snow,

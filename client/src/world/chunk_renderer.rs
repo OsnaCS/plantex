@@ -241,25 +241,25 @@ fn get_side_hexagon_model(ind1: i32,
         position: [x1, y1, world::PILLAR_STEP_HEIGHT],
         normal: normal,
         radius: 0.0,
-        tex_coords: [0.0, 0.0],
+        tex_coords: [0.0, 2.0],
     });
     vertices.push(Vertex {
         position: [x1, y1, 0.0],
         normal: normal,
         radius: 0.0,
-        tex_coords: [0.7, 0.0],
+        tex_coords: [0.0, 0.0],
     });
     vertices.push(Vertex {
         position: [x2, y2, world::PILLAR_STEP_HEIGHT],
         normal: normal,
         radius: 0.0,
-        tex_coords: [0.0, 0.5],
+        tex_coords: [1.0, 2.0],
     });
     vertices.push(Vertex {
         position: [x2, y2, 0.0],
         normal: normal,
         radius: 0.0,
-        tex_coords: [0.7, 0.5],
+        tex_coords: [1.0, 0.0],
     });
 
     indices.append(&mut vec![cur_len + 0,
