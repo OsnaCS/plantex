@@ -130,6 +130,7 @@ dependencies = [
  "clap 2.9.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "glium 0.15.0 (git+https://github.com/jonas-schievink/glium.git?branch=unifast)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "noise 0.2.0 (git+https://github.com/bjz/noise-rs)",
  "rand 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 0.1.73 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.1.30 (registry+https://github.com/rust-lang/crates.io-index)",

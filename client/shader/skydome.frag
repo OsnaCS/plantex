@@ -3,6 +3,8 @@
 in vec3 x_unit_coords;
 
 uniform vec3 u_sun_pos;
+uniform sampler2D u_star_map;
+
 
 out vec3 color;
 
@@ -154,4 +156,16 @@ void main() {
     } else if (sun_z > high_noon_start) {
         color = high_noon_color;
     }
+
+    // add stars
+    float star = texture(u_star_map, vec2(theta*0.8,phi*0.8));
+    vec3 star_color = vec3(0.0, 0.0, 0.0);
+
+
+    float star_value = 1 + theta * 0.01;
+
+    if (star > 0.5 * star_value) {
+        star_color = vec3(1.0, 1.0, 1.0);
+    }
+    color = color + star_color;
 }

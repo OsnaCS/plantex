@@ -6,12 +6,19 @@ use Camera;
 use glium::draw_parameters::DepthTest;
 use util::ToArr;
 use base::math::*;
+use noise::{PermutationTable, open_simplex2, open_simplex3};
+use rand::Rand;
+use base::gen::seeded_rng;
+use glium::texture::Texture2d;
+
+
 
 pub struct SkyView {
     vertex_buffer: VertexBuffer<Vertex>,
     index_buffer: IndexBuffer<u32>,
     program: Program,
     sun_position: Point3f,
+    star_map: Texture2d,
 }
 
 impl SkyView {
@@ -45,11 +52,32 @@ impl SkyView {
                                     &raw_index_buffer)
             .unwrap();
 
+        let seed = 54342354434;
+        let mut star_rng = seeded_rng(seed, 0, ());
+        let mut star_table = PermutationTable::rand(&mut star_rng);
+
+
+        // values between 0 and 0.5
+        const TEX_SIZE: usize = 3000;
+        let mut v = vec![Vec::new(); TEX_SIZE];
+
+        for i in 0..TEX_SIZE {
+            for j in 0..TEX_SIZE * 2 {
+                v[i].push((open_simplex2::<f32>(&star_table,
+                                                &[(i as f32) * 0.1, (j as f32) * 0.1]) +
+                           0.6) / 2.0);
+            }
+        }
+
         SkyView {
             vertex_buffer: vbuf,
             index_buffer: ibuf,
             program: context.load_program("skydome").unwrap(),
             sun_position: Point3f::new(0.0, 0.0, -1000.0),
+            star_map: match Texture2d::new(context.get_facade(), v) {
+                Ok(p) => p,
+                Err(_) => panic!("Could not load stars"),
+            },
         }
     }
 
@@ -65,6 +93,7 @@ impl SkyView {
             u_proj_matrix: camera.proj_matrix().to_arr(),
             u_view_matrix: view_matrix.to_arr(),
             u_sun_pos: self.sun_position.to_arr(),
+            u_star_map: &self.star_map,
         };
         let params = DrawParameters {
             depth: glium::Depth {
