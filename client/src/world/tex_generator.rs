@@ -70,12 +70,12 @@ pub fn create_stone(seed: u64) -> (Vec<Vec<f32>>, Vec<Vec<(f32, f32, f32)>>) {
 
     for i in 0..256 {
         for j in 0..256 {
-            let e = (open_simplex2::<f32>(&table, &[(i as f32) * 1.5, (j as f32) * 1.5]) +
-                      1.0) / 2.0;// +
-                    // 0.5 *
-                    // ((open_simplex2::<f32>(&table, &[(i as f32) * 5.0, (j as f32) * 5.0]) + 1.0) /
-                    //  2.0);
-            stone_height_map[i].push(e.powf(10.0));
+            let e = ((open_simplex2::<f32>(&table, &[(i as f32) * 0.05, (j as f32) * 0.05]) +
+                      1.0) / 2.0) +
+                    0.5 *
+                    ((open_simplex2::<f32>(&table, &[(i as f32) * 0.03, (j as f32) * 0.03]) +
+                      1.0) / 2.0);
+            stone_height_map[i].push(e.powf(2.3));
             tex_map[i].push((e, e, e));
         }
     }
