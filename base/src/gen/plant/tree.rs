@@ -456,6 +456,10 @@ impl TreeGen {
                 point: Point3f::new(0.0, 0.0, trunk_height),
                 diameter: trunk_diameter_top,
             });
+            points.push(ControlPoint {
+                point: Point3f::new(0.0, 0.0, trunk_height + 0.075 * trunk_height),
+                diameter: 0.025,
+            });
         }
 
         self.branches.push(Branch {
