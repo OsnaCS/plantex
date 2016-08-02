@@ -39,6 +39,9 @@ const SHADOW_ORTHO_FAR: f32 = 600.0;
 // 1: Enable Bloom
 // 2: Show only Bloom Map
 const BLOOM_STATE: i8 = 1;
+// number of times the light texture will be blured.
+// each iteration contains one horizontal and one vertical blur
+const BLOOM_ITERATION: u8 = 10;
 
 // ===================  AUTOMATIC BRIGHTNESS ADAPTION  ===============
 
@@ -192,36 +195,38 @@ impl Renderer {
         // ===================================================================
         // Rendering into HDR framebuffer
         // ===================================================================
-        let mut hdr_buffer = try!(SimpleFrameBuffer::with_depth_buffer(self.context.get_facade(),
-                                                                       &self.quad_tex,
-                                                                       &self.depth_texture));
-        hdr_buffer.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
+        {
+            let mut hdr_buffer = try!(SimpleFrameBuffer::with_depth_buffer(self.context
+                                                                               .get_facade(),
+                                                                           &self.quad_tex,
+                                                                           &self.depth_texture));
+            hdr_buffer.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
 
-        if self.shadow_debug {
-            let mut target = self.context.get_facade().draw();
-            target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
-            try!(target.draw(&self.quad_vertex_buffer,
-                             &self.quad_index_buffer,
-                             &self.shadow_debug_program,
-                             &uniform!{
+            if self.shadow_debug {
+                let mut target = self.context.get_facade().draw();
+                target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
+                try!(target.draw(&self.quad_vertex_buffer,
+                                 &self.quad_index_buffer,
+                                 &self.shadow_debug_program,
+                                 &uniform!{
                           decal_texture: &self.shadow_map,
                       },
-                             &Default::default()));
-            try!(target.finish());
-            return Ok(());
+                                 &Default::default()));
+                try!(target.finish());
+                return Ok(());
+            }
+
+            let sun_dir = (-sun.position().to_vec()).normalize();
+            world_view.draw(&mut hdr_buffer,
+                            camera,
+                            &self.shadow_map,
+                            &depth_mvp,
+                            sun_dir);
+            sky_view.draw_skydome(&mut hdr_buffer, camera);
+            sun.draw_sun(&mut hdr_buffer, camera);
+            weather.draw(&mut hdr_buffer, camera);
+
         }
-
-        let sun_dir = (-sun.position().to_vec()).normalize();
-        world_view.draw(&mut hdr_buffer,
-                        camera,
-                        &self.shadow_map,
-                        &depth_mvp,
-                        sun_dir);
-        sky_view.draw_skydome(&mut hdr_buffer, camera);
-        sun.draw_sun(&mut hdr_buffer, camera);
-        weather.draw(&mut hdr_buffer, camera);
-
-
         // ===================================================================
         //                      Brightness Adaption Calls
         // ===================================================================
@@ -242,115 +247,21 @@ impl Renderer {
 
 
         // ===================================================================
-        // Creating the Bloom framebuffer
+        //                                  Bloom
         // ===================================================================
 
-        // =======================  light texture  ===========================
-        let uniforms = uniform! {
-            decal_texture: &self.quad_tex,
-            exposure: exposure,
-        };
-
-        let mut bloom_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
-                                                           self.bloom_filter_tex
-                                                               .to_color_attachment()));
-
-        bloom_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
-
-
-        try!(bloom_buffer.draw(&self.quad_vertex_buffer,
-                               &self.quad_index_buffer,
-                               &self.bloom_filter_program,
-                               &uniforms,
-                               &Default::default()));
-
-
-
-        // ============================  blur  ===============================
-
-        let mut bloom_blur_horz_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
-                                                                     self.bloom_horz_tex
-                                                                         .to_color_attachment()));
-
-        bloom_blur_horz_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
-
-
-        let mut bloom_blur_vert_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
-                                                                     self.bloom_vert_tex
-                                                                         .to_color_attachment()));
-        bloom_blur_vert_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
-        let mut uniforms_horz_blur = uniform! {
-            //for the first iteration: Use the bloom quad texture, from second iteration on this
-            // will change to bloom_vert_tex
-            image: self.bloom_filter_tex.sampled().wrap_function(SamplerWrapFunction::Clamp),
-            horizontal: true,
-        };
-        let uniforms_vert_blur = uniform! {
-            image: self.bloom_horz_tex.sampled().wrap_function(SamplerWrapFunction::Clamp),
-            horizontal: false,
-        };
-
-
-        let mut first_iteration = true; //to know when we need to switch uniforms_horz_blur
-        let mut horizontal = true;      //to switch between horizontal and vertical blur
-
-        for _ in 0..20 {
-            if horizontal {
-                try!(bloom_blur_horz_buffer.draw(&self.quad_vertex_buffer,
-                                                 &self.quad_index_buffer,
-                                                 &self.bloom_blur_program,
-                                                 &uniforms_horz_blur,
-                                                 &Default::default()));
-            } else {
-                try!(bloom_blur_vert_buffer.draw(&self.quad_vertex_buffer,
-                                                 &self.quad_index_buffer,
-                                                 &self.bloom_blur_program,
-                                                 &uniforms_vert_blur,
-                                                 &Default::default()));
-            }
-            if first_iteration {
-                uniforms_horz_blur = uniform! {
-                    image: self.bloom_vert_tex.sampled().wrap_function(SamplerWrapFunction::Clamp),
-                    horizontal: true,
-                };
-                first_iteration = false;
-            }
-            horizontal = !horizontal;
+        if BLOOM_STATE != 0 {
+            try!(self.bloom());
         }
 
-        // ==========================  blending  =============================
-
-        let mut bloom_blend_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
-                                                                 self.bloom_blend_tex
-                                                                     .to_color_attachment()));
-
-        bloom_blend_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
-
-
-        let u_blend_tex =
-            if horizontal { &self.bloom_vert_tex } else { &self.bloom_horz_tex };
-
-        let uniforms = uniform! {
-            bloom_tex: u_blend_tex,
-            world_tex: &self.quad_tex,
-        };
-
-
-        try!(bloom_blend_buffer.draw(&self.quad_vertex_buffer,
-                                     &self.quad_index_buffer,
-                                     &self.bloom_blend_program,
-                                     &uniforms,
-                                     &Default::default()));
-
-
         // ===================================================================
-        // Tonemapping
+        //                                 Tonemapping
         // ===================================================================
 
 
         let decal_texture = match BLOOM_STATE {
             0 => &self.quad_tex,
-            2 => u_blend_tex,
+            2 => &self.bloom_vert_tex,
             _ => &self.bloom_blend_tex,
         };
 
@@ -514,6 +425,103 @@ impl Renderer {
             .min(EYE_OPEN)
             .max(EYE_CLOSED);
         Ok(adapted_luminance)
+    }
+
+
+    fn bloom(&mut self) -> Result<(), Box<Error>> {
+        // =======================  light texture  ===========================
+        // create texture containing only bright areas, everything else will be black
+
+        let uniforms = uniform! {
+            decal_texture: &self.quad_tex,
+        };
+
+        let mut bloom_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
+                                                           self.bloom_filter_tex
+                                                               .to_color_attachment()));
+
+        bloom_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
+
+
+        try!(bloom_buffer.draw(&self.quad_vertex_buffer,
+                               &self.quad_index_buffer,
+                               &self.bloom_filter_program,
+                               &uniforms,
+                               &Default::default()));
+
+        // ============================  blur  ===============================
+        // ping pong blur between the horizontal and the vertical blur buffer.
+
+        let mut bloom_blur_horz_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
+                                                                     self.bloom_horz_tex
+                                                                         .to_color_attachment()));
+
+        bloom_blur_horz_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
+
+
+        let mut bloom_blur_vert_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
+                                                                     self.bloom_vert_tex
+                                                                         .to_color_attachment()));
+        bloom_blur_vert_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
+        let mut uniforms_horz_blur = uniform! {
+            //for the first iteration: Use the bloom quad texture as source of light map,
+            // from second iteration on this will change to bloom_vert_tex
+            image: self.bloom_filter_tex.sampled().wrap_function(SamplerWrapFunction::Clamp),
+            horizontal: true,
+        };
+        let uniforms_vert_blur = uniform! {
+            image: self.bloom_horz_tex.sampled().wrap_function(SamplerWrapFunction::Clamp),
+            horizontal: false,
+        };
+
+        let mut first_iteration = true; //to know when we need to switch uniforms_horz_blur
+        let mut horizontal = true;      //to switch between horizontal and vertical blur
+
+        for _ in 0..BLOOM_ITERATION {
+            if horizontal {
+                try!(bloom_blur_horz_buffer.draw(&self.quad_vertex_buffer,
+                                                 &self.quad_index_buffer,
+                                                 &self.bloom_blur_program,
+                                                 &uniforms_horz_blur,
+                                                 &Default::default()));
+            } else {
+                try!(bloom_blur_vert_buffer.draw(&self.quad_vertex_buffer,
+                                                 &self.quad_index_buffer,
+                                                 &self.bloom_blur_program,
+                                                 &uniforms_vert_blur,
+                                                 &Default::default()));
+            }
+            if first_iteration {
+                uniforms_horz_blur = uniform! {
+                    image: self.bloom_vert_tex.sampled().wrap_function(SamplerWrapFunction::Clamp),
+                    horizontal: true,
+                };
+                first_iteration = false;
+            }
+            horizontal = !horizontal;
+        }
+
+        // ==========================  blending  =============================
+
+        let mut bloom_blend_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
+                                                                 self.bloom_blend_tex
+                                                                     .to_color_attachment()));
+
+        bloom_blend_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
+
+        // after 2x BLOOM_ITERATION we can rely on bloom_vert_tex bein the blur output
+        let uniforms = uniform! {
+            bloom_tex: &self.bloom_vert_tex,
+            world_tex: &self.quad_tex,
+        };
+
+        try!(bloom_blend_buffer.draw(&self.quad_vertex_buffer,
+                                     &self.quad_index_buffer,
+                                     &self.bloom_blend_program,
+                                     &uniforms,
+                                     &Default::default()));
+
+        Ok(())
     }
 }
 
