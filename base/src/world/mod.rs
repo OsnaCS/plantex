@@ -3,7 +3,7 @@
 use std::fmt;
 use math;
 
-mod chunk;
+pub mod chunk;
 mod ground;
 mod hex_pillar;
 mod provider;
@@ -66,6 +66,10 @@ impl HeightType {
     /// representation.
     pub fn to_real(&self) -> f32 {
         (self.0 as f32) * PILLAR_STEP_HEIGHT
+    }
+
+    pub fn from_real(number: f32) -> f32 {
+        number / PILLAR_STEP_HEIGHT
     }
 }
 

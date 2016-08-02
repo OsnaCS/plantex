@@ -17,12 +17,12 @@ use std::iter::Iterator;
 pub struct Chunk {
     /// All pillars are layed out in this one dimensional vector which saves
     /// all rows (same r-value) consecutive.
-    pillars: Vec<HexPillar>,
+    pub pillars: Vec<HexPillar>,
 }
 
 pub struct ChunkPillars<'a> {
-    pillars: &'a [HexPillar],
-    i: u16,
+    pub pillars: &'a [HexPillar],
+    pub i: u16,
 }
 
 impl<'a> Iterator for ChunkPillars<'a> {
@@ -61,6 +61,16 @@ impl Chunk {
         let chunk_size: PillarIndexComponent = CHUNK_SIZE.into();
         if pos.q >= 0 && pos.q < chunk_size && pos.r >= 0 && pos.r < chunk_size {
             Some(&self.pillars[(pos.r as usize) * (CHUNK_SIZE as usize) + (pos.q as usize)])
+        } else {
+            None
+        }
+    }
+
+    /// Safer method to get through a chunk with an ìndex
+    pub fn get_mut(&mut self, pos: AxialPoint) -> Option<&mut HexPillar> {
+        let chunk_size: PillarIndexComponent = CHUNK_SIZE.into();
+        if pos.q >= 0 && pos.q < chunk_size && pos.r >= 0 && pos.r < chunk_size {
+            Some(&mut self.pillars[(pos.r as usize) * (CHUNK_SIZE as usize) + (pos.q as usize)])
         } else {
             None
         }
@@ -108,3 +118,10 @@ impl ops::Index<AxialPoint> for Chunk {
         })
     }
 }
+
+impl ops::IndexMut<AxialPoint> for Chunk {
+    fn index_mut(&mut self, pos: AxialPoint) -> &mut Self::Output {
+        self.get_mut(pos).unwrap()
+    }
+}
+

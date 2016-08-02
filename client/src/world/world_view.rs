@@ -2,7 +2,8 @@ use base::world::{self, Chunk, ChunkIndex, World};
 use base::math::*;
 use glium::backend::Facade;
 use glium::texture::DepthTexture2d;
-use glium::{self, DepthTest, DrawParameters};
+use glium::{self, DepthTest, DrawParameters, LinearBlendingFactor};
+use glium::draw_parameters::BlendingFunction;
 use Camera;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -62,6 +63,14 @@ impl WorldView {
                                                  facade));
     }
 
+    pub fn get_chunk_view(&self, index: &ChunkIndex) -> Option<&ChunkView> {
+        self.chunks.get(&index)
+    }
+
+    pub fn get_chunk_view_mut(&mut self, index: &ChunkIndex) -> Option<&mut ChunkView> {
+        self.chunks.get_mut(&index)
+    }
+
     pub fn remove_chunk(&mut self, chunk_pos: ChunkIndex) {
         self.chunks.remove(&chunk_pos);
     }
@@ -89,35 +98,11 @@ impl WorldView {
                     test: DepthTest::Overwrite,
                     ..Default::default()
                 },
-                ..Default::default()
-            };
-
-            // println!("DRAW: {:?}", self.outline.position().to_arr());
-            let outline_uniforms = uniform! {
-              outline_pos: self.outline.position().to_arr(),
-              proj_matrix: camera.proj_matrix().to_arr(),
-              view_matrix: camera.view_matrix().to_arr(),
-              transformation: [
-                  [1.5, 0.0, 0.0, 0.0],
-                  [0.0, 1.5, 0.0, 0.0],
-                  [0.0, 0.0, 1.5, 0.0],
-                  [0.0, 0.0, 0.0, 1.0f32]
-              ],
-            };
-
-            surface.draw(self.outline.vertices(),
-                      self.outline.indices(),
-                      self.outline.program(),
-                      &outline_uniforms,
-                      &outline_params)
-                .unwrap();
-        }
-        if self.outline.display {
-            // Draw outline
-            let outline_params = DrawParameters {
-                depth: glium::Depth {
-                    write: true,
-                    test: DepthTest::IfLess,
+                blend: glium::Blend {
+                    color: BlendingFunction::Addition {
+                        source: LinearBlendingFactor::SourceAlpha,
+                        destination: LinearBlendingFactor::OneMinusSourceAlpha,
+                    },
                     ..Default::default()
                 },
                 ..Default::default()

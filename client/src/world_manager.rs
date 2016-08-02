@@ -113,6 +113,10 @@ impl WorldManager {
         Ref::map(self.shared.borrow(), |shared| &shared.world)
     }
 
+    pub fn mut_world(&self) -> RefMut<World> {
+        RefMut::map(self.shared.borrow_mut(), |shared| &mut shared.world)
+    }
+
     /// Returns an immutable reference to the world view.
     pub fn get_view(&self) -> Ref<WorldView> {
         Ref::map(self.shared.borrow(), |shared| &shared.world_view)
@@ -121,6 +125,10 @@ impl WorldManager {
     /// Returns an mutable reference to the world view.
     pub fn get_mut_view(&self) -> RefMut<WorldView> {
         RefMut::map(self.shared.borrow_mut(), |shared| &mut shared.world_view)
+    }
+
+    pub fn get_context(&self) -> &Rc<GameContext> {
+        &self.context
     }
 
     /// Starts to generate all chunks within `load_distance` (config parameter)
@@ -170,6 +178,19 @@ impl WorldManager {
                 warn!("chunk at {:?} already exists!", pos);
             }
         }
+    }
+
+    pub fn recalulate_chunk(&mut self, pos: Point3f) {
+        let mut shared = self.shared.borrow_mut();
+
+        let mut tmp = AxialPoint::new(pos.x as i32 / (CHUNK_SIZE as i32),
+                                      pos.y as i32 / (CHUNK_SIZE as i32));
+        let mut index = ChunkIndex(tmp);
+        // Get the Chunk irgendwie
+        // shared.world_view.refresh_chunk(index,
+        // self.get_world().chunk_at(index).unwrap(),
+        // self.context.get_facade());
+        //
     }
 }
 
