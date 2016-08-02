@@ -98,11 +98,7 @@ void main() {
     // But because this is only functional for the upper hemisphere,
     // the phi for the lower hemisphere is calculated in the if statement
 
-    float phi = acos( (unit_vector.x) /
-        sqrt(unit_vector.x * unit_vector.x + unit_vector.y * unit_vector.y) );
-    if (unit_vector.y < 0) {
-        phi = 2*PI - phi;
-    }
+    float phi = atan(unit_vector.y, unit_vector.x);
 
     // Calculate dummy blue gradient sky color
     vec3 high_noon_color = vec3((theta / PI)-0.2,(theta / PI)-0.1,1.0);
@@ -118,10 +114,7 @@ void main() {
     float sun_x = normalize(u_sun_pos).x;
     float sun_y = normalize(u_sun_pos).y;
 
-    float sun_phi = acos( (sun_x) / sqrt(sun_x * sun_x + sun_y * sun_y) );
-    if (sun_y < 0) {
-        sun_phi = 2*PI - sun_phi;
-    }
+    float sun_phi = atan(sun_y, sun_x);
 
     // distance between current vertex and sun in phi direction
     // divided by 2*PI to get a value between 0 and 1
