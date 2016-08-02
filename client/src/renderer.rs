@@ -460,7 +460,7 @@ impl Renderer {
             .unwrap();
 
         self.lum_relative_tex = Texture2d::empty_with_format(self.context.get_facade(),
-                                                             UncompressedFloatFormat::F32F32,
+                                                             UncompressedFloatFormat::F32,
                                                              MipmapsOption::NoMipmap,
                                                              self.resolution.0,
                                                              self.resolution.1)
@@ -521,7 +521,7 @@ impl Renderer {
 
         // Read only pixel in the lowest level texture from lum_texs.
         // never change a working system.
-        let buf: Vec<Vec<(f32, f32)>> = self.lum_texs
+        let buf: Vec<Vec<f32>> = self.lum_texs
             .last()
             .unwrap()
             .main_level()
@@ -539,11 +539,10 @@ impl Renderer {
 
         // let avg_luminance = Vector3f::new(pixel.0, pixel.1, pixel.2)
         //    .dot(Vector3f::new(0.2126, 0.7152, 0.0722));
-        let avg_luminance = pixel.0;
+        let avg_luminance = pixel;
 
 
         info!("lum: {}", avg_luminance);
-        // TODO: This sometimes returns NaN. Find out why.
 
         // the exposure level is inversely propotional to the avg. luminance.
         // log2 is necessary to adapt more for the lower than for the higher values.
@@ -574,7 +573,7 @@ fn initialize_luminosity(facade: &GlutinFacade) -> Vec<Texture2d> {
     let mut lum = Vec::with_capacity(10);
     for i in 0..10 {
         lum.push(Texture2d::empty_with_format(facade,
-                                              UncompressedFloatFormat::F32F32,
+                                              UncompressedFloatFormat::F32,
                                               MipmapsOption::NoMipmap,
                                               (2u32).pow((9 - i)),
                                               (2u32).pow((9 - i)))
