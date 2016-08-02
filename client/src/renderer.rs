@@ -62,7 +62,10 @@ pub struct Renderer {
     /// Depth texture used by the normal render.
     depth_texture: DepthTexture2d,
     /// Depth texture rendered to from sun perspective.
-    shadow_map: DepthTexture2d,
+    shadow_map: Texture2d,
+    shadow_horz_blur: Texture2d,
+    /// Unnecessary dummy depth texture used when rendering the shadow map.
+    shadow_depth: DepthTexture2d,
     /// Render the shadow map to the screen instead of the world.
     shadow_debug: bool,
     shadow_debug_program: Program,
@@ -92,12 +95,23 @@ impl Renderer {
                                     &[0u16, 1, 2, 0, 2, 3])
             .unwrap();
 
-        let shadow_map = DepthTexture2d::empty_with_format(context.get_facade(),
-                                                           DepthFormat::I16,
-                                                           MipmapsOption::NoMipmap,
-                                                           SHADOW_MAP_SIZE,
-                                                           SHADOW_MAP_SIZE)
+
+        let shadow_map = Texture2d::empty_with_format(context.get_facade(),
+                                                      UncompressedFloatFormat::F32F32,
+                                                      MipmapsOption::NoMipmap,
+                                                      SHADOW_MAP_SIZE,
+                                                      SHADOW_MAP_SIZE)
             .unwrap();
+
+        let shadow_horz_blur = Texture2d::empty_with_format(context.get_facade(),
+                                                            UncompressedFloatFormat::F32F32,
+                                                            MipmapsOption::NoMipmap,
+                                                            SHADOW_MAP_SIZE,
+                                                            SHADOW_MAP_SIZE)
+            .unwrap();
+
+        let shadow_depth =
+            DepthTexture2d::empty(context.get_facade(), SHADOW_MAP_SIZE, SHADOW_MAP_SIZE).unwrap();
 
         let lum_texs = initialize_luminosity(context.get_facade());
 
@@ -117,6 +131,8 @@ impl Renderer {
             tonemapping_program: tonemapping_program,
             depth_texture: DepthTexture2d::empty(context.get_facade(), 1, 1).unwrap(),
             shadow_map: shadow_map,
+            shadow_horz_blur: shadow_horz_blur,
+            shadow_depth: shadow_depth,
             shadow_debug: env::var("SHADOW_DEBUG").is_ok(),
             shadow_debug_program: shadow_debug_program,
             quad_vertex_buffer: Renderer::create_vertex_buf(context.get_facade()),
@@ -148,10 +164,11 @@ impl Renderer {
                          sun_pos: Point3f,
                          camera: Point3f)
                          -> Result<Matrix4<f32>, Box<Error>> {
-        let mut shadow_target = try!(SimpleFrameBuffer::depth_only(self.context
-                                                                       .get_facade(),
-                                                                   &self.shadow_map));
-        shadow_target.clear_depth(1.0);
+        let mut shadow_target = try!(SimpleFrameBuffer::with_depth_buffer(self.context
+                                                                              .get_facade(),
+                                                                          &self.shadow_map,
+                                                                          &self.shadow_depth));
+        shadow_target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
         // Render the world from the perspective of the sun.
         let mut cam_pos = camera.to_vec();
@@ -167,6 +184,39 @@ impl Renderer {
                                       SHADOW_ORTHO_NEAR,
                                       SHADOW_ORTHO_FAR));
         world_view.draw_shadow(&mut shadow_target, &sun_cam);
+
+        // Blur the shadow map to get soft shadows
+
+        // Blur in horizontal direction into a new frame buffer:
+        let mut blur_horz_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
+                                                               self.shadow_horz_blur
+                                                                   .to_color_attachment()));
+
+        for _ in 0..1 {
+            blur_horz_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
+
+
+            try!(blur_horz_buffer.draw(&self.quad_vertex_buffer,
+                                       &self.quad_index_buffer,
+                                       &self.bloom_blur_program,
+                                       &uniform! {
+                                            image: self.shadow_map.sampled()
+                                              .wrap_function(SamplerWrapFunction::Clamp),
+                                            horizontal: true,
+                                        },
+                                       &Default::default()));
+
+            // ...then blur in vertical direction into the normal shadow map
+            try!(shadow_target.draw(&self.quad_vertex_buffer,
+                                    &self.quad_index_buffer,
+                                    &self.bloom_blur_program,
+                                    &uniform! {
+                                        image: self.shadow_horz_blur.sampled()
+                                          .wrap_function(SamplerWrapFunction::Clamp),
+                                        horizontal: false,
+                                    },
+                                    &Default::default()));
+        }
 
         Ok(sun_cam.proj_matrix() * sun_cam.view_matrix())
     }

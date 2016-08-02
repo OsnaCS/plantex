@@ -5,5 +5,10 @@
 
 #version 140
 
+out vec2 out_color;
+
 void main() {
+    float depth = gl_FragCoord.z;
+
+    out_color = vec2(depth, depth * depth);
 }

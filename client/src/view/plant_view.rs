@@ -62,6 +62,7 @@ impl PlantView {
                 ..Default::default()
             },
             backface_culling: BackfaceCullingMode::CullClockwise,
+            multisampling: true,
             ..Default::default()
         };
 
