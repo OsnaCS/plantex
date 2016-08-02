@@ -65,6 +65,8 @@ pub struct Prop {
     pub baseline: HeightType,
     /// The actual prop data
     pub prop: PropType,
+    /// index in the plant_list vector
+    pub plant_index: usize,
 }
 
 /// Represents one of many different prop types
