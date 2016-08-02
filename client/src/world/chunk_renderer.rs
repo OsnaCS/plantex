@@ -9,6 +9,7 @@ use GameContext;
 use std::rc::Rc;
 use super::tex_generator;
 use super::normal_converter;
+use base::world::ground::GroundMaterial;
 
 pub struct ChunkRenderer {
     /// Chunk shader
@@ -24,10 +25,15 @@ pub struct ChunkRenderer {
     pub noise_snow: Texture2d,
     pub noise_grass: Texture2d,
     pub noise_stone: Texture2d,
+    pub noise_dirt: Texture2d,
+    pub noise_mulch: Texture2d,
+
     pub normal_sand: Texture2d,
     pub normal_snow: Texture2d,
     pub normal_grass: Texture2d,
     pub normal_stone: Texture2d,
+    pub normal_dirt: Texture2d,
+    pub normal_mulch: Texture2d,
 }
 
 impl ChunkRenderer {
@@ -43,6 +49,13 @@ impl ChunkRenderer {
         get_side_hexagon_model(3, 4, &mut vertices, &mut indices);
         get_side_hexagon_model(2, 3, &mut vertices, &mut indices);
 
+        let sand = tex_generator::create_texture_maps(GroundMaterial::Sand);
+        let snow = tex_generator::create_texture_maps(GroundMaterial::Snow);
+        let grass = tex_generator::create_texture_maps(GroundMaterial::Grass);
+        let stone = tex_generator::create_texture_maps(GroundMaterial::Stone);
+        let dirt = tex_generator::create_texture_maps(GroundMaterial::Dirt);
+        let mulch = tex_generator::create_texture_maps(GroundMaterial::Mulch);
+
         // TODO: Maybe fix function return type instead of
         // calling create_sand(...).1
         // Are we only using the first value?
@@ -54,34 +67,30 @@ impl ChunkRenderer {
                                           PrimitiveType::TrianglesList,
                                           &indices)
                 .unwrap(),
-            noise_sand: Texture2d::new(context.get_facade(),
-                                       tex_generator::create_sand(2 as u64).1)
-                .unwrap(),
-            noise_snow: Texture2d::new(context.get_facade(),
-                                       tex_generator::create_snow(2 as u64).1)
-                .unwrap(),
-            noise_grass: Texture2d::new(context.get_facade(),
-                                        tex_generator::create_grass(2 as u64).1)
-                .unwrap(),
-            noise_stone: Texture2d::new(context.get_facade(),
-                                        tex_generator::create_stone(2 as u64).1)
-                .unwrap(),
+            noise_sand: Texture2d::new(context.get_facade(), sand.1).unwrap(),
+            noise_snow: Texture2d::new(context.get_facade(), snow.1).unwrap(),
+            noise_grass: Texture2d::new(context.get_facade(), grass.1).unwrap(),
+            noise_stone: Texture2d::new(context.get_facade(), stone.1).unwrap(),
+            noise_dirt: Texture2d::new(context.get_facade(), dirt.1).unwrap(),
+            noise_mulch: Texture2d::new(context.get_facade(), mulch.1).unwrap(),
 
-            normal_sand:
-                Texture2d::new(context.get_facade(),
-                               normal_converter::convert(tex_generator::create_sand(2u64).0, 1.0))
+            normal_sand: Texture2d::new(context.get_facade(),
+                                        normal_converter::convert(sand.0, 1.0))
                 .unwrap(),
-            normal_snow:
-                Texture2d::new(context.get_facade(),
-                               normal_converter::convert(tex_generator::create_snow(2u64).0, 1.0))
+            normal_snow: Texture2d::new(context.get_facade(),
+                                        normal_converter::convert(snow.0, 1.0))
                 .unwrap(),
-            normal_grass:
-                Texture2d::new(context.get_facade(),
-                               normal_converter::convert(tex_generator::create_grass(2u64).0, 1.0))
+            normal_grass: Texture2d::new(context.get_facade(),
+                                         normal_converter::convert(grass.0, 1.0))
                 .unwrap(),
-            normal_stone:
-                Texture2d::new(context.get_facade(),
-                               normal_converter::convert(tex_generator::create_stone(2u64).0, 1.0))
+            normal_stone: Texture2d::new(context.get_facade(),
+                                         normal_converter::convert(stone.0, 1.0))
+                .unwrap(),
+            normal_dirt: Texture2d::new(context.get_facade(),
+                                        normal_converter::convert(dirt.0, 1.0))
+                .unwrap(),
+            normal_mulch: Texture2d::new(context.get_facade(),
+                                         normal_converter::convert(mulch.0, 1.0))
                 .unwrap(),
         }
     }

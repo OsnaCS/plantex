@@ -19,11 +19,15 @@ uniform sampler2D normal_sand;
 uniform sampler2D normal_snow;
 uniform sampler2D normal_grass;
 uniform sampler2D normal_stone;
+uniform sampler2D normal_dirt;
+uniform sampler2D normal_mulch;
 // Surface textures
 uniform sampler2D sand_texture;
 uniform sampler2D grass_texture;
 uniform sampler2D snow_texture;
 uniform sampler2D stone_texture;
+uniform sampler2D dirt_texture;
+uniform sampler2D mulch_texture;
 
 // Percentage-closer filtering (square) radius in pixels
 const int SHADOW_PCF_RADIUS = 1;
@@ -101,8 +105,12 @@ void main() {
         normal_map = texture(normal_sand, x_tex_coords).rgb;
     } else if (x_ground == 3) {
         normal_map = texture(normal_snow, x_tex_coords).rgb;
+    } else if (x_ground == 4) {
+        normal_map = texture(normal_dirt, x_tex_coords).rgb;
     } else if (x_ground == 5) {
         normal_map = texture(normal_stone, x_tex_coords).rgb;
+    } else if (x_ground == 7) {
+        normal_map = texture(normal_mulch, x_tex_coords).rgb;
     }
 
 
@@ -133,8 +141,12 @@ void main() {
         diffuse_color = texture(sand_texture, x_tex_coords).rgb;
     } else if (x_ground == 3) {
         diffuse_color = texture(snow_texture, x_tex_coords).rgb;
+    } else if (x_ground == 4) {
+        diffuse_color = texture(dirt_texture, x_tex_coords).rgb;
     } else if (x_ground == 5) {
         diffuse_color = texture(stone_texture, x_tex_coords).rgb;
+    } else if (x_ground == 7) {
+        diffuse_color = texture(mulch_texture, x_tex_coords).rgb;
     }
 
     diffuse_color *= x_material_color;
@@ -170,6 +182,6 @@ void main() {
 
     // Set Border to distinguish hexagons
     if (x_radius > 0.98) {
-        color *= 0.3;
+        color *= 0.7;
     }
 }
