@@ -6,7 +6,7 @@ use Camera;
 use glium::draw_parameters::DepthTest;
 use util::ToArr;
 use base::math::*;
-use noise::{PermutationTable, open_simplex2, open_simplex3};
+use noise::{PermutationTable, open_simplex2};
 use rand::Rand;
 use base::gen::seeded_rng;
 use glium::texture::Texture2d;
@@ -54,7 +54,7 @@ impl SkyView {
 
         let seed = 54342354434;
         let mut star_rng = seeded_rng(seed, 0, ());
-        let mut star_table = PermutationTable::rand(&mut star_rng);
+        let star_table = PermutationTable::rand(&mut star_rng);
 
 
         // values between 0 and 0.5
