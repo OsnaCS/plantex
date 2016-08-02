@@ -11,13 +11,13 @@ use super::weather::Weather;
 use glium::texture::texture2d::Texture2d;
 use glium::texture::{DepthFormat, DepthTexture2d, MipmapsOption, UncompressedFloatFormat};
 use glium::framebuffer::SimpleFrameBuffer;
-use glium::{IndexBuffer, Program, VertexBuffer, Blend, BlendingFunction, LinearBlendingFactor};
+use glium::{Blend, BlendingFunction, IndexBuffer, LinearBlendingFactor, Program, VertexBuffer};
 use glium::index::PrimitiveType;
 use glium::backend::Facade;
 use glium::framebuffer::ToColorAttachment;
 use glium::backend::glutin_backend::GlutinFacade;
 use glium;
-use glium::uniforms::{SamplerWrapFunction, MagnifySamplerFilter};
+use glium::uniforms::{MagnifySamplerFilter, SamplerWrapFunction};
 use glium::draw_parameters::DrawParameters;
 
 
@@ -115,10 +115,10 @@ impl Renderer {
             .unwrap();
 
         let shadow_motion_blur = Texture2d::empty_with_format(context.get_facade(),
-                                                            UncompressedFloatFormat::F32F32,
-                                                            MipmapsOption::NoMipmap,
-                                                            SHADOW_MAP_SIZE,
-                                                            SHADOW_MAP_SIZE)
+                                                              UncompressedFloatFormat::F32F32,
+                                                              MipmapsOption::NoMipmap,
+                                                              SHADOW_MAP_SIZE,
+                                                              SHADOW_MAP_SIZE)
             .unwrap();
         shadow_motion_blur.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
@@ -257,14 +257,15 @@ impl Renderer {
         };
 
         try!(shadow_target.draw(&self.quad_vertex_buffer,
-                  &self.quad_index_buffer,
-                  &self.shadow_blend_program,
-                  &uniforms,
-                  &params));
+                                &self.quad_index_buffer,
+                                &self.shadow_blend_program,
+                                &uniforms,
+                                &params));
 
 
         // Copy final shadow map to motion blur texture
-        shadow_target.fill(&self.shadow_motion_blur.as_surface(), MagnifySamplerFilter::Nearest);
+        shadow_target.fill(&self.shadow_motion_blur.as_surface(),
+                           MagnifySamplerFilter::Nearest);
 
         self.last_sun_pos = sun_pos;
 
