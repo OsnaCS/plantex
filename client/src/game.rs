@@ -36,9 +36,9 @@ impl Game {
         let server = try!(TcpStream::connect(server));
         let facade = try!(create_context(&config));
         let context = Rc::new(GameContext::new(facade, config.clone()));
-        let world_weather = Weather::new(context.clone());
         let world_manager = WorldManager::new(create_chunk_provider(context.get_config()),
                                               context.clone());
+        let world_weather = Weather::new(context.clone());
 
         Ok(Game {
             renderer: Renderer::new(context.clone()),
@@ -71,13 +71,13 @@ impl Game {
             // delta in seconds
             let delta = ((duration_delta.subsec_nanos() / 1_000) as f32) / 1_000_000.0 +
                         duration_delta.as_secs() as f32;
+            time_prev = Instant::now();
 
             self.weather.update(&self.control_switcher.get_camera(),
                                 delta,
                                 &self.world_manager);
             self.world_manager.update_world(self.control_switcher.get_camera().position);
 
-            time_prev = Instant::now();
 
             self.daytime.update(delta);
             self.sky_view.update(self.daytime.get_sun_position());
