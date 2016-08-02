@@ -10,7 +10,7 @@ pub struct PlantRenderer {
 impl PlantRenderer {
     pub fn new(context: Rc<GameContext>) -> Self {
         PlantRenderer {
-            program: context.load_program("plant_dummy").unwrap(),
+            program: context.load_program("plants").unwrap(),
             shadow_program: context.load_program("plant_shadow").unwrap(),
         }
     }

@@ -206,7 +206,8 @@ impl ChunkProvider for WorldGenerator {
                     baseline: height,
                     // for now, you can here set which plants should be placed
                     // all over the world
-                    prop: PropType::Plant(PlantGenerator::new(PlantType::Shrub).generate(&mut rng)),
+                    prop: PropType::Plant(PlantGenerator::new(PlantType::RegularTree)
+                        .generate(&mut rng)),
                     plant_index: plant_index as usize,
                 });
 
