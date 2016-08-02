@@ -2,7 +2,8 @@ use base::world::{self, Chunk, ChunkIndex, World};
 use base::math::*;
 use glium::backend::Facade;
 use glium::texture::DepthTexture2d;
-use glium::{self, DepthTest, DrawParameters};
+use glium::{self, DepthTest, DrawParameters, LinearBlendingFactor};
+use glium::draw_parameters::BlendingFunction;
 use Camera;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -62,6 +63,14 @@ impl WorldView {
                                                  facade));
     }
 
+    pub fn get_chunk_view(&self, index: &ChunkIndex) -> Option<&ChunkView> {
+        self.chunks.get(&index)
+    }
+
+    pub fn get_chunk_view_mut(&mut self, index: &ChunkIndex) -> Option<&mut ChunkView> {
+        self.chunks.get_mut(&index)
+    }
+
     pub fn remove_chunk(&mut self, chunk_pos: ChunkIndex) {
         self.chunks.remove(&chunk_pos);
     }
@@ -87,6 +96,13 @@ impl WorldView {
                 depth: glium::Depth {
                     write: false,
                     test: DepthTest::Overwrite,
+                    ..Default::default()
+                },
+                blend: glium::Blend {
+                    color: BlendingFunction::Addition {
+                        source: LinearBlendingFactor::SourceAlpha,
+                        destination: LinearBlendingFactor::OneMinusSourceAlpha,
+                    },
                     ..Default::default()
                 },
                 ..Default::default()

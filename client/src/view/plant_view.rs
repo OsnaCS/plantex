@@ -37,10 +37,7 @@ impl PlantView {
 
         PlantView {
             vertices: VertexBuffer::new(facade, &vertices).unwrap(),
-            indices: IndexBuffer::new(facade,
-                                      PrimitiveType::Patches { vertices_per_patch: 6 },
-                                      &indices)
-                .unwrap(),
+            indices: IndexBuffer::new(facade, PrimitiveType::TrianglesList, &indices).unwrap(),
             renderer: renderer,
             pos: pos,
         }
