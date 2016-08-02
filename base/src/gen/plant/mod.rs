@@ -1,9 +1,7 @@
 pub mod tree;
 
-use self::tree::TreeGen;
-use gen::world::biome::Biome;
+use self::tree::{PlantType, TreeGen};
 use prop::Plant;
-
 use rand::Rng;
 
 /// Plant generation entry point.
@@ -21,7 +19,7 @@ impl PlantGenerator {
         }
     }
 
-    pub fn rand<R: Rng>(rng: &mut R, biome: Biome) -> Self {
-        PlantGenerator::Tree(TreeGen::rand(rng, biome))
+    pub fn new(plant_type: PlantType) -> Self {
+        PlantGenerator::Tree(TreeGen::new(plant_type))
     }
 }

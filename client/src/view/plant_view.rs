@@ -27,14 +27,15 @@ impl PlantView {
         let mut indices = Vec::new();
         let mut vertices = Vec::new();
         match *plant {
-            Plant::Tree(Tree { ref branches, branch_color }) => {
+            Plant::Tree(Tree { ref branches, trunk_color, leaf_color }) => {
                 for branch in branches {
+                    let color = if branch.is_trunk { trunk_color } else { leaf_color };
                     for i in 1..branch.points.len() {
                         get_vertices_for_branch(&branch.points[i - 1],
                                                 &branch.points[i],
                                                 &mut vertices,
                                                 &mut indices,
-                                                branch_color);
+                                                color);
                     }
                 }
             }

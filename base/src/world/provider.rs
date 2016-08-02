@@ -1,4 +1,5 @@
 use super::{Chunk, ChunkIndex};
+use prop::plant::Plant;
 
 /// A type that can load a game world, specifically single chunks of it. This
 /// could mean loading a saved world from a file, generating a world
@@ -19,6 +20,9 @@ pub trait ChunkProvider: Send {
     /// Determines whether or not the chunk at the given position can be
     /// loaded. This function is expected to return quickly.
     fn is_chunk_loadable(&self, pos: ChunkIndex) -> bool;
+
+    /// Returns a Vector of all specific plants to be rendered in the world.
+    fn get_plant_list(&self) -> Vec<Plant>;
 }
 
 /// A dummy provider that always fails to provide a chunk.
@@ -32,6 +36,10 @@ impl ChunkProvider for NullProvider {
 
     fn is_chunk_loadable(&self, _: ChunkIndex) -> bool {
         false
+    }
+
+    fn get_plant_list(&self) -> Vec<Plant> {
+        Vec::new()
     }
 }
 
@@ -55,5 +63,9 @@ impl<P: ChunkProvider, F: ChunkProvider> ChunkProvider for FallbackProvider<P, F
 
     fn is_chunk_loadable(&self, pos: ChunkIndex) -> bool {
         self.primary.is_chunk_loadable(pos) || self.fallback.is_chunk_loadable(pos)
+    }
+
+    fn get_plant_list(&self) -> Vec<Plant> {
+        self.primary.get_plant_list()
     }
 }

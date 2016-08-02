@@ -7,13 +7,10 @@ use rand::distributions::range::SampleRange;
 use rand::distributions::{self, IndependentSample};
 use std::ops::Range;
 use std::cmp;
-use gen::world::biome::Biome;
-
 
 /// Parameters for the tree generator.
 #[derive(Debug)]
 pub struct Preset {
-    name: &'static str,
     /// Diameter of the first branch we create (the trunk).
     trunk_diameter: Range<f32>,
     /// Trunk height. Note that branches going upward can increase plant height
@@ -45,184 +42,239 @@ pub struct Preset {
     /// Together with `branch_segment_length`, this defines the overall branch
     /// length.
     branch_segment_count: Range<u32>,
-    /// Range of branch colors for the whole tree, as distinct ranges for R, G
-    /// and B.
-    branch_color: (Range<f32>, Range<f32>, Range<f32>),
+    /// The color of the trunk :^)
+    trunk_color: (Range<f32>, Range<f32>, Range<f32>),
+    /// The color of the leafs :^)
+    leaf_color: (Range<f32>, Range<f32>, Range<f32>),
+    /// At which recursion depth should the color switch.
+    /// x > 3 basically means only trunk_color will be used (because plants are
+    /// generated with a max depth of 3). The actual trunk though will always
+    /// get trunk_color, even if leaf_depth is 0.
+    leaf_depth: u16,
+
     /// for conifer trees the branches become smaller with height
     height_branchlength_dependence: fn(f32) -> f32,
 }
 
-pub const PRESETS: &'static [Preset] = &[Preset {
-                                             name: "'Regular' Tree",
-                                             trunk_diameter: 0.3..0.5,
-                                             trunk_height: 3.0..6.0,
-                                             trunk_diameter_top: 0.2..0.4,
-                                             min_branch_height: 0.4..0.6,
-                                             branch_chance: 0.6,
-                                             branch_diameter_factor: 0.3..0.5,
-                                             branch_angle_deg: 70.0..110.0,
-                                             branch_diam_reduction: 0.75..0.85,
-                                             branch_segment_length: 11.25..11.26,
-                                             branch_segment_angle: 5.0..15.0,
-                                             branch_segment_count: 1..4,
-                                             branch_color: (0.3..0.33, 0.9..0.99, 0.0..0.02),
-                                             height_branchlength_dependence: {
-                                                 fn f(_: f32) -> f32 {
-                                                     1.0
-                                                 }
-                                                 f
-                                             },
-                                         },
-                                         Preset {
-                                             name: "Shrub",
-                                             trunk_diameter: 0.05..0.15,
-                                             trunk_height: 0.5..1.5,
-                                             trunk_diameter_top: 0.6..0.60001,
-                                             min_branch_height: 0.4..0.6,
-                                             branch_chance: 10.0,
-                                             branch_diameter_factor: 0.3..0.5,
-                                             branch_angle_deg: 60.0..100.0,
-                                             branch_diam_reduction: 0.70..0.80,
-                                             branch_segment_length: 11.25..11.26,
-                                             branch_segment_angle: 15.0..20.0,
-                                             branch_segment_count: 1..4,
-                                             branch_color: (0.9..0.99, 0.1..0.11, 0.0..0.05),
-                                             height_branchlength_dependence: {
-                                                 fn f(_: f32) -> f32 {
-                                                     1.0
-                                                 }
-                                                 f
-                                             },
-                                         },
-                                         Preset {
-                                             name: "Cactus",
-                                             trunk_diameter: 0.6..0.60001,
-                                             trunk_height: 2.0..4.0,
-                                             trunk_diameter_top: 0.6..0.60001,
-                                             min_branch_height: 0.05..0.1,
-                                             branch_chance: 5.0,
-                                             branch_diameter_factor: 0.1..0.15,
-                                             branch_angle_deg: 90.0..90.00001,
-                                             branch_diam_reduction: 0.90..0.95,
-                                             branch_segment_length: 2.0..4.0,
-                                             branch_segment_angle: 0.0..0.00001,
-                                             branch_segment_count: 1..2,
-                                             branch_color: (0.3..0.59, 0.75..0.88, 0.08..0.15),
-                                             height_branchlength_dependence: {
-                                                 fn f(_: f32) -> f32 {
-                                                     1.0
-                                                 }
-                                                 f
-                                             },
-                                         },
-                                         Preset {
-                                             name: "Jungle Tree",
-                                             trunk_diameter: 1.0..2.0,
-                                             trunk_height: 17.0..21.0,
-                                             trunk_diameter_top: 0.6..1.0,
-                                             min_branch_height: 0.6..0.7,
-                                             branch_chance: 1.2,
-                                             branch_diameter_factor: 0.3..0.5,
-                                             branch_angle_deg: 80.0..100.0,
-                                             branch_diam_reduction: 0.5..0.75,
-                                             branch_segment_length: 11.25..11.26,
-                                             branch_segment_angle: 10.0..13.0,
-                                             branch_segment_count: 3..4,
-                                             branch_color: (0.3..0.33, 0.1..0.11, 0.9..0.99),
-                                             height_branchlength_dependence: {
-                                                 fn f(_: f32) -> f32 {
-                                                     1.0
-                                                 }
-                                                 f
-                                             },
-                                         },
-                                         Preset {
-                                             name: "Clump Of Grass",
-                                             trunk_diameter: 0.03..0.8,
-                                             trunk_height: 0.3..0.8,
-                                             trunk_diameter_top: 0.03..0.8,
-                                             min_branch_height: 0.1..0.3,
-                                             branch_chance: 12.0,
-                                             branch_diameter_factor: 0.3..0.5,
-                                             branch_angle_deg: 60.0..100.0,
-                                             branch_diam_reduction: 0.70..0.80,
-                                             branch_segment_length: 8.0..10.0,
-                                             branch_segment_angle: 25.0..30.0,
-                                             branch_segment_count: 1..4,
-                                             branch_color: (0.1..0.25, 0.6..0.8, 0.0..0.06),
-                                             height_branchlength_dependence: {
-                                                 fn f(_: f32) -> f32 {
-                                                     1.0
-                                                 }
-                                                 f
-                                             },
-                                         },
-                                         Preset {
-                                             name: "Conifer",
-                                             trunk_diameter: 0.5..0.8,
-                                             trunk_height: 5.0..8.0,
-                                             trunk_diameter_top: 0.3..0.5,
-                                             min_branch_height: 0.1..0.2,
-                                             branch_chance: 3.4,
-                                             branch_diameter_factor: 0.3..0.5,
-                                             branch_angle_deg: 90.0..90.00001,
-                                             branch_diam_reduction: 0.75..0.85,
-                                             branch_segment_length: 11.25..11.26,
-                                             branch_segment_angle: 1.0..2.0,
-                                             branch_segment_count: 1..4,
-                                             // dark green
-                                             branch_color: (0.13..0.18, 0.2..0.22, 0.05..0.09),
-                                             height_branchlength_dependence: {
-                                                 fn f(height: f32) -> f32 {
-                                                     (1.0 - 0.125 * height)
-                                                 }
-                                                 f
-                                             },
-                                         },
-                                         // WIP
-                                         Preset {
-                                             name: "Oak Tree",
-                                             trunk_diameter: 0.4..0.6,
-                                             trunk_height: 5.9..6.0,
-                                             trunk_diameter_top: 0.3..0.5,
-                                             min_branch_height: 0.5..0.51,
-                                             branch_chance: 4.0,
-                                             branch_diameter_factor: 0.3..0.5,
-                                             branch_angle_deg: 90.0..90.0001,
-                                             branch_diam_reduction: 0.6..0.7,
-                                             branch_segment_length: 11.25..11.26,
-                                             branch_segment_angle: 5.0..15.0,
-                                             branch_segment_count: 3..4,
-                                             branch_color: (0.1..0.15, 0.1..0.15, 0.9..0.95),
-                                             height_branchlength_dependence: {
-                                                 fn f(height: f32) -> f32 {
-                                                     1.1 - 0.3 * (height - 4.5) * (height - 4.5)
-                                                 }
-                                                 f
-                                             },
-                                         }];
+#[derive(Debug, Clone, Copy)]
+pub enum PlantType {
+    RegularTree,
+    Shrub,
+    Cactus,
+    JungleTree,
+    ClumpOfGrass,
+    Conifer,
+    OakTree,
+    Flower,
+}
 
-// REGULAR_TREE = 0;
-// SHRUB = 1;
-// CACTUS = 2;
-// JUNGLE_TREE = 3;
-// CLUMP_OF_GRASS = 4;
-// CONIFER = 5;
-// OAK TREE = 6
+impl PlantType {
+    fn preset(&self) -> Preset {
+        match *self {
+            PlantType::RegularTree => {
+                Preset {
+                    trunk_diameter: 0.3..0.5,
+                    trunk_height: 3.0..6.0,
+                    trunk_diameter_top: 0.2..0.4,
+                    min_branch_height: 0.4..0.6,
+                    branch_chance: 0.6,
+                    branch_diameter_factor: 0.3..0.5,
+                    branch_angle_deg: 70.0..110.0,
+                    branch_diam_reduction: 0.75..0.85,
+                    branch_segment_length: 11.25..11.26,
+                    branch_segment_angle: 5.0..15.0,
+                    branch_segment_count: 1..4,
+                    trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
+                    leaf_color: (0.3..0.33, 0.9..0.99, 0.0..0.02),
+                    leaf_depth: 2,
+                    height_branchlength_dependence: {
+                        fn f(_: f32) -> f32 {
+                            1.0
+                        }
+                        f
+                    },
+                }
+            }
+            PlantType::Shrub => {
+                Preset {
+                    trunk_diameter: 0.05..0.15,
+                    trunk_height: 0.5..1.5,
+                    trunk_diameter_top: 0.6..0.60001,
+                    min_branch_height: 0.4..0.6,
+                    branch_chance: 10.0,
+                    branch_diameter_factor: 0.3..0.5,
+                    branch_angle_deg: 60.0..100.0,
+                    branch_diam_reduction: 0.70..0.80,
+                    branch_segment_length: 11.25..11.26,
+                    branch_segment_angle: 15.0..20.0,
+                    branch_segment_count: 1..4,
+                    trunk_color: (0.3..0.4, 0.03..0.07, 0.0..0.03),
+                    leaf_color: (0.6..0.8, 0.06..0.07, 0.0..0.03),
+                    leaf_depth: 1,
+                    height_branchlength_dependence: {
+                        fn f(_: f32) -> f32 {
+                            1.0
+                        }
+                        f
+                    },
+                }
+            }
+            PlantType::Cactus => {
+                Preset {
+                    trunk_diameter: 0.6..0.60001,
+                    trunk_height: 2.0..4.0,
+                    trunk_diameter_top: 0.6..0.60001,
+                    min_branch_height: 0.05..0.1,
+                    branch_chance: 5.0,
+                    branch_diameter_factor: 0.1..0.15,
+                    branch_angle_deg: 90.0..90.00001,
+                    branch_diam_reduction: 0.90..0.95,
+                    branch_segment_length: 2.0..4.0,
+                    branch_segment_angle: 0.0..0.00001,
+                    branch_segment_count: 1..2,
+                    trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
+                    leaf_color: (0.3..0.59, 0.75..0.88, 0.08..0.15),
+                    leaf_depth: 2,
+                    height_branchlength_dependence: {
+                        fn f(_: f32) -> f32 {
+                            1.0
+                        }
+                        f
+                    },
+                }
+            }
+            PlantType::JungleTree => {
+                Preset {
+                    trunk_diameter: 1.0..2.0,
+                    trunk_height: 17.0..21.0,
+                    trunk_diameter_top: 0.6..1.0,
+                    min_branch_height: 0.7..0.8,
+                    branch_chance: 1.2,
+                    branch_diameter_factor: 0.3..0.5,
+                    branch_angle_deg: 80.0..115.0,
+                    branch_diam_reduction: 0.5..0.75,
+                    branch_segment_length: 11.25..11.26,
+                    branch_segment_angle: 10.0..20.0,
+                    branch_segment_count: 3..4,
+                    trunk_color: (0.2..0.3, 0.1..0.2, 0.07..0.17),
+                    leaf_color: (0.1..0.2, 0.2..0.5, 0.0..0.1),
+                    leaf_depth: 1,
+                    height_branchlength_dependence: {
+                        fn f(_: f32) -> f32 {
+                            1.0
+                        }
+                        f
+                    },
+                }
+            }
+            PlantType::ClumpOfGrass => {
+                Preset {
+                    trunk_diameter: 0.03..0.8,
+                    trunk_height: 0.3..0.8,
+                    trunk_diameter_top: 0.03..0.8,
+                    min_branch_height: 0.1..0.3,
+                    branch_chance: 12.0,
+                    branch_diameter_factor: 0.3..0.5,
+                    branch_angle_deg: 60.0..100.0,
+                    branch_diam_reduction: 0.70..0.80,
+                    branch_segment_length: 8.0..9.0,
+                    branch_segment_angle: 25.0..30.0,
+                    branch_segment_count: 1..4,
+                    trunk_color: (0.2..0.25, 0.7..0.8, 0.0..0.02),
+                    leaf_color: (0.0..0.05, 0.3..0.4, 0.8..1.0),
+                    leaf_depth: 2,
+                    height_branchlength_dependence: {
+                        fn f(_: f32) -> f32 {
+                            1.0
+                        }
+                        f
+                    },
+                }
+            }
+            PlantType::Conifer => {
+                Preset {
+                    trunk_diameter: 0.5..0.8,
+                    trunk_height: 5.0..8.0,
+                    trunk_diameter_top: 0.3..0.5,
+                    min_branch_height: 0.1..0.2,
+                    branch_chance: 3.4,
+                    branch_diameter_factor: 0.3..0.5,
+                    branch_angle_deg: 90.0..90.00001,
+                    branch_diam_reduction: 0.75..0.85,
+                    branch_segment_length: 11.25..11.26,
+                    branch_segment_angle: 1.0..2.0,
+                    branch_segment_count: 1..4,
+                    trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
+                    leaf_color: (0.1..0.15, 0.15..0.18, 0.05..0.09),
+                    leaf_depth: 1,
+                    height_branchlength_dependence: {
+                        fn f(height: f32) -> f32 {
+                            (1.0 - 0.125 * height)
+                        }
+                        f
+                    },
+                }
+            }
+            PlantType::OakTree => {
+                Preset {
+                    trunk_diameter: 0.4..0.6,
+                    trunk_height: 5.9..6.0,
+                    trunk_diameter_top: 0.3..0.5,
+                    min_branch_height: 0.5..0.51,
+                    branch_chance: 6.0,
+                    branch_diameter_factor: 0.3..0.5,
+                    branch_angle_deg: 90.0..90.0001,
+                    branch_diam_reduction: 0.6..0.7,
+                    branch_segment_length: 0.5..0.65,
+                    branch_segment_angle: 3.0..5.0,
+                    branch_segment_count: 3..4,
+                    trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
+                    leaf_color: (0.2..0.21, 0.45..0.46, 0.2..0.21),
+                    leaf_depth: 2,
+                    height_branchlength_dependence: {
+                        fn f(height: f32) -> f32 {
+                            let mut result = 25.0 - 7.6 * (height - 4.5) * (height - 4.5);
+                            if result <= 0.0 {
+                                println!("{:?}, {:?}", height, result);
+                                result = 0.1;
+                            }
+                            result
+                        }
+                        f
+                    },
+                }
+            }
 
-const GRASS_LAND_PRESET: &'static [&'static Preset] =
-    &[&PRESETS[0], &PRESETS[1], &PRESETS[4], &PRESETS[4]];
-const DESERT_PRESET: &'static [&'static Preset] = &[&PRESETS[2]];
-const SNOW_PRESET: &'static [&'static Preset] = &[&PRESETS[5]];
-const FOREST_PRESET: &'static [&'static Preset] = &[&PRESETS[0], &PRESETS[5], &PRESETS[4]];
-const RAIN_FOREST_PRESET: &'static [&'static Preset] =
-    &[&PRESETS[0], &PRESETS[0], &PRESETS[0], &PRESETS[1], &PRESETS[2], &PRESETS[3]];
-const SAVANNA_PRESET: &'static [&'static Preset] = &[&PRESETS[1]];
-const STONE_PRESET: &'static [&'static Preset] = &[&PRESETS[5]];
-const DEBUG_PRESET: &'static [&'static Preset] = &[&PRESETS[3]];
+            PlantType::Flower => {
+                Preset {
+                    trunk_diameter: 0.1..0.12,
+                    trunk_height: 0.8..1.5,
+                    trunk_diameter_top: 0.4..0.6,
+                    min_branch_height: 0.9..0.91,
+                    branch_chance: 10.0,
+                    branch_diameter_factor: 0.45..0.55,
+                    branch_angle_deg: 80.0..95.0,
+                    branch_diam_reduction: 0.9..0.95,
+                    branch_segment_length: 11.25..11.26,
+                    branch_segment_angle: 3.0..7.0,
+                    branch_segment_count: 1..5,
+                    trunk_color: (0.3..0.33, 0.9..0.99, 0.0..0.02),
+                    leaf_color: (0.4..0.8, 0.05..0.1, 0.4..0.6),
+                    leaf_depth: 1,
+                    height_branchlength_dependence: {
+                        fn f(_: f32) -> f32 {
+                            1.0
+                        }
+                        f
+                    },
+                }
+            }
+        }
+    }
+}
 
 pub struct TreeGen {
-    preset: &'static Preset,
+    preset: Preset,
     /// Buffer for branches, filled as they're created.
     branches: Vec<Branch>,
 }
@@ -242,14 +294,13 @@ impl TreeGen {
                              rng: &mut R,
                              start: Point3f,
                              dir: Vector3f,
-                             depth: u32,
+                             depth: u16,
                              parent_diam: f32,
                              height_branchlength_dependence: fn(_: f32) -> f32) {
         if depth > 3 {
             // Limit recursion
             return;
         }
-
         // Current normalized growing direction, variated slightly as segments are
         // generated
         let mut dir = dir.normalize();
@@ -293,7 +344,7 @@ impl TreeGen {
                 last = point;
 
                 // FIXME Make branch spawn chance configurable
-                if rng.gen_weighted_bool(depth * 3) {
+                if rng.gen_weighted_bool(depth as u32 * 3) {
                     // Build a vector for the branch direction (Z is up)
                     let dir = self.gen_branch_direction(rng, dir);
                     self.create_branch(rng,
@@ -312,7 +363,7 @@ impl TreeGen {
 
             // In a loop, get the length of the next segment from the current diameter.
             for _ in 0..segment_count {
-                assert!(height_branchlength_dependence(start.z) != 0.0);
+                assert!(height_branchlength_dependence(start.z) > 0.0);
                 let length = height_branchlength_dependence(start.z) *
                              segment_dist(segment_length, diam);
                 diam *= diam_factor;
@@ -328,7 +379,10 @@ impl TreeGen {
 
         assert!(points.len() >= 2,
                 "should've generated at least 2 points :(");
-        self.branches.push(Branch { points: points });
+        self.branches.push(Branch {
+            points: points,
+            is_trunk: self.preset.leaf_depth > depth,
+        });
     }
 
     /// Given the growing direction of the parent branch, calculates a growing
@@ -404,7 +458,10 @@ impl TreeGen {
             });
         }
 
-        self.branches.push(Branch { points: points });
+        self.branches.push(Branch {
+            points: points,
+            is_trunk: true,
+        });
 
         debug!("generated tree with {} branches", self.branches.len());
     }
@@ -418,29 +475,18 @@ impl TreeGen {
 
         Tree {
             branches: self.branches,
-            branch_color: Vector3f::new(range_sample(&self.preset.branch_color.0, rng),
-                                        range_sample(&self.preset.branch_color.1, rng),
-                                        range_sample(&self.preset.branch_color.2, rng)),
+            trunk_color: Vector3f::new(range_sample(&self.preset.trunk_color.0, rng),
+                                       range_sample(&self.preset.trunk_color.1, rng),
+                                       range_sample(&self.preset.trunk_color.2, rng)),
+            leaf_color: Vector3f::new(range_sample(&self.preset.leaf_color.0, rng),
+                                      range_sample(&self.preset.leaf_color.1, rng),
+                                      range_sample(&self.preset.leaf_color.2, rng)),
         }
     }
 
-    pub fn rand<R: Rng>(rng: &mut R, biome: Biome) -> Self {
-        // Select a random preset that we'll use
-
-        let matched_preset = match biome {
-            Biome::GrassLand => GRASS_LAND_PRESET,
-            Biome::Desert => DESERT_PRESET,
-            Biome::Snow => SNOW_PRESET,
-            Biome::Forest => FOREST_PRESET,
-            Biome::RainForest => RAIN_FOREST_PRESET,
-            Biome::Savanna => SAVANNA_PRESET,
-            Biome::Stone => STONE_PRESET,
-            Biome::Debug => DEBUG_PRESET,
-        };
-        let preset = rng.choose(matched_preset).unwrap().clone();
-
+    pub fn new(plant_type: PlantType) -> Self {
         TreeGen {
-            preset: preset,
+            preset: plant_type.preset(),
             branches: Vec::new(),
         }
     }
