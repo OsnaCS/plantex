@@ -99,18 +99,20 @@ void main() {
     // vec3 normal_map = texture(normals, x_tex_coords).rgb;
 
     vec3 normal_map;
+    vec2 tex = vec2(x_tex_coords.x, fract(x_tex_coords.y));
+
     if (x_ground == 1) {
-        normal_map = texture(normal_grass, x_tex_coords).rgb;
+        normal_map = texture(normal_grass, tex).rgb;
     } else if (x_ground == 2) {
-        normal_map = texture(normal_sand, x_tex_coords).rgb;
+        normal_map = texture(normal_sand, tex).rgb;
     } else if (x_ground == 3) {
-        normal_map = texture(normal_snow, x_tex_coords).rgb;
+        normal_map = texture(normal_snow, tex).rgb;
     } else if (x_ground == 4) {
-        normal_map = texture(normal_dirt, x_tex_coords).rgb;
+        normal_map = texture(normal_dirt, tex).rgb;
     } else if (x_ground == 5) {
-        normal_map = texture(normal_stone, x_tex_coords).rgb;
+        normal_map = texture(normal_stone, tex).rgb;
     } else if (x_ground == 7) {
-        normal_map = texture(normal_mulch, x_tex_coords).rgb;
+        normal_map = texture(normal_mulch, tex).rgb;
     }
 
 
