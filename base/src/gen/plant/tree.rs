@@ -365,13 +365,6 @@ impl TreeGen {
             points: points,
             is_trunk: self.preset.leaf_depth > depth,
         });
-
-        // if depth == 3 {
-        println!("{:?} > {:?}, {:?}",
-                 self.preset.leaf_depth,
-                 depth,
-                 self.preset.leaf_depth > depth);
-        // }
     }
 
     /// Given the growing direction of the parent branch, calculates a growing
