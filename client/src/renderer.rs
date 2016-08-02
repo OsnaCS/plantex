@@ -28,8 +28,8 @@ use glium::draw_parameters::DrawParameters;
 // ========================  THE SHADOW  =============================
 
 const SHADOW_MAP_SIZE: u32 = 2048;
-const SHADOW_ORTHO_WIDTH: f32 = 20.0;
-const SHADOW_ORTHO_HEIGHT: f32 = 20.0;
+const SHADOW_ORTHO_WIDTH: f32 = 100.0;
+const SHADOW_ORTHO_HEIGHT: f32 = 100.0;
 const SHADOW_ORTHO_NEAR: f32 = 100.0;
 const SHADOW_ORTHO_FAR: f32 = 600.0;
 
@@ -72,7 +72,6 @@ pub struct Renderer {
     shadow_debug: bool,
     shadow_debug_program: Program,
     shadow_blend_program: Program,
-    last_sun_pos: Point3f,
     quad_vertex_buffer: VertexBuffer<Vertex>,
     quad_index_buffer: IndexBuffer<u16>,
     resolution: (u32, u32),
@@ -150,7 +149,6 @@ impl Renderer {
             shadow_debug: env::var("SHADOW_DEBUG").is_ok(),
             shadow_debug_program: shadow_debug_program,
             shadow_blend_program: shadow_blend_program,
-            last_sun_pos: Point3f::new(0.0, 0.0, 0.0),
             quad_vertex_buffer: Renderer::create_vertex_buf(context.get_facade()),
             quad_index_buffer: ibuf,
             resolution: (0, 0),
@@ -208,7 +206,7 @@ impl Renderer {
                                                                self.shadow_horz_blur
                                                                    .to_color_attachment()));
 
-        for _ in 0..1 {
+        for _ in 0..2 {
             blur_horz_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
 
@@ -236,11 +234,6 @@ impl Renderer {
 
 
         // Blend the motion blur texture over the whole scene
-
-        // Calculate blending factor depending on sun motion
-        let sun_dist = (sun_pos - self.last_sun_pos).distance(Vector3f::zero());
-        debug!("sun moved {}m", sun_dist);
-
         let uniforms = uniform! {
             image: &self.shadow_motion_blur,
         };
@@ -266,8 +259,6 @@ impl Renderer {
         // Copy final shadow map to motion blur texture
         shadow_target.fill(&self.shadow_motion_blur.as_surface(),
                            MagnifySamplerFilter::Nearest);
-
-        self.last_sun_pos = sun_pos;
 
         Ok(sun_cam.proj_matrix() * sun_cam.view_matrix())
     }

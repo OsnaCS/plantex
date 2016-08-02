@@ -66,7 +66,7 @@ impl PlantView {
 
         surface.draw(&self.vertices,
                   &self.indices,
-                  &self.renderer.shadow_program(),
+                  &self.renderer.program(),
                   &uniforms,
                   &params)
             .unwrap();
