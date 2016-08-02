@@ -29,7 +29,8 @@ impl PlantView {
         match *plant {
             Plant::Tree(Tree { ref branches, trunk_color, leaf_color }) => {
                 for branch in branches {
-                    gen_branch_buffer(&branch.points, &mut vertices, &mut indices, branch_color);
+                    let color = if branch.is_trunk { trunk_color } else { leaf_color };
+                    gen_branch_buffer(&branch.points, &mut vertices, &mut indices, color);
                 }
             }
         };
