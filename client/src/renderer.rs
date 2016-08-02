@@ -42,13 +42,14 @@ const SHADOW_ORTHO_FAR: f32 = 600.0;
 const BLOOM_STATE: i8 = 1;
 // number of times the light texture will be blured.
 // each iteration contains one horizontal and one vertical blur
-const BLOOM_ITERATION: u8 = 10;
+const BLOOM_ITERATION: u8 = 4;
+
+const BLUR_TEXTURE_FACTOR: u32 = 2;
 
 // ===================  AUTOMATIC BRIGHTNESS ADAPTION  ===============
 
 // The following values define how well you can adapt to brightness / darkness.
 // The adaption of the eye is clamped between these values.
-<<<<<<< HEAD
 const EYE_OPEN: f32 = 3.2;  //increase to allow to see better in the dark       DEFAULT:3.2
 const EYE_CLOSED: f32 = 0.8;  //decrease to allow to see brighter areas better  DEFAULT:0.8
 
@@ -56,13 +57,6 @@ const EYE_CLOSED: f32 = 0.8;  //decrease to allow to see brighter areas better  
 // to adapt to different light conditions.
 const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.155;  //adaption speed from bright to dark DEFAULT:0.155
 const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.016; //adaption speed from dark to bright  DEFAULT:0.016
-=======
-const EYE_OPEN: f32 = 4.0;  //decrease to allow to see better in the dark
-const EYE_CLOSED: f32 = 0.8;  //increase to allow to see brighter areas better
-
-// Speed of eye adaption. Lower values result in longer time needed
-// to adapt to different light conditions.
-const ADAPTION_SPEED: f32 = 0.2;
 
 
 
@@ -74,8 +68,6 @@ const ADAPTION_SPEED: f32 = 0.2;
 
 
 
-
->>>>>>> brightness adaption: greyscale transformation before downsampling
 
 pub struct Renderer {
     context: Rc<GameContext>,
@@ -457,19 +449,21 @@ impl Renderer {
             .unwrap();
 
 
-        self.bloom_horz_tex = Texture2d::empty_with_format(self.context.get_facade(),
-                                                           ffff,
-                                                           MipmapsOption::NoMipmap,
-                                                           self.resolution.0,
-                                                           self.resolution.1)
-            .unwrap();
+        self.bloom_horz_tex =
+            Texture2d::empty_with_format(self.context.get_facade(),
+                                         ffff,
+                                         MipmapsOption::NoMipmap,
+                                         (self.resolution.0) / BLUR_TEXTURE_FACTOR,
+                                         (self.resolution.1) / BLUR_TEXTURE_FACTOR)
+                .unwrap();
 
-        self.bloom_vert_tex = Texture2d::empty_with_format(self.context.get_facade(),
-                                                           ffff,
-                                                           MipmapsOption::NoMipmap,
-                                                           self.resolution.0,
-                                                           self.resolution.1)
-            .unwrap();
+        self.bloom_vert_tex =
+            Texture2d::empty_with_format(self.context.get_facade(),
+                                         ffff,
+                                         MipmapsOption::NoMipmap,
+                                         (self.resolution.0) / BLUR_TEXTURE_FACTOR,
+                                         (self.resolution.1) / BLUR_TEXTURE_FACTOR)
+                .unwrap();
 
         self.bloom_blend_tex = Texture2d::empty_with_format(self.context.get_facade(),
                                                             ffff,
@@ -658,8 +652,8 @@ impl Renderer {
 
         // after 2x BLOOM_ITERATION we can rely on bloom_vert_tex bein the blur output
         let uniforms = uniform! {
-            bloom_tex: &self.bloom_vert_tex,
-            world_tex: &self.quad_tex,
+            bloom_tex: self.bloom_vert_tex.sampled().wrap_function(SamplerWrapFunction::Clamp),
+            world_tex: self.quad_tex.sampled().wrap_function(SamplerWrapFunction::Clamp),
         };
 
         try!(bloom_blend_buffer.draw(&self.quad_vertex_buffer,
