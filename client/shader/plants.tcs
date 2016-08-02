@@ -101,6 +101,7 @@ void main() {
     }
 
     //handle tesselation level on distance
+
     int len = int(length(camera_pos-offset)/5);
     float inner=tess_level_inner;
     float outer=tess_level_outer;
