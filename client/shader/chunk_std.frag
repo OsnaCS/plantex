@@ -12,7 +12,6 @@ out vec3 color;
 
 // Vector from the camera to the sun
 uniform vec3 sun_dir;
-// FIXME This should be a `sampler2DShadow`, but glium doesn't expose it
 uniform sampler2D shadow_map;
 
 uniform sampler2D normal_sand;
@@ -32,9 +31,19 @@ uniform sampler2D mulch_texture;
 // Percentage-closer filtering (square) radius in pixels
 const int SHADOW_PCF_RADIUS = 1;
 
-const vec3 sun = normalize(vec3(1.0, 0.0, 1.0));
-const float SHADOW_BIAS = 0.00001;    // FIXME does this even work?
+const float SHADOW_BIAS = 0.001;    // FIXME does this even work?
 const float AMBIENT = 0.2;
+
+
+float lightCoverage(vec2 moments, float fragDepth) {
+    float E_x2 = moments.y;
+    float Ex_2 = moments.x * moments.x;
+    float variance = E_x2 - Ex_2;
+    float mD = moments.x - fragDepth;
+    float mD_2 = mD * mD;
+    float p = variance / (variance + mD_2);
+    return min(max(p, fragDepth <= moments.x ? 1.0 : 0.0), 1.0);
+}
 
 /// Calculates Tangent Binormal Normal (tbn) Matrix
 mat3 cotangent_frame(vec3 normal, vec3 pos, vec2 uv) {
@@ -53,43 +62,10 @@ mat3 cotangent_frame(vec3 normal, vec3 pos, vec2 uv) {
 }
 
 void main() {
-
-    // =================
-    // PURE SHADOW STUFF
-    // =================
-
-    // TODO: Maybe put this into a method?
-
-    // Shadow map height/width in pixels:
-    float SHADOW_MAP_SIZE = textureSize(shadow_map, 0).x;
-
     vec3 lightCoords = shadowCoord.xyz / shadowCoord.w;
     lightCoords = lightCoords * 0.5 + 0.5;
-    float pixelOffset = 1.0 / SHADOW_MAP_SIZE;
-    float shadowFactor = 0.0;
-
-    for (int y = -SHADOW_PCF_RADIUS; y <= SHADOW_PCF_RADIUS; y++) {
-        for (int x = -SHADOW_PCF_RADIUS; x <= SHADOW_PCF_RADIUS; x++) {
-            vec2 offset = vec2(x * pixelOffset, y * pixelOffset);
-            vec2 mapCoords = lightCoords.xy + offset;
-            if (mapCoords.x > 1.0 || mapCoords.x < 0 || mapCoords.y > 1 || mapCoords.y < 0) {
-                // Guess the shadow depending on the sun angle
-                float sunVertDot = 0.5 + dot(sun_dir, vec3(0, 0, 1)) * 0.5;
-                shadowFactor += sunVertDot * 0.8;
-            } else {
-                bool shadow = texture(shadow_map, mapCoords).r
-                    < lightCoords.z + SHADOW_BIAS;
-                shadowFactor += shadow ? 1.0 : 0.0;
-            }
-        }
-    }
-
-    // Height/Width of the square we sample for Percentage Closer Filtering
-    // (in Pixels)
-    const int PCF_PIXELS = 1 + 2 * SHADOW_PCF_RADIUS;
-
-    // Divide by number of pixels we sampled, to get  a range from 0 to 1
-    shadowFactor /= PCF_PIXELS * PCF_PIXELS;
+    vec2 moments = texture(shadow_map, lightCoords.xy).xy;
+    float lit = max(lightCoverage(moments, lightCoords.z - SHADOW_BIAS), 0.2);
 
     // ==================
     // LIGHT CALCULATIONS
@@ -121,10 +97,6 @@ void main() {
     // to convert to real normals
     mat3 tbn = cotangent_frame(normal_map, x_position, x_tex_coords);
     vec3 real_normal = normalize(tbn * -(normal_map * 2.0 - 1.0));
-
-
-    // Do the normal light calculation. Ambient light is not affected by shadow,
-    // other lights are coming from the sun so they're affected.
 
     // Calculate diffuse light
     float diffuse = max(0.0, dot(-sun_dir, real_normal));
@@ -174,14 +146,8 @@ void main() {
     // vec3
 
     // Final color calculation
-    color = diffuse_color * AMBIENT + diffuse_color * diffuse;
+    color = diffuse_color * AMBIENT + diffuse_color * diffuse * lit;
     // color = diffuse_color * AMBIENT + normal_color_map * diffuse;
-
-    // TODO: FIXME Shadow broken for now
-    // color = diffuse_color * AMBIENT + diffuse_color * diffuse * (1.0 - shadowFactor);
-
-    // TODO: Perhaps add specular component
-    // color += specular_color * specular;
 
     // Set Border to distinguish hexagons
     if (x_radius > 0.98) {
