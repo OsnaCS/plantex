@@ -100,7 +100,7 @@ void main() {
     // But because this is only functional for the upper hemisphere,
     // the phi for the lower hemisphere is calculated in the if statement
 
-    float phi = atan(unit_vector.y, unit_vector.x);
+    float phi = atan(unit_vector.y, unit_vector.x) + PI;
 
     // Calculate dummy blue gradient sky color
     vec3 high_noon_color = vec3((theta / PI)-0.2,(theta / PI)-0.1,1.0);
@@ -116,7 +116,7 @@ void main() {
     float sun_x = normalize(u_sun_pos).x;
     float sun_y = normalize(u_sun_pos).y;
 
-    float sun_phi = atan(sun_y, sun_x);
+    float sun_phi = atan(sun_y, sun_x) + PI;
 
     // distance between current vertex and sun in phi direction
     // divided by 2*PI to get a value between 0 and 1
@@ -158,14 +158,19 @@ void main() {
     }
 
     // add stars
-    float star = texture(u_star_map, vec2(theta*0.8,phi*0.8));
+
+    // later better, so the top of the sky has stars too
+    // float star = texture(u_star_map, vec2(theta*0.8, 0.5 + theta*phi*0.8));
+    float star = texture(u_star_map, vec2(theta*0.8, phi*0.8));
+
     vec3 star_color = vec3(0.0, 0.0, 0.0);
 
+    // float star_value = 1 + theta * 0.01;
 
-    float star_value = 1 + theta * 0.01;
+    // if (star > 0.5) {
+    //     star_color = vec3(1.0, 1.0, 1.0);
+    // }
 
-    if (star > 0.5 * star_value) {
-        star_color = vec3(1.0, 1.0, 1.0);
-    }
+    star_color = vec3(max(0, (star - 0.48)) * 25);
     color = color + star_color;
 }
