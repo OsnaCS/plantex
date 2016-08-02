@@ -15,6 +15,7 @@ uniform vec3 sun_dir;
 // FIXME This should be a `sampler2DShadow`, but glium doesn't expose it
 uniform sampler2D shadow_map;
 
+// normal
 uniform sampler2D normal_sand;
 uniform sampler2D normal_snow;
 uniform sampler2D normal_grass;
@@ -126,20 +127,20 @@ void main() {
     // darker
     // TODO: More grounds and make it better ;D
 
-    vec3 diffuse_color;
-    if (x_ground == 1) {
-        diffuse_color = texture(grass_texture, x_tex_coords).rgb;
-    } else if (x_ground == 2) {
-        diffuse_color = texture(sand_texture, x_tex_coords).rgb;
-    } else if (x_ground == 3) {
-        diffuse_color = texture(snow_texture, x_tex_coords).rgb;
-    } else if (x_ground == 5) {
-        diffuse_color = texture(stone_texture, x_tex_coords).rgb;
-    }
+    // vec3 diffuse_color;
+    // if (x_ground == 1) {
+    //     diffuse_color = texture(grass_texture, x_tex_coords).rgb;
+    // } else if (x_ground == 2) {
+    //     diffuse_color = texture(sand_texture, x_tex_coords).rgb;
+    // } else if (x_ground == 3) {
+    //     diffuse_color = texture(snow_texture, x_tex_coords).rgb;
+    // } else if (x_ground == 5) {
+    //     diffuse_color = texture(stone_texture, x_tex_coords).rgb;
+    // }
 
-    diffuse_color *= x_material_color;
+    // diffuse_color *= x_material_color;
 
-    // vec3 diffuse_color = x_material_color;
+    vec3 diffuse_color = x_material_color;
 
     // =============
 
@@ -153,10 +154,10 @@ void main() {
     // vec3 normal_color_map = texture(normal_sand, x_tex_coords).rgb;
 
     // FIXME: specular color calculation is off
-    // const vec3 specular_color = vec3(1.0, 1.0, 1.0);
-    // vec3 camera_di half_direction = normalize(normalize(-sun_dir) + camera_dir);
-    // float specular = pow(max(dot(half_direction, real_normal), 0.0), 16.0);r = normalize(-x_position);
-    // vec3
+    vec3 specular_color = diffuse_color * 1.5;
+    vec3 camera_dir = normalize(-x_position);
+    vec3 half_direction = normalize(normalize(-sun_dir) + camera_dir);
+    float specular = pow(max(dot(half_direction, real_normal), 0.0), 16.0);
 
     // Final color calculation
     color = diffuse_color * AMBIENT + diffuse_color * diffuse;
@@ -165,8 +166,8 @@ void main() {
     // TODO: FIXME Shadow broken for now
     // color = diffuse_color * AMBIENT + diffuse_color * diffuse * (1.0 - shadowFactor);
 
-    // TODO: Perhaps add specular component
-    // color += specular_color * specular;
+    // Add specular component
+    color += specular_color * specular;
 
     // Set Border to distinguish hexagons
     if (x_radius > 0.98) {
