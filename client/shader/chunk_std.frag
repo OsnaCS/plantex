@@ -22,7 +22,7 @@ float lightCoverage(vec2 moments, float fragDepth) {
     float mD = moments.x - fragDepth;
     float mD_2 = mD * mD;
     float p = variance / (variance + mD_2);
-    return max(p, fragDepth <= moments.x ? 1.0 : 0.0);
+    return min(max(p, fragDepth <= moments.x ? 1.0 : 0.0), 1.0);
 }
 
 void main() {

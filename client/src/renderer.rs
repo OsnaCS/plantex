@@ -11,13 +11,14 @@ use super::weather::Weather;
 use glium::texture::texture2d::Texture2d;
 use glium::texture::{DepthFormat, DepthTexture2d, MipmapsOption, UncompressedFloatFormat};
 use glium::framebuffer::SimpleFrameBuffer;
-use glium::{IndexBuffer, Program, VertexBuffer};
+use glium::{IndexBuffer, Program, VertexBuffer, Blend, BlendingFunction, LinearBlendingFactor};
 use glium::index::PrimitiveType;
 use glium::backend::Facade;
 use glium::framebuffer::ToColorAttachment;
 use glium::backend::glutin_backend::GlutinFacade;
 use glium;
-use glium::uniforms::SamplerWrapFunction;
+use glium::uniforms::{SamplerWrapFunction, MagnifySamplerFilter};
+use glium::draw_parameters::DrawParameters;
 
 
 // ===================================================================
@@ -27,8 +28,8 @@ use glium::uniforms::SamplerWrapFunction;
 // ========================  THE SHADOW  =============================
 
 const SHADOW_MAP_SIZE: u32 = 2048;
-const SHADOW_ORTHO_WIDTH: f32 = 200.0;
-const SHADOW_ORTHO_HEIGHT: f32 = 200.0;
+const SHADOW_ORTHO_WIDTH: f32 = 20.0;
+const SHADOW_ORTHO_HEIGHT: f32 = 20.0;
 const SHADOW_ORTHO_NEAR: f32 = 100.0;
 const SHADOW_ORTHO_FAR: f32 = 600.0;
 
@@ -64,11 +65,14 @@ pub struct Renderer {
     /// Depth texture rendered to from sun perspective.
     shadow_map: Texture2d,
     shadow_horz_blur: Texture2d,
+    shadow_motion_blur: Texture2d,
     /// Unnecessary dummy depth texture used when rendering the shadow map.
     shadow_depth: DepthTexture2d,
     /// Render the shadow map to the screen instead of the world.
     shadow_debug: bool,
     shadow_debug_program: Program,
+    shadow_blend_program: Program,
+    last_sun_pos: Point3f,
     quad_vertex_buffer: VertexBuffer<Vertex>,
     quad_index_buffer: IndexBuffer<u16>,
     resolution: (u32, u32),
@@ -110,6 +114,14 @@ impl Renderer {
                                                             SHADOW_MAP_SIZE)
             .unwrap();
 
+        let shadow_motion_blur = Texture2d::empty_with_format(context.get_facade(),
+                                                            UncompressedFloatFormat::F32F32,
+                                                            MipmapsOption::NoMipmap,
+                                                            SHADOW_MAP_SIZE,
+                                                            SHADOW_MAP_SIZE)
+            .unwrap();
+        shadow_motion_blur.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+
         let shadow_depth =
             DepthTexture2d::empty(context.get_facade(), SHADOW_MAP_SIZE, SHADOW_MAP_SIZE).unwrap();
 
@@ -123,6 +135,7 @@ impl Renderer {
         let bloom_blur_program = context.load_program("bloom_blur").unwrap();
         let bloom_blend_program = context.load_program("bloom_blending").unwrap();
         let shadow_debug_program = context.load_program("shadow_debug").unwrap();
+        let shadow_blend_program = context.load_program("blend").unwrap();
         let adaption_shrink_program = context.load_program("adaption_shrink").unwrap();
 
         let mut this = Renderer {
@@ -132,9 +145,12 @@ impl Renderer {
             depth_texture: DepthTexture2d::empty(context.get_facade(), 1, 1).unwrap(),
             shadow_map: shadow_map,
             shadow_horz_blur: shadow_horz_blur,
+            shadow_motion_blur: shadow_motion_blur,
             shadow_depth: shadow_depth,
             shadow_debug: env::var("SHADOW_DEBUG").is_ok(),
             shadow_debug_program: shadow_debug_program,
+            shadow_blend_program: shadow_blend_program,
+            last_sun_pos: Point3f::new(0.0, 0.0, 0.0),
             quad_vertex_buffer: Renderer::create_vertex_buf(context.get_facade()),
             quad_index_buffer: ibuf,
             resolution: (0, 0),
@@ -217,6 +233,40 @@ impl Renderer {
                                     },
                                     &Default::default()));
         }
+
+
+        // Blend the motion blur texture over the whole scene
+
+        // Calculate blending factor depending on sun motion
+        let sun_dist = (sun_pos - self.last_sun_pos).distance(Vector3f::zero());
+        debug!("sun moved {}m", sun_dist);
+
+        let uniforms = uniform! {
+            image: &self.shadow_motion_blur,
+        };
+        let params = DrawParameters {
+            blend: Blend {
+                color: BlendingFunction::Addition {
+                    source: LinearBlendingFactor::ConstantAlpha,
+                    destination: LinearBlendingFactor::OneMinusConstantAlpha,
+                },
+                alpha: BlendingFunction::AlwaysReplace,
+                constant_value: (0.0, 0.0, 0.0, 0.05),
+            },
+            ..Default::default()
+        };
+
+        try!(shadow_target.draw(&self.quad_vertex_buffer,
+                  &self.quad_index_buffer,
+                  &self.shadow_blend_program,
+                  &uniforms,
+                  &params));
+
+
+        // Copy final shadow map to motion blur texture
+        shadow_target.fill(&self.shadow_motion_blur.as_surface(), MagnifySamplerFilter::Nearest);
+
+        self.last_sun_pos = sun_pos;
 
         Ok(sun_cam.proj_matrix() * sun_cam.view_matrix())
     }
