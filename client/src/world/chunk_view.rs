@@ -68,9 +68,6 @@ impl ChunkView {
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
-            sand_texture:  self.renderer.noise_sand.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
-            snow_texture:  self.renderer.noise_snow.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
-            grass_texture: self.renderer.noise_grass.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
         };
         let params = DrawParameters {
             depth: glium::Depth {
@@ -108,9 +105,14 @@ impl ChunkView {
             shadow_map: shadow_map.sampled().wrap_function(SamplerWrapFunction::Clamp),
             depth_view_proj: depth_view_proj.to_arr(),
             sun_dir: sun_dir.to_arr(),
-            my_texture:  self.renderer.noise_map.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear)
-                .wrap_function(::glium::uniforms::SamplerWrapFunction::Repeat),
-            normals: &self.renderer.normal_map,
+                        sand_texture:  self.renderer.noise_sand.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+            snow_texture:  self.renderer.noise_snow.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+            grass_texture: self.renderer.noise_grass.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+            stone_texture: self.renderer.noise_stone.sampled().minify_filter(MinifySamplerFilter::NearestMipmapLinear),
+            normal_sand: &self.renderer.normal_sand,
+            normal_snow: &self.renderer.normal_snow,
+            normal_grass: &self.renderer.normal_grass,
+            normal_stone: &self.renderer.normal_stone,
         };
         let params = DrawParameters {
             depth: glium::Depth {

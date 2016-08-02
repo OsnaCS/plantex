@@ -15,13 +15,15 @@ uniform vec3 sun_dir;
 // FIXME This should be a `sampler2DShadow`, but glium doesn't expose it
 uniform sampler2D shadow_map;
 
-uniform sampler2D my_texture;
-uniform sampler2D normals;
-
+uniform sampler2D normal_sand;
+uniform sampler2D normal_snow;
+uniform sampler2D normal_grass;
+uniform sampler2D normal_stone;
 // Surface textures
 uniform sampler2D sand_texture;
 uniform sampler2D grass_texture;
 uniform sampler2D snow_texture;
+uniform sampler2D stone_texture;
 
 // Percentage-closer filtering (square) radius in pixels
 const int SHADOW_PCF_RADIUS = 1;
@@ -90,21 +92,24 @@ void main() {
     // ==================
 
     // Calculate normal map relative to surface
-    vec3 normal_map = texture(normals, x_tex_coords).rgb;
+    // vec3 normal_map = texture(normals, x_tex_coords).rgb;
 
-    // vec3 normal_map;
-    // if (x_ground == 1) {
-    //     normal_map = texture(grass_texture, x_tex_coords).rgb;
-    // } else if (x_ground == 2) {
-    //     normal_map = texture(sand_texture, x_tex_coords).rgb;
-    // } else if (x_ground == 3) {
-    //     normal_map = texture(snow_texture, x_tex_coords).rgb;
-    // }
+    vec3 normal_map;
+    if (x_ground == 1) {
+        normal_map = texture(normal_grass, x_tex_coords).rgb;
+    } else if (x_ground == 2) {
+        normal_map = texture(normal_sand, x_tex_coords).rgb;
+    } else if (x_ground == 3) {
+        normal_map = texture(normal_snow, x_tex_coords).rgb;
+    } else if (x_ground == 5) {
+        normal_map = texture(normal_stone, x_tex_coords).rgb;
+    }
+
 
 
     // Calculate Tangent Binormal Normal (tbn) Matrix to multiply with normal_map
     // to convert to real normals
-    mat3 tbn = cotangent_frame(surfaceNormal, x_position, x_tex_coords);
+    mat3 tbn = cotangent_frame(normal_map, x_position, x_tex_coords);
     vec3 real_normal = normalize(tbn * -(normal_map * 2.0 - 1.0));
 
 
@@ -121,18 +126,20 @@ void main() {
     // darker
     // TODO: More grounds and make it better ;D
 
-    // vec3 diffuse_color;
-    // if (x_ground == 1) {
-    //     diffuse_color = texture(grass_texture, x_tex_coords).rgb;
-    // } else if (x_ground == 2) {
-    //     diffuse_color = texture(sand_texture, x_tex_coords).rgb;
-    // } else if (x_ground == 3) {
-    //     diffuse_color = texture(snow_texture, x_tex_coords).rgb;
-    // }
+    vec3 diffuse_color;
+    if (x_ground == 1) {
+        diffuse_color = texture(grass_texture, x_tex_coords).rgb;
+    } else if (x_ground == 2) {
+        diffuse_color = texture(sand_texture, x_tex_coords).rgb;
+    } else if (x_ground == 3) {
+        diffuse_color = texture(snow_texture, x_tex_coords).rgb;
+    } else if (x_ground == 5) {
+        diffuse_color = texture(stone_texture, x_tex_coords).rgb;
+    }
 
-    // diffuse_color *= x_material_color;
+    diffuse_color *= x_material_color;
 
-    vec3 diffuse_color = x_material_color;
+    // vec3 diffuse_color = x_material_color;
 
     // =============
 
@@ -143,7 +150,7 @@ void main() {
 
 
     // DEBUG: for showing normal map as texture
-    // vec3 normal_color_map = texture(normals, x_tex_coords).rgb;
+    // vec3 normal_color_map = texture(normal_sand, x_tex_coords).rgb;
 
     // FIXME: specular color calculation is off
     // const vec3 specular_color = vec3(1.0, 1.0, 1.0);
@@ -153,6 +160,7 @@ void main() {
 
     // Final color calculation
     color = diffuse_color * AMBIENT + diffuse_color * diffuse;
+    // color = diffuse_color * AMBIENT + normal_color_map * diffuse;
 
     // TODO: FIXME Shadow broken for now
     // color = diffuse_color * AMBIENT + diffuse_color * diffuse * (1.0 - shadowFactor);

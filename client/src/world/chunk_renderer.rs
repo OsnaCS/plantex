@@ -23,8 +23,11 @@ pub struct ChunkRenderer {
     pub noise_sand: Texture2d,
     pub noise_snow: Texture2d,
     pub noise_grass: Texture2d,
-    pub noise_map: Texture2d,
-    pub normal_map: Texture2d,
+    pub noise_stone: Texture2d,
+    pub normal_sand: Texture2d,
+    pub normal_snow: Texture2d,
+    pub normal_grass: Texture2d,
+    pub normal_stone: Texture2d,
 }
 
 impl ChunkRenderer {
@@ -60,18 +63,26 @@ impl ChunkRenderer {
             noise_grass: Texture2d::new(context.get_facade(),
                                         tex_generator::create_grass(2 as u64).1)
                 .unwrap(),
+            noise_stone: Texture2d::new(context.get_facade(),
+                                        tex_generator::create_stone(2 as u64).1)
+                .unwrap(),
 
-            noise_map: match Texture2d::new(context.get_facade(),
-                                            tex_generator::create_noise(2u64)) {
-                Ok(p) => p,
-                Err(_) => panic!("Could not load noise map for texturing"),
-            },
-
-            normal_map: match Texture2d::new(context.get_facade(),
-               normal_converter::convert(tex_generator::create_height_map_for_snow(2u64), 1.0)) {
-                Ok(p) => p,
-                Err(_) => panic!("did not work"),
-            },
+            normal_sand:
+                Texture2d::new(context.get_facade(),
+                               normal_converter::convert(tex_generator::create_sand(2u64).0, 1.0))
+                .unwrap(),
+            normal_snow:
+                Texture2d::new(context.get_facade(),
+                               normal_converter::convert(tex_generator::create_snow(2u64).0, 1.0))
+                .unwrap(),
+            normal_grass:
+                Texture2d::new(context.get_facade(),
+                               normal_converter::convert(tex_generator::create_grass(2u64).0, 1.0))
+                .unwrap(),
+            normal_stone:
+                Texture2d::new(context.get_facade(),
+                               normal_converter::convert(tex_generator::create_stone(2u64).0, 1.0))
+                .unwrap(),
         }
     }
 
