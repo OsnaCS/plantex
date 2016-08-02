@@ -137,6 +137,8 @@ impl WorldView {
         for plantview_vec in self.plant_views.values() {
             for plantview in plantview_vec {
                 plantview.draw(surface, camera, shadow_map, depth_view_proj, sun_dir);
+
+                // plantview.draw(surface, camera);
             }
         }
     }
