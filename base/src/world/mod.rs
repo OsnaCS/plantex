@@ -4,7 +4,7 @@ use std::fmt;
 use math;
 
 mod chunk;
-mod ground;
+pub mod ground;
 mod hex_pillar;
 mod provider;
 mod world;
