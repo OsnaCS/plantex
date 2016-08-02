@@ -48,6 +48,7 @@ const BLOOM_ITERATION: u8 = 10;
 
 // The following values define how well you can adapt to brightness / darkness.
 // The adaption of the eye is clamped between these values.
+<<<<<<< HEAD
 const EYE_OPEN: f32 = 3.2;  //increase to allow to see better in the dark       DEFAULT:3.2
 const EYE_CLOSED: f32 = 0.8;  //decrease to allow to see brighter areas better  DEFAULT:0.8
 
@@ -55,6 +56,26 @@ const EYE_CLOSED: f32 = 0.8;  //decrease to allow to see brighter areas better  
 // to adapt to different light conditions.
 const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.155;  //adaption speed from bright to dark DEFAULT:0.155
 const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.016; //adaption speed from dark to bright  DEFAULT:0.016
+=======
+const EYE_OPEN: f32 = 4.0;  //decrease to allow to see better in the dark
+const EYE_CLOSED: f32 = 0.8;  //increase to allow to see brighter areas better
+
+// Speed of eye adaption. Lower values result in longer time needed
+// to adapt to different light conditions.
+const ADAPTION_SPEED: f32 = 0.2;
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> brightness adaption: greyscale transformation before downsampling
 
 pub struct Renderer {
     context: Rc<GameContext>,
@@ -84,8 +105,10 @@ pub struct Renderer {
     bloom_blur_program: Program,
     bloom_blend_program: Program,
     adaption_shrink_program: Program,
+    relative_luminance_program: Program,
     lum_texs: Vec<Texture2d>,
     last_lum: f32,
+    lum_relative_tex: Texture2d,
 }
 
 impl Renderer {
@@ -136,6 +159,7 @@ impl Renderer {
         let shadow_debug_program = context.load_program("shadow_debug").unwrap();
         let shadow_blend_program = context.load_program("blend").unwrap();
         let adaption_shrink_program = context.load_program("adaption_shrink").unwrap();
+        let relative_luminance_program = context.load_program("relative_luminance").unwrap();
 
         let mut this = Renderer {
             context: context.clone(),
@@ -162,6 +186,8 @@ impl Renderer {
             adaption_shrink_program: adaption_shrink_program,
             lum_texs: lum_texs,
             last_lum: last_lum,
+            lum_relative_tex: Texture2d::empty(context.get_facade(), 1, 1).unwrap(),
+            relative_luminance_program: relative_luminance_program,
         };
 
         // Create all textures with correct screen size
@@ -451,6 +477,13 @@ impl Renderer {
                                                             self.resolution.0,
                                                             self.resolution.1)
             .unwrap();
+
+        self.lum_relative_tex = Texture2d::empty_with_format(self.context.get_facade(),
+                                                             UncompressedFloatFormat::F32F32,
+                                                             MipmapsOption::NoMipmap,
+                                                             self.resolution.0,
+                                                             self.resolution.1)
+            .unwrap();
     }
 
 
@@ -459,9 +492,28 @@ impl Renderer {
     // ===================================================================
 
     fn adapt_brightness(&self) -> Result<f32, Box<Error>> {
+
+        let mut rel_luminance_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
+                                                                   self.lum_relative_tex
+                                                                       .to_color_attachment()));
+
+        let uniforms = uniform!{
+            image: &self.quad_tex,
+        };
+
+
+
+        try!(rel_luminance_buffer.draw(&self.quad_vertex_buffer,
+                                       &self.quad_index_buffer,
+                                       &self.relative_luminance_program,
+                                       &uniforms,
+                                       &Default::default()));
+
+
+
         let mut adaption_buffers: Vec<SimpleFrameBuffer> = Vec::with_capacity(10);
 
-        let mut image = &self.quad_tex;
+        let mut image = &self.lum_relative_tex;
 
         for i in 0..10 {
             adaption_buffers.push(try!(SimpleFrameBuffer::new(self.context.get_facade(),
@@ -487,8 +539,8 @@ impl Renderer {
 
 
         // Read only pixel in the lowest level texture from lum_texs.
-        // never change a working system. Yeah, it's that complicated.
-        let buf: Vec<Vec<(f32, f32, f32, f32)>> = self.lum_texs
+        // never change a working system.
+        let buf: Vec<Vec<(f32, f32)>> = self.lum_texs
             .last()
             .unwrap()
             .main_level()
@@ -504,9 +556,13 @@ impl Renderer {
 
         let pixel = buf[0][0];
 
-        let avg_luminance = Vector3f::new(pixel.0, pixel.1, pixel.2)
-            .dot(Vector3f::new(0.2126, 0.7152, 0.0722));
+        // let avg_luminance = Vector3f::new(pixel.0, pixel.1, pixel.2)
+        //    .dot(Vector3f::new(0.2126, 0.7152, 0.0722));
+        let avg_luminance = pixel.0;
 
+
+        info!("lum: {}", avg_luminance);
+        // TODO: This sometimes returns NaN. Find out why.
 
         // the exposure level is inversely propotional to the avg. luminance.
         // log2 is necessary to adapt more for the lower than for the higher values.
@@ -634,7 +690,7 @@ fn initialize_luminosity(facade: &GlutinFacade) -> Vec<Texture2d> {
     let mut lum = Vec::with_capacity(10);
     for i in 0..10 {
         lum.push(Texture2d::empty_with_format(facade,
-                                              UncompressedFloatFormat::F32F32F32F32,
+                                              UncompressedFloatFormat::F32F32,
                                               MipmapsOption::NoMipmap,
                                               (2u32).pow((9 - i)),
                                               (2u32).pow((9 - i)))
