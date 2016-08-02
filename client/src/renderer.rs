@@ -40,6 +40,8 @@ const SHADOW_ORTHO_FAR: f32 = 600.0;
 // 2: Show only Bloom Map
 const BLOOM_STATE: i8 = 1;
 
+const BLUR_TEXTURE_FACTOR: u32 = 2;
+
 // ===================  AUTOMATIC BRIGHTNESS ADAPTION  ===============
 
 // The following values define how well you can adapt to brightness / darkness.
@@ -304,7 +306,7 @@ impl Renderer {
         let mut first_iteration = true; //to know when we need to switch uniforms_horz_blur
         let mut horizontal = true;      //to switch between horizontal and vertical blur
 
-        for _ in 0..20 {
+        for _ in 0..6 {
             if horizontal {
                 try!(bloom_blur_horz_buffer.draw(&self.quad_vertex_buffer,
                                                  &self.quad_index_buffer,
@@ -438,19 +440,21 @@ impl Renderer {
             .unwrap();
 
 
-        self.bloom_horz_tex = Texture2d::empty_with_format(self.context.get_facade(),
-                                                           ffff,
-                                                           MipmapsOption::NoMipmap,
-                                                           self.resolution.0,
-                                                           self.resolution.1)
-            .unwrap();
+        self.bloom_horz_tex =
+            Texture2d::empty_with_format(self.context.get_facade(),
+                                         ffff,
+                                         MipmapsOption::NoMipmap,
+                                         (self.resolution.0) / BLUR_TEXTURE_FACTOR,
+                                         (self.resolution.1) / BLUR_TEXTURE_FACTOR)
+                .unwrap();
 
-        self.bloom_vert_tex = Texture2d::empty_with_format(self.context.get_facade(),
-                                                           ffff,
-                                                           MipmapsOption::NoMipmap,
-                                                           self.resolution.0,
-                                                           self.resolution.1)
-            .unwrap();
+        self.bloom_vert_tex =
+            Texture2d::empty_with_format(self.context.get_facade(),
+                                         ffff,
+                                         MipmapsOption::NoMipmap,
+                                         (self.resolution.0) / BLUR_TEXTURE_FACTOR,
+                                         (self.resolution.1) / BLUR_TEXTURE_FACTOR)
+                .unwrap();
 
         self.bloom_blend_tex = Texture2d::empty_with_format(self.context.get_facade(),
                                                             ffff,
