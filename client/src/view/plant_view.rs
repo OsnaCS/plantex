@@ -29,21 +29,17 @@ impl PlantView {
         match *plant {
             Plant::Tree(Tree { ref branches, trunk_color, leaf_color }) => {
                 for branch in branches {
-                    gen_branch_buffer(&branch.points, &mut vertices, &mut indices);
-                    // for i in 1..branch.points.len() {
-                    //     get_vertices_for_branch(&branch.points[i - 1],
-                    //                             &branch.points[i],
-                    //                             &mut vertices,
-                    //                             &mut indices,
-                    //                             branch_color);
-                    // }
+                    gen_branch_buffer(&branch.points, &mut vertices, &mut indices, branch_color);
                 }
             }
         };
 
         PlantView {
             vertices: VertexBuffer::new(facade, &vertices).unwrap(),
-            indices: IndexBuffer::new(facade, PrimitiveType::TrianglesList, &indices).unwrap(),
+            indices: IndexBuffer::new(facade,
+                                      PrimitiveType::Patches { vertices_per_patch: 3 },
+                                      &indices)
+                .unwrap(),
             renderer: renderer,
             pos: pos,
         }
@@ -75,10 +71,16 @@ impl PlantView {
     }
 
     pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
+        let tess_level_inner = 10.0 as f32;
+        let tess_level_outer = 10.0 as f32;
+
         let uniforms = uniform! {
             offset: self.pos.to_arr(),
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
+            tess_level_inner: tess_level_inner,
+            tess_level_outer: tess_level_outer,
+            camera_pos: camera.position.to_arr(),
         };
 
         let params = DrawParameters {
@@ -97,6 +99,7 @@ impl PlantView {
                   &uniforms,
                   &params)
             .unwrap();
+
     }
 }
 
@@ -110,9 +113,11 @@ pub struct Vertex {
 
 implement_vertex!(Vertex, position, color, normal);
 
+/// generates VertexBuffer and IndexBuffer for Plants
 fn gen_branch_buffer(old_cps: &[ControlPoint],
                      vertices: &mut Vec<Vertex>,
-                     indices: &mut Vec<u32>) {
+                     indices: &mut Vec<u32>,
+                     color: Vector3f) {
     let old_index_offset = vertices.len() as u32;
     let cps = {
         let mut cps = vec![old_cps[0]];
@@ -120,6 +125,7 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
         cps.push(*old_cps.last().unwrap());
         cps
     };
+
 
     for window in cps.windows(3) {
         let prev_cp = window[0];
@@ -131,15 +137,16 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
         for curr_point in &get_points_from_vector(dir) {
             vertices.push(Vertex {
                 position: (curr_cp.point + curr_point * curr_cp.diameter).to_arr(),
-                color: [0.0, 1.0, 0.0],
+                color: color.to_arr(),
                 normal: curr_point.to_arr(),
             });
         }
     }
 
+
     for offset in 0..(old_cps.len() as u32) - 1 {
         let offset = offset * 3;
-        let segment_indices = [0, 1, 3, 1, 4, 3, 1, 2, 4, 2, 5, 4, 0, 5, 2, 0, 3, 5];
+        let segment_indices = [0, 1, 3, 4, 3, 1, 1, 2, 4, 5, 4, 2, 2, 0, 5, 3, 5, 0];
 
         indices.extend(segment_indices.into_iter().map(|i| i + offset + old_index_offset));
     }
@@ -147,95 +154,6 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
     let vert_len = vertices.len() as u32;
     indices.extend_from_slice(&[vert_len - 3, vert_len - 2, vert_len - 1]);
 }
-
-// /// generates Vertexbuffer and indexbuffer for a branch
-// fn get_vertices_for_branch(start: &ControlPoint,
-//                            end: &ControlPoint,
-//                            vertices: &mut Vec<Vertex>,
-//                            indices: &mut Vec<u32>,
-//                            color: Vector3f) {
-
-//     let to_end = end.point - start.point;
-//     let ortho = get_points_from_vector(to_end);
-
-//     let mut cur_len = vertices.len() as u32;
-
-//     // Bottom
-//     for vec in ortho.iter() {
-//         vertices.push(Vertex {
-//             position: (start.point + vec * start.diameter).to_arr(),
-//             normal: (-to_end).normalize().to_arr(),
-//             color: color.to_arr(),
-//         });
-//     }
-//     indices.extend_from_slice(&[cur_len + 2, cur_len + 0, cur_len + 1]);
-
-//     // Top
-//     cur_len = vertices.len() as u32;
-
-
-//     for vec in ortho.iter() {
-//         vertices.push(Vertex {
-//             position: (end.point + vec * end.diameter).to_arr(),
-//             normal: to_end.normalize().to_arr(),
-//             color: color.to_arr(),
-//         });
-//     }
-//     indices.extend_from_slice(&[cur_len + 1, cur_len + 0, cur_len + 2]);
-
-//     side(vertices, indices, color, start, end, ortho[0], ortho[1]);
-//     side(vertices, indices, color, start, end, ortho[1], ortho[2]);
-//     side(vertices, indices, color, start, end, ortho[2], ortho[0]);
-// }
-
-// /// Creates Vertexbuffer and IndexBuffer for a Side of the plants
-// fn side(vertices: &mut Vec<Vertex>,
-//         indices: &mut Vec<u32>,
-//         color: Vector3f,
-//         start: &ControlPoint,
-//         end: &ControlPoint,
-//         first_normal: Vector3f,
-//         second_normal: Vector3f) {
-//     let cur_len = vertices.len() as u32;
-
-//     vertices.extend_from_slice(&[Vertex {
-// position: (end.point + first_normal *
-// end.diameter).to_arr(),
-// normal: (first_normal +
-// second_normal).normalize().to_arr(),
-//                                      color: color.to_arr(),
-//                                  },
-//                                  Vertex {
-// position: (end.point + second_normal *
-// end.diameter).to_arr(),
-// normal: (first_normal +
-// second_normal).normalize().to_arr(),
-//                                      color: color.to_arr(),
-//                                  },
-//                                  Vertex {
-// position: (start.point + first_normal *
-// start.diameter)
-//                                          .to_arr(),
-// normal: (first_normal +
-// second_normal).normalize().to_arr(),
-//                                      color: color.to_arr(),
-//                                  },
-//                                  Vertex {
-// position: (start.point + second_normal
-// * start.diameter)
-//                                          .to_arr(),
-// normal: (first_normal +
-// second_normal).normalize().to_arr(),
-//                                      color: color.to_arr(),
-//                                  }]);
-
-//     indices.extend_from_slice(&[cur_len + 2,
-//                                 cur_len + 0,
-//                                 cur_len + 1,
-//                                 cur_len + 2,
-//                                 cur_len + 1,
-//                                 cur_len + 3]);
-// }
 
 /// generates 3 normalized vectors perpendicular to the given vector
 fn get_points_from_vector(vector: Vector3f) -> [Vector3f; 3] {

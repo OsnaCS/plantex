@@ -47,8 +47,8 @@ impl GameContext {
         try!(vert.read_to_string(&mut vert_buf));
         try!(frag.read_to_string(&mut frag_buf));
 
-        let mut tcs = load_if_present(&format!("client/shader/{}.tcs", shader)).ok();
-        let mut tes = load_if_present(&format!("client/shader/{}.tes", shader)).ok();
+        let tcs = load_if_present(&format!("client/shader/{}.tcs", shader)).ok();
+        let tes = load_if_present(&format!("client/shader/{}.tes", shader)).ok();
 
         let source = program::SourceCode {
             vertex_shader: &vert_buf,
