@@ -1,7 +1,7 @@
 use base::math::*;
 use world::WorldView;
 use glium::Surface;
-use super::{Camera, GameContext};
+use super::{Camera, GameContext, Frustum};
 use view::Sun;
 use view::SkyView;
 use std::rc::Rc;
@@ -80,6 +80,7 @@ pub struct Renderer {
     adaption_shrink_program: Program,
     lum_texs: Vec<Texture2d>,
     last_lum: f32,
+    frustum: Frustum,
 }
 
 impl Renderer {
@@ -132,6 +133,7 @@ impl Renderer {
             adaption_shrink_program: adaption_shrink_program,
             lum_texs: lum_texs,
             last_lum: last_lum,
+            frustum: Frustum::new(),
         };
 
         // Create all textures with correct screen size
@@ -180,6 +182,15 @@ impl Renderer {
                   sky_view: &SkyView)
                   -> Result<(), Box<Error>> {
         // ===================================================================
+        // set up frustum
+        // ===================================================================
+        let look_up = Vector3f::new(0., 0., 1.);
+        //180° fov break stuff xD
+        &self.frustum.set_cam_internals(110., camera.aspect_ratio, 50.0, 100.0);
+        //this can probably be moved to new
+        &self.frustum.set_cam_def(camera.position, camera.get_look_at_vector(), look_up);
+
+        // ===================================================================
         // check dimensions
         // ===================================================================
         let new_res = self.context.get_facade().get_framebuffer_dimensions();
@@ -216,15 +227,16 @@ impl Renderer {
                 return Ok(());
             }
 
-            let sun_dir = (-sun.position().to_vec()).normalize();
-            world_view.draw(&mut hdr_buffer,
-                            camera,
-                            &self.shadow_map,
-                            &depth_mvp,
-                            sun_dir);
-            sky_view.draw_skydome(&mut hdr_buffer, camera);
-            sun.draw_sun(&mut hdr_buffer, camera);
-            weather.draw(&mut hdr_buffer, camera);
+        let sun_dir = (-sun.position().to_vec()).normalize();
+        world_view.draw(&mut hdr_buffer,
+                        camera,
+                        &self.shadow_map,
+                        &depth_mvp,
+                        sun_dir,
+                        &self.frustum);
+        sky_view.draw_skydome(&mut hdr_buffer, camera);
+        sun.draw_sun(&mut hdr_buffer, camera);
+        weather.draw(&mut hdr_buffer, camera);
 
         }
         // ===================================================================
