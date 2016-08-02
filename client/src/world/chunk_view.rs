@@ -149,12 +149,6 @@ impl ChunkView {
                   &uniforms,
                   &params)
             .unwrap();
-
-        for pillar in &self.pillars {
-            for plant in &pillar.plants {
-                plant.draw(surface, camera);
-            }
-        }
     }
 }
 
