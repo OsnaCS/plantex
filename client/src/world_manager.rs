@@ -9,6 +9,7 @@ use std::sync::mpsc::{Receiver, Sender, TryRecvError, channel};
 use base::world::{CHUNK_SIZE, ChunkIndex};
 use base::math::*;
 use world::WorldView;
+use std::cell::RefMut;
 
 #[derive(Clone)]
 pub struct WorldManager {
@@ -112,9 +113,22 @@ impl WorldManager {
         Ref::map(self.shared.borrow(), |shared| &shared.world)
     }
 
+    pub fn mut_world(&self) -> RefMut<World> {
+        RefMut::map(self.shared.borrow_mut(), |shared| &mut shared.world)
+    }
+
     /// Returns an immutable reference to the world view.
     pub fn get_view(&self) -> Ref<WorldView> {
         Ref::map(self.shared.borrow(), |shared| &shared.world_view)
+    }
+
+    /// Returns an mutable reference to the world view.
+    pub fn get_mut_view(&self) -> RefMut<WorldView> {
+        RefMut::map(self.shared.borrow_mut(), |shared| &mut shared.world_view)
+    }
+
+    pub fn get_context(&self) -> &Rc<GameContext> {
+        &self.context
     }
 
     /// Starts to generate all chunks within `load_distance` (config parameter)
@@ -164,6 +178,20 @@ impl WorldManager {
                 warn!("chunk at {:?} already exists!", pos);
             }
         }
+    }
+
+    pub fn recalculate_chunk(&mut self, pos: AxialPoint) {
+        use std::ops::DerefMut;
+
+        let mut shared_tmp = self.shared.borrow_mut();
+        let shared = shared_tmp.deref_mut();
+
+        let chunk_pos = AxialPoint::new(pos.q / CHUNK_SIZE as i32, pos.r / CHUNK_SIZE as i32);
+        let index = ChunkIndex(chunk_pos);
+
+        shared.world_view.refresh_chunk(index,
+                                        shared.world.chunk_at(index).unwrap(),
+                                        self.context.get_facade());
     }
 }
 

@@ -11,11 +11,19 @@ use std::time::{Duration, Instant};
 use std::rc::Rc;
 use std::net::{SocketAddr, TcpStream};
 use std::error::Error;
+use base::world::World;
+use camera::Camera;
+use base::world::PillarSection;
+use base::world;
+// use base::world::HeightType; //WILL BE USED LATER
+use base::math::*;
+use base::world::PillarIndex;
 use view::{SkyView, Sun};
 use super::DayTime;
 use super::weather::Weather;
 use player::Player;
 use control_switcher::ControlSwitcher;
+use base::world::HexPillar;
 
 pub struct Game {
     renderer: Renderer,
@@ -61,7 +69,6 @@ impl Game {
         let mut frames = 0;
         let mut next_fps_measure = Instant::now() + Duration::from_secs(1);
         let mut time_prev = Instant::now();
-
         loop {
             self.world_manager.update_world(self.control_switcher.get_camera().position);
 
@@ -82,6 +89,21 @@ impl Game {
             self.daytime.update(delta);
             self.sky_view.update(self.daytime.get_sun_position());
             self.sun.update(self.daytime.get_sun_position());
+            // Display Outline of Hexagon looking at
+            let vec = get_pillarsectionpos_looking_at(&self.world_manager.get_world(),
+                                                      self.control_switcher.get_camera());
+            match vec {
+                Some(n) => {
+                    // self.remove_hexagon_at(n.1, n.0.z);
+                    let mut view = self.world_manager.get_mut_view();
+                    view.outline.display = true;
+                    view.outline.pos = n.0;
+                }
+                None => {
+                    let mut view = self.world_manager.get_mut_view();
+                    view.outline.display = false;
+                }
+            }
 
             try!(self.renderer.render(&*self.world_manager.get_view(),
                                       &self.control_switcher.get_camera(),
@@ -109,8 +131,101 @@ impl Game {
 
         Ok(())
     }
+
+    // // need sorted pillars
+    // fn remove_hexagon_at(&mut self, pos: AxialPoint, height: f32) {
+    //     let pillar_index = PillarIndex(pos);
+
+    //     match self.world_manager.mut_world().pillar_at_mut(pillar_index) {
+    //         Some(pillar) => {
+    //             let bottom = height - height % world::PILLAR_STEP_HEIGHT;
+
+    //             let mut i: usize = 0;
+    //             for section in pillar.sections() {
+    //                 if section.top.to_real() >= bottom {
+    //                     break;
+    //                 }
+    //                 i += 1;
+    //             }
+    //             let mut pillar_section = pillar.sections_mut();
+    //             if pillar_section.len() > i {
+    // if pillar_section[i].top.to_real() != height +
+    // world::PILLAR_STEP_HEIGHT {
+    //                     let sec = PillarSection {
+    //                         ground: pillar_section[i].ground.clone(),
+    //                         top: pillar_section[i].top,
+    //                         bottom:
+    // HeightType::from_units((height /
+    // world::PILLAR_STEP_HEIGHT) as u16),
+    //                     };
+    //                     pillar_section.insert(i, sec);
+    //                     if i > 0 {
+    //                         i -= 1;
+    //                     }
+    //                 }
+    //                 pillar_section[i].top =
+    // HeightType::from_units(HeightType::from_real(height) as
+    // u16);
+    //                 if pillar_section[i].top == pillar_section[i].bottom {
+    //                     pillar_section.remove(i);
+    //                 }
+    //             } else {
+    //                 return;
+    //             }
+    //         }
+    //         None => return,
+    //     };
+    //     self.world_manager
+    //         .recalculate_chunk(pos);
+    // }
 }
 
+fn get_pillarsectionpos_looking_at(world: &World,
+                                   cam: Camera)
+                                   -> Option<(Vector3f, AxialPoint, f32)> {
+    let cam_pos = cam.position;
+    let mut look_vec = cam.get_look_at_vector().normalize();
+    let view_distance = 12.0;
+
+    let mut step = 0.0;
+    while (look_vec.x * look_vec.x + look_vec.y * look_vec.y + look_vec.z * look_vec.z).sqrt() <=
+          view_distance {
+        step += 0.0005;
+        look_vec = cam.get_look_at_vector().normalize() * step;
+
+        let view_pos = Point2f::new(cam_pos.x + look_vec.x, cam_pos.y + look_vec.y);
+        let ax_point = AxialPoint::from_real(view_pos);
+
+        let pillar_index = PillarIndex(ax_point.clone());
+
+        let mut height = cam_pos.z + look_vec.z;
+        height -= height % world::PILLAR_STEP_HEIGHT;
+
+        let final_pos = match world.pillar_at(pillar_index) {
+            Some(n) => get_pillar_section_at_position(n, height),
+            None => None,
+        };
+
+        match final_pos {
+            Some(_) => {
+                return Some((Vector3f::new(ax_point.to_real().x, ax_point.to_real().y, height),
+                             ax_point,
+                             height));
+            }
+            None => {}
+        };
+    }
+    None
+}
+
+fn get_pillar_section_at_position(pillar: &HexPillar, pos_z: f32) -> Option<&PillarSection> {
+    for section in pillar.sections() {
+        if section.top.to_real() > pos_z && section.bottom.to_real() < pos_z {
+            return Some(section);
+        }
+    }
+    None
+}
 
 fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
     Box::new(WorldGenerator::with_seed(config.seed))
@@ -122,7 +237,6 @@ fn create_context(config: &Config) -> Result<GlutinFacade, Box<Error>> {
 
     // initialize window builder
     let mut window_builder = glutin::WindowBuilder::new();
-
     // check for window mode and set params
     match config.window_mode {
         WindowMode::Windowed => (),
@@ -133,12 +247,10 @@ fn create_context(config: &Config) -> Result<GlutinFacade, Box<Error>> {
             window_builder = window_builder.with_decorations(false);
         }
     }
-
     // check for vsync
     if config.vsync {
         window_builder = window_builder.with_vsync();
     }
-
     // set title, resolution & create glium context
     window_builder = window_builder.with_title(config.window_title.clone());
     window_builder =

@@ -1,5 +1,5 @@
+
 use base::world;
-use base::math::SQRT_3;
 use std::f32::consts;
 use world::chunk_view::Vertex;
 use glium::{IndexBuffer, Program, VertexBuffer};
@@ -10,6 +10,7 @@ use std::rc::Rc;
 use super::tex_generator;
 use super::normal_converter;
 use base::world::ground::GroundMaterial;
+use base::math::*;
 
 pub struct ChunkRenderer {
     /// Chunk shader
@@ -34,6 +35,7 @@ pub struct ChunkRenderer {
     pub normal_stone: Texture2d,
     pub normal_dirt: Texture2d,
     pub normal_mulch: Texture2d,
+    pub outline: HexagonOutline,
 }
 
 impl ChunkRenderer {
@@ -92,6 +94,7 @@ impl ChunkRenderer {
             normal_mulch: Texture2d::new(context.get_facade(),
                                          normal_converter::convert(mulch.0, 1.0))
                 .unwrap(),
+            outline: HexagonOutline::new(context),
         }
     }
 
@@ -114,6 +117,56 @@ impl ChunkRenderer {
         &self.pillar_ibuf
     }
 }
+
+pub struct HexagonOutline {
+    program: Program,
+    vbuf: VertexBuffer<Vertex>,
+    ibuf: IndexBuffer<u32>,
+    pub pos: Vector3f,
+    pub display: bool,
+}
+
+impl HexagonOutline {
+    pub fn new(context: Rc<GameContext>) -> Self {
+        // Initialize HexagonOutline
+        let mut vertices = Vec::new();
+        let mut indices = Vec::new();
+        get_top_hexagon_model(&mut vertices, &mut indices);
+        get_bottom_hexagon_model(&mut vertices, &mut indices);
+        get_side_hexagon_model(4, 5, &mut vertices, &mut indices);
+        get_side_hexagon_model(1, 2, &mut vertices, &mut indices);
+        get_side_hexagon_model(5, 0, &mut vertices, &mut indices);
+        get_side_hexagon_model(0, 1, &mut vertices, &mut indices);
+        get_side_hexagon_model(3, 4, &mut vertices, &mut indices);
+        get_side_hexagon_model(2, 3, &mut vertices, &mut indices);
+
+        HexagonOutline {
+            program: context.load_program("outline").unwrap(),
+            vbuf: VertexBuffer::new(context.get_facade(), &vertices).unwrap(),
+            ibuf: IndexBuffer::new(context.get_facade(), PrimitiveType::TrianglesList, &indices)
+                .unwrap(),
+            pos: Vector3f::new(0.0, 0.0, 50.0),
+            display: false,
+        }
+    }
+
+    pub fn position(&self) -> &Vector3f {
+        &self.pos
+    }
+
+    pub fn vertices(&self) -> &VertexBuffer<Vertex> {
+        &self.vbuf
+    }
+
+    pub fn indices(&self) -> &IndexBuffer<u32> {
+        &self.ibuf
+    }
+
+    pub fn program(&self) -> &Program {
+        &self.program
+    }
+}
+
 
 
 /// Calculates one Point-coordinates of a Hexagon

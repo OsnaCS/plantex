@@ -2,14 +2,17 @@ use base::world::{self, Chunk, ChunkIndex};
 use base::prop::Plant;
 use base::math::*;
 use glium::backend::Facade;
+use glium::{self, DepthTest, DrawParameters, LinearBlendingFactor};
+use glium::draw_parameters::BlendingFunction;
 use glium::texture::Texture2d;
-use glium;
 use Camera;
 use std::collections::HashMap;
 use std::rc::Rc;
 use view::PlantRenderer;
 use world::ChunkRenderer;
+use world::HexagonOutline;
 use GameContext;
+use util::ToArr;
 
 pub use world::chunk_view::ChunkView;
 pub use view::PlantView;
@@ -19,6 +22,7 @@ pub struct WorldView {
     chunks: HashMap<ChunkIndex, ChunkView>,
     chunk_renderer: Rc<ChunkRenderer>,
     plant_renderer: Rc<PlantRenderer>,
+    pub outline: HexagonOutline,
     plant_views: HashMap<ChunkIndex, Vec<PlantView>>,
     plant_list: Vec<Plant>,
 }
@@ -32,6 +36,7 @@ impl WorldView {
             chunks: HashMap::new(),
             chunk_renderer: chunk_renderer,
             plant_renderer: plant_renderer,
+            outline: HexagonOutline::new(context),
             plant_views: HashMap::new(),
             plant_list: plant_list,
         }
@@ -68,6 +73,14 @@ impl WorldView {
         }
     }
 
+    pub fn get_chunk_view(&self, index: &ChunkIndex) -> Option<&ChunkView> {
+        self.chunks.get(&index)
+    }
+
+    pub fn get_chunk_view_mut(&mut self, index: &ChunkIndex) -> Option<&mut ChunkView> {
+        self.chunks.get_mut(&index)
+    }
+
     pub fn remove_chunk(&mut self, chunk_pos: ChunkIndex) {
         self.chunks.remove(&chunk_pos);
         self.plant_views.remove(&chunk_pos);
@@ -88,6 +101,38 @@ impl WorldView {
         for chunkview in self.chunks.values() {
             chunkview.draw(surface, camera, shadow_map, depth_view_proj, sun_dir);
         }
+        if self.outline.display {
+            // Draw outline
+            let outline_params = DrawParameters {
+                depth: glium::Depth {
+                    write: false,
+                    test: DepthTest::Overwrite,
+                    ..Default::default()
+                },
+                blend: glium::Blend {
+                    color: BlendingFunction::Addition {
+                        source: LinearBlendingFactor::SourceAlpha,
+                        destination: LinearBlendingFactor::OneMinusSourceAlpha,
+                    },
+                    ..Default::default()
+                },
+                ..Default::default()
+            };
+
+            let outline_uniforms = uniform! {
+              outline_pos: self.outline.position().to_arr(),
+              proj_matrix: camera.proj_matrix().to_arr(),
+              view_matrix: camera.view_matrix().to_arr()
+            };
+
+            surface.draw(self.outline.vertices(),
+                      self.outline.indices(),
+                      self.outline.program(),
+                      &outline_uniforms,
+                      &outline_params)
+                .unwrap();
+        }
+
 
         for plantview_vec in self.plant_views.values() {
             for plantview in plantview_vec {

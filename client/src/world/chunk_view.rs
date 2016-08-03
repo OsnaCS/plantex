@@ -1,4 +1,4 @@
-use base::world::{Chunk, HexPillar, PropType};
+use base::world::{Chunk, ChunkIndex, HexPillar, PropType, World};
 use base::math::*;
 use glium::{self, DrawParameters, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
@@ -15,7 +15,9 @@ use base::world::ground::GroundMaterial;
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
+    offset: AxialPoint,
     renderer: Rc<ChunkRenderer>,
+    plant_renderer: Rc<PlantRenderer>,
     pillars: Vec<PillarView>,
     /// Instance data buffer.
     pillar_buf: VertexBuffer<Instance>,
@@ -58,6 +60,8 @@ impl ChunkView {
         }
 
         ChunkView {
+            offset: offset,
+            plant_renderer: plant_renderer,
             renderer: chunk_renderer,
             pillars: pillars,
             pillar_buf: VertexBuffer::dynamic(facade, &sections).unwrap(),
@@ -69,6 +73,7 @@ impl ChunkView {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
         };
+
         let params = DrawParameters {
             depth: glium::Depth {
                 write: true,
@@ -92,6 +97,41 @@ impl ChunkView {
                 plant.draw_shadow(surface, camera);
             }
         }
+    }
+
+    pub fn update<F: Facade>(&mut self, facade: &F, world: &mut World) {
+        let chunk = world.chunk_at(ChunkIndex(self.offset));
+
+        if chunk.is_none() {
+            return;
+        }
+
+        let mut sections = Vec::new();
+        let mut pillars = Vec::new();
+
+        for (axial, pillar) in chunk.unwrap().pillars() {
+            let pos = self.offset.to_real() + axial.to_real();
+            pillars.push(PillarView::from_pillar(pos, pillar, self.plant_renderer.clone(), facade));
+            for section in pillar.sections() {
+                let g = match section.ground {
+                    GroundMaterial::Grass => 1,
+                    GroundMaterial::Sand => 2,
+                    GroundMaterial::Snow => 3,
+                    GroundMaterial::Dirt => 4,
+                    GroundMaterial::Stone => 5,
+                    GroundMaterial::JungleGrass => 1,
+                    GroundMaterial::Mulch => 7,
+                    GroundMaterial::Debug => 8,
+                };
+                sections.push(Instance {
+                    ground: g,
+                    material_color: section.ground.get_color(),
+                    offset: [pos.x, pos.y, section.bottom.to_real()],
+                    height: (section.top.units() - section.bottom.units()) as f32,
+                });
+            }
+        }
+        self.pillar_buf = VertexBuffer::dynamic(facade, &sections).unwrap();
     }
 
     pub fn draw<S: glium::Surface>(&self,
@@ -144,6 +184,7 @@ impl ChunkView {
             ..Default::default()
         };
 
+        // Draw hexagons
         surface.draw((self.renderer.pillar_vertices(), self.pillar_buf.per_instance().unwrap()),
                   self.renderer.pillar_indices(),
                   self.renderer.program(),

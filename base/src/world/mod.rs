@@ -3,8 +3,8 @@
 use std::fmt;
 use math;
 
-mod chunk;
 pub mod ground;
+pub mod chunk;
 mod hex_pillar;
 mod provider;
 mod world;
@@ -49,7 +49,7 @@ pub struct ChunkIndex(pub math::AxialPoint);
 
 /// Represents a discretized height.
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
-pub struct HeightType(u16);
+pub struct HeightType(pub u16);
 
 impl HeightType {
     /// Creates a `HeightType` with a given discrete height.
@@ -66,6 +66,10 @@ impl HeightType {
     /// representation.
     pub fn to_real(&self) -> f32 {
         (self.0 as f32) * PILLAR_STEP_HEIGHT
+    }
+
+    pub fn from_real(number: f32) -> f32 {
+        number / PILLAR_STEP_HEIGHT
     }
 }
 
