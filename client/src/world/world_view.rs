@@ -1,7 +1,7 @@
 use base::world::{self, Chunk, ChunkIndex, World};
 use base::math::*;
 use glium::backend::Facade;
-use glium::texture::DepthTexture2d;
+use glium::texture::Texture2d;
 use glium;
 use Camera;
 use Frustum;
@@ -72,7 +72,7 @@ impl WorldView {
     pub fn draw<S: glium::Surface>(&self,
                                    surface: &mut S,
                                    camera: &Camera,
-                                   shadow_map: &DepthTexture2d,
+                                   shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
                                    sun_dir: Vector3f,
                                    frustum: &Frustum,) {

@@ -3,7 +3,7 @@ use base::math::*;
 use glium::{self, DrawParameters, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
 use glium::backend::Facade;
-use glium::texture::DepthTexture2d;
+use glium::texture::Texture2d;
 use glium::uniforms::SamplerWrapFunction;
 use glium::uniforms::MinifySamplerFilter;
 use Camera;
@@ -96,6 +96,7 @@ impl ChunkView {
                 ..Default::default()
             },
             backface_culling: BackfaceCullingMode::CullClockwise,
+            multisampling: true,
             ..Default::default()
         };
 
@@ -116,7 +117,7 @@ impl ChunkView {
     pub fn draw<S: glium::Surface>(&self,
                                    surface: &mut S,
                                    camera: &Camera,
-                                   shadow_map: &DepthTexture2d,
+                                   shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
                                    sun_dir: Vector3f,
                                    frustum: &Frustum) {
