@@ -276,7 +276,7 @@ impl Renderer {
         // ===================================================================
         // set up frustum
         // ===================================================================
-        self.frustum.set_up(camera.position, camera.get_look_at_vector(), 90.);
+        self.frustum.set_up(camera.position, camera.get_look_at_vector(), 80.);
 
         // ===================================================================
         // check dimensions

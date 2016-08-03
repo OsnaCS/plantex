@@ -216,9 +216,10 @@ impl SimpleCull {
     }
     // sets values of struct
     pub fn set_up(&mut self, cam_pos: Point3f, look_at: Vector3f, fov: f32) {
-        self.cam_pos = cam_pos;
-        self.look_at = look_at.normalize();
         self.fov = fov;
+        let fake_look = look_at.normalize() * -15.;
+        self.cam_pos = cam_pos + fake_look;
+        self.look_at = look_at.normalize();
     }
     // checks if box is visible
     pub fn is_vis(&self, points: [&Point3f; 8]) -> LOCATION {

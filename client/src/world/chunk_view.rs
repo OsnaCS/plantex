@@ -49,7 +49,7 @@ impl ChunkView {
             };
             for (axial, pillar) in chunk.pillars() {
                 let pos = offset.to_real() + axial.to_real();
-                let height = 200.;
+                let height = 150.;
                 // save if corner (assume fixed location of corners)
                 c(i, pos, height);
                 c(i, pos, 0.);
@@ -121,7 +121,6 @@ impl ChunkView {
                                    depth_view_proj: &Matrix4<f32>,
                                    sun_dir: Vector3f,
                                    frustum: &SimpleCull) {
-
         // such skill much wow :D
         let mut i = 0;
         let mut c = || {
