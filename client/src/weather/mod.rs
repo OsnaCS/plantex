@@ -37,7 +37,6 @@ pub enum Strength {
 
 #[derive(Copy, Clone)]
 pub struct Particle {
-    vertices: [Vertex; 4],
     position: Point3<f32>,
     velocity: f32,
     trans_x: f32,
@@ -81,10 +80,6 @@ impl Particle {
         }
 
         Particle {
-            vertices: [Vertex { point: [1.0, 1.0, 0.0] },
-                       Vertex { point: [-1.0, 1.0, 0.0] },
-                       Vertex { point: [1.0, -1.0, 0.0] },
-                       Vertex { point: [-1.0, -1.0, 0.0] }],
             position: Point3::new(cam_pos.x + radius * Rad::sin(angle),
                                   cam_pos.y + radius * Rad::cos(angle),
                                   cam_pos.z + (BOX_SIZE * rand::random::<f32>() + 0.5)),
@@ -174,6 +169,7 @@ impl Weather {
         let scaling: Matrix4<f32>;
         let view = camera.view_matrix();
         let color: Vector4f;
+
         match self.form {
             Form::Snow => {
                 color = Vector4f::new(0.7, 0.7, 0.7, 1.0);
@@ -435,6 +431,7 @@ impl Weather {
                     particle.position.y +=
                         (particle.trans_y.cos() * delta * (self.wind.y * self.wind_speed)) * 2.0;
                     particle.position.z += (particle.trans_z.sin() - 0.5) * 0.5 * delta;
+
                     particle.trans_y += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_x += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_z += PI * 0.005 * (rand::random::<f32>() - 0.3);
