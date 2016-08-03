@@ -7,6 +7,9 @@ uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
 uniform mat4 scaling_matrix;
 uniform int form;
+uniform vec4 sun_color;
+uniform vec4 ambient_color;
+
 
 out vec2 out_position;
 out vec4 out_color;

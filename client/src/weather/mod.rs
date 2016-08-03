@@ -241,12 +241,17 @@ impl Weather {
             }
         };
 
+        let sun_color = Vector4f::new(15.0, 15.0, 15.0, 1.0);
+        let ambient_color = Vector4f::new(15.0, 15.0, 15.0, 1.0);
+
         let uniforms = uniform!{
                 form: self.form as i32,
                 view_matrix: view.to_arr(),
                 proj_matrix: camera.proj_matrix().to_arr(),
                 scaling_matrix: scaling.to_arr(),
                 color: color.to_arr(),
+                sun_color: sun_color.to_arr(),
+                ambient_color: ambient_color.to_arr(),
             };
 
         surface.draw((&self.vertex_buffer, self.actual_buf.per_instance().unwrap()),
