@@ -94,7 +94,7 @@ impl Game {
                                                       self.control_switcher.get_camera());
             match vec {
                 Some(n) => {
-                    self.remove_hexagon_at(n);
+                    // self.remove_hexagon_at(n);
                     let mut view = self.world_manager.get_mut_view();
                     view.outline.display = true;
                     view.outline.pos = n;
@@ -140,6 +140,7 @@ impl Game {
         match self.world_manager.mut_world().pillar_at_mut(pillar_index) {
             Some(pillar) => {
                 let bottom = pos.z - pos.z % world::PILLAR_STEP_HEIGHT;
+
                 let mut i: usize = 0;
                 for section in pillar.sections() {
                     if section.top.to_real() >= bottom {
@@ -179,12 +180,12 @@ impl Game {
 fn get_pillarsectionpos_looking_at(world: &World, cam: Camera) -> Option<Vector3f> {
     let cam_pos = cam.position;
     let mut look_vec = cam.get_look_at_vector().normalize();
-    let view_distance = 12.0;
+    let view_distance = 4.0;
 
     let mut step = 0.0;
     while (look_vec.x * look_vec.x + look_vec.y * look_vec.y + look_vec.z * look_vec.z).sqrt() <=
           view_distance {
-        step += 0.0005;
+        step += 0.00005;
         look_vec = cam.get_look_at_vector().normalize() * step;
 
         let view_pos = Point2f::new(cam_pos.x + look_vec.x, cam_pos.y + look_vec.y);

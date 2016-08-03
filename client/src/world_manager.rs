@@ -192,7 +192,6 @@ impl WorldManager {
                                         axial_pos.r / CHUNK_SIZE as i32);
         let index = ChunkIndex(chunk_pos);
 
-
         shared.world_view.refresh_chunk(index,
                                         shared.world.chunk_at(index).unwrap(),
                                         self.context.get_facade());
