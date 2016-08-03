@@ -1,9 +1,8 @@
-mod tree;
+pub mod tree;
 
-use self::tree::TreeGen;
+use self::tree::{PlantType, TreeGen};
 use prop::Plant;
-
-use rand::{Rand, Rng};
+use rand::Rng;
 
 /// Plant generation entry point.
 ///
@@ -19,10 +18,8 @@ impl PlantGenerator {
             PlantGenerator::Tree(treegen) => Plant::Tree(treegen.generate(rng)),
         }
     }
-}
 
-impl Rand for PlantGenerator {
-    fn rand<R: Rng>(rng: &mut R) -> Self {
-        PlantGenerator::Tree(TreeGen::rand(rng))
+    pub fn new(plant_type: PlantType) -> Self {
+        PlantGenerator::Tree(TreeGen::new(plant_type))
     }
 }

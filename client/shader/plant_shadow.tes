@@ -1,0 +1,66 @@
+#version 400
+
+layout(triangles, equal_spacing, ccw) in;
+
+struct OutputPatch {
+    vec3 WorldPos_B030;
+    vec3 WorldPos_B021;
+    vec3 WorldPos_B012;
+    vec3 WorldPos_B003;
+    vec3 WorldPos_B102;
+    vec3 WorldPos_B201;
+    vec3 WorldPos_B300;
+    vec3 WorldPos_B210;
+    vec3 WorldPos_B120;
+    vec3 WorldPos_B111;
+    vec3 Normal[3];
+    vec3 Color;
+};
+
+in patch OutputPatch oPatch;
+
+out vec3 tePosition;
+out vec3 tes_normal;
+out vec3 tes_color;
+
+// Vertex/Pixel coordinates in shadow map
+out vec4 shadowCoord;
+
+uniform vec3 offset;
+uniform mat4 proj_matrix;
+uniform mat4 view_matrix;
+uniform mat4 depth_view_proj;
+
+//interpolates 3D coordinates
+vec3 interpolate3D(vec3 v0, vec3 v1, vec3 v2)
+{
+    return vec3(gl_TessCoord.x) * v0 + vec3(gl_TessCoord.y) * v1 + vec3(gl_TessCoord.z) * v2;
+}
+
+void main()
+{
+    // Interpolate the attributes of the output vertex using the barycentric coordinates
+    tes_color = oPatch.Color;
+    tes_normal = interpolate3D(oPatch.Normal[0], oPatch.Normal[1], oPatch.Normal[2]);
+
+    //Bezier deforming
+    float u = gl_TessCoord.x;
+    float v = gl_TessCoord.y;
+    float w = gl_TessCoord.z;
+
+    tePosition = oPatch.WorldPos_B300 * w * w * w +
+                    oPatch.WorldPos_B030 * u * u * u +
+                    oPatch.WorldPos_B003 * v * v * v +
+                    oPatch.WorldPos_B210 * 3.0 * w * w * u +
+                    oPatch.WorldPos_B120 * 3.0 * w * u * u +
+                    oPatch.WorldPos_B201 * 3.0 * w * w * v +
+                    oPatch.WorldPos_B021 * 3.0 * u * u * v +
+                    oPatch.WorldPos_B102 * 3.0 * w * v * v +
+                    oPatch.WorldPos_B012 * 3.0 * u * v * v +
+                    oPatch.WorldPos_B111 * 6.0 * w * u * v;
+
+    //projection on camera
+    vec4 world = view_matrix * vec4(tePosition + offset, 1);
+    gl_Position = proj_matrix * world;
+    shadowCoord = depth_view_proj * world;
+}

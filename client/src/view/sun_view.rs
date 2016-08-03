@@ -12,10 +12,10 @@ pub struct Sun {
     vertex_buffer: VertexBuffer<Vertex>,
     index_buffer: IndexBuffer<u32>,
     program: Program,
-    position: Vector3f,
+    position: Point3f,
 }
 
-const SUN_SIZE: f32 = 35.0;
+const SUN_SIZE: f32 = 15.0;
 
 impl Sun {
     pub fn new(context: Rc<GameContext>) -> Self {
@@ -39,16 +39,17 @@ impl Sun {
             vertex_buffer: vbuf,
             index_buffer: ibuf,
             program: context.load_program("sun").unwrap(),
-            position: Vector3f::new(0.0, 0.0, 0.0),
+            position: Point3f::new(0.0, 0.0, 0.0),
         }
     }
 
     pub fn draw_sun<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
-
+        let sun_pos = self.position.to_vec() + camera.position.to_vec();
         let uniforms = uniform! {
             u_proj_matrix: camera.proj_matrix().to_arr(),
             u_view_matrix: camera.view_matrix().to_arr(),
-            u_model: Matrix4::from_translation(camera.position.to_vec() + self.position).to_arr(),
+            u_model: Matrix4::from_translation(sun_pos).to_arr(),
+            sun_pos: sun_pos.normalize().to_arr() ,
         };
         let params = DrawParameters {
             depth: glium::Depth {
@@ -67,8 +68,12 @@ impl Sun {
             .unwrap();
     }
 
-    pub fn update(&mut self, pos: Vector3f) {
+    pub fn update(&mut self, pos: Point3f) {
         self.position = pos;
+    }
+
+    pub fn position(&self) -> Point3f {
+        self.position
     }
 }
 #[derive(Debug, Copy, Clone)]

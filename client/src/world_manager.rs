@@ -9,6 +9,7 @@ use std::sync::mpsc::{Receiver, Sender, TryRecvError, channel};
 use base::world::{CHUNK_SIZE, ChunkIndex};
 use base::math::*;
 use world::WorldView;
+use std::cell::RefMut;
 
 #[derive(Clone)]
 pub struct WorldManager {
@@ -32,17 +33,10 @@ impl WorldManager {
         let (chunk_request_sender, chunk_request_recv) = channel();
         let (chunk_sender, chunk_recv) = channel();
 
-        // Spawn worker thread, which will detach from the main thread. But
-        // that is no problem: once the last sender is destroyed, the worker
-        // thread will quit.
-        thread::spawn(move || {
-            worker_thread(provider, chunk_request_recv, chunk_sender);
-        });
-
         let this = WorldManager {
             shared: Rc::new(RefCell::new(Shared {
                 world: World::empty(),
-                world_view: WorldView::from_world(&World::empty(), game_context.clone()),
+                world_view: WorldView::new(game_context.clone(), provider.get_plant_list()),
                 sent_requests: HashSet::new(),
                 provided_chunks: chunk_recv,
                 // TODO: load this from the config!
@@ -52,6 +46,13 @@ impl WorldManager {
             chunk_requests: chunk_request_sender,
             context: game_context,
         };
+
+        // Spawn worker thread, which will detach from the main thread. But
+        // that is no problem: once the last sender is destroyed, the worker
+        // thread will quit.
+        thread::spawn(move || {
+            worker_thread(provider, chunk_request_recv, chunk_sender);
+        });
 
         this.update_player_chunk();
         this
@@ -112,9 +113,22 @@ impl WorldManager {
         Ref::map(self.shared.borrow(), |shared| &shared.world)
     }
 
+    pub fn mut_world(&self) -> RefMut<World> {
+        RefMut::map(self.shared.borrow_mut(), |shared| &mut shared.world)
+    }
+
     /// Returns an immutable reference to the world view.
     pub fn get_view(&self) -> Ref<WorldView> {
         Ref::map(self.shared.borrow(), |shared| &shared.world_view)
+    }
+
+    /// Returns an mutable reference to the world view.
+    pub fn get_mut_view(&self) -> RefMut<WorldView> {
+        RefMut::map(self.shared.borrow_mut(), |shared| &mut shared.world_view)
+    }
+
+    pub fn get_context(&self) -> &Rc<GameContext> {
+        &self.context
     }
 
     /// Starts to generate all chunks within `load_distance` (config parameter)
@@ -164,6 +178,20 @@ impl WorldManager {
                 warn!("chunk at {:?} already exists!", pos);
             }
         }
+    }
+
+    pub fn recalculate_chunk(&mut self, pos: AxialPoint) {
+        use std::ops::DerefMut;
+
+        let mut shared_tmp = self.shared.borrow_mut();
+        let shared = shared_tmp.deref_mut();
+
+        let chunk_pos = AxialPoint::new(pos.q / CHUNK_SIZE as i32, pos.r / CHUNK_SIZE as i32);
+        let index = ChunkIndex(chunk_pos);
+
+        shared.world_view.refresh_chunk(index,
+                                        shared.world.chunk_at(index).unwrap(),
+                                        self.context.get_facade());
     }
 }
 
