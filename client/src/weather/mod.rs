@@ -506,9 +506,6 @@ impl Weather {
                     position: [particle.position.x, particle.position.y, particle.position.z],
                 })
             }
-
-            // updating lifetime of particles
-            particle.lifetime -= 1.0 * delta;
         }
         // create vertex buffer from left particles
         let vertex_buffer = glium::VertexBuffer::new(self.context.get_facade(), &tmp_instances)
