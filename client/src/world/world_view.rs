@@ -106,7 +106,7 @@ impl WorldView {
             let outline_params = DrawParameters {
                 depth: glium::Depth {
                     write: false,
-                    test: DepthTest::Overwrite,
+                    test: DepthTest::IfLess,
                     ..Default::default()
                 },
                 blend: glium::Blend {
@@ -122,13 +122,7 @@ impl WorldView {
             let outline_uniforms = uniform! {
               outline_pos: self.outline.position().to_arr(),
               proj_matrix: camera.proj_matrix().to_arr(),
-              view_matrix: camera.view_matrix().to_arr(),
-              transformation: [
-                  [1.5, 0.0, 0.0, 0.0],
-                  [0.0, 1.5, 0.0, 0.0],
-                  [0.0, 0.0, 1.5, 0.0],
-                  [0.0, 0.0, 0.0, 1.0f32]
-              ],
+              view_matrix: camera.view_matrix().to_arr()
             };
 
             surface.draw(self.outline.vertices(),

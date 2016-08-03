@@ -143,7 +143,7 @@ impl HexagonOutline {
         HexagonOutline {
             program: context.load_program("outline").unwrap(),
             vbuf: VertexBuffer::new(context.get_facade(), &vertices).unwrap(),
-            ibuf: IndexBuffer::new(context.get_facade(), PrimitiveType::TrianglesList, &indices)
+            ibuf: IndexBuffer::new(context.get_facade(), PrimitiveType::LinesList, &indices)
                 .unwrap(),
             pos: Vector3f::new(0.0, 0.0, 50.0),
             display: false,
