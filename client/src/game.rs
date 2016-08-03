@@ -68,6 +68,12 @@ impl Game {
         let mut frames = 0;
         let mut next_fps_measure = Instant::now() + Duration::from_secs(1);
         let mut time_prev = Instant::now();
+        info!("______ _             _            ");
+        info!("| ___ \\ |           | |  ");
+        info!("| |_/ / | __ _ _ __ | |_ _____  __");
+        info!("|  __/| |/ _` | '_ \\| __/ _ \\ \\/ /");
+        info!("| |   | | (_| | | | | ||  __/>  < ");
+        info!("\\_|   |_|\\__,_|_| |_|\\__\\___/_/\\_\\");
         loop {
             self.world_manager.update_world(self.control_switcher.get_camera().position);
 
