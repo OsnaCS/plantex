@@ -1,7 +1,7 @@
 use base::math::*;
 use world::WorldView;
 use glium::Surface;
-use super::{Camera, GameContext, Frustum};
+use super::{Camera, GameContext, SimpleCull};
 use view::Sun;
 use view::SkyView;
 use std::rc::Rc;
@@ -86,7 +86,7 @@ pub struct Renderer {
     adaption_shrink_program: Program,
     lum_texs: Vec<Texture2d>,
     last_lum: f32,
-    frustum: Frustum,
+    frustum: SimpleCull,
 }
 
 impl Renderer {
@@ -163,7 +163,7 @@ impl Renderer {
             adaption_shrink_program: adaption_shrink_program,
             lum_texs: lum_texs,
             last_lum: last_lum,
-            frustum: Frustum::new(),
+            frustum: SimpleCull::new(),
         };
 
         // Create all textures with correct screen size
@@ -276,11 +276,12 @@ impl Renderer {
         // ===================================================================
         // set up frustum
         // ===================================================================
-        let look_up = Vector3f::new(0., 0., 1.);
-        //180° fov break stuff xD
-        &self.frustum.set_cam_internals(110., camera.aspect_ratio, 50.0, 100.0);
+        //let look_up = Vector3f::new(0., 0., 1.);
+        //180° fov break stuff xD camera.aspect_ratio
+        //&self.frustum.set_cam_internals(60., camera.aspect_ratio, 0.3, 1920.0);
         //this can probably be moved to new
-        &self.frustum.set_cam_def(camera.position, camera.get_look_at_vector(), look_up);
+        //&self.frustum.set_cam_def(camera.position, camera.get_look_at_vector(), look_up);
+        self.frustum.set_up(camera.position, camera.get_look_at_vector(), 90.);
 
         // ===================================================================
         // check dimensions

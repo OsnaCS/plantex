@@ -34,6 +34,7 @@ pub use renderer::Renderer;
 pub use world_manager::WorldManager;
 pub use frustum::Frustum;
 pub use frustum::LOCATION;
+pub use frustum::SimpleCull;
 
 use game::Game;
 use std::net::SocketAddr;

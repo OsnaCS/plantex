@@ -7,7 +7,7 @@ use glium::texture::Texture2d;
 use glium::uniforms::SamplerWrapFunction;
 use glium::uniforms::MinifySamplerFilter;
 use Camera;
-use Frustum;
+use SimpleCull;
 use LOCATION;
 use util::ToArr;
 use view::{PlantRenderer, PlantView};
@@ -120,7 +120,7 @@ impl ChunkView {
                                    shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
                                    sun_dir: Vector3f,
-                                   frustum: &Frustum) {
+                                   frustum: &SimpleCull) {
 
         // such skill much wow :D
         let mut i = 0;
@@ -131,7 +131,7 @@ impl ChunkView {
         };
         let corner = [c(), c(), c(), c(), c(), c(), c(), c()];
 
-        let render = match frustum.box_in_frustum(corner) {
+        let render = match frustum.is_vis(corner) {
             LOCATION::Outside => 0,
             LOCATION::Inside => 1,
             LOCATION::Intersect => 1,
