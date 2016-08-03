@@ -163,7 +163,8 @@ impl Renderer {
         shadow_motion_blur.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
         let shadow_depth =
-            DepthTexture2d::empty(context.get_facade(), SHADOW_MAP_SIZE, SHADOW_MAP_SIZE).unwrap();
+            DepthTexture2d::empty(context.get_facade(), SHADOW_MAP_SIZE, SHADOW_MAP_SIZE)
+            .unwrap();
 
         let lum_texs = initialize_luminosity(context.get_facade());
 
@@ -328,7 +329,8 @@ impl Renderer {
         // ===================================================================
         // Creating shadow map
         // ===================================================================
-        let depth_mvp = try!(self.render_shadow_map(world_view, sun.position(), camera.position));
+        let depth_mvp = try!(self.render_shadow_map(world_view, sun.position(), 
+            camera.position));
 
         // ===================================================================
         // Rendering into HDR framebuffer
@@ -624,14 +626,14 @@ impl Renderer {
 
         let mut bloom_blur_horz_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
                                                                      self.bloom_horz_tex
-                                                                         .to_color_attachment()));
+                                                                        .to_color_attachment()));
 
         bloom_blur_horz_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
 
         let mut bloom_blur_vert_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
                                                                      self.bloom_vert_tex
-                                                                         .to_color_attachment()));
+                                                                        .to_color_attachment()));
         bloom_blur_vert_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
         let mut uniforms_horz_blur = uniform! {
             //for the first iteration: Use the bloom quad texture as source of light map,
@@ -676,7 +678,7 @@ impl Renderer {
 
         let mut bloom_blend_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
                                                                  self.bloom_blend_tex
-                                                                     .to_color_attachment()));
+                                                                    .to_color_attachment()));
 
         bloom_blend_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
