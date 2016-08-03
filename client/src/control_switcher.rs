@@ -41,6 +41,7 @@ impl ControlSwitcher {
             self.player.set_camera(self.ghost.get_camera());
             self.is_ghost = false;
         } else {
+            self.ghost.set_camera(self.player.get_camera());
             self.is_ghost = true;
         }
 
