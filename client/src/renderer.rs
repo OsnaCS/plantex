@@ -276,11 +276,6 @@ impl Renderer {
         // ===================================================================
         // set up frustum
         // ===================================================================
-        //let look_up = Vector3f::new(0., 0., 1.);
-        //180° fov break stuff xD camera.aspect_ratio
-        //&self.frustum.set_cam_internals(60., camera.aspect_ratio, 0.3, 1920.0);
-        //this can probably be moved to new
-        //&self.frustum.set_cam_def(camera.position, camera.get_look_at_vector(), look_up);
         self.frustum.set_up(camera.position, camera.get_look_at_vector(), 90.);
 
         // ===================================================================
@@ -320,16 +315,16 @@ impl Renderer {
                 return Ok(());
             }
 
-        let sun_dir = (-sun.position().to_vec()).normalize();
-        world_view.draw(&mut hdr_buffer,
-                        camera,
-                        &self.shadow_map,
-                        &depth_mvp,
-                        sun_dir,
-                        &self.frustum);
-        sky_view.draw_skydome(&mut hdr_buffer, camera);
-        sun.draw_sun(&mut hdr_buffer, camera);
-        weather.draw(&mut hdr_buffer, camera);
+            let sun_dir = (-sun.position().to_vec()).normalize();
+            world_view.draw(&mut hdr_buffer,
+                            camera,
+                            &self.shadow_map,
+                            &depth_mvp,
+                            sun_dir,
+                            &self.frustum);
+            sky_view.draw_skydome(&mut hdr_buffer, camera);
+            sun.draw_sun(&mut hdr_buffer, camera);
+            weather.draw(&mut hdr_buffer, camera);
 
         }
         // ===================================================================

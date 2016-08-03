@@ -64,7 +64,7 @@ impl Plane {
         let top = self.normal.x * p.x + self.normal.y * p.y + self.normal.z * p.z + self.d;
         let c = |x| x * x;
         let bottom = (c(self.normal.x) + c(self.normal.y) + c(self.normal.z)).sqrt();
-        //info!("distance {:?}", top / bottom);
+        // info!("distance {:?}", top / bottom);
         top / bottom
     }
 }
@@ -199,7 +199,7 @@ impl Frustum {
     }
 }
 
-//simple culling struct
+// simple culling struct
 pub struct SimpleCull {
     cam_pos: Point3f,
     look_at: Vector3f,
@@ -208,25 +208,26 @@ pub struct SimpleCull {
 
 impl SimpleCull {
     pub fn new() -> SimpleCull {
-        SimpleCull { cam_pos: Point3f::new(0.0,0.0,0.0),
-        look_at: Vector3f::new(0.0,0.0,0.0),
-        fov: 60.0,
+        SimpleCull {
+            cam_pos: Point3f::new(0.0, 0.0, 0.0),
+            look_at: Vector3f::new(0.0, 0.0, 0.0),
+            fov: 60.0,
         }
     }
-    //sets values of struct
+    // sets values of struct
     pub fn set_up(&mut self, cam_pos: Point3f, look_at: Vector3f, fov: f32) {
         self.cam_pos = cam_pos;
         self.look_at = look_at.normalize();
         self.fov = fov;
     }
-    //checks if box is visible
+    // checks if box is visible
     pub fn is_vis(&self, points: [&Point3f; 8]) -> LOCATION {
         for i in 0..8 {
             let mut look_at_point = points[i] - self.cam_pos;
             look_at_point = look_at_point.normalize();
             let res = look_at_point.dot(self.look_at).acos() * RAD2ANG as f32;
             if res <= self.fov {
-                return LOCATION::Inside
+                return LOCATION::Inside;
             }
         }
         LOCATION::Outside

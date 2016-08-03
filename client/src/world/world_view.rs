@@ -75,9 +75,14 @@ impl WorldView {
                                    shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
                                    sun_dir: Vector3f,
-                                   frustum: &SimpleCull,) {
+                                   frustum: &SimpleCull) {
         for chunkview in self.chunks.values() {
-            chunkview.draw(surface, camera, shadow_map, depth_view_proj, sun_dir, frustum);
+            chunkview.draw(surface,
+                           camera,
+                           shadow_map,
+                           depth_view_proj,
+                           sun_dir,
+                           frustum);
         }
     }
 }
