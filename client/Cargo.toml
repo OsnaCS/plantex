@@ -18,3 +18,6 @@ path = "../base"
 [dependencies.glium]
 git = "https://github.com/jonas-schievink/glium.git"
 branch = "unifast"
+
+[dependencies.noise]
+git = "https://github.com/bjz/noise-rs"

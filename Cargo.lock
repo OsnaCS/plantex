@@ -130,6 +130,7 @@ dependencies = [
  "clap 2.9.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "glium 0.15.0 (git+https://github.com/jonas-schievink/glium.git?branch=unifast)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "noise 0.2.0 (git+https://github.com/bjz/noise-rs)",
  "rand 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 0.1.73 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.1.30 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -262,7 +263,7 @@ dependencies = [
 [[package]]
 name = "glium"
 version = "0.15.0"
-source = "git+https://github.com/jonas-schievink/glium.git?branch=unifast#508e97cf71e87d99a746fe94c8333c0d134d32d3"
+source = "git+https://github.com/jonas-schievink/glium.git?branch=unifast#c062d2067f31415d4c6c4d2d3b520efe2fb8e3a5"
 dependencies = [
  "backtrace 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "fnv 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
