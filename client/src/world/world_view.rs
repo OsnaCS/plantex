@@ -5,6 +5,7 @@ use glium::backend::Facade;
 use glium::texture::Texture2d;
 use glium;
 use Camera;
+use SimpleCull;
 use std::collections::HashMap;
 use std::rc::Rc;
 use view::PlantRenderer;
@@ -84,9 +85,15 @@ impl WorldView {
                                    camera: &Camera,
                                    shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
-                                   sun_dir: Vector3f) {
+                                   sun_dir: Vector3f,
+                                   frustum: &SimpleCull) {
         for chunkview in self.chunks.values() {
-            chunkview.draw(surface, camera, shadow_map, depth_view_proj, sun_dir);
+            chunkview.draw(surface,
+                           camera,
+                           shadow_map,
+                           depth_view_proj,
+                           sun_dir,
+                           frustum);
         }
 
         for plantview_vec in self.plant_views.values() {

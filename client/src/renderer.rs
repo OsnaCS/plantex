@@ -1,7 +1,7 @@
 use base::math::*;
 use world::WorldView;
 use glium::Surface;
-use super::{Camera, GameContext};
+use super::{Camera, GameContext, SimpleCull};
 use view::Sun;
 use view::SkyView;
 use std::rc::Rc;
@@ -86,6 +86,7 @@ pub struct Renderer {
     adaption_shrink_program: Program,
     lum_texs: Vec<Texture2d>,
     last_lum: f32,
+    frustum: SimpleCull,
 }
 
 impl Renderer {
@@ -162,6 +163,7 @@ impl Renderer {
             adaption_shrink_program: adaption_shrink_program,
             lum_texs: lum_texs,
             last_lum: last_lum,
+            frustum: SimpleCull::new(),
         };
 
         // Create all textures with correct screen size
@@ -272,6 +274,11 @@ impl Renderer {
                   sky_view: &SkyView)
                   -> Result<(), Box<Error>> {
         // ===================================================================
+        // set up frustum
+        // ===================================================================
+        self.frustum.set_up(camera.position, camera.get_look_at_vector(), 80.);
+
+        // ===================================================================
         // check dimensions
         // ===================================================================
         let new_res = self.context.get_facade().get_framebuffer_dimensions();
@@ -313,7 +320,8 @@ impl Renderer {
                             camera,
                             &self.shadow_map,
                             &depth_mvp,
-                            sun_dir);
+                            sun_dir,
+                            &self.frustum);
             sky_view.draw_skydome(&mut hdr_buffer, camera);
             sun.draw_sun(&mut hdr_buffer, camera);
             weather.draw(&mut hdr_buffer, camera);

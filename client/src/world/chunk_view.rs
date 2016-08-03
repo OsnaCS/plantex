@@ -1,4 +1,4 @@
-use base::world::{Chunk, HexPillar, PropType};
+use base::world::{Chunk, CHUNK_SIZE, HexPillar, PropType};
 use base::math::*;
 use glium::{self, DrawParameters, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
@@ -7,6 +7,8 @@ use glium::texture::Texture2d;
 use glium::uniforms::SamplerWrapFunction;
 use glium::uniforms::MinifySamplerFilter;
 use Camera;
+use SimpleCull;
+use LOCATION;
 use util::ToArr;
 use view::{PlantRenderer, PlantView};
 use world::ChunkRenderer;
@@ -19,6 +21,8 @@ pub struct ChunkView {
     pillars: Vec<PillarView>,
     /// Instance data buffer.
     pillar_buf: VertexBuffer<Instance>,
+    // save corner positions for draw
+    corner_ps: Vec<Point3f>,
 }
 
 impl ChunkView {
@@ -33,27 +37,42 @@ impl ChunkView {
 
         let mut sections = Vec::new();
         let mut pillars = Vec::new();
-
-        for (axial, pillar) in chunk.pillars() {
-            let pos = offset.to_real() + axial.to_real();
-            pillars.push(PillarView::from_pillar(pos, pillar, plant_renderer.clone(), facade));
-            for section in pillar.sections() {
-                let g = match section.ground {
-                    GroundMaterial::Grass => 1,
-                    GroundMaterial::Sand => 2,
-                    GroundMaterial::Snow => 3,
-                    GroundMaterial::Dirt => 4,
-                    GroundMaterial::Stone => 5,
-                    GroundMaterial::JungleGrass => 1,
-                    GroundMaterial::Mulch => 7,
-                    GroundMaterial::Debug => 8,
-                };
-                sections.push(Instance {
-                    material_color: section.ground.get_color(),
-                    ground: g,
-                    offset: [pos.x, pos.y, section.bottom.to_real()],
-                    height: (section.top.units() - section.bottom.units()) as f32,
-                });
+        let mut i = 0;
+        let mut vec = Vec::new();
+        {
+            // scope so we can borrow mut vec
+            let mut c = |x, pos: Point2f, z| {
+                if x == 0 || x == CHUNK_SIZE || x == (CHUNK_SIZE * CHUNK_SIZE - CHUNK_SIZE) ||
+                   x == (CHUNK_SIZE * CHUNK_SIZE - 1) {
+                    vec.push(Point3f::new(pos.x, pos.y, z));
+                }
+            };
+            for (axial, pillar) in chunk.pillars() {
+                let pos = offset.to_real() + axial.to_real();
+                let height = 150.;
+                // save if corner (assume fixed location of corners)
+                c(i, pos, height);
+                c(i, pos, 0.);
+                i += 1;
+                pillars.push(PillarView::from_pillar(pos, pillar, plant_renderer.clone(), facade));
+                for section in pillar.sections() {
+                    let g = match section.ground {
+                        GroundMaterial::Grass => 1,
+                        GroundMaterial::Sand => 2,
+                        GroundMaterial::Snow => 3,
+                        GroundMaterial::Dirt => 4,
+                        GroundMaterial::Stone => 5,
+                        GroundMaterial::JungleGrass => 1,
+                        GroundMaterial::Mulch => 7,
+                        GroundMaterial::Debug => 8,
+                    };
+                    sections.push(Instance {
+                        material_color: section.ground.get_color(),
+                        ground: g,
+                        offset: [pos.x, pos.y, section.bottom.to_real()],
+                        height: (section.top.units() - section.bottom.units()) as f32,
+                    });
+                }
             }
         }
 
@@ -61,6 +80,7 @@ impl ChunkView {
             renderer: chunk_renderer,
             pillars: pillars,
             pillar_buf: VertexBuffer::dynamic(facade, &sections).unwrap(),
+            corner_ps: vec,
         }
     }
 
@@ -99,7 +119,25 @@ impl ChunkView {
                                    camera: &Camera,
                                    shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
-                                   sun_dir: Vector3f) {
+                                   sun_dir: Vector3f,
+                                   frustum: &SimpleCull) {
+        // such skill much wow :D
+        let mut i = 0;
+        let mut c = || {
+            let a = i;
+            i += 1;
+            &self.corner_ps[a]
+        };
+        let corner = [c(), c(), c(), c(), c(), c(), c(), c()];
+
+        let render = match frustum.is_vis(corner) {
+            LOCATION::Outside => 0,
+            LOCATION::Inside => 1,
+            LOCATION::Intersect => 1,
+        };
+        if render == 0 {
+            return;
+        }
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
