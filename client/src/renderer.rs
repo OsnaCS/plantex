@@ -39,7 +39,7 @@ const SHADOW_ORTHO_FAR: f32 = 600.0;
 // 0: Disable Bloom
 // 1: Enable Bloom
 // 2: Show only Bloom Map
-const BLOOM_STATE: i8 = 1;
+const BLOOM_STATE: i8 = 0;
 // number of times the light texture will be blured.
 // each iteration contains one horizontal and one vertical blur
 const BLOOM_ITERATION: u8 = 6;
@@ -65,14 +65,6 @@ const WE_WANT_OPTIMAL: f32 = 0.7;  // Agressiveness of exposure correction in [0
 // effect.
 const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.25;  //adaption speed from bright to dark DEFAULT:0.25
 const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.06; //adaption speed from dark to bright  DEFAULT:0.06
-
-
-
-
-
-
-// TODO: WE_WANT_OPTIMAL kram anpassen, Nächte dunkler, Brightness adaption
-// aggressiver
 
 
 
@@ -163,8 +155,7 @@ impl Renderer {
         shadow_motion_blur.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
         let shadow_depth =
-            DepthTexture2d::empty(context.get_facade(), SHADOW_MAP_SIZE, SHADOW_MAP_SIZE)
-            .unwrap();
+            DepthTexture2d::empty(context.get_facade(), SHADOW_MAP_SIZE, SHADOW_MAP_SIZE).unwrap();
 
         let lum_texs = initialize_luminosity(context.get_facade());
 
@@ -329,8 +320,7 @@ impl Renderer {
         // ===================================================================
         // Creating shadow map
         // ===================================================================
-        let depth_mvp = try!(self.render_shadow_map(world_view, sun.position(), 
-            camera.position));
+        let depth_mvp = try!(self.render_shadow_map(world_view, sun.position(), camera.position));
 
         // ===================================================================
         // Rendering into HDR framebuffer
@@ -380,11 +370,11 @@ impl Renderer {
             self.last_lum = (1.0 - ADAPTION_SPEED_BRIGHT_DARK) * self.last_lum +
                             ADAPTION_SPEED_BRIGHT_DARK * adapt
         }
-        info!("last_lum {}", self.last_lum);
+        debug!("last_lum {}", self.last_lum);
 
         self.exposure = (1.0 - WE_WANT_OPTIMAL) * self.last_lum +
                         WE_WANT_OPTIMAL * OPTIMAL_EXPOSURE;
-        info!("exp: {}", self.exposure);
+        debug!("exp: {}", self.exposure);
 
 
 
@@ -580,12 +570,8 @@ impl Renderer {
                 height: 1,
             });
 
-        // let avg_luminance = Vector3f::new(pixel.0, pixel.1, pixel.2)
-        //    .dot(Vector3f::new(0.2126, 0.7152, 0.0722));
         let avg_luminance = buf[0][0];
 
-
-        // info!("lum: {:?}", buf);
 
         // the exposure level is inversely propotional to the avg. luminance.
         // log2 is necessary to adapt more for the lower than for the higher values.
@@ -626,14 +612,14 @@ impl Renderer {
 
         let mut bloom_blur_horz_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
                                                                      self.bloom_horz_tex
-                                                                        .to_color_attachment()));
+                                                                         .to_color_attachment()));
 
         bloom_blur_horz_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
 
         let mut bloom_blur_vert_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
                                                                      self.bloom_vert_tex
-                                                                        .to_color_attachment()));
+                                                                         .to_color_attachment()));
         bloom_blur_vert_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
         let mut uniforms_horz_blur = uniform! {
             //for the first iteration: Use the bloom quad texture as source of light map,
@@ -678,7 +664,7 @@ impl Renderer {
 
         let mut bloom_blend_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
                                                                  self.bloom_blend_tex
-                                                                    .to_color_attachment()));
+                                                                     .to_color_attachment()));
 
         bloom_blend_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 

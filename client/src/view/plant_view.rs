@@ -1,6 +1,8 @@
 use glium::backend::Facade;
 use glium::{self, BackfaceCullingMode, DepthTest, DrawParameters, IndexBuffer, VertexBuffer};
 use glium::index::PrimitiveType;
+use glium::texture::Texture2d;
+use glium::uniforms::SamplerWrapFunction;
 use Camera;
 use util::ToArr;
 use base::math::*;
@@ -47,10 +49,16 @@ impl PlantView {
     }
 
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
+        let tess_level_inner = 1.0 as f32;
+        let tess_level_outer = 1.0 as f32;
+
         let uniforms = uniform! {
             offset: self.pos.to_arr(),
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
+            tess_level_inner: tess_level_inner,
+            tess_level_outer: tess_level_outer,
+            camera_pos: camera.position.to_arr(),
         };
 
         let params = DrawParameters {
@@ -66,13 +74,18 @@ impl PlantView {
 
         surface.draw(&self.vertices,
                   &self.indices,
-                  &self.renderer.program(),
+                  &self.renderer.shadow_program(),
                   &uniforms,
                   &params)
             .unwrap();
     }
 
-    pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera, sun_dir: Vector3f) {
+    pub fn draw<S: glium::Surface>(&self,
+                                   surface: &mut S,
+                                   camera: &Camera,
+                                   shadow_map: &Texture2d,
+                                   depth_view_proj: &Matrix4<f32>,
+                                   sun_dir: Vector3f) {
         let tess_level_inner = 10.0 as f32;
         let tess_level_outer = 10.0 as f32;
 
@@ -85,6 +98,8 @@ impl PlantView {
             camera_pos: camera.position.to_arr(),
             plant_pos: self.pos.to_arr(),
             cam_pos: camera.position.to_arr(),
+            shadow_map: shadow_map.sampled().wrap_function(SamplerWrapFunction::Clamp),
+            depth_view_proj: depth_view_proj.to_arr(),
             sun_dir: sun_dir.to_arr(),
         };
 
