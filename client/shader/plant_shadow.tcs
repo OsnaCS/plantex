@@ -6,6 +6,7 @@ in vec3 vPosition[];
 in vec3 material_color[];
 in vec3 surfaceNormal[];
 in vec3 vOffset[];
+
 out vec3 offset[];
 uniform float tess_level_inner;
 uniform float tess_level_outer;

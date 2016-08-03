@@ -15,7 +15,7 @@ pub struct Sun {
     position: Point3f,
 }
 
-const SUN_SIZE: f32 = 35.0;
+const SUN_SIZE: f32 = 15.0;
 
 impl Sun {
     pub fn new(context: Rc<GameContext>) -> Self {
@@ -49,6 +49,7 @@ impl Sun {
             u_proj_matrix: camera.proj_matrix().to_arr(),
             u_view_matrix: camera.view_matrix().to_arr(),
             u_model: Matrix4::from_translation(sun_pos).to_arr(),
+            sun_pos: sun_pos.normalize().to_arr() ,
         };
         let params = DrawParameters {
             depth: glium::Depth {

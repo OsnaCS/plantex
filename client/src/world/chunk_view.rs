@@ -1,4 +1,4 @@
-use base::world::{CHUNK_SIZE, Chunk, HexPillar, PropType};
+use base::world::{CHUNK_SIZE, Chunk, ChunkIndex, HexPillar, PropType, World};
 use base::math::*;
 use glium::{self, DrawParameters, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
@@ -17,7 +17,9 @@ use base::world::ground::GroundMaterial;
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
+    offset: AxialPoint,
     renderer: Rc<ChunkRenderer>,
+    plant_renderer: Rc<PlantRenderer>,
     pillars: Vec<PillarView>,
     /// Instance data buffer.
     pillar_buf: VertexBuffer<Instance>,
@@ -54,7 +56,7 @@ impl ChunkView {
                 c(i, pos, height);
                 c(i, pos, 0.);
                 i += 1;
-                pillars.push(PillarView::from_pillar(pos, pillar, plant_renderer.clone(), facade));
+                pillars.push(PillarView::from_pillar(pillar, plant_renderer.clone(), facade));
                 for section in pillar.sections() {
                     let g = match section.ground {
                         GroundMaterial::Grass => 1,
@@ -77,6 +79,8 @@ impl ChunkView {
         }
 
         ChunkView {
+            offset: offset,
+            plant_renderer: plant_renderer,
             renderer: chunk_renderer,
             pillars: pillars,
             pillar_buf: VertexBuffer::dynamic(facade, &sections).unwrap(),
@@ -89,6 +93,7 @@ impl ChunkView {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
         };
+
         let params = DrawParameters {
             depth: glium::Depth {
                 write: true,
@@ -112,6 +117,41 @@ impl ChunkView {
                 plant.draw_shadow(surface, camera);
             }
         }
+    }
+
+    pub fn update<F: Facade>(&mut self, facade: &F, world: &mut World) {
+        let chunk = world.chunk_at(ChunkIndex(self.offset));
+
+        if chunk.is_none() {
+            return;
+        }
+
+        let mut sections = Vec::new();
+        let mut pillars = Vec::new();
+
+        for (axial, pillar) in chunk.unwrap().pillars() {
+            let pos = self.offset.to_real() + axial.to_real();
+            pillars.push(PillarView::from_pillar(pillar, self.plant_renderer.clone(), facade));
+            for section in pillar.sections() {
+                let g = match section.ground {
+                    GroundMaterial::Grass => 1,
+                    GroundMaterial::Sand => 2,
+                    GroundMaterial::Snow => 3,
+                    GroundMaterial::Dirt => 4,
+                    GroundMaterial::Stone => 5,
+                    GroundMaterial::JungleGrass => 1,
+                    GroundMaterial::Mulch => 7,
+                    GroundMaterial::Debug => 8,
+                };
+                sections.push(Instance {
+                    ground: g,
+                    material_color: section.ground.get_color(),
+                    offset: [pos.x, pos.y, section.bottom.to_real()],
+                    height: (section.top.units() - section.bottom.units()) as f32,
+                });
+            }
+        }
+        self.pillar_buf = VertexBuffer::dynamic(facade, &sections).unwrap();
     }
 
     pub fn draw<S: glium::Surface>(&self,
@@ -144,7 +184,9 @@ impl ChunkView {
             shadow_map: shadow_map.sampled().wrap_function(SamplerWrapFunction::Clamp),
             depth_view_proj: depth_view_proj.to_arr(),
             sun_dir: sun_dir.to_arr(),
+            cam_pos: camera.position.to_arr(),
 
+            // Mipmapping and repeating the textures
             sand_texture:  self.renderer.noise_sand.sampled()
                 .minify_filter(MinifySamplerFilter::NearestMipmapLinear)
                 .wrap_function(SamplerWrapFunction::Repeat),
@@ -181,18 +223,13 @@ impl ChunkView {
             ..Default::default()
         };
 
+        // Draw hexagons
         surface.draw((self.renderer.pillar_vertices(), self.pillar_buf.per_instance().unwrap()),
                   self.renderer.pillar_indices(),
                   self.renderer.program(),
                   &uniforms,
                   &params)
             .unwrap();
-
-        for pillar in &self.pillars {
-            for plant in &pillar.plants {
-                plant.draw(surface, camera);
-            }
-        }
     }
 }
 
@@ -227,8 +264,8 @@ pub struct PillarView {
 }
 
 impl PillarView {
-    fn from_pillar<F: Facade>(pos: Point2f,
-                              pillar: &HexPillar,
+    // fn from_pillar<F: Facade>( pos: Point2f,
+    fn from_pillar<F: Facade>(pillar: &HexPillar,
                               plant_renderer: Rc<PlantRenderer>,
                               facade: &F)
                               -> PillarView {
@@ -238,8 +275,7 @@ impl PillarView {
                 .map(|prop| {
                     match prop.prop {
                         PropType::Plant(ref plant) => {
-                            let pos = Point3f::new(pos.x, pos.y, prop.baseline.to_real());
-                            PlantView::from_plant(pos, plant, plant_renderer.clone(), facade)
+                            PlantView::from_plant(plant, plant_renderer.clone(), facade)
                         }
                     }
                 })

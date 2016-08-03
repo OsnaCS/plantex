@@ -121,20 +121,20 @@ impl PlantType {
             }
             PlantType::Cactus => {
                 Preset {
-                    trunk_diameter: 0.6..0.60001,
-                    trunk_height: 2.0..4.0,
+                    trunk_diameter: 0.15..0.2,
+                    trunk_height: 1.5..3.0,
                     trunk_diameter_top: 0.6..0.60001,
                     min_branch_height: 0.05..0.1,
-                    branch_chance: 5.0,
-                    branch_diameter_factor: 0.1..0.15,
+                    branch_chance: 3.0,
+                    branch_diameter_factor: 0.3..0.4,
                     branch_angle_deg: 90.0..90.00001,
                     branch_diam_reduction: 0.90..0.95,
-                    branch_segment_length: 2.0..4.0,
+                    branch_segment_length: 4.0..5.0,
                     branch_segment_angle: 0.0..0.00001,
                     branch_segment_count: 1..2,
-                    trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
-                    leaf_color: (0.3..0.59, 0.75..0.88, 0.08..0.15),
-                    leaf_depth: 2,
+                    trunk_color: (0.313..0.39, 0.35..0.39, 0.2519..0.252),
+                    leaf_color: (0.313..0.39, 0.35..0.39, 0.2519..0.252),
+                    leaf_depth: 4,
                     height_branchlength_dependence: {
                         fn f(_: f32) -> f32 {
                             1.0
@@ -193,7 +193,7 @@ impl PlantType {
             }
             PlantType::Conifer => {
                 Preset {
-                    trunk_diameter: 0.5..0.8,
+                    trunk_diameter: 0.25..0.4,
                     trunk_height: 5.0..8.0,
                     trunk_diameter_top: 0.3..0.5,
                     min_branch_height: 0.1..0.2,
@@ -230,12 +230,11 @@ impl PlantType {
                     branch_segment_count: 3..4,
                     trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),
                     leaf_color: (0.2..0.21, 0.45..0.46, 0.2..0.21),
-                    leaf_depth: 2,
+                    leaf_depth: 1,
                     height_branchlength_dependence: {
                         fn f(height: f32) -> f32 {
                             let mut result = 25.0 - 7.6 * (height - 4.5) * (height - 4.5);
                             if result <= 0.0 {
-                                println!("{:?}, {:?}", height, result);
                                 result = 0.1;
                             }
                             result
@@ -247,15 +246,15 @@ impl PlantType {
 
             PlantType::Flower => {
                 Preset {
-                    trunk_diameter: 0.1..0.12,
-                    trunk_height: 0.8..1.5,
+                    trunk_diameter: 0.025..0.03,
+                    trunk_height: 0.4..0.75,
                     trunk_diameter_top: 0.4..0.6,
                     min_branch_height: 0.9..0.91,
                     branch_chance: 10.0,
                     branch_diameter_factor: 0.45..0.55,
                     branch_angle_deg: 80.0..95.0,
                     branch_diam_reduction: 0.9..0.95,
-                    branch_segment_length: 11.25..11.26,
+                    branch_segment_length: 22.5..22.51,
                     branch_segment_angle: 3.0..7.0,
                     branch_segment_count: 1..5,
                     trunk_color: (0.3..0.33, 0.9..0.99, 0.0..0.02),
@@ -457,8 +456,12 @@ impl TreeGen {
                 diameter: trunk_diameter_top,
             });
             points.push(ControlPoint {
-                point: Point3f::new(0.0, 0.0, trunk_height + 0.075 * trunk_height),
-                diameter: 0.025,
+                point: Point3f::new(0.0, 0.0, trunk_height + 0.02 * trunk_height),
+                diameter: trunk_diameter * trunk_diameter_top * 0.3,
+            });
+            points.push(ControlPoint {
+                point: Point3f::new(0.0, 0.0, trunk_height + 0.03 * trunk_height),
+                diameter: trunk_diameter * trunk_diameter_top * 0.05,
             });
         }
 

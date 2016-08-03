@@ -59,7 +59,6 @@ impl GameContext {
         };
 
         let prog = Program::new(&self.facade, source);
-
         if let Err(ref e) = prog {
             warn!("failed to compile program '{}':\n{}", shader, e);
         }

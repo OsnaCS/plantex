@@ -69,7 +69,9 @@ impl Biome {
                                                         PlantType::RegularTree,
                                                         PlantType::OakTree,
                                                         PlantType::ClumpOfGrass,
-                                                        PlantType::ClumpOfGrass];
+                                                        PlantType::ClumpOfGrass,
+                                                        PlantType::Flower,
+                                                        PlantType::Flower];
                 PLANTS
             }
             Biome::Desert => {
