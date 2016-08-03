@@ -129,20 +129,20 @@ void main() {
         diffuse *= 40;
         specular *= 40;
     } else if (x_ground == 2) {
-        diffuse *= 20;
-        specular *= 20;
+        diffuse *= 35;
+        specular *= 35;
     } else if (x_ground == 3) {
-        diffuse *= 40;
-        specular *= 40;
+        diffuse *= 10;
+        specular *= 10;
     } else if (x_ground == 4) {
-        diffuse *= 30;
-        specular *= 30;
+        diffuse *= 35;
+        specular *= 35;
     } else if (x_ground == 5) {
         diffuse *= 20;
         specular *= 20;
     } else if (x_ground == 7) {
-        diffuse *= 20;
-        specular *= 20;
+        diffuse *= 30;
+        specular *= 30;
     }
 
     // Final color calculation
