@@ -10,6 +10,7 @@ use base::world::PillarIndex;
 use GameContext;
 use std::rc::Rc;
 use std::f32::consts::PI;
+use std::f32;
 
 const BOX_SIZE: f32 = 20.0;
 
@@ -36,7 +37,6 @@ pub enum Strength {
 
 #[derive(Copy, Clone)]
 pub struct Particle {
-    vertices: [Vertex; 4],
     position: Point3<f32>,
     velocity: f32,
     trans_x: f32,
@@ -80,10 +80,6 @@ impl Particle {
         }
 
         Particle {
-            vertices: [Vertex { point: [1.0, 1.0, 0.0] },
-                       Vertex { point: [-1.0, 1.0, 0.0] },
-                       Vertex { point: [1.0, -1.0, 0.0] },
-                       Vertex { point: [-1.0, -1.0, 0.0] }],
             position: Point3::new(cam_pos.x + radius * Rad::sin(angle),
                                   cam_pos.y + radius * Rad::cos(angle),
                                   cam_pos.z + (BOX_SIZE * rand::random::<f32>() + 0.5)),
@@ -103,8 +99,8 @@ pub struct Weather {
     indices: glium::index::NoIndices,
     context: Rc<GameContext>,
     camera: Camera,
-    particle_buf: VertexBuffer<Instance>,
     actual_buf: VertexBuffer<Instance>,
+    vertex_buffer: VertexBuffer<Vertex>,
     form: Form,
     strength: Strength,
     wind: Vector2f,
@@ -122,7 +118,12 @@ impl Weather {
         let weather_program = context.load_program("weather").unwrap();
         let camera = Camera::new(context.get_config().resolution.aspect_ratio());
         let sections = glium::VertexBuffer::new(context.get_facade(), &[]).unwrap();
-        let sections2 = glium::VertexBuffer::new(context.get_facade(), &[]).unwrap();
+
+        let buffer = vec![Vertex { point: [1.0, 1.0, 0.0] },
+                          Vertex { point: [-1.0, 1.0, 0.0] },
+                          Vertex { point: [1.0, -1.0, 0.0] },
+                          Vertex { point: [-1.0, -1.0, 0.0] }];
+        let vertex_buffer = glium::VertexBuffer::new(context.get_facade(), &buffer).unwrap();
 
         Weather {
             particles: vec,
@@ -130,8 +131,8 @@ impl Weather {
             indices: index_buffer,
             context: context,
             camera: camera,
-            particle_buf: sections,
-            actual_buf: sections2,
+            actual_buf: sections,
+            vertex_buffer: vertex_buffer,
             form: Form::Rain,
             strength: Strength::None,
             wind: Vector2f::new(rand::random::<f32>(), rand::random::<f32>()),
@@ -165,16 +166,10 @@ impl Weather {
             ..Default::default()
         };
 
-
-
-        let buffer = vec![Vertex { point: [1.0, 1.0, 0.0] },
-                          Vertex { point: [-1.0, 1.0, 0.0] },
-                          Vertex { point: [1.0, -1.0, 0.0] },
-                          Vertex { point: [-1.0, -1.0, 0.0] }];
-        let vertex_buffer = glium::VertexBuffer::new(self.context.get_facade(), &buffer).unwrap();
         let scaling: Matrix4<f32>;
         let view = camera.view_matrix();
         let color: Vector4f;
+
         match self.form {
             Form::Snow => {
                 color = Vector4f::new(0.7, 0.7, 0.7, 1.0);
@@ -214,7 +209,7 @@ impl Weather {
             };
 
 
-        surface.draw((&vertex_buffer, self.actual_buf.per_instance().unwrap()),
+        surface.draw((&self.vertex_buffer, self.actual_buf.per_instance().unwrap()),
                   &self.indices,
                   &self.program,
                   &uniforms,
@@ -386,10 +381,12 @@ impl Weather {
         // setting amount of particles depending on form
         self.camera = *camera;
         let max_count: usize;
+
         match self.form {
             Form::Pollen => max_count = 40 * self.strength as usize,
             _ => max_count = 750 * self.strength as usize,
         }
+
         if self.particles.len() < max_count && !self.change {
             let count = max_count / 10;
             for _ in 0..count {
@@ -401,46 +398,40 @@ impl Weather {
         // deletes dead particles
         self.particles.retain(|&p| p.lifetime > 0.0);
 
-        // creates vertex buffer with particles which are alive
-        let mut tmp = Vec::new();
-        for particle in self.particles.iter() {
-            tmp.push(Instance {
-                position: [particle.position.x, particle.position.y, particle.position.z],
-            })
-        }
-        let vertex_buffer = glium::VertexBuffer::new(self.context.get_facade(), &tmp).unwrap();
-        self.particle_buf = vertex_buffer;
-
         // instancing and position updating for particles
-        let mut mapping = self.particle_buf.map();
         let mut tmp2 = Vec::new();
-        for (particle, instance) in &mut self.particles.iter_mut().zip(mapping.iter_mut()) {
+
+        for particle in &mut self.particles.iter_mut() {
             particle.lifetime -= 1.0 * delta;
+
             match self.form {
+
                 Form::Snow => {
-                    instance.position[2] = instance.position[2] - (particle.velocity * 3.0 * delta);
-                    instance.position[0] += (particle.trans_x.sin() * 0.05 +
-                                             (self.wind.x * self.wind_speed) * delta) *
-                                            0.5;
-                    instance.position[1] += (particle.trans_y.cos() * 0.05 +
-                                             (self.wind.y * self.wind_speed) * delta) *
-                                            0.5;
+                    particle.position.z = particle.position.z - (particle.velocity * 3.0 * delta);
+                    particle.position.x += (particle.trans_x.sin() * 0.05 +
+                                            (self.wind.x * self.wind_speed) * delta) *
+                                           0.5;
+                    particle.position.y += (particle.trans_y.cos() * 0.05 +
+                                            (self.wind.y * self.wind_speed) * delta) *
+                                           0.5;
                     particle.trans_y += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_x += PI * 0.005 * (rand::random::<f32>() - 0.5);
                 }
 
                 Form::Rain => {
-                    instance.position[0] += ((self.wind.x * self.wind_speed) * delta) * 2.0;
-                    instance.position[1] += ((self.wind.y * self.wind_speed) * delta) * 2.0;
-                    instance.position[2] = instance.position[2] -
-                                           ((particle.velocity + 0.5) * 50.0 * delta)
+                    particle.position.x += ((self.wind.x * self.wind_speed) * delta) * 2.0;
+                    particle.position.y += ((self.wind.y * self.wind_speed) * delta) * 2.0;
+                    particle.position.z = particle.position.z -
+                                          ((particle.velocity + 0.5) * 50.0 * delta)
                 }
+
                 Form::Pollen => {
-                    instance.position[0] +=
+                    particle.position.x +=
                         (particle.trans_x.sin() * delta * (self.wind.x * self.wind_speed)) * 2.0;
-                    instance.position[1] +=
+                    particle.position.y +=
                         (particle.trans_y.cos() * delta * (self.wind.y * self.wind_speed)) * 2.0;
-                    instance.position[2] += (particle.trans_z.sin() - 0.5) * 0.5 * delta;
+                    particle.position.z += (particle.trans_z.sin() - 0.5) * 0.5 * delta;
+
                     particle.trans_y += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_x += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_z += PI * 0.005 * (rand::random::<f32>() - 0.3);
@@ -449,66 +440,71 @@ impl Weather {
             }
 
             // moving particles which fell out of box to the other direction of it
-            let pix_vec = Point2::new(instance.position[0], instance.position[1]);
+            let pix_vec = Point2::new(particle.position.x, particle.position[1]);
             let cam_vec = Point2::new(camera.position.x, camera.position.y);
             let tmp = pix_vec - cam_vec;
             let len = ((tmp.x * tmp.x) + (tmp.y * tmp.y)).sqrt();
+
             let size = match self.form {
                 Form::Pollen => BOX_SIZE / 5.0,
                 _ => 1.0,
             };
+
             if len > BOX_SIZE - size || len < -BOX_SIZE - size {
-                instance.position[0] = instance.position[0] - (1.95 * tmp.x);
-                instance.position[1] = instance.position[1] - (1.95 * tmp.y);
+                particle.position.x = particle.position.x - (1.95 * tmp.x);
+                particle.position.y = particle.position.y - (1.95 * tmp.y);
             }
-            if instance.position[2] < self.camera.position.z - BOX_SIZE / size {
-                instance.position[2] += 1.9 * (BOX_SIZE / size);
+
+            if particle.position.z < self.camera.position.z - BOX_SIZE / size {
+                particle.position.z += 1.9 * (BOX_SIZE / size);
             }
-            if instance.position[2] > self.camera.position.z + BOX_SIZE / size {
-                instance.position[2] -= 1.9 * (BOX_SIZE / size);
+
+            if particle.position.z > self.camera.position.z + BOX_SIZE / size {
+                particle.position.z -= 1.9 * (BOX_SIZE / size);
             }
 
             // prevent particles from beeing drawn if in caves or behind the player
-            let tmp_point = Point3::new(instance.position[0],
-                                        instance.position[1],
-                                        instance.position[2]);
-            particle.position.x = tmp_point.x;
-            particle.position.y = tmp_point.y;
-            particle.position.z = tmp_point.z;
             let mut height = 0.0;
+            let mut above = 0.0;
             let world = world_manager.get_world();
-            let relevant_pos = Point2f::new(instance.position[0], instance.position[1]);
+            let relevant_pos = Point2f::new(particle.position.x, particle.position.y);
             let pillar_index = PillarIndex(AxialPoint::from_real(relevant_pos));
             let vec_len = world.pillar_at(pillar_index)
                 .map(|pillar| pillar.sections().len())
                 .unwrap_or(0);
             let pillar_vec = world.pillar_at(pillar_index).map(|pillar| pillar.sections());
+
             if pillar_vec.is_some() {
                 let new_pillar_vec = pillar_vec.unwrap();
 
                 if vec_len == 1 {
                     height = new_pillar_vec[0].top.to_real();
+                    above = f32::INFINITY;
                 } else {
                     for i in 0..vec_len {
                         if i != vec_len - 1 {
-                            if new_pillar_vec[i].top.to_real() < instance.position[2] &&
-                               instance.position[2] < new_pillar_vec[i + 1].bottom.to_real() {
+                            if new_pillar_vec[i].top.to_real() < particle.position.z &&
+                               particle.position.z < new_pillar_vec[i + 1].bottom.to_real() {
                                 height = new_pillar_vec[i].top.to_real();
+                                above = new_pillar_vec[i + 1].bottom.to_real();
                                 break;
                             } else {
                                 continue;
                             }
                         } else {
                             height = new_pillar_vec[i].top.to_real();
+                            above = f32::INFINITY;
                             break;
                         }
                     }
                 }
             }
-            if ((tmp_point - camera.position).dot(camera.get_look_at_vector())) > 0.0 &&
-               instance.position[2] > height {
+
+            if above == f32::INFINITY &&
+               ((particle.position - camera.position).dot(camera.get_look_at_vector())) > 0.0 &&
+               particle.position.z > height {
                 tmp2.push(Instance {
-                    position: [instance.position[0], instance.position[1], instance.position[2]],
+                    position: [particle.position.x, particle.position.y, particle.position.z],
                 })
             }
 
