@@ -32,17 +32,10 @@ impl WorldManager {
         let (chunk_request_sender, chunk_request_recv) = channel();
         let (chunk_sender, chunk_recv) = channel();
 
-        // Spawn worker thread, which will detach from the main thread. But
-        // that is no problem: once the last sender is destroyed, the worker
-        // thread will quit.
-        thread::spawn(move || {
-            worker_thread(provider, chunk_request_recv, chunk_sender);
-        });
-
         let this = WorldManager {
             shared: Rc::new(RefCell::new(Shared {
                 world: World::empty(),
-                world_view: WorldView::from_world(&World::empty(), game_context.clone()),
+                world_view: WorldView::new(game_context.clone(), provider.get_plant_list()),
                 sent_requests: HashSet::new(),
                 provided_chunks: chunk_recv,
                 // TODO: load this from the config!
@@ -52,6 +45,13 @@ impl WorldManager {
             chunk_requests: chunk_request_sender,
             context: game_context,
         };
+
+        // Spawn worker thread, which will detach from the main thread. But
+        // that is no problem: once the last sender is destroyed, the worker
+        // thread will quit.
+        thread::spawn(move || {
+            worker_thread(provider, chunk_request_recv, chunk_sender);
+        });
 
         this.update_player_chunk();
         this
