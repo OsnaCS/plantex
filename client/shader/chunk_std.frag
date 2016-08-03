@@ -29,9 +29,6 @@ uniform sampler2D stone_texture;
 uniform sampler2D dirt_texture;
 uniform sampler2D mulch_texture;
 
-// Percentage-closer filtering (square) radius in pixels
-const int SHADOW_PCF_RADIUS = 1;
-
 const float SHADOW_BIAS = 0.001;    // FIXME does this even work?
 const float AMBIENT = 0.2;
 
@@ -65,8 +62,14 @@ mat3 cotangent_frame(vec3 normal, vec3 pos, vec2 uv) {
 void main() {
     vec3 lightCoords = shadowCoord.xyz / shadowCoord.w;
     lightCoords = lightCoords * 0.5 + 0.5;
-    vec2 moments = texture(shadow_map, lightCoords.xy).xy;
-    float lit = max(lightCoverage(moments, lightCoords.z - SHADOW_BIAS), 0.2);
+    float lit;
+    if (lightCoords.x < 0 || lightCoords.x > 1 || lightCoords.y < 0 || lightCoords.y > 1) {
+        // Outside of shadow map. Not lit
+        lit = 0.0;
+    } else {
+        vec2 moments = texture(shadow_map, lightCoords.xy).xy;
+        lit = max(lightCoverage(moments, lightCoords.z - SHADOW_BIAS), 0.2);
+    }
 
     // ==================
     // LIGHT CALCULATIONS
