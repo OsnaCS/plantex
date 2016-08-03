@@ -181,17 +181,22 @@ impl WorldManager {
     }
 
     // NOT USED UNTIL NOW
-    // pub fn recalulate_chunk(&mut self, pos: Point3f) {
-    // let shared = self.shared.borrow_mut();
-    // let tmp = AxialPoint::new(pos.x as i32 / (CHUNK_SIZE as i32),
-    // pos.y as i32 / (CHUNK_SIZE as i32));
-    // let index = ChunkIndex(tmp);
-    // Get the Chunk irgendwie
-    // shared.world_view.refresh_chunk(index,
-    // self.get_world().chunk_at(index).unwrap(),
-    // self.context.get_facade());
-    //
-    // }
+    pub fn recalulate_chunk(&mut self, pos: Point3f) {
+        use std::ops::DerefMut;
+
+        let mut shared_tmp = self.shared.borrow_mut();
+        let shared = shared_tmp.deref_mut();
+
+        let axial_pos = AxialPoint::from_real(Point2f::new(pos.x, pos.y));
+        let chunk_pos = AxialPoint::new(axial_pos.q / CHUNK_SIZE as i32,
+                                        axial_pos.r / CHUNK_SIZE as i32);
+        let index = ChunkIndex(chunk_pos);
+
+
+        shared.world_view.refresh_chunk(index,
+                                        shared.world.chunk_at(index).unwrap(),
+                                        self.context.get_facade());
+    }
 }
 
 
