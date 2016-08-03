@@ -39,7 +39,10 @@ impl PlantView {
 
         PlantView {
             vertices: VertexBuffer::new(facade, &vertices).unwrap(),
-            indices: IndexBuffer::new(facade, PrimitiveType::TrianglesList, &indices).unwrap(),
+            indices: IndexBuffer::new(facade,
+                                      PrimitiveType::Patches { vertices_per_patch: 3 },
+                                      &indices)
+                .unwrap(),
             renderer: renderer,
             pos: pos,
         }
@@ -107,7 +110,6 @@ impl PlantView {
                 ..Default::default()
             },
             backface_culling: BackfaceCullingMode::CullCounterClockwise,
-            // polygon_mode: PolygonMode::Line,
             ..Default::default()
         };
 
@@ -159,12 +161,14 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
         }
     }
 
+
     for offset in 0..(old_cps.len() as u32) - 1 {
         let offset = offset * 3;
         let segment_indices = [0, 1, 3, 4, 3, 1, 1, 2, 4, 5, 4, 2, 2, 0, 5, 3, 5, 0];
 
         indices.extend(segment_indices.into_iter().map(|i| i + offset + old_index_offset));
     }
+
     let vert_len = vertices.len() as u32;
     indices.extend_from_slice(&[vert_len - 3, vert_len - 2, vert_len - 1]);
 }
