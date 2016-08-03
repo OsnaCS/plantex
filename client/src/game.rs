@@ -145,7 +145,7 @@ impl Game {
     //                    section.top.to_real() >= target_height {
     //                     section.top = HeightType::from_units((HeightType::from_real((section.top
     //                         .to_real() -
-    //                                                                                  1.0))) as u16);
+    //                                                                            1.0))) as u16);
     //                 } else {
     //                     continue;
     //                 }
