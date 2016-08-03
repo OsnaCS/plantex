@@ -49,9 +49,9 @@ impl Player {
     }
 
     // Return the `Pillar` at the given `Vector2`
-    pub fn get_ground_height_x(&mut self,
-                               add_vec: Vector2f)
-                               -> (Option<f32>, Option<f32>, Option<f32>) {
+    pub fn get_ground_height_at(&mut self,
+                                add_vec: Vector2f)
+                                -> (Option<f32>, Option<f32>, Option<f32>) {
         let mut height = 0.0;
         let mut above = 0.0;
         let world = self.world_manager.get_world();
@@ -104,8 +104,9 @@ impl Player {
     pub fn update(&mut self, delta: f32) {
 
         // Get current pillar floor (`height`) and the ceiling (`above`)
-        let height = (self.get_ground_height_x(Vector2 { x: 0.0, y: 0.0 }).0).unwrap_or(0.0) + 1.75;
-        let above = (self.get_ground_height_x(Vector2 { x: 0.0, y: 0.0 }).1).unwrap_or(0.0);
+        let height = (self.get_ground_height_at(Vector2 { x: 0.0, y: 0.0 }).0).unwrap_or(0.0) +
+                     1.75;
+        let above = (self.get_ground_height_at(Vector2 { x: 0.0, y: 0.0 }).1).unwrap_or(0.0);
 
         // Calculate `angle` for the next `Pillar`
         let angle: f32 = (60.0 as f32).to_radians();
@@ -174,7 +175,7 @@ impl Player {
                 self.cam.move_up(self.velocity.z);
             }
             // Needed: Update to reflect multiple level pillars
-            if self.cam.position.z < height {
+            if self.cam.position.z + self.velocity.z < height {
                 self.velocity.z = 0.0;
             }
         }
@@ -183,7 +184,7 @@ impl Player {
         // standing and let him fall on that
         if self.cam.position.z > height && self.velocity.z == 0.0 {
             self.velocity.z += (-delta * GRAVITY) / 16.0;
-            if self.cam.position.z < height {
+            if self.cam.position.z + self.velocity.z < height {
                 self.velocity.z = 0.0;
             }
             self.cam.move_down(self.velocity.z);
@@ -218,34 +219,34 @@ impl Player {
 
         // Return the six `Pillar`s around the `Player`
         let pillar_0 = (vec_0,
-                        self.get_ground_height_x(vec_0).0.unwrap_or(0.0),
-                        self.get_ground_height_x(vec_0).2.unwrap_or(0.0));
+                        self.get_ground_height_at(vec_0).0.unwrap_or(0.0),
+                        self.get_ground_height_at(vec_0).2.unwrap_or(0.0));
         let pillar_60 = (vec_60,
-                         self.get_ground_height_x(vec_60).0.unwrap_or(0.0),
-                         self.get_ground_height_x(vec_60).2.unwrap_or(0.0));
+                         self.get_ground_height_at(vec_60).0.unwrap_or(0.0),
+                         self.get_ground_height_at(vec_60).2.unwrap_or(0.0));
         let pillar_120 = (vec_120,
-                          self.get_ground_height_x(vec_120).0.unwrap_or(0.0),
-                          self.get_ground_height_x(vec_120).2.unwrap_or(0.0));
+                          self.get_ground_height_at(vec_120).0.unwrap_or(0.0),
+                          self.get_ground_height_at(vec_120).2.unwrap_or(0.0));
         let pillar_180 = (vec_180,
-                          self.get_ground_height_x(vec_180).0.unwrap_or(0.0),
-                          self.get_ground_height_x(vec_180).2.unwrap_or(0.0));
+                          self.get_ground_height_at(vec_180).0.unwrap_or(0.0),
+                          self.get_ground_height_at(vec_180).2.unwrap_or(0.0));
         let pillar_240 = (vec_240,
-                          self.get_ground_height_x(vec_240).0.unwrap_or(0.0),
-                          self.get_ground_height_x(vec_240).2.unwrap_or(0.0));
+                          self.get_ground_height_at(vec_240).0.unwrap_or(0.0),
+                          self.get_ground_height_at(vec_240).2.unwrap_or(0.0));
         let pillar_300 = (vec_300,
-                          self.get_ground_height_x(vec_300).0.unwrap_or(0.0),
-                          self.get_ground_height_x(vec_300).2.unwrap_or(0.0));
+                          self.get_ground_height_at(vec_300).0.unwrap_or(0.0),
+                          self.get_ground_height_at(vec_300).2.unwrap_or(0.0));
 
         // Collison-detection
         // Move forward, compare the front `Pillar` and the two side `Pillar`s
         if (self.velocity.x > 0.001 &&
-            (self.get_ground_height_x(Vector2 {
+            (self.get_ground_height_at(Vector2 {
                 x: vec_0.x - 0.2,
                 y: vec_0.y - 0.1,
             })
             .0
             .unwrap_or(0.0) > height + self.step_size ||
-             self.get_ground_height_x(Vector2 {
+             self.get_ground_height_at(Vector2 {
                 x: vec_0.x + 0.2,
                 y: vec_0.y + 0.1,
             })
@@ -275,13 +276,13 @@ impl Player {
 
         // Move backward, compare the `Pillar` behind and the two side `Pillar`s
         if (self.velocity.x < -0.001 &&
-            (self.get_ground_height_x(Vector2 {
+            (self.get_ground_height_at(Vector2 {
                 x: vec_180.x - 0.2,
                 y: vec_180.y - 0.1,
             })
             .0
             .unwrap_or(0.0) > height + self.step_size ||
-             self.get_ground_height_x(Vector2 {
+             self.get_ground_height_at(Vector2 {
                 x: vec_180.x + 0.2,
                 y: vec_180.y + 0.1,
             })
