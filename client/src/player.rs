@@ -56,7 +56,7 @@ impl Player {
         let mut above = 0.0;
         let world = self.world_manager.get_world();
         let real_pos = Point2f::new(self.cam.position.x + add_vec.x,
-                                        self.cam.position.y + add_vec.y);
+                                    self.cam.position.y + add_vec.y);
         let pillar_index = PillarIndex(AxialPoint::from_real(real_pos));
         let vec_len =
             world.pillar_at(pillar_index).map(|pillar| pillar.sections().len()).unwrap_or(0);
@@ -104,8 +104,8 @@ impl Player {
     pub fn update(&mut self, delta: f32) {
 
         // Get current pillar floor (`height`) and the ceiling (`above`)
-        let height = (self.get_ground_height_x(Vector2{x:0.0,y:0.0}).0).unwrap_or(0.0) + 1.75;
-        let above = (self.get_ground_height_x(Vector2{x:0.0,y:0.0}).1).unwrap_or(0.0);
+        let height = (self.get_ground_height_x(Vector2 { x: 0.0, y: 0.0 }).0).unwrap_or(0.0) + 1.75;
+        let above = (self.get_ground_height_x(Vector2 { x: 0.0, y: 0.0 }).1).unwrap_or(0.0);
 
         // Calculate `angle` for the next `Pillar`
         let angle: f32 = (60.0 as f32).to_radians();
@@ -189,7 +189,8 @@ impl Player {
             self.cam.move_down(self.velocity.z);
         }
 
-        // Calculate the vectors arround the `Player` in the direction where he is moving
+        // Calculate the vectors arround the `Player` in the direction where he is
+        // moving
         let vec_0 = Vector2 {
             x: self.cam.phi.cos(),
             y: self.cam.phi.sin(),
@@ -235,7 +236,7 @@ impl Player {
                           self.get_ground_height_x(vec_300).0.unwrap_or(0.0),
                           self.get_ground_height_x(vec_300).2.unwrap_or(0.0));
 
-        // *********************Collison-detection***********************
+        // Collison-detection
         // Move forward, compare the front `Pillar` and the two side `Pillar`s
         if (self.velocity.x > 0.001 &&
             (self.get_ground_height_x(Vector2 {
@@ -355,7 +356,9 @@ impl EventHandler for Player {
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::Space)) => {
-                if self.velocity.z == 0.0 { self.velocity.z = 0.7;}
+                if self.velocity.z == 0.0 {
+                    self.velocity.z = 0.7;
+                }
                 EventResponse::Continue
             }
             Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::Space)) => {
