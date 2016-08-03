@@ -15,12 +15,15 @@ out vec3 color;
 uniform vec3 sun_dir;
 uniform sampler2D shadow_map;
 
+// Normals to bump mapping the textures
 uniform sampler2D normal_sand;
 uniform sampler2D normal_snow;
 uniform sampler2D normal_grass;
 uniform sampler2D normal_stone;
 uniform sampler2D normal_dirt;
 uniform sampler2D normal_mulch;
+
+
 // Surface textures
 uniform sampler2D sand_texture;
 uniform sampler2D grass_texture;
@@ -78,9 +81,12 @@ void main() {
 
     // Calculate normal map relative to surface
     vec3 normal_map;
+    // Correcting the height to fit the height to the texture coordinates
     vec2 tex = vec2(x_tex_coords.x, fract(x_tex_coords.y));
-// Determine which surface texture to use
+
+    // Determine which surface texture to use
     vec3 diffuse_color;
+
     if (x_ground == 1) {
         normal_map = texture(normal_grass, tex).rgb;
         diffuse_color = texture(grass_texture, x_tex_coords).rgb;
@@ -115,7 +121,6 @@ void main() {
     // DEBUG: for showing normal map as texture
     // vec3 normal_color_map = texture(normal_sand, x_tex_coords).rgb;
 
-    // FIXME: specular color calculation is off
     vec3 specular_color = vec3(1.0, 1.0, 1.0);
     vec3 half_direction = sun_dir;
     float specular = pow(max(dot(half_direction, real_normal), 0.0), 16.0);
