@@ -1,4 +1,4 @@
-use base::world::{Chunk, CHUNK_SIZE, HexPillar, PropType};
+use base::world::{CHUNK_SIZE, Chunk, HexPillar, PropType};
 use base::math::*;
 use glium::{self, DrawParameters, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
