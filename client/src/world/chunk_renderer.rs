@@ -22,13 +22,14 @@ pub struct ChunkRenderer {
     pillar_vbuf: VertexBuffer<Vertex>,
     /// Index Buffer for `pillar_vbuf`.
     pillar_ibuf: IndexBuffer<u32>,
+    /// Texturemaps for fragment shader
     pub noise_sand: Texture2d,
     pub noise_snow: Texture2d,
     pub noise_grass: Texture2d,
     pub noise_stone: Texture2d,
     pub noise_dirt: Texture2d,
     pub noise_mulch: Texture2d,
-
+    /// Normalmaps for fragment shader
     pub normal_sand: Texture2d,
     pub normal_snow: Texture2d,
     pub normal_grass: Texture2d,
@@ -51,6 +52,7 @@ impl ChunkRenderer {
         get_side_hexagon_model(3, 4, &mut vertices, &mut indices);
         get_side_hexagon_model(2, 3, &mut vertices, &mut indices);
 
+        // Get a tupel of a heightmap and texturemap
         let sand = tex_generator::create_texture_maps(GroundMaterial::Sand);
         let snow = tex_generator::create_texture_maps(GroundMaterial::Snow);
         let grass = tex_generator::create_texture_maps(GroundMaterial::Grass);
@@ -58,9 +60,6 @@ impl ChunkRenderer {
         let dirt = tex_generator::create_texture_maps(GroundMaterial::Dirt);
         let mulch = tex_generator::create_texture_maps(GroundMaterial::Mulch);
 
-        // TODO: Maybe fix function return type instead of
-        // calling create_sand(...).1
-        // Are we only using the first value?
         ChunkRenderer {
             program: context.load_program("chunk_std").unwrap(),
             shadow_program: context.load_program("chunk_shadow").unwrap(),
@@ -69,6 +68,7 @@ impl ChunkRenderer {
                                           PrimitiveType::TrianglesList,
                                           &indices)
                 .unwrap(),
+            // Creating a sampler2D from the texturemap
             noise_sand: Texture2d::new(context.get_facade(), sand.1).unwrap(),
             noise_snow: Texture2d::new(context.get_facade(), snow.1).unwrap(),
             noise_grass: Texture2d::new(context.get_facade(), grass.1).unwrap(),
@@ -76,6 +76,7 @@ impl ChunkRenderer {
             noise_dirt: Texture2d::new(context.get_facade(), dirt.1).unwrap(),
             noise_mulch: Texture2d::new(context.get_facade(), mulch.1).unwrap(),
 
+            // Creating a sampler2D from the heightmap
             normal_sand: Texture2d::new(context.get_facade(),
                                         normal_converter::convert(sand.0, 1.0))
                 .unwrap(),

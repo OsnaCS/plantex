@@ -40,6 +40,8 @@ impl ChunkView {
             let pos = offset.to_real() + axial.to_real();
             pillars.push(PillarView::from_pillar(pos, pillar, plant_renderer.clone(), facade));
             for section in pillar.sections() {
+
+                // matching the ground for texturing
                 let g = match section.ground {
                     GroundMaterial::Grass => 1,
                     GroundMaterial::Sand => 2,
@@ -148,6 +150,7 @@ impl ChunkView {
             sun_dir: sun_dir.to_arr(),
             cam_pos: camera.position.to_arr(),
 
+            // Mipmapping and repeating the textures
             sand_texture:  self.renderer.noise_sand.sampled()
                 .minify_filter(MinifySamplerFilter::NearestMipmapLinear)
                 .wrap_function(SamplerWrapFunction::Repeat),
