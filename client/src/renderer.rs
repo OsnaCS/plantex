@@ -335,10 +335,6 @@ impl Renderer {
 
         let exposure = self.last_lum;
 
-        info!("exp: {}", exposure);
-
-
-
 
         // ===================================================================
         //                                  Bloom

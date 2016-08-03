@@ -29,10 +29,12 @@ float lightCoverage(vec2 moments, float fragDepth) {
 void main() {
     vec3 lightCoords = shadowCoord.xyz / shadowCoord.w;
     lightCoords = lightCoords * 0.5 + 0.5;
+
+    float sunDot = dot(vec3(0, 0, 1), normalize(sun_dir));
     float lit;
-    if (lightCoords.x < 0 || lightCoords.x > 1 || lightCoords.y < 0 || lightCoords.y > 1) {
+    if (lightCoords.x < 0 || lightCoords.x > 1 || lightCoords.y < 0 || lightCoords.y > 1
+        || sunDot > 0) {
         // Outside of shadow map. Guess brightness from sun angle.
-        float sunDot = dot(vec3(0, 0, 1), normalize(sun_dir));
         lit = max(-sunDot * 3.0, 0.0);
     } else {
         vec2 moments = texture(shadow_map, lightCoords.xy).xy;
