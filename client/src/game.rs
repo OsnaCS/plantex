@@ -15,7 +15,7 @@ use base::world::World;
 use camera::Camera;
 use base::world::PillarSection;
 use base::world;
-use base::world::HeightType; //WILL BE USED LATER
+//use base::world::HeightType; //WILL BE USED LATER
 use base::math::*;
 use base::world::PillarIndex;
 use view::{SkyView, Sun};
@@ -132,30 +132,30 @@ impl Game {
         Ok(())
     }
 
-    // need sorted pillars
-    fn remove_hexagon_at(&mut self, pos: AxialPoint, height: f32) {
-        let pillar_index = PillarIndex(pos);
+    // // need sorted pillars
+    // fn remove_hexagon_at(&mut self, pos: AxialPoint, height: f32) {
+    //     let pillar_index = PillarIndex(pos);
 
-        match self.world_manager.mut_world().pillar_at_mut(pillar_index) {
-            Some(pillar) => {
-                let target_height = height - height % world::PILLAR_STEP_HEIGHT;
+    //     match self.world_manager.mut_world().pillar_at_mut(pillar_index) {
+    //         Some(pillar) => {
+    //             let target_height = height - height % world::PILLAR_STEP_HEIGHT;
 
-                for mut section in pillar.sections_mut() {
-                    if section.bottom.to_real() <= target_height &&
-                       section.top.to_real() >= target_height {
-                        section.top = HeightType::from_units((HeightType::from_real((section.top
-                            .to_real() -
-                                                                                     1.0))) as u16);
-                    } else {
-                        continue;
-                    }
+    //             for mut section in pillar.sections_mut() {
+    //                 if section.bottom.to_real() <= target_height &&
+    //                    section.top.to_real() >= target_height {
+    //                     section.top = HeightType::from_units((HeightType::from_real((section.top
+    //                         .to_real() -
+    //                                                                                  1.0))) as u16);
+    //                 } else {
+    //                     continue;
+    //                 }
 
-                }
-            }
-            None => return,
-        };
-        self.world_manager.recalculate_chunk(pos);
-    }
+    //             }
+    //         }
+    //         None => return,
+    //     };
+    //     self.world_manager.recalculate_chunk(pos);
+    // }
 }
 
 fn get_pillarsectionpos_looking_at(world: &World,
