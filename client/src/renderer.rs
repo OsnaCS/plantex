@@ -39,7 +39,7 @@ const SHADOW_ORTHO_FAR: f32 = 600.0;
 // 0: Disable Bloom
 // 1: Enable Bloom
 // 2: Show only Bloom Map
-const BLOOM_STATE: i8 = 0;
+const BLOOM_STATE: i8 = 1;
 // number of times the light texture will be blured.
 // each iteration contains one horizontal and one vertical blur
 const BLOOM_ITERATION: u8 = 6;
@@ -382,7 +382,7 @@ impl Renderer {
         //                                  Bloom
         // ===================================================================
 
-        if BLOOM_STATE != 0 {
+        if BLOOM_STATE != 0 && self.context.get_config().bloom {
             try!(self.bloom());
         }
 
@@ -391,9 +391,9 @@ impl Renderer {
         // ===================================================================
 
 
-        let decal_texture = match BLOOM_STATE {
-            0 => &self.quad_tex,
-            2 => &self.bloom_vert_tex,
+        let decal_texture = match (self.context.get_config().bloom, BLOOM_STATE) {
+            (false, _) | (_, 0) => &self.quad_tex,
+            (_, 2) => &self.bloom_vert_tex,
             _ => &self.bloom_blend_tex,
         };
 
