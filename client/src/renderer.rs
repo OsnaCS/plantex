@@ -60,7 +60,8 @@ const OPTIMAL_EXPOSURE: f32 = 2.0;  // optimal Value that exposure should reach.
 const WE_WANT_OPTIMAL: f32 = 0.2;  // Agressiveness of exposure correction in [0;1] DEFAULT: 0.2
 
 // Speed of eye adaption. Lower values result in longer time needed
-// to adapt to different light conditions.
+// to adapt to different light conditions. Set to 1 to test without adaption
+// effect.
 const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.155;  //adaption speed from bright to dark DEFAULT:0.155
 const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.016; //adaption speed from dark to bright  DEFAULT:0.016
 
@@ -120,8 +121,10 @@ pub struct Renderer {
     relative_luminance_program: Program,
     // Vector of Textures used to downscale the szene to 1 pixel size for calc. avg. exposure
     lum_texs: Vec<Texture2d>,
-    // last
+    // last average luminance
     last_lum: f32,
+    // current exposure level
+    exposure: f32,
     lum_relative_tex: Texture2d,
 }
 
@@ -164,6 +167,7 @@ impl Renderer {
         let lum_texs = initialize_luminosity(context.get_facade());
 
         let last_lum = 2.0;
+        let exposure = 2.0;
 
 
         let tonemapping_program = context.load_program("tonemapping").unwrap();
@@ -200,6 +204,7 @@ impl Renderer {
             adaption_shrink_program: adaption_shrink_program,
             lum_texs: lum_texs,
             last_lum: last_lum,
+            exposure: exposure,
             lum_relative_tex: Texture2d::empty(context.get_facade(), 1, 1).unwrap(),
             relative_luminance_program: relative_luminance_program,
         };
@@ -373,11 +378,9 @@ impl Renderer {
                             ADAPTION_SPEED_BRIGHT_DARK * adapt
         }
 
-        let exposure = self.last_lum;
-
-
-        let exposure = (1.0 - WE_WANT_OPTIMAL) * exposure + WE_WANT_OPTIMAL * OPTIMAL_EXPOSURE;
-        info!("exp: {}", exposure);
+        self.exposure = (1.0 - WE_WANT_OPTIMAL) * self.last_lum +
+                        WE_WANT_OPTIMAL * OPTIMAL_EXPOSURE;
+        info!("exp: {}", self.exposure);
 
 
 
@@ -402,7 +405,7 @@ impl Renderer {
 
         let uniforms = uniform! {
             decal_texture: decal_texture,
-            exposure: exposure,
+            exposure: self.exposure,
         };
 
 
@@ -573,14 +576,12 @@ impl Renderer {
                 height: 1,
             });
 
-        let pixel = buf[0][0];
-
         // let avg_luminance = Vector3f::new(pixel.0, pixel.1, pixel.2)
         //    .dot(Vector3f::new(0.2126, 0.7152, 0.0722));
-        let avg_luminance = pixel;
+        let avg_luminance = buf[0][0];
 
 
-        info!("lum: {:?}", buf);
+        // info!("lum: {:?}", buf);
 
         // the exposure level is inversely propotional to the avg. luminance.
         // log2 is necessary to adapt more for the lower than for the higher values.
@@ -659,7 +660,8 @@ impl Renderer {
             }
             if first_iteration {
                 uniforms_horz_blur = uniform! {
-                    image: self.bloom_vert_tex.sampled().wrap_function(SamplerWrapFunction::Clamp),
+                    image: self.bloom_vert_tex.sampled()
+                    .wrap_function(SamplerWrapFunction::Clamp),
                     horizontal: true,
                 };
                 first_iteration = false;
