@@ -15,7 +15,6 @@ use base::world::World;
 use camera::Camera;
 use base::world::PillarSection;
 use base::world;
-// use base::world::HeightType; //WILL BE USED LATER
 use base::math::*;
 use base::world::PillarIndex;
 use view::{SkyView, Sun};
@@ -88,7 +87,8 @@ impl Game {
 
             self.weather.update(&self.control_switcher.get_camera(),
                                 delta,
-                                &self.world_manager);
+                                &self.world_manager,
+                                &self.daytime);
             self.world_manager.update_world(self.control_switcher.get_camera().position);
 
 
@@ -137,53 +137,6 @@ impl Game {
 
         Ok(())
     }
-
-    // // need sorted pillars
-    // fn remove_hexagon_at(&mut self, pos: AxialPoint, height: f32) {
-    //     let pillar_index = PillarIndex(pos);
-
-    //     match self.world_manager.mut_world().pillar_at_mut(pillar_index) {
-    //         Some(pillar) => {
-    //             let bottom = height - height % world::PILLAR_STEP_HEIGHT;
-
-    //             let mut i: usize = 0;
-    //             for section in pillar.sections() {
-    //                 if section.top.to_real() >= bottom {
-    //                     break;
-    //                 }
-    //                 i += 1;
-    //             }
-    //             let mut pillar_section = pillar.sections_mut();
-    //             if pillar_section.len() > i {
-    // if pillar_section[i].top.to_real() != height +
-    // world::PILLAR_STEP_HEIGHT {
-    //                     let sec = PillarSection {
-    //                         ground: pillar_section[i].ground.clone(),
-    //                         top: pillar_section[i].top,
-    //                         bottom:
-    // HeightType::from_units((height /
-    // world::PILLAR_STEP_HEIGHT) as u16),
-    //                     };
-    //                     pillar_section.insert(i, sec);
-    //                     if i > 0 {
-    //                         i -= 1;
-    //                     }
-    //                 }
-    //                 pillar_section[i].top =
-    // HeightType::from_units(HeightType::from_real(height) as
-    // u16);
-    //                 if pillar_section[i].top == pillar_section[i].bottom {
-    //                     pillar_section.remove(i);
-    //                 }
-    //             } else {
-    //                 return;
-    //             }
-    //         }
-    //         None => return,
-    //     };
-    //     self.world_manager
-    //         .recalculate_chunk(pos);
-    // }
 }
 
 fn get_pillarsectionpos_looking_at(world: &World,
