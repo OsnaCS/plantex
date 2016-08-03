@@ -125,6 +125,25 @@ void main() {
     vec3 half_direction = sun_dir;
     float specular = pow(max(dot(half_direction, real_normal), 0.0), 16.0);
 
+    if (x_ground == 1) {
+        diffuse *= 40;
+        specular *= 40;
+    } else if (x_ground == 2) {
+        diffuse *= 35;
+        specular *= 35;
+    } else if (x_ground == 3) {
+        diffuse *= 10;
+        specular *= 10;
+    } else if (x_ground == 4) {
+        diffuse *= 35;
+        specular *= 35;
+    } else if (x_ground == 5) {
+        diffuse *= 20;
+        specular *= 20;
+    } else if (x_ground == 7) {
+        diffuse *= 30;
+        specular *= 30;
+    }
 
     // Final color calculation
     color = diffuse_color * AMBIENT + diffuse_color * diffuse * lit + diffuse_color * specular;
