@@ -152,8 +152,7 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
         let next_cp = window[2];
         let dir = prev_cp.point - next_cp.point;
 
-        let tmp = get_points_from_vector(dir);
-        for curr_point in &tmp {
+        for curr_point in &get_points_from_vector(dir) {
             vertices.push(Vertex {
                 position: (curr_cp.point + curr_point * curr_cp.diameter).to_arr(),
                 color: color.to_arr(),
