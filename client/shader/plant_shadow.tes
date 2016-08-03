@@ -26,7 +26,7 @@ out vec3 tes_color;
 // Vertex/Pixel coordinates in shadow map
 out vec4 shadowCoord;
 
-uniform vec3 offset;
+in vec3 offset[];
 uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
 uniform mat4 depth_view_proj;
@@ -60,7 +60,7 @@ void main()
                     oPatch.WorldPos_B111 * 6.0 * w * u * v;
 
     //projection on camera
-    vec4 world = view_matrix * vec4(tePosition + offset, 1);
+    vec4 world = view_matrix * vec4(tePosition + offset[0], 1);
     gl_Position = proj_matrix * world;
     shadowCoord = depth_view_proj * world;
 }

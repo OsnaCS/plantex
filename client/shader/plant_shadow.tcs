@@ -5,10 +5,12 @@ layout(vertices = 1) out;
 in vec3 vPosition[];
 in vec3 material_color[];
 in vec3 surfaceNormal[];
+in vec3 vOffset[];
+
+out vec3 offset[];
 uniform float tess_level_inner;
 uniform float tess_level_outer;
 uniform vec3 camera_pos;
-uniform vec3 offset;
 
 struct OutputPatch {
     vec3 WorldPos_B030;
@@ -100,8 +102,10 @@ void main() {
         oPatch.Normal[i] = surfaceNormal[i];
     }
 
+    offset[gl_InvocationID]=vOffset[gl_InvocationID];
+
     //handle tesselation level on distance
-    int len = int(length(camera_pos-offset)/5);
+    int len = int(length(camera_pos-offset[0])/5);
     float inner=tess_level_inner;
     float outer=tess_level_outer;
 

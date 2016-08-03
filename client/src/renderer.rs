@@ -39,22 +39,33 @@ const SHADOW_ORTHO_FAR: f32 = 600.0;
 // 0: Disable Bloom
 // 1: Enable Bloom
 // 2: Show only Bloom Map
-const BLOOM_STATE: i8 = 0;
+const BLOOM_STATE: i8 = 1;
 // number of times the light texture will be blured.
 // each iteration contains one horizontal and one vertical blur
-const BLOOM_ITERATION: u8 = 10;
+const BLOOM_ITERATION: u8 = 6;
+// Divisor to downsize blur texture
+// Increase to decrease bloom texture size DEFAULT: 2
+const BLUR_TEXTURE_DIVISOR: u32 = 2;
+const EXPOSURE_THRESHOLD: f32 = 0.5;
 
 // ===================  AUTOMATIC BRIGHTNESS ADAPTION  ===============
 
 // The following values define how well you can adapt to brightness / darkness.
 // The adaption of the eye is clamped between these values.
-const EYE_OPEN: f32 = 3.2;  //increase to allow to see better in the dark       DEFAULT:3.2
-const EYE_CLOSED: f32 = 1.4;  //decrease to allow to see brighter areas better  DEFAULT:0.8
+const EYE_OPEN: f32 = 9.2;  //increase to allow to see better in the dark       DEFAULT:3.2
+const EYE_CLOSED: f32 = 0.005;  //decrease to allow to see brighter areas better  DEFAULT:0.8
+
+// The following values define how much the exposure value will be drawn to
+// a given ("optimal") value.
+const OPTIMAL_EXPOSURE: f32 = 0.7;  // optimal Value that exposure should reach.    DEFAULT: 0.5
+const WE_WANT_OPTIMAL: f32 = 0.1;  // Agressiveness of exposure correction in [0;1] DEFAULT: 0.7
 
 // Speed of eye adaption. Lower values result in longer time needed
-// to adapt to different light conditions.
-const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.155;  //adaption speed from bright to dark DEFAULT:0.155
-const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.016; //adaption speed from dark to bright  DEFAULT:0.016
+// to adapt to different light conditions. Set to 1 to test without adaption
+// effect.
+const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.25;  //adaption speed from bright to dark DEFAULT:0.25
+const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.06; //adaption speed from dark to bright  DEFAULT:0.06
+
 
 pub struct Renderer {
     context: Rc<GameContext>,
@@ -72,20 +83,39 @@ pub struct Renderer {
     shadow_debug: bool,
     shadow_debug_program: Program,
     shadow_blend_program: Program,
+    // Vertexbuffer of screenquad
     quad_vertex_buffer: VertexBuffer<Vertex>,
+    // Indexbuffer of screenquad
     quad_index_buffer: IndexBuffer<u16>,
+    // Screen resolution
     resolution: (u32, u32),
+    // filter to create bloom light texture
     bloom_filter_tex: Texture2d,
+    // texture for the horizontal bloom blur
     bloom_horz_tex: Texture2d,
+    // texture for the vertical bloom blur
     bloom_vert_tex: Texture2d,
+    // texture for blending the bloom light texture with the quad texture
     bloom_blend_tex: Texture2d,
+    // shader programs for tonemapping
     tonemapping_program: Program,
+    // shader programs for bloom light texture
     bloom_filter_program: Program,
+    // shader programs for bloom blur texture
     bloom_blur_program: Program,
+    // shader programs for blending the bloom light texture with the quad texture
     bloom_blend_program: Program,
+    // shader programs for shrinking the texture
     adaption_shrink_program: Program,
+    // shader programs to transform texture into greyscale for calculating avg. exposure
+    relative_luminance_program: Program,
+    // Vector of Textures used to downscale the szene to 1 pixel size for calc. avg. exposure
     lum_texs: Vec<Texture2d>,
+    // last average luminance
     last_lum: f32,
+    // current exposure level
+    exposure: f32,
+    lum_relative_tex: Texture2d,
 }
 
 impl Renderer {
@@ -127,6 +157,7 @@ impl Renderer {
         let lum_texs = initialize_luminosity(context.get_facade());
 
         let last_lum = 2.0;
+        let exposure = 2.0;
 
 
         let tonemapping_program = context.load_program("tonemapping").unwrap();
@@ -136,6 +167,7 @@ impl Renderer {
         let shadow_debug_program = context.load_program("shadow_debug").unwrap();
         let shadow_blend_program = context.load_program("blend").unwrap();
         let adaption_shrink_program = context.load_program("adaption_shrink").unwrap();
+        let relative_luminance_program = context.load_program("relative_luminance").unwrap();
 
         let mut this = Renderer {
             context: context.clone(),
@@ -162,6 +194,9 @@ impl Renderer {
             adaption_shrink_program: adaption_shrink_program,
             lum_texs: lum_texs,
             last_lum: last_lum,
+            exposure: exposure,
+            lum_relative_tex: Texture2d::empty(context.get_facade(), 1, 1).unwrap(),
+            relative_luminance_program: relative_luminance_program,
         };
 
         // Create all textures with correct screen size
@@ -332,15 +367,19 @@ impl Renderer {
             self.last_lum = (1.0 - ADAPTION_SPEED_BRIGHT_DARK) * self.last_lum +
                             ADAPTION_SPEED_BRIGHT_DARK * adapt
         }
+        debug!("last_lum {}", self.last_lum);
 
-        let exposure = self.last_lum;
+        self.exposure = (1.0 - WE_WANT_OPTIMAL) * self.last_lum +
+                        WE_WANT_OPTIMAL * OPTIMAL_EXPOSURE;
+        debug!("exp: {}", self.exposure);
+
 
 
         // ===================================================================
         //                                  Bloom
         // ===================================================================
 
-        if BLOOM_STATE != 0 {
+        if BLOOM_STATE != 0 && self.context.get_config().bloom {
             try!(self.bloom());
         }
 
@@ -349,15 +388,15 @@ impl Renderer {
         // ===================================================================
 
 
-        let decal_texture = match BLOOM_STATE {
-            0 => &self.quad_tex,
-            2 => &self.bloom_vert_tex,
+        let decal_texture = match (self.context.get_config().bloom, BLOOM_STATE) {
+            (false, _) | (_, 0) => &self.quad_tex,
+            (_, 2) => &self.bloom_vert_tex,
             _ => &self.bloom_blend_tex,
         };
 
         let uniforms = uniform! {
             decal_texture: decal_texture,
-            exposure: exposure,
+            exposure: self.exposure,
         };
 
 
@@ -429,25 +468,34 @@ impl Renderer {
             .unwrap();
 
 
-        self.bloom_horz_tex = Texture2d::empty_with_format(self.context.get_facade(),
-                                                           ffff,
-                                                           MipmapsOption::NoMipmap,
-                                                           self.resolution.0,
-                                                           self.resolution.1)
-            .unwrap();
+        self.bloom_horz_tex =
+            Texture2d::empty_with_format(self.context.get_facade(),
+                                         ffff,
+                                         MipmapsOption::NoMipmap,
+                                         (self.resolution.0) / BLUR_TEXTURE_DIVISOR,
+                                         (self.resolution.1) / BLUR_TEXTURE_DIVISOR)
+                .unwrap();
 
-        self.bloom_vert_tex = Texture2d::empty_with_format(self.context.get_facade(),
-                                                           ffff,
-                                                           MipmapsOption::NoMipmap,
-                                                           self.resolution.0,
-                                                           self.resolution.1)
-            .unwrap();
+        self.bloom_vert_tex =
+            Texture2d::empty_with_format(self.context.get_facade(),
+                                         ffff,
+                                         MipmapsOption::NoMipmap,
+                                         (self.resolution.0) / BLUR_TEXTURE_DIVISOR,
+                                         (self.resolution.1) / BLUR_TEXTURE_DIVISOR)
+                .unwrap();
 
         self.bloom_blend_tex = Texture2d::empty_with_format(self.context.get_facade(),
                                                             ffff,
                                                             MipmapsOption::NoMipmap,
                                                             self.resolution.0,
                                                             self.resolution.1)
+            .unwrap();
+
+        self.lum_relative_tex = Texture2d::empty_with_format(self.context.get_facade(),
+                                                             UncompressedFloatFormat::F32,
+                                                             MipmapsOption::NoMipmap,
+                                                             self.resolution.0,
+                                                             self.resolution.1)
             .unwrap();
     }
 
@@ -457,9 +505,28 @@ impl Renderer {
     // ===================================================================
 
     fn adapt_brightness(&self) -> Result<f32, Box<Error>> {
+
+        let mut rel_luminance_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
+                                                                   self.lum_relative_tex
+                                                                       .to_color_attachment()));
+
+        let uniforms = uniform!{
+            image: &self.quad_tex,
+        };
+
+
+
+        try!(rel_luminance_buffer.draw(&self.quad_vertex_buffer,
+                                       &self.quad_index_buffer,
+                                       &self.relative_luminance_program,
+                                       &uniforms,
+                                       &Default::default()));
+
+
+
         let mut adaption_buffers: Vec<SimpleFrameBuffer> = Vec::with_capacity(10);
 
-        let mut image = &self.quad_tex;
+        let mut image = &self.lum_relative_tex;
 
         for i in 0..10 {
             adaption_buffers.push(try!(SimpleFrameBuffer::new(self.context.get_facade(),
@@ -485,8 +552,8 @@ impl Renderer {
 
 
         // Read only pixel in the lowest level texture from lum_texs.
-        // never change a working system. Yeah, it's that complicated.
-        let buf: Vec<Vec<(f32, f32, f32, f32)>> = self.lum_texs
+        // never change a working system.
+        let buf: Vec<Vec<f32>> = self.lum_texs
             .last()
             .unwrap()
             .main_level()
@@ -500,19 +567,15 @@ impl Renderer {
                 height: 1,
             });
 
-        let pixel = buf[0][0];
+        let avg_luminance = buf[0][0];
 
-        let avg_luminance = Vector3f::new(pixel.0, pixel.1, pixel.2)
-            .dot(Vector3f::new(0.2126, 0.7152, 0.0722));
-
-        // info!("lum: {}", avg_luminance);
 
         // the exposure level is inversely propotional to the avg. luminance.
         // log2 is necessary to adapt more for the lower than for the higher values.
         // (This is still WIP and will be changed in the next version.)
         // The +1 in the argument of the log is necessary because many color values
         // are <1 and would result in a negative result.
-        let adapted_luminance = (1.0 / ((avg_luminance + 1.0).log2()))
+        let adapted_luminance = (1.0 / avg_luminance)
             .min(EYE_OPEN)
             .max(EYE_CLOSED);
         Ok(adapted_luminance)
@@ -525,6 +588,7 @@ impl Renderer {
 
         let uniforms = uniform! {
             decal_texture: &self.quad_tex,
+            bloom_threshhold: self.exposure / EXPOSURE_THRESHOLD,
         };
 
         let mut bloom_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
@@ -584,7 +648,8 @@ impl Renderer {
             }
             if first_iteration {
                 uniforms_horz_blur = uniform! {
-                    image: self.bloom_vert_tex.sampled().wrap_function(SamplerWrapFunction::Clamp),
+                    image: self.bloom_vert_tex.sampled()
+                    .wrap_function(SamplerWrapFunction::Clamp),
                     horizontal: true,
                 };
                 first_iteration = false;
@@ -602,8 +667,8 @@ impl Renderer {
 
         // after 2x BLOOM_ITERATION we can rely on bloom_vert_tex bein the blur output
         let uniforms = uniform! {
-            bloom_tex: &self.bloom_vert_tex,
-            world_tex: &self.quad_tex,
+            bloom_tex: self.bloom_vert_tex.sampled().wrap_function(SamplerWrapFunction::Clamp),
+            world_tex: self.quad_tex.sampled().wrap_function(SamplerWrapFunction::Clamp),
         };
 
         try!(bloom_blend_buffer.draw(&self.quad_vertex_buffer,
@@ -633,7 +698,7 @@ fn initialize_luminosity(facade: &GlutinFacade) -> Vec<Texture2d> {
     let mut lum = Vec::with_capacity(10);
     for i in 0..10 {
         lum.push(Texture2d::empty_with_format(facade,
-                                              UncompressedFloatFormat::F32F32F32F32,
+                                              UncompressedFloatFormat::F32,
                                               MipmapsOption::NoMipmap,
                                               (2u32).pow((9 - i)),
                                               (2u32).pow((9 - i)))
