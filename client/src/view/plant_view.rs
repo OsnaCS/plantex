@@ -1,6 +1,8 @@
 use glium::backend::Facade;
 use glium::{self, BackfaceCullingMode, DepthTest, DrawParameters, IndexBuffer, VertexBuffer};
 use glium::index::PrimitiveType;
+use glium::texture::Texture2d;
+use glium::uniforms::SamplerWrapFunction;
 use Camera;
 use util::ToArr;
 use base::math::*;
@@ -44,10 +46,16 @@ impl PlantView {
     }
 
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
+        let tess_level_inner = 1.0 as f32;
+        let tess_level_outer = 1.0 as f32;
+
         let uniforms = uniform! {
             offset: self.pos.to_arr(),
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
+            tess_level_inner: tess_level_inner,
+            tess_level_outer: tess_level_outer,
+            camera_pos: camera.position.to_arr(),
         };
 
         let params = DrawParameters {
@@ -63,15 +71,20 @@ impl PlantView {
 
         surface.draw(&self.vertices,
                   &self.indices,
-                  &self.renderer.program(),
+                  &self.renderer.shadow_program(),
                   &uniforms,
                   &params)
             .unwrap();
     }
 
-    pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
-        let tess_level_inner = 5.0 as f32;
-        let tess_level_outer = 5.0 as f32;
+    pub fn draw<S: glium::Surface>(&self,
+                                   surface: &mut S,
+                                   camera: &Camera,
+                                   shadow_map: &Texture2d,
+                                   depth_view_proj: &Matrix4<f32>,
+                                   sun_dir: Vector3f) {
+        let tess_level_inner = 10.0 as f32;
+        let tess_level_outer = 10.0 as f32;
 
         let uniforms = uniform! {
             offset: self.pos.to_arr(),
@@ -80,6 +93,11 @@ impl PlantView {
             tess_level_inner: tess_level_inner,
             tess_level_outer: tess_level_outer,
             camera_pos: camera.position.to_arr(),
+            plant_pos: self.pos.to_arr(),
+            cam_pos: camera.position.to_arr(),
+            shadow_map: shadow_map.sampled().wrap_function(SamplerWrapFunction::Clamp),
+            depth_view_proj: depth_view_proj.to_arr(),
+            sun_dir: sun_dir.to_arr(),
         };
 
         let params = DrawParameters {
@@ -126,12 +144,10 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
         cps
     };
 
-
     for window in cps.windows(3) {
         let prev_cp = window[0];
         let curr_cp = window[1];
         let next_cp = window[2];
-
         let dir = prev_cp.point - next_cp.point;
 
         for curr_point in &get_points_from_vector(dir) {
@@ -153,13 +169,14 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
     indices.extend_from_slice(&[vert_len - 3, vert_len - 2, vert_len - 1]);
 }
 
-/// generates 3 normalized vectors  perpendicular to the given vector
-fn get_points_from_vector(vector: Vector3f) -> [Vector3f; 4] {
-    let ortho = random_vec_with_angle(&mut seeded_rng(0x2651aa465abded, (), ()), vector, 90.0);
+/// generates 3 normalized vectors perpendicular to the given vector
+fn get_points_from_vector(vector: Vector3f) -> [Vector3f; 3] {
+    let ortho = random_vec_with_angle(&mut seeded_rng(0x2651aa465abded, (), ()),
+                                      vector.normalize(),
+                                      90.0);
     let rot = Basis3::from_axis_angle(vector.normalize(), Deg::new(120.0).into());
     let v0 = rot.rotate_vector(ortho);
     let v1 = rot.rotate_vector(v0);
-    let v2 = rot.rotate_vector(v1);
 
-    [ortho.normalize(), v0.normalize(), v1.normalize(), v2.normalize()]
+    [ortho.normalize(), v0.normalize(), v1.normalize()]
 }

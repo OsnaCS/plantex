@@ -146,6 +146,7 @@ impl ChunkView {
             shadow_map: shadow_map.sampled().wrap_function(SamplerWrapFunction::Clamp),
             depth_view_proj: depth_view_proj.to_arr(),
             sun_dir: sun_dir.to_arr(),
+            cam_pos: camera.position.to_arr(),
 
             sand_texture:  self.renderer.noise_sand.sampled()
                 .minify_filter(MinifySamplerFilter::NearestMipmapLinear)
@@ -190,12 +191,6 @@ impl ChunkView {
                   &uniforms,
                   &params)
             .unwrap();
-
-        for pillar in &self.pillars {
-            for plant in &pillar.plants {
-                plant.draw(surface, camera);
-            }
-        }
     }
 }
 

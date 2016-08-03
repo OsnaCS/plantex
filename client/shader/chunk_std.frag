@@ -7,6 +7,7 @@ in vec3 x_position;
 in float x_radius;
 in vec2 x_tex_coords;
 flat in int x_ground;
+in vec3 pos;
 
 out vec3 color;
 
@@ -27,9 +28,6 @@ uniform sampler2D snow_texture;
 uniform sampler2D stone_texture;
 uniform sampler2D dirt_texture;
 uniform sampler2D mulch_texture;
-
-// Percentage-closer filtering (square) radius in pixels
-const int SHADOW_PCF_RADIUS = 1;
 
 const float SHADOW_BIAS = 0.001;    // FIXME does this even work?
 const float AMBIENT = 0.2;
@@ -64,8 +62,15 @@ mat3 cotangent_frame(vec3 normal, vec3 pos, vec2 uv) {
 void main() {
     vec3 lightCoords = shadowCoord.xyz / shadowCoord.w;
     lightCoords = lightCoords * 0.5 + 0.5;
-    vec2 moments = texture(shadow_map, lightCoords.xy).xy;
-    float lit = max(lightCoverage(moments, lightCoords.z - SHADOW_BIAS), 0.2);
+    float lit;
+    if (lightCoords.x < 0 || lightCoords.x > 1 || lightCoords.y < 0 || lightCoords.y > 1) {
+        // Outside of shadow map. Guess brightness from sun angle.
+        float sunDot = dot(vec3(0, 0, 1), normalize(sun_dir));
+        lit = max(-sunDot * 3.0, 0.0);
+    } else {
+        vec2 moments = texture(shadow_map, lightCoords.xy).xy;
+        lit = lightCoverage(moments, lightCoords.z - SHADOW_BIAS);
+    }
 
     // ==================
     // LIGHT CALCULATIONS
@@ -153,4 +158,19 @@ void main() {
     if (x_radius > 0.98) {
         color *= 0.7;
     }
+
+    // apply fog to final color
+    float distance = (length(pos) / 130) * (length(pos) / 130);
+    if (distance > 1) {
+        distance = 1;
+    }
+    float fog_time= -(sun_dir.z / 3);
+
+
+    if (fog_time < 0) {
+        fog_time = 0;
+    }
+
+    vec3 fog_color = vec3(0.05 + fog_time, 0.05 + fog_time, 0.1 + fog_time);
+    color = mix(color, fog_color, distance);
 }

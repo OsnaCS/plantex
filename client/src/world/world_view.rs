@@ -1,4 +1,5 @@
-use base::world::{self, Chunk, ChunkIndex, World};
+use base::world::{self, Chunk, ChunkIndex};
+use base::prop::Plant;
 use base::math::*;
 use glium::backend::Facade;
 use glium::{self, DepthTest, DrawParameters, LinearBlendingFactor};
@@ -22,32 +23,22 @@ pub struct WorldView {
     chunk_renderer: Rc<ChunkRenderer>,
     plant_renderer: Rc<PlantRenderer>,
     pub outline: HexagonOutline,
+    plant_views: HashMap<ChunkIndex, Vec<PlantView>>,
+    plant_list: Vec<Plant>,
 }
 
 impl WorldView {
-    pub fn from_world(world: &World, context: Rc<GameContext>) -> Self {
+    pub fn new(context: Rc<GameContext>, plant_list: Vec<Plant>) -> Self {
         let plant_renderer = Rc::new(PlantRenderer::new(context.clone()));
         let chunk_renderer = Rc::new(ChunkRenderer::new(context.clone()));
 
-        let mut chunks = HashMap::new();
-        for chunkkey in world.chunks.keys() {
-            // FIX: 1 is HEX_OUTER_RADIUS, but thats a float
-            chunks.insert(*chunkkey,
-                          ChunkView::from_chunk(world.chunks.get(chunkkey).unwrap(),
-                                                AxialPoint::new(chunkkey.0.q *
-                                                                (1 * world::CHUNK_SIZE as i32),
-                                                                chunkkey.0.r *
-                                                                (1 * world::CHUNK_SIZE as i32)),
-                                                chunk_renderer.clone(),
-                                                plant_renderer.clone(),
-                                                context.get_facade()));
-        }
-
         WorldView {
-            chunks: chunks,
+            chunks: HashMap::new(),
             chunk_renderer: chunk_renderer,
             plant_renderer: plant_renderer,
             outline: HexagonOutline::new(context),
+            plant_views: HashMap::new(),
+            plant_list: plant_list,
         }
     }
 
@@ -61,6 +52,25 @@ impl WorldView {
                                                  self.chunk_renderer.clone(),
                                                  self.plant_renderer.clone(),
                                                  facade));
+
+        for (pillar_pos, pillar) in chunk.pillars() {
+            for prop in pillar.props() {
+                let plant = &self.plant_list[prop.plant_index];
+                let real_pos = pillar_pos.to_real();
+                let real_chunk_pos = (chunk_pos.0 * world::CHUNK_SIZE as i32).to_real();
+
+                self.plant_views
+                    .entry(chunk_pos)
+                    .or_insert(Vec::new())
+                    .push(PlantView::from_plant(Point3f::new(real_chunk_pos.x + real_pos.x,
+                                                             real_chunk_pos.y + real_pos.y,
+                                                             prop.baseline.units() as f32 *
+                                                             world::PILLAR_STEP_HEIGHT),
+                                                &plant,
+                                                self.plant_renderer.clone(),
+                                                facade));
+            }
+        }
     }
 
     pub fn get_chunk_view(&self, index: &ChunkIndex) -> Option<&ChunkView> {
@@ -73,6 +83,7 @@ impl WorldView {
 
     pub fn remove_chunk(&mut self, chunk_pos: ChunkIndex) {
         self.chunks.remove(&chunk_pos);
+        self.plant_views.remove(&chunk_pos);
     }
 
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
@@ -127,6 +138,12 @@ impl WorldView {
                       &outline_uniforms,
                       &outline_params)
                 .unwrap();
+
+            for plantview_vec in self.plant_views.values() {
+                for plantview in plantview_vec {
+                    plantview.draw(surface, camera, shadow_map, depth_view_proj, sun_dir);
+                }
+            }
         }
     }
 }
