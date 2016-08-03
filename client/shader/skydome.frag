@@ -103,7 +103,7 @@ void main() {
     // Calculate dummy blue gradient sky color
     vec3 high_noon_color = vec3(((theta / PI)-0.2)*0.5,((theta / PI)-0.1)*0.5,1.0)*lum_factor;
     sunset_color = sunset_color / 255;
-    vec3 nightblue_color = (vec3 (0.0, 0.0, 11.0) / 255)*lum_factor ;
+    vec3 nightblue_color = (vec3 (0.0, 0.0, 1.0) / 255);
 
     float nighttime = -0.2;
     float sunrise_start = 0.0;
@@ -182,9 +182,4 @@ void main() {
 
     star_color = vec3(max(0, (star - 0.48)) * 25)*0.4;
     color = color + star_color;
-
-
-    // if (0 < ((star - 0.48) * 25)) {
-    //     color = star_color;
-    // }
 }
