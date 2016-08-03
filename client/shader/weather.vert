@@ -8,7 +8,7 @@ uniform mat4 view_matrix;
 uniform mat4 scaling_matrix;
 uniform int form;
 uniform vec4 sun_color;
-uniform vec4 ambient_color;
+uniform vec4 sky_light;
 
 
 out vec2 out_position;

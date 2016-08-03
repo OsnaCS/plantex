@@ -8,6 +8,7 @@ use base::math::*;
 use base::gen::world::biome;
 use base::world::PillarIndex;
 use GameContext;
+use DayTime;
 use std::rc::Rc;
 use std::f32::consts::PI;
 use std::f32;
@@ -153,6 +154,8 @@ pub struct Weather {
     weather_time: f32,
     last_biome: biome::Biome,
     change: bool,
+    sun_color: Vector3f,
+    sky_light: Vector3f,
 }
 
 impl Weather {
@@ -185,6 +188,8 @@ impl Weather {
             weather_time: 0.0,
             last_biome: biome::Biome::GrassLand,
             change: false,
+            sun_color: Vector3f::new(0.0, 0.0, 0.0),
+            sky_light: Vector3f::new(0.0, 0.0, 0.0),
         }
     }
 
@@ -241,8 +246,8 @@ impl Weather {
             }
         };
 
-        let sun_color = Vector4f::new(15.0, 15.0, 15.0, 1.0);
-        let ambient_color = Vector4f::new(15.0, 15.0, 15.0, 1.0);
+        println!("sky: {:?}", self.sky_light);
+        println!("sun: {:?}", self.sun_color);
 
         let uniforms = uniform!{
                 form: self.form as i32,
@@ -250,8 +255,8 @@ impl Weather {
                 proj_matrix: camera.proj_matrix().to_arr(),
                 scaling_matrix: scaling.to_arr(),
                 color: color.to_arr(),
-                sun_color: sun_color.to_arr(),
-                ambient_color: ambient_color.to_arr(),
+                sky_light: self.sky_light.to_arr(),
+                sun_color: self.sun_color.to_arr(),
             };
 
         surface.draw((&self.vertex_buffer, self.actual_buf.per_instance().unwrap()),
@@ -267,7 +272,15 @@ impl Weather {
     /// particles that are in the back of the player or in caves. Also
     /// responsible for setting the
     /// apropriate weather.
-    pub fn update(&mut self, camera: &Camera, delta: f32, world_manager: &super::WorldManager) {
+    pub fn update(&mut self,
+                  camera: &Camera,
+                  delta: f32,
+                  world_manager: &super::WorldManager,
+                  daytime: &DayTime) {
+
+        self.sun_color = daytime.get_sun_color();
+        self.sky_light = daytime.get_sky_light();
+
         // Toggle downfall
         let world = world_manager.get_world();
         let relevant_pos = Point2f::new(camera.position.x, camera.position.y);
