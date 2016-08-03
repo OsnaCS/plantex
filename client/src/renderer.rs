@@ -52,13 +52,13 @@ const EXPOSURE_THRESHOLD: f32 = 0.5;
 
 // The following values define how well you can adapt to brightness / darkness.
 // The adaption of the eye is clamped between these values.
-const EYE_OPEN: f32 = 5.2;  //increase to allow to see better in the dark       DEFAULT:3.2
-const EYE_CLOSED: f32 = 0.0008;  //decrease to allow to see brighter areas better  DEFAULT:0.8
+const EYE_OPEN: f32 = 9.2;  //increase to allow to see better in the dark       DEFAULT:3.2
+const EYE_CLOSED: f32 = 0.005;  //decrease to allow to see brighter areas better  DEFAULT:0.8
 
 // The following values define how much the exposure value will be drawn to
 // a given ("optimal") value.
-const OPTIMAL_EXPOSURE: f32 = 0.5;  // optimal Value that exposure should reach.    DEFAULT: 0.5
-const WE_WANT_OPTIMAL: f32 = 0.7;  // Agressiveness of exposure correction in [0;1] DEFAULT: 0.7
+const OPTIMAL_EXPOSURE: f32 = 0.7;  // optimal Value that exposure should reach.    DEFAULT: 0.5
+const WE_WANT_OPTIMAL: f32 = 0.1;  // Agressiveness of exposure correction in [0;1] DEFAULT: 0.7
 
 // Speed of eye adaption. Lower values result in longer time needed
 // to adapt to different light conditions. Set to 1 to test without adaption
