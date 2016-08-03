@@ -174,7 +174,7 @@ void main() {
     // float star = texture(u_star_map, vec2(theta*0.8, 0.5 + theta*phi*0.8));
     vec3 test = normalize(vec3(sin(theta)*cos(phi),sin(theta)*sin(phi),0));
     test *= theta;
-    float star = texture(u_star_map, vec2(test.x ,test.y));
+    float star = texture(u_star_map, vec2(test.x, test.y)).r;
 
     vec3 star_color = vec3(0.0, 0.0, 0.0);
 
