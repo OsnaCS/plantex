@@ -176,7 +176,7 @@ impl Game {
     //         }
     //         None => return,
     //     };
-    //     self.world_manager.recalulate_chunk(Point3f::new(pos.x, pos.y, pos.z));
+    //     self.world_manager.recalculate_chunk(Point3f::new(pos.x, pos.y, pos.z));
     // }
 }
 

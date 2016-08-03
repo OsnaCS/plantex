@@ -41,7 +41,6 @@ impl GameContext {
 
         let mut vert = try!(File::open(&format!("client/shader/{}.vert", shader)));
         let mut frag = try!(File::open(&format!("client/shader/{}.frag", shader)));
-        // let geo_file = File::open(&format!("client/shader/{}.geo", shader));
 
         let mut vert_buf = String::new();
         let mut frag_buf = String::new();

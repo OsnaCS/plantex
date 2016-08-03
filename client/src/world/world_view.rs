@@ -119,7 +119,6 @@ impl WorldView {
                 ..Default::default()
             };
 
-            // println!("DRAW: {:?}", self.outline.position().to_arr());
             let outline_uniforms = uniform! {
               outline_pos: self.outline.position().to_arr(),
               proj_matrix: camera.proj_matrix().to_arr(),

@@ -180,8 +180,7 @@ impl WorldManager {
         }
     }
 
-    // NOT USED UNTIL NOW
-    pub fn recalulate_chunk(&mut self, pos: Point3f) {
+    pub fn recalculate_chunk(&mut self, pos: Point3f) {
         use std::ops::DerefMut;
 
         let mut shared_tmp = self.shared.borrow_mut();
