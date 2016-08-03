@@ -42,10 +42,11 @@ const SHADOW_ORTHO_FAR: f32 = 600.0;
 const BLOOM_STATE: i8 = 1;
 // number of times the light texture will be blured.
 // each iteration contains one horizontal and one vertical blur
-const BLOOM_ITERATION: u8 = 4;
+const BLOOM_ITERATION: u8 = 6;
 // Divisor to downsize blur texture
 // Increase to decrease bloom texture size DEFAULT: 2
 const BLUR_TEXTURE_DIVISOR: u32 = 2;
+const EXPOSURE_THRESHOLD: f32 = 0.5;
 
 // ===================  AUTOMATIC BRIGHTNESS ADAPTION  ===============
 
@@ -56,8 +57,8 @@ const EYE_CLOSED: f32 = 0.0008;  //decrease to allow to see brighter areas bette
 
 // The following values define how much the exposure value will be drawn to
 // a given ("optimal") value.
-const OPTIMAL_EXPOSURE: f32 = 2.0;  // optimal Value that exposure should reach.    DEFAULT: 2.0
-const WE_WANT_OPTIMAL: f32 = 0.2;  // Agressiveness of exposure correction in [0;1] DEFAULT: 0.2
+const OPTIMAL_EXPOSURE: f32 = 0.5;  // optimal Value that exposure should reach.    DEFAULT: 2.0
+const WE_WANT_OPTIMAL: f32 = 0.45;  // Agressiveness of exposure correction in [0;1] DEFAULT: 0.2
 
 // Speed of eye adaption. Lower values result in longer time needed
 // to adapt to different light conditions. Set to 1 to test without adaption
@@ -377,6 +378,7 @@ impl Renderer {
             self.last_lum = (1.0 - ADAPTION_SPEED_BRIGHT_DARK) * self.last_lum +
                             ADAPTION_SPEED_BRIGHT_DARK * adapt
         }
+        info!("last_lum {}", self.last_lum);
 
         self.exposure = (1.0 - WE_WANT_OPTIMAL) * self.last_lum +
                         WE_WANT_OPTIMAL * OPTIMAL_EXPOSURE;
@@ -601,6 +603,7 @@ impl Renderer {
 
         let uniforms = uniform! {
             decal_texture: &self.quad_tex,
+            bloom_threshhold: self.exposure / EXPOSURE_THRESHOLD,
         };
 
         let mut bloom_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
