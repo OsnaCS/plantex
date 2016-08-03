@@ -189,6 +189,8 @@ impl WorldManager {
         let chunk_pos = AxialPoint::new(pos.q / CHUNK_SIZE as i32, pos.r / CHUNK_SIZE as i32);
         let index = ChunkIndex(chunk_pos);
 
+        println!("RI {:?}", index);
+        println!("PC {:?}", shared.player_chunk);
         shared.world_view.refresh_chunk(index,
                                         shared.world.chunk_at(index).unwrap(),
                                         self.context.get_facade());
