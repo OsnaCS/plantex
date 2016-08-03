@@ -64,11 +64,12 @@ void main() {
     lightCoords = lightCoords * 0.5 + 0.5;
     float lit;
     if (lightCoords.x < 0 || lightCoords.x > 1 || lightCoords.y < 0 || lightCoords.y > 1) {
-        // Outside of shadow map. Not lit
-        lit = 0.0;
+        // Outside of shadow map. Guess brightness from sun angle.
+        float sunDot = dot(vec3(0, 0, 1), normalize(sun_dir));
+        lit = max(-sunDot * 3.0, 0.0);
     } else {
         vec2 moments = texture(shadow_map, lightCoords.xy).xy;
-        lit = max(lightCoverage(moments, lightCoords.z - SHADOW_BIAS), 0.2);
+        lit = lightCoverage(moments, lightCoords.z - SHADOW_BIAS);
     }
 
     // ==================
