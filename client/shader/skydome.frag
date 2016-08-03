@@ -31,7 +31,7 @@ void main() {
     float bottomred = -0.1;
     float black = -0.3;
 
-    float lum_factor = 15.0;
+    float lum_factor = 15.0; //change this into a constant
 
     vec3 upperblue_color = vec3 (12.0, 43.0, 80.0)*lum_factor;
     vec3 blue_color = vec3 (22.0, 77.0, 142.0)*lum_factor;
@@ -101,7 +101,6 @@ void main() {
     // varies from [PI..0] respectively
     // But because this is only functional for the upper hemisphere,
     // the phi for the lower hemisphere is calculated in the if statement
-
     float phi = atan(unit_vector.y, unit_vector.x) + PI;
 
     // Calculate dummy blue gradient sky color
@@ -169,12 +168,7 @@ void main() {
 
     // float star_value = 1 + theta * 0.01;
 
-    // if (star > 0.5) {
-    //     star_color = vec3(1.0, 1.0, 1.0);
-    // }
-
     star_color = vec3(max(0, (star - 0.48)) * 25)*0.4;
-    // star_color = vec3(1.1, 1.1, 1.1);
     color = color + star_color;
 
 
