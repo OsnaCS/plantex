@@ -5,7 +5,9 @@ use glium::texture::Texture2d;
 use glium::uniforms::SamplerWrapFunction;
 use Camera;
 use util::ToArr;
+use std::collections::HashMap;
 use base::math::*;
+use base::world::ChunkIndex;
 use base::gen::seeded_rng;
 use base::prop::plant::{Plant, Tree};
 use std::rc::Rc;
@@ -15,17 +17,21 @@ use base::prop::plant::ControlPoint;
 /// Graphical representation of a 'base::Plant'
 pub struct PlantView {
     vertices: VertexBuffer<Vertex>,
+    instances: HashMap<ChunkIndex, Vec<Instance>>,
+    instance_buf: VertexBuffer<Instance>,
     indices: IndexBuffer<u32>,
-    renderer: Rc<PlantRenderer>,
-    pos: Point3f,
+    renderer: Rc<PlantRenderer>, // pos: Point3f,
 }
 
+#[derive(Copy, Clone)]
+pub struct Instance {
+    offset: [f32; 3],
+}
+implement_vertex!(Instance, offset);
+
 impl PlantView {
-    pub fn from_plant<F: Facade>(pos: Point3f,
-                                 plant: &Plant,
-                                 renderer: Rc<PlantRenderer>,
-                                 facade: &F)
-                                 -> Self {
+    // pub fn from_plant<F: Facade>( pos: Point3f,
+    pub fn from_plant<F: Facade>(plant: &Plant, renderer: Rc<PlantRenderer>, facade: &F) -> Self {
         let mut indices = Vec::new();
         let mut vertices = Vec::new();
         match *plant {
@@ -39,13 +45,40 @@ impl PlantView {
 
         PlantView {
             vertices: VertexBuffer::new(facade, &vertices).unwrap(),
+            instances: HashMap::new(),
+            instance_buf: VertexBuffer::new(facade, &[]).unwrap(),
             indices: IndexBuffer::new(facade,
                                       PrimitiveType::Patches { vertices_per_patch: 3 },
                                       &indices)
                 .unwrap(),
             renderer: renderer,
-            pos: pos,
         }
+    }
+
+    pub fn add_instance_from_pos(&mut self, chunk_pos: ChunkIndex, pos: Point3f) {
+        self.instances
+            .entry(chunk_pos)
+            .or_insert(Vec::new())
+            .push(Instance { offset: pos.to_arr() });
+
+        self.update_instance_buffer();
+    }
+
+    pub fn remove_instance_at_pos(&mut self, chunk_pos: ChunkIndex) {
+        self.instances.remove(&chunk_pos);
+
+        self.update_instance_buffer();
+    }
+
+    fn update_instance_buffer(&mut self) {
+        let mut tmp_instances = Vec::new();
+        for inst_vec in self.instances.values() {
+            for inst in inst_vec {
+                tmp_instances.push(*inst);
+            }
+        }
+        self.instance_buf = VertexBuffer::new(self.renderer.context().get_facade(), &tmp_instances)
+            .unwrap();
     }
 
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
@@ -53,7 +86,6 @@ impl PlantView {
         let tess_level_outer = 1.0 as f32;
 
         let uniforms = uniform! {
-            offset: self.pos.to_arr(),
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
             tess_level_inner: tess_level_inner,
@@ -72,7 +104,7 @@ impl PlantView {
             ..Default::default()
         };
 
-        surface.draw(&self.vertices,
+        surface.draw((&self.vertices, self.instance_buf.per_instance().unwrap()),
                   &self.indices,
                   &self.renderer.shadow_program(),
                   &uniforms,
@@ -90,13 +122,14 @@ impl PlantView {
         let tess_level_outer = 10.0 as f32;
 
         let uniforms = uniform! {
-            offset: self.pos.to_arr(),
+            // offset: self.pos.to_arr(),
+
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
             tess_level_inner: tess_level_inner,
             tess_level_outer: tess_level_outer,
             camera_pos: camera.position.to_arr(),
-            plant_pos: self.pos.to_arr(),
+            // plant_pos: self.pos.to_arr(),
             cam_pos: camera.position.to_arr(),
             shadow_map: shadow_map.sampled().wrap_function(SamplerWrapFunction::Clamp),
             depth_view_proj: depth_view_proj.to_arr(),
@@ -113,7 +146,7 @@ impl PlantView {
             ..Default::default()
         };
 
-        surface.draw(&self.vertices,
+        surface.draw((&self.vertices, self.instance_buf.per_instance().unwrap()),
                   &self.indices,
                   &self.renderer.program(),
                   &uniforms,

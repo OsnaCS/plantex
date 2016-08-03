@@ -27,7 +27,7 @@ out vec3 pos;
 // Vertex/Pixel coordinates in shadow map
 out vec4 shadowCoord;
 
-uniform vec3 offset;
+in vec3 offset[] ;
 uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
 uniform vec3 cam_pos;
@@ -62,7 +62,7 @@ void main()
                     oPatch.WorldPos_B111 * 6.0 * w * u * v;
 
     // projection on camera
-    vec3 worldPos = tePosition + offset;
+    vec3 worldPos = tePosition + offset[0];
     gl_Position = proj_matrix * view_matrix * vec4(worldPos, 1);
 
     // position for fog

@@ -67,9 +67,6 @@ const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.25;  //adaption speed from bright to d
 const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.06; //adaption speed from dark to bright  DEFAULT:0.06
 
 
-
-
-
 pub struct Renderer {
     context: Rc<GameContext>,
     /// Screen-sized texture the scene is rendered into and then post-processed.
@@ -375,8 +372,6 @@ impl Renderer {
         self.exposure = (1.0 - WE_WANT_OPTIMAL) * self.last_lum +
                         WE_WANT_OPTIMAL * OPTIMAL_EXPOSURE;
         debug!("exp: {}", self.exposure);
-
-
 
         // ===================================================================
         //                                  Bloom
