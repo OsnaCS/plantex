@@ -49,12 +49,12 @@ const BLOOM_ITERATION: u8 = 10;
 // The following values define how well you can adapt to brightness / darkness.
 // The adaption of the eye is clamped between these values.
 const EYE_OPEN: f32 = 3.2;  //increase to allow to see better in the dark       DEFAULT:3.2
-const EYE_CLOSED: f32 = 0.0008;  //decrease to allow to see brighter areas better  DEFAULT:0.8
+const EYE_CLOSED: f32 = 1.4;  //decrease to allow to see brighter areas better  DEFAULT:0.8
 
 // Speed of eye adaption. Lower values result in longer time needed
 // to adapt to different light conditions.
-const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.8;  //adaption speed from bright to dark DEFAULT:0.155
-const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.8; //adaption speed from dark to bright  DEFAULT:0.016
+const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.155;  //adaption speed from bright to dark DEFAULT:0.155
+const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.016; //adaption speed from dark to bright  DEFAULT:0.016
 
 pub struct Renderer {
     context: Rc<GameContext>,

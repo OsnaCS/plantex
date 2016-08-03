@@ -23,7 +23,7 @@ pub struct SkyView {
 
 impl SkyView {
     pub fn new(context: Rc<GameContext>) -> Self {
-        const SKYDOME_SIZE: f32 = 1000.0;
+        const SKYDOME_SIZE: f32 = 500.0;
         let raw_vertex_buffer = vec![
             // a: part of xy-plane
             Vertex { i_position: [0.0, -SKYDOME_SIZE, 0.0], i_unit_coords: [0.0, -1.0, 0.0]},
