@@ -81,7 +81,8 @@ impl Game {
 
             self.weather.update(&self.control_switcher.get_camera(),
                                 delta,
-                                &self.world_manager);
+                                &self.world_manager,
+                                &self.daytime);
             self.world_manager.update_world(self.control_switcher.get_camera().position);
 
 

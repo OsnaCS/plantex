@@ -50,7 +50,7 @@ impl DayTime {
 
     // Bei tag sind die RGBWerte bei 3000, leicht rötlich
     // Bei nacht sind sie 0
-    pub fn get_ambient_color(&self) -> Vector3f {
+    pub fn get_sun_color(&self) -> Vector3f {
         let mut vec = Vector3f::new(0.0, 0.0, 0.0);
 
         let offset_factor = 1.1;
