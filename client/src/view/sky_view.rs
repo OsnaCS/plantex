@@ -58,7 +58,7 @@ impl SkyView {
 
 
         // values between 0 and 0.5
-        const TEX_SIZE: usize = 3000;
+        const TEX_SIZE: usize = 2048;
         let mut v = vec![Vec::new(); TEX_SIZE];
 
         for i in 0..TEX_SIZE {
@@ -74,10 +74,8 @@ impl SkyView {
             index_buffer: ibuf,
             program: context.load_program("skydome").unwrap(),
             sun_position: Point3f::new(0.0, 0.0, -1000.0),
-            star_map: match Texture2d::new(context.get_facade(), v) {
-                Ok(p) => p,
-                Err(_) => panic!("Could not load stars"),
-            },
+            star_map: Texture2d::new(context.get_facade(), v).expect("Could not load stars"),
+
         }
     }
 

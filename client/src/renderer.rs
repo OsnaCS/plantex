@@ -39,7 +39,7 @@ const SHADOW_ORTHO_FAR: f32 = 600.0;
 // 0: Disable Bloom
 // 1: Enable Bloom
 // 2: Show only Bloom Map
-const BLOOM_STATE: i8 = 1;
+const BLOOM_STATE: i8 = 0;
 // number of times the light texture will be blured.
 // each iteration contains one horizontal and one vertical blur
 const BLOOM_ITERATION: u8 = 10;
@@ -49,12 +49,12 @@ const BLOOM_ITERATION: u8 = 10;
 // The following values define how well you can adapt to brightness / darkness.
 // The adaption of the eye is clamped between these values.
 const EYE_OPEN: f32 = 3.2;  //increase to allow to see better in the dark       DEFAULT:3.2
-const EYE_CLOSED: f32 = 0.8;  //decrease to allow to see brighter areas better  DEFAULT:0.8
+const EYE_CLOSED: f32 = 0.0008;  //decrease to allow to see brighter areas better  DEFAULT:0.8
 
 // Speed of eye adaption. Lower values result in longer time needed
 // to adapt to different light conditions.
-const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.155;  //adaption speed from bright to dark DEFAULT:0.155
-const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.016; //adaption speed from dark to bright  DEFAULT:0.016
+const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.8;  //adaption speed from bright to dark DEFAULT:0.155
+const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.8; //adaption speed from dark to bright  DEFAULT:0.016
 
 pub struct Renderer {
     context: Rc<GameContext>,
@@ -334,7 +334,9 @@ impl Renderer {
         }
 
         let exposure = self.last_lum;
-        // info!("exp: {}", exposure);
+
+        info!("exp: {}", exposure);
+
 
 
 
@@ -507,6 +509,7 @@ impl Renderer {
         let avg_luminance = Vector3f::new(pixel.0, pixel.1, pixel.2)
             .dot(Vector3f::new(0.2126, 0.7152, 0.0722));
 
+        // info!("lum: {}", avg_luminance);
 
         // the exposure level is inversely propotional to the avg. luminance.
         // log2 is necessary to adapt more for the lower than for the higher values.

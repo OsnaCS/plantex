@@ -31,14 +31,16 @@ void main() {
     float bottomred = -0.1;
     float black = -0.3;
 
-    vec3 upperblue_color = vec3 (12.0, 43.0, 80.0);
-    vec3 blue_color = vec3 (22.0, 77.0, 142.0);
-    vec3 lightblue_color = vec3 (62.0, 134.0, 142.0);
-    vec3 dirtyblue_color = vec3 (105.0, 142.0, 137.0);
-    vec3 dirtyyellow_color = vec3 (170.0, 142.0, 85.0);
-    vec3 yellow_color = vec3 (255.0, 125.0, 0.0);
-    vec3 red_color = vec3 (255.0, 0.0, 0.0);
-    vec3 bottomred_color = vec3 (120.0, 0.0, 0.0);
+    float lum_factor = 15.0;
+
+    vec3 upperblue_color = vec3 (12.0, 43.0, 80.0)*lum_factor;
+    vec3 blue_color = vec3 (22.0, 77.0, 142.0)*lum_factor;
+    vec3 lightblue_color = vec3 (62.0, 134.0, 142.0)*lum_factor;
+    vec3 dirtyblue_color = vec3 (105.0, 142.0, 137.0)*lum_factor;
+    vec3 dirtyyellow_color = vec3 (170.0, 142.0, 85.0)*lum_factor;
+    vec3 yellow_color = vec3 (255.0, 125.0, 0.0)*lum_factor;
+    vec3 red_color = vec3 (255.0, 0.0, 0.0)*lum_factor;
+    vec3 bottomred_color = vec3 (120.0, 0.0, 0.0)*lum_factor;
     vec3 black_color = vec3 (0.0, 0.0, 0.0);
 
     vec3 sunset_color;
@@ -103,9 +105,9 @@ void main() {
     float phi = atan(unit_vector.y, unit_vector.x) + PI;
 
     // Calculate dummy blue gradient sky color
-    vec3 high_noon_color = vec3((theta / PI)-0.2,(theta / PI)-0.1,1.0);
+    vec3 high_noon_color = vec3(((theta / PI)-0.2)*0.5,((theta / PI)-0.1)*0.5,1.0)*lum_factor;
     sunset_color = sunset_color / 255;
-    vec3 nightblue_color = vec3 (0.0, 0.0, 41.0) / 255;
+    vec3 nightblue_color = vec3 (0.0, 0.0, 11.0) / 255;
 
     float nighttime = -0.2;
     float sunrise_start = 0.0;
@@ -171,6 +173,12 @@ void main() {
     //     star_color = vec3(1.0, 1.0, 1.0);
     // }
 
-    star_color = vec3(max(0, (star - 0.48)) * 25);
+    star_color = vec3(max(0, (star - 0.48)) * 25)*0.4;
+    // star_color = vec3(1.1, 1.1, 1.1);
     color = color + star_color;
+
+
+    // if (0 < ((star - 0.48) * 25)) {
+    //     color = star_color;
+    // }
 }
