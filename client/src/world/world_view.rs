@@ -28,14 +28,11 @@ impl WorldView {
         let plant_renderer = Rc::new(PlantRenderer::new(context.clone()));
         let chunk_renderer = Rc::new(ChunkRenderer::new(context.clone()));
 
-        let chunks = HashMap::new();
-        let plant_views = HashMap::new();
-
         WorldView {
-            chunks: chunks,
+            chunks: HashMap::new(),
             chunk_renderer: chunk_renderer,
             plant_renderer: plant_renderer,
-            plant_views: plant_views,
+            plant_views: HashMap::new(),
             plant_list: plant_list,
         }
     }
@@ -53,25 +50,13 @@ impl WorldView {
 
         for (pillar_pos, pillar) in chunk.pillars() {
             for prop in pillar.props() {
-                // extract plant
                 let plant = &self.plant_list[prop.plant_index];
-
-                // match prop.prop {
-                //     PropType::Plant(ref x) => x,
-                // };
-
                 let real_pos = pillar_pos.to_real();
-                let real_chunk_pos =
-                    AxialPoint::new(chunk_pos.0.q * (1 * world::CHUNK_SIZE as i32),
-                                    chunk_pos.0.r * (1 * world::CHUNK_SIZE as i32))
-                        .to_real();
+                let real_chunk_pos = (chunk_pos.0 * world::CHUNK_SIZE as i32).to_real();
 
-                if !self.plant_views.contains_key(&chunk_pos) {
-                    self.plant_views.insert(chunk_pos, Vec::new());
-                }
                 self.plant_views
-                    .get_mut(&chunk_pos)
-                    .unwrap()
+                    .entry(chunk_pos)
+                    .or_insert(Vec::new())
                     .push(PlantView::from_plant(Point3f::new(real_chunk_pos.x + real_pos.x,
                                                              real_chunk_pos.y + real_pos.y,
                                                              prop.baseline.units() as f32 *
@@ -79,7 +64,6 @@ impl WorldView {
                                                 &plant,
                                                 self.plant_renderer.clone(),
                                                 facade));
-
             }
         }
     }
