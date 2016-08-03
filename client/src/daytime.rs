@@ -29,6 +29,7 @@ impl Default for DayTime {
     }
 }
 
+// 360 == Mittag
 const DAY_LENGTH: f32 = 720.0;
 const YEAR_LENGTH: u32 = 12;
 
@@ -39,13 +40,50 @@ const DAY_LENGTHER: f32 = 0.0;
 // Distance of the path of the sun to the player
 const SUN_DISTANCE: f32 = 300.0;
 
-
 impl DayTime {
     pub fn set_time(&mut self, time_year: u32, time_day: u32, time_on_day: f32) {
         self.time_year = time_year;
         self.time_day = time_day;
         self.time_on_day = time_on_day;
         self.speed = DEFAULT_TIME_SPEED;
+    }
+
+    // Bei tag sind die RGBWerte bei 3000, leicht rötlich
+    // Bei nacht sind sie 0
+    pub fn get_ambient_color(&self) -> Vector3f {
+        let mut vec = Vector3f::new();
+
+        let mut offset_factor = 1.1;
+        let mut max = 3000 / offset_factor;
+
+        let mut factor = if (self.time_on_day <= (DAY_LENGTH / 2.0)) {
+            max * (self.time_on_day / (DAY_LENGTH / 2.0))
+        } else {
+            max - (max * ((self.time_on_day - DAY_LENGTH / 2) / (DAY_LENGTH / 2.0)))
+        };
+
+        vec.x = offset_factor * factor;
+        vec.y = factor;
+        vec.z = factor;
+    }
+
+    // Bei tag ist die Helligkeit 100, leicht bläulich
+    // Bei nacht ist die Helligkeit 0
+    pub fn get_sky_light(&self) -> Vector3f {
+        let mut vec = Vector3f::new();
+
+        let mut offset_factor = 1.1;
+        let mut max = 100 / offset_factor;
+
+        let mut factor = if (self.time_on_day <= (DAY_LENGTH / 2.0)) {
+            max * (self.time_on_day / (DAY_LENGTH / 2.0))
+        } else {
+            max - (max * ((self.time_on_day - DAY_LENGTH / 2) / (DAY_LENGTH / 2.0)))
+        };
+
+        vec.x = factor;
+        vec.y = factor;
+        vec.z = offset_factor * factor;
     }
 
     pub fn get_time_year(&self) -> u32 {

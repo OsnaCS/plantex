@@ -94,7 +94,7 @@ impl Game {
                                                       self.control_switcher.get_camera());
             match vec {
                 Some(n) => {
-                    self.remove_hexagon_at(n.1, n.0.z);
+                    // self.remove_hexagon_at(n.1, n.0.z);
                     let mut view = self.world_manager.get_mut_view();
                     view.outline.display = true;
                     view.outline.pos = n.0;
