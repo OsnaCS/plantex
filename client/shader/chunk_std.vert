@@ -48,6 +48,7 @@ void main() {
     x_radius = radius;
     x_tex_coords = tex_coords;
 
+    // adjusting the height for the sides of each hexagon
     if(tex_coords.y > 1.5){
         x_tex_coords.y = height;
     }
