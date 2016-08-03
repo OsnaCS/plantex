@@ -4,6 +4,8 @@ use glium::backend::Facade;
 use glium::texture::DepthTexture2d;
 use glium::{self, DepthTest, DrawParameters, LinearBlendingFactor};
 use glium::draw_parameters::BlendingFunction;
+use glium::texture::Texture2d;
+use glium;
 use Camera;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -84,7 +86,7 @@ impl WorldView {
     pub fn draw<S: glium::Surface>(&self,
                                    surface: &mut S,
                                    camera: &Camera,
-                                   shadow_map: &DepthTexture2d,
+                                   shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
                                    sun_dir: Vector3f) {
         for chunkview in self.chunks.values() {

@@ -57,12 +57,13 @@ impl PlantView {
                 ..Default::default()
             },
             backface_culling: BackfaceCullingMode::CullClockwise,
+            multisampling: true,
             ..Default::default()
         };
 
         surface.draw(&self.vertices,
                   &self.indices,
-                  &self.renderer.shadow_program(),
+                  &self.renderer.program(),
                   &uniforms,
                   &params)
             .unwrap();
