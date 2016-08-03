@@ -22,7 +22,6 @@ in patch OutputPatch oPatch;
 out vec3 tePosition;
 out vec3 tes_normal;
 out vec3 tes_color;
-out vec3 pos;
 
 // Vertex/Pixel coordinates in shadow map
 out vec4 shadowCoord;
@@ -30,7 +29,6 @@ out vec4 shadowCoord;
 uniform vec3 offset;
 uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
-uniform vec3 cam_pos;
 uniform mat4 depth_view_proj;
 
 //interpolates 3D coordinates
@@ -61,17 +59,8 @@ void main()
                     oPatch.WorldPos_B012 * 3.0 * u * v * v +
                     oPatch.WorldPos_B111 * 6.0 * w * u * v;
 
-    // projection on camera
-    vec3 worldPos = tePosition + offset;
-    gl_Position = proj_matrix * view_matrix * vec4(worldPos, 1);
-
-    // position for fog
-    pos = worldPos - cam_pos;
-    pos = vec3(pos.x, pos.y, 0);
-
-    // yes, this somehow is *also* the world position
-    vec4 world = view_matrix * vec4(worldPos, 1);
+    //projection on camera
+    vec4 world = view_matrix * vec4(tePosition + offset, 1);
     gl_Position = proj_matrix * world;
-    // coordinates on the shadow map
     shadowCoord = depth_view_proj * world;
 }
