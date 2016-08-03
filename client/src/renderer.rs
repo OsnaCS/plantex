@@ -43,15 +43,21 @@ const BLOOM_STATE: i8 = 1;
 // number of times the light texture will be blured.
 // each iteration contains one horizontal and one vertical blur
 const BLOOM_ITERATION: u8 = 4;
-
-const BLUR_TEXTURE_FACTOR: u32 = 2;
+// Divisor to downsize blur texture
+// Increase to decrease bloom texture size DEFAULT: 2
+const BLUR_TEXTURE_DIVISOR: u32 = 2;
 
 // ===================  AUTOMATIC BRIGHTNESS ADAPTION  ===============
 
 // The following values define how well you can adapt to brightness / darkness.
 // The adaption of the eye is clamped between these values.
-const EYE_OPEN: f32 = 3.2;  //increase to allow to see better in the dark       DEFAULT:3.2
-const EYE_CLOSED: f32 = 0.8;  //decrease to allow to see brighter areas better  DEFAULT:0.8
+const EYE_OPEN: f32 = 3000.2;  //increase to allow to see better in the dark       DEFAULT:3.2
+const EYE_CLOSED: f32 = 0.0008;  //decrease to allow to see brighter areas better  DEFAULT:0.8
+
+// The following values define how much the exposure value will be drawn to
+// a given ("optimal") value.
+const OPTIMAL_EXPOSURE: f32 = 2.0;  // optimal Value that exposure should reach.    DEFAULT: 2.0
+const WE_WANT_OPTIMAL: f32 = 0.2;  // Agressiveness of exposure correction in [0;1] DEFAULT: 0.2
 
 // Speed of eye adaption. Lower values result in longer time needed
 // to adapt to different light conditions.
@@ -63,7 +69,8 @@ const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.016; //adaption speed from dark to bri
 
 
 
-
+// TODO: WE_WANT_OPTIMAL kram anpassen, Nächte dunkler, Brightness adaption
+// aggressiver
 
 
 
@@ -85,20 +92,35 @@ pub struct Renderer {
     shadow_debug: bool,
     shadow_debug_program: Program,
     shadow_blend_program: Program,
+    // Vertexbuffer of screenquad
     quad_vertex_buffer: VertexBuffer<Vertex>,
+    // Indexbuffer of screenquad
     quad_index_buffer: IndexBuffer<u16>,
+    // Screen resolution
     resolution: (u32, u32),
+    // filter to create bloom light texture
     bloom_filter_tex: Texture2d,
+    // texture for the horizontal bloom blur
     bloom_horz_tex: Texture2d,
+    // texture for the vertical bloom blur
     bloom_vert_tex: Texture2d,
+    // texture for blending the bloom light texture with the quad texture
     bloom_blend_tex: Texture2d,
+    // shader programs for tonemapping
     tonemapping_program: Program,
+    // shader programs for bloom light texture
     bloom_filter_program: Program,
+    // shader programs for bloom blur texture
     bloom_blur_program: Program,
+    // shader programs for blending the bloom light texture with the quad texture
     bloom_blend_program: Program,
+    // shader programs for shrinking the texture
     adaption_shrink_program: Program,
+    // shader programs to transform texture into greyscale for calculating avg. exposure
     relative_luminance_program: Program,
+    // Vector of Textures used to downscale the szene to 1 pixel size for calc. avg. exposure
     lum_texs: Vec<Texture2d>,
+    // last
     last_lum: f32,
     lum_relative_tex: Texture2d,
 }
@@ -352,7 +374,10 @@ impl Renderer {
         }
 
         let exposure = self.last_lum;
-        // info!("exp: {}", exposure);
+
+
+        let exposure = (1.0 - WE_WANT_OPTIMAL) * exposure + WE_WANT_OPTIMAL * OPTIMAL_EXPOSURE;
+        info!("exp: {}", exposure);
 
 
 
@@ -453,16 +478,16 @@ impl Renderer {
             Texture2d::empty_with_format(self.context.get_facade(),
                                          ffff,
                                          MipmapsOption::NoMipmap,
-                                         (self.resolution.0) / BLUR_TEXTURE_FACTOR,
-                                         (self.resolution.1) / BLUR_TEXTURE_FACTOR)
+                                         (self.resolution.0) / BLUR_TEXTURE_DIVISOR,
+                                         (self.resolution.1) / BLUR_TEXTURE_DIVISOR)
                 .unwrap();
 
         self.bloom_vert_tex =
             Texture2d::empty_with_format(self.context.get_facade(),
                                          ffff,
                                          MipmapsOption::NoMipmap,
-                                         (self.resolution.0) / BLUR_TEXTURE_FACTOR,
-                                         (self.resolution.1) / BLUR_TEXTURE_FACTOR)
+                                         (self.resolution.0) / BLUR_TEXTURE_DIVISOR,
+                                         (self.resolution.1) / BLUR_TEXTURE_DIVISOR)
                 .unwrap();
 
         self.bloom_blend_tex = Texture2d::empty_with_format(self.context.get_facade(),
@@ -555,14 +580,14 @@ impl Renderer {
         let avg_luminance = pixel;
 
 
-        info!("lum: {}", avg_luminance);
+        info!("lum: {:?}", buf);
 
         // the exposure level is inversely propotional to the avg. luminance.
         // log2 is necessary to adapt more for the lower than for the higher values.
         // (This is still WIP and will be changed in the next version.)
         // The +1 in the argument of the log is necessary because many color values
         // are <1 and would result in a negative result.
-        let adapted_luminance = (1.0 / ((avg_luminance + 1.0).log2()))
+        let adapted_luminance = (1.0 / avg_luminance)
             .min(EYE_OPEN)
             .max(EYE_CLOSED);
         Ok(adapted_luminance)
