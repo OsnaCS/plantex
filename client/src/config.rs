@@ -17,12 +17,12 @@ pub struct Config {
     pub resolution: Dimension2u,
     pub window_mode: WindowMode,
     pub window_title: String,
+    pub bloom: bool,
     pub vsync: bool,
     pub seed: u64, /* view range
                     * anti aliasing
                     * Controls
                     * frames
-                    * seed
                     * Chunkrange */
 }
 impl Config {
@@ -42,6 +42,10 @@ impl Config {
                 .help("[Windowed, FullScreen] 'Sets WindowMode'")
                 .takes_value(true)
                 .long("windowmode"))
+            .arg(Arg::with_name("Bloom")
+                .help("[on/off]")
+                .takes_value(true)
+                .long("bloom"))
             .arg(Arg::with_name("Vsync")
                 .help("[on/off]")
                 .takes_value(true)
@@ -70,7 +74,8 @@ impl Config {
 resolution_width = 800
 resolution_height = 600
 windowmode = "Windowed"
-vsync = true
+bloom = true
+vsync = false
 
 [Game_settings]
 seed = 42
@@ -90,19 +95,29 @@ seed = 42
 }
 
 impl Default for Config {
+
+    // default values for config
     fn default() -> Self {
         Config {
             resolution: Dimension2::new(800, 600),
             window_mode: WindowMode::Windowed,
             window_title: format!("Plantex {}", env!("CARGO_PKG_VERSION")),
+            bloom: true,
             vsync: false,
             seed: 42,
         }
     }
 }
 
+/// read configuration from toml-file
+/// overwrite default values with toml-file values
+/// return updated config
 fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Config, Box<StdError>> {
+
+    // default name for toml-file
     let mut name = "config.toml";
+
+    // if user defined another toml-file, try to read from that
     if let Some(file) = matches.value_of("File") {
         let file_reg = Regex::new(r#".*\\.toml"#).unwrap();
 
@@ -112,10 +127,13 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
             return Err("invalid File in command line".into());
         }
     }
+
+    // only proceed if toml-file exists
     if Path::new(name).exists() {
         let mut f = try!(File::open(name));
         let mut s = String::new();
 
+        // read file content as string
         try!(f.read_to_string(&mut s));
 
         let value: Value = match s.parse() {
@@ -123,6 +141,8 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
             _ => return Err("corrupted config file".into()),
         };
 
+
+        // Resolution Width
         let mut res_toml = match value.lookup("Graphic.resolution_width") {
             Some(n) => n,
             None => return Err("resolution_width in config file is invalid".into()),
@@ -139,6 +159,8 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
             None => return Err("resolution_width in config file has no integer".into()),
         };
 
+
+        // Resolution height
         res_toml = match value.lookup("Graphic.resolution_height") {
             Some(n) => n,
             None => return Err("resolution_height in config file is invalid".into()),
@@ -157,6 +179,8 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
 
         default_config.resolution = Dimension2::new(int_res_width, int_res_height);
 
+
+        // Window mode
         let window = match value.lookup("Graphic.windowmode") {
             Some(n) => n,
             None => return Err("resolution_height in config file is invalid".into()),
@@ -173,9 +197,23 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
             _ => return Err("invalid Window Mode in config file".into()),
         }
 
+
+        // Bloom
+        let bloom = match value.lookup("Graphic.bloom") {
+            Some(n) => n,
+            None => return Err("bloom in config file is invalid".into()),
+        };
+
+        match bloom.as_bool() {
+            Some(n) => default_config.bloom = n,
+            None => return Err("bloom value in config file is invalid".into()),
+        };
+
+
+        // Vsync
         let sync = match value.lookup("Graphic.vsync") {
             Some(n) => n,
-            None => return Err("resolution_height in config file is invalid".into()),
+            None => return Err("vsync in config file is invalid".into()),
         };
 
         match sync.as_bool() {
@@ -183,6 +221,8 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
             None => return Err("vsync value in config file is invalid".into()),
         };
 
+
+        // world seed
         let seed = match value.lookup("Game_settings.seed") {
             Some(n) => n,
             None => return Err("seed in config file is invalid".into()),
@@ -205,10 +245,12 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
     Ok(default_config)
 }
 
-
+/// read configuration from command line
+/// overwrite config values with command line values
+/// return updated config
 fn config_command(mut toml_config: Config, matches: &ArgMatches) -> Result<Config, Box<StdError>> {
 
-
+    // resolution
     if let Some(res) = matches.value_of("Resolution") {
         let reg_res = Regex::new(r"^([1-9]\d{1,4})x([1-9]\d{1,4})").unwrap();
 
@@ -224,7 +266,7 @@ fn config_command(mut toml_config: Config, matches: &ArgMatches) -> Result<Confi
         }
     }
 
-
+    // Windows mode
     if let Some(mode) = matches.value_of("WindowMode") {
         match mode {
             "Windowed" => toml_config.window_mode = WindowMode::Windowed,
@@ -233,6 +275,16 @@ fn config_command(mut toml_config: Config, matches: &ArgMatches) -> Result<Confi
         }
     }
 
+    // Bloom
+    if let Some(bloom) = matches.value_of("Bloom") {
+        match bloom {
+            "on" => toml_config.bloom = true,
+            "off" => toml_config.bloom = false,
+            _ => return Err("Bloom can only be set on or off on command line".into()),
+        }
+    }
+
+    // Vsync
     if let Some(sync) = matches.value_of("Vsync") {
         match sync {
             "on" => toml_config.vsync = true,
@@ -241,12 +293,14 @@ fn config_command(mut toml_config: Config, matches: &ArgMatches) -> Result<Confi
         }
     }
 
+    // world Seed
     if let Some(seed) = matches.value_of("Seed") {
         match seed.parse::<u64>() {
             Ok(n) => toml_config.seed = n,
             _ => return Err("Seed from command line is invalid".into()),
         }
     }
+
     Ok(toml_config)
 }
 
