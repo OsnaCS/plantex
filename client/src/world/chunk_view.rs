@@ -38,7 +38,7 @@ impl ChunkView {
 
         for (axial, pillar) in chunk.pillars() {
             let pos = offset.to_real() + axial.to_real();
-            pillars.push(PillarView::from_pillar(pos, pillar, plant_renderer.clone(), facade));
+            pillars.push(PillarView::from_pillar(pillar, plant_renderer.clone(), facade));
             for section in pillar.sections() {
 
                 // matching the ground for texturing
@@ -113,7 +113,7 @@ impl ChunkView {
 
         for (axial, pillar) in chunk.unwrap().pillars() {
             let pos = self.offset.to_real() + axial.to_real();
-            pillars.push(PillarView::from_pillar(pos, pillar, self.plant_renderer.clone(), facade));
+            pillars.push(PillarView::from_pillar(pillar, self.plant_renderer.clone(), facade));
             for section in pillar.sections() {
                 let g = match section.ground {
                     GroundMaterial::Grass => 1,
@@ -228,8 +228,8 @@ pub struct PillarView {
 }
 
 impl PillarView {
-    fn from_pillar<F: Facade>(pos: Point2f,
-                              pillar: &HexPillar,
+    // fn from_pillar<F: Facade>( pos: Point2f,
+    fn from_pillar<F: Facade>(pillar: &HexPillar,
                               plant_renderer: Rc<PlantRenderer>,
                               facade: &F)
                               -> PillarView {
@@ -239,8 +239,7 @@ impl PillarView {
                 .map(|prop| {
                     match prop.prop {
                         PropType::Plant(ref plant) => {
-                            let pos = Point3f::new(pos.x, pos.y, prop.baseline.to_real());
-                            PlantView::from_plant(pos, plant, plant_renderer.clone(), facade)
+                            PlantView::from_plant(plant, plant_renderer.clone(), facade)
                         }
                     }
                 })

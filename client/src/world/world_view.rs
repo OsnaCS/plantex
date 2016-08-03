@@ -22,8 +22,11 @@ pub struct WorldView {
     chunks: HashMap<ChunkIndex, ChunkView>,
     chunk_renderer: Rc<ChunkRenderer>,
     plant_renderer: Rc<PlantRenderer>,
+
     pub outline: HexagonOutline,
-    plant_views: HashMap<ChunkIndex, Vec<PlantView>>,
+
+    plant_views: HashMap<usize, PlantView>,
+
     plant_list: Vec<Plant>,
 }
 
@@ -55,22 +58,24 @@ impl WorldView {
 
         for (pillar_pos, pillar) in chunk.pillars() {
             for prop in pillar.props() {
-                let plant = &self.plant_list[prop.plant_index];
+                let plant_index = prop.plant_index;
+                let plant = &self.plant_list[plant_index];
                 let real_pos = pillar_pos.to_real();
+
                 let real_chunk_pos = (chunk_pos.0 * world::CHUNK_SIZE as i32).to_real();
 
                 self.plant_views
-                    .entry(chunk_pos)
-                    .or_insert(Vec::new())
-                    .push(PlantView::from_plant(Point3f::new(real_chunk_pos.x + real_pos.x,
-                                                             real_chunk_pos.y + real_pos.y,
-                                                             prop.baseline.units() as f32 *
-                                                             world::PILLAR_STEP_HEIGHT),
-                                                &plant,
-                                                self.plant_renderer.clone(),
-                                                facade));
+                    .entry(plant_index)
+                    .or_insert(PlantView::from_plant(plant, self.plant_renderer.clone(), facade))
+                    .add_instance_from_pos(chunk_pos,
+                                           Point3f::new(real_chunk_pos.x + real_pos.x,
+                                                        real_chunk_pos.y + real_pos.y,
+                                                        prop.baseline.units() as f32 *
+                                                        world::PILLAR_STEP_HEIGHT));
             }
         }
+
+
     }
 
     pub fn get_chunk_view(&self, index: &ChunkIndex) -> Option<&ChunkView> {
@@ -83,7 +88,9 @@ impl WorldView {
 
     pub fn remove_chunk(&mut self, chunk_pos: ChunkIndex) {
         self.chunks.remove(&chunk_pos);
-        self.plant_views.remove(&chunk_pos);
+        for plant_view in self.plant_views.values_mut() {
+            plant_view.remove_instance_at_pos(chunk_pos);
+        }
     }
 
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
@@ -134,12 +141,8 @@ impl WorldView {
         }
 
 
-        for plantview_vec in self.plant_views.values() {
-            for plantview in plantview_vec {
-                plantview.draw(surface, camera, shadow_map, depth_view_proj, sun_dir);
-
-                // plantview.draw(surface, camera);
-            }
+        for plantview in self.plant_views.values() {
+            plantview.draw(surface, camera, shadow_map, depth_view_proj, sun_dir);
         }
     }
 }
