@@ -97,6 +97,11 @@ impl WorldView {
         for chunkview in self.chunks.values() {
             chunkview.draw_shadow(surface, camera);
         }
+
+        for plantview in self.plant_views.values() {
+            plantview.draw_shadow(surface, camera);
+        }
+
     }
 
     pub fn draw<S: glium::Surface>(&self,

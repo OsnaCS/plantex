@@ -86,7 +86,6 @@ impl PlantView {
         let tess_level_outer = 1.0 as f32;
 
         let uniforms = uniform! {
-            // offset: self.pos.to_arr(),
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
             tess_level_inner: tess_level_inner,
