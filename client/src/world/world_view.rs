@@ -106,7 +106,7 @@ impl WorldView {
             let outline_params = DrawParameters {
                 depth: glium::Depth {
                     write: false,
-                    test: DepthTest::IfLess,
+                    test: DepthTest::Overwrite,
                     ..Default::default()
                 },
                 blend: glium::Blend {

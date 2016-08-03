@@ -94,10 +94,10 @@ impl Game {
                                                       self.control_switcher.get_camera());
             match vec {
                 Some(n) => {
-                    // self.remove_hexagon_at(n);
+                    // self.remove_hexagon_at(n.1, n.0.z);
                     let mut view = self.world_manager.get_mut_view();
                     view.outline.display = true;
-                    view.outline.pos = n;
+                    view.outline.pos = n.0;
                 }
                 None => {
                     let mut view = self.world_manager.get_mut_view();
@@ -133,13 +133,12 @@ impl Game {
     }
 
     // // need sorted pillars
-    // fn remove_hexagon_at(&mut self, pos: Vector3f) {
-    //     let view_pos = Point2f::new(pos.x, pos.y);
-    //     let pillar_index = PillarIndex(AxialPoint::from_real(view_pos));
+    // fn remove_hexagon_at(&mut self, pos: AxialPoint, height: f32) {
+    //     let pillar_index = PillarIndex(pos);
 
     //     match self.world_manager.mut_world().pillar_at_mut(pillar_index) {
     //         Some(pillar) => {
-    //             let bottom = pos.z - pos.z % world::PILLAR_STEP_HEIGHT;
+    //             let bottom = height - height % world::PILLAR_STEP_HEIGHT;
 
     //             let mut i: usize = 0;
     //             for section in pillar.sections() {
@@ -150,13 +149,13 @@ impl Game {
     //             }
     //             let mut pillar_section = pillar.sections_mut();
     //             if pillar_section.len() > i {
-    // if pillar_section[i].top.to_real() != pos.z +
+    // if pillar_section[i].top.to_real() != height +
     // world::PILLAR_STEP_HEIGHT {
     //                     let sec = PillarSection {
     //                         ground: pillar_section[i].ground.clone(),
     //                         top: pillar_section[i].top,
     //                         bottom:
-    // HeightType::from_units((pos.z /
+    // HeightType::from_units((height /
     // world::PILLAR_STEP_HEIGHT) as u16),
     //                     };
     //                     pillar_section.insert(i, sec);
@@ -165,7 +164,7 @@ impl Game {
     //                     }
     //                 }
     //                 pillar_section[i].top =
-    // HeightType::from_units(HeightType::from_real(pos.z) as
+    // HeightType::from_units(HeightType::from_real(height) as
     // u16);
     //                 if pillar_section[i].top == pillar_section[i].bottom {
     //                     pillar_section.remove(i);
@@ -176,11 +175,14 @@ impl Game {
     //         }
     //         None => return,
     //     };
-    //     self.world_manager.recalculate_chunk(Point3f::new(pos.x, pos.y, pos.z));
+    //     self.world_manager
+    //         .recalculate_chunk(pos);
     // }
 }
 
-fn get_pillarsectionpos_looking_at(world: &World, cam: Camera) -> Option<Vector3f> {
+fn get_pillarsectionpos_looking_at(world: &World,
+                                   cam: Camera)
+                                   -> Option<(Vector3f, AxialPoint, f32)> {
     let cam_pos = cam.position;
     let mut look_vec = cam.get_look_at_vector().normalize();
     let view_distance = 12.0;
@@ -192,7 +194,9 @@ fn get_pillarsectionpos_looking_at(world: &World, cam: Camera) -> Option<Vector3
         look_vec = cam.get_look_at_vector().normalize() * step;
 
         let view_pos = Point2f::new(cam_pos.x + look_vec.x, cam_pos.y + look_vec.y);
-        let pillar_index = PillarIndex(AxialPoint::from_real(view_pos));
+        let ax_point = AxialPoint::from_real(view_pos);
+
+        let pillar_index = PillarIndex(ax_point.clone());
 
         let mut height = cam_pos.z + look_vec.z;
         height -= height % world::PILLAR_STEP_HEIGHT;
@@ -204,9 +208,9 @@ fn get_pillarsectionpos_looking_at(world: &World, cam: Camera) -> Option<Vector3
 
         match final_pos {
             Some(_) => {
-                let ax_point = AxialPoint::from_real(view_pos);
-
-                return Some(Vector3f::new(ax_point.to_real().x, ax_point.to_real().y, height));
+                return Some((Vector3f::new(ax_point.to_real().x, ax_point.to_real().y, height),
+                             ax_point,
+                             height));
             }
             None => {}
         };

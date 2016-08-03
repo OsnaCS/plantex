@@ -180,15 +180,13 @@ impl WorldManager {
         }
     }
 
-    pub fn recalculate_chunk(&mut self, pos: Point3f) {
+    pub fn recalculate_chunk(&mut self, pos: AxialPoint) {
         use std::ops::DerefMut;
 
         let mut shared_tmp = self.shared.borrow_mut();
         let shared = shared_tmp.deref_mut();
 
-        let axial_pos = AxialPoint::from_real(Point2f::new(pos.x, pos.y));
-        let chunk_pos = AxialPoint::new(axial_pos.q / CHUNK_SIZE as i32,
-                                        axial_pos.r / CHUNK_SIZE as i32);
+        let chunk_pos = AxialPoint::new(pos.q / CHUNK_SIZE as i32, pos.r / CHUNK_SIZE as i32);
         let index = ChunkIndex(chunk_pos);
 
         shared.world_view.refresh_chunk(index,
