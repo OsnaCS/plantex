@@ -91,7 +91,7 @@ impl WorldView {
 
         for plantview_vec in self.plant_views.values() {
             for plantview in plantview_vec {
-                plantview.draw(surface, camera);
+                plantview.draw(surface, camera, sun_dir);
             }
         }
     }

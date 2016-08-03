@@ -72,7 +72,7 @@ impl PlantView {
             .unwrap();
     }
 
-    pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
+    pub fn draw<S: glium::Surface>(&self, surface: &mut S, camera: &Camera, sun_dir: Vector3f) {
         let tess_level_inner = 10.0 as f32;
         let tess_level_outer = 10.0 as f32;
 
@@ -83,6 +83,9 @@ impl PlantView {
             tess_level_inner: tess_level_inner,
             tess_level_outer: tess_level_outer,
             camera_pos: camera.position.to_arr(),
+            plant_pos: self.pos.to_arr(),
+            cam_pos: camera.position.to_arr(),
+            sun_dir: sun_dir.to_arr(),
         };
 
         let params = DrawParameters {
