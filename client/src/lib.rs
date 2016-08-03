@@ -3,8 +3,10 @@
 //!
 
 extern crate base;
+extern crate rand;
 #[macro_use]
 extern crate glium;
+extern crate noise;
 #[macro_use]
 extern crate log;
 
