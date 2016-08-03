@@ -1,11 +1,9 @@
 use base::world::{self, Chunk, ChunkIndex, World};
 use base::math::*;
 use glium::backend::Facade;
-use glium::texture::DepthTexture2d;
 use glium::{self, DepthTest, DrawParameters, LinearBlendingFactor};
 use glium::draw_parameters::BlendingFunction;
 use glium::texture::Texture2d;
-use glium;
 use Camera;
 use std::collections::HashMap;
 use std::rc::Rc;
