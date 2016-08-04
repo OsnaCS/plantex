@@ -312,7 +312,7 @@ impl Renderer {
                   weather: &mut Weather,
                   sky_view: &SkyView)
                   -> Result<(), Box<Error>> {
-        info!("------------ {:?}", daytime.get_sky_light());
+        // info!("------------ {:?}", daytime.get_sky_light());
         // ===================================================================
         // set up frustum
         // ===================================================================
@@ -388,7 +388,7 @@ impl Renderer {
         self.exposure = (1.0 - WE_WANT_OPTIMAL) * self.last_lum +
                         WE_WANT_OPTIMAL * OPTIMAL_EXPOSURE;
         // self.exposure = self.exposure.sqrt();
-        info!("exp: {}", self.exposure);
+        // info!("exp: {}", self.exposure);
 
         // ===================================================================
         //                                  Bloom
@@ -583,7 +583,7 @@ impl Renderer {
             });
 
         let mut avg_luminance = buf[0][0];
-        info!("avg_luminance: {}", avg_luminance);
+        // info!("avg_luminance: {}", avg_luminance);
         avg_luminance += 1.0 / (avg_luminance + DARKNESS_CORRECTION);
 
         // the exposure level is inversely propotional to the avg. luminance.
