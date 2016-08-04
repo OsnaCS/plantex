@@ -107,9 +107,9 @@ void main() {
     sunset_color = sunset_color / 255;
     vec3 nightblue_color = (vec3 (0.0, 0.0, 1.0) / 255);
 
-    float nighttime = -0.2;
+    float nighttime = -0.1;
     float sunrise_start = 0.0;
-    float sunset_start = 0.0;
+    float sunset_start = 0.1;
     float high_noon_start = 0.3;
 
     float sun_z = normalize(u_sun_pos).z;
@@ -182,7 +182,7 @@ void main() {
 
     // float star_value = 1 + theta * 0.01;
 
-    star_color = vec3(max(0, (star - 0.48)) * 25)*0.4;
+    star_color = vec3(max(0, (star - 0.48)) * 15)*0.4;
 
-    color = color * 0.1 * (u_sun_color * 0.3 + u_sky_light) + star_color * 10;
+    color = color * 0.1 * (u_sun_color * 0.3 + u_sky_light) + star_color;
 }

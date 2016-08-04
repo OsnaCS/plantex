@@ -72,8 +72,7 @@ void main() {
     if (lightCoords.x < 0 || lightCoords.x > 1 || lightCoords.y < 0 || lightCoords.y > 1) {
         // Outside of shadow map. Guess brightness from sun angle.
         float sunDot = dot(vec3(0, 0, 1), normalize(sun_dir));
-        lit = max(-sunDot * 1.0, 0.0);
-        lit = 1;
+        lit = clamp(-sunDot * 3.0, 0, 1);
     } else {
         vec2 moments = texture(shadow_map, lightCoords.xy).xy;
         lit = lightCoverage(moments, lightCoords.z - SHADOW_BIAS);
@@ -81,6 +80,7 @@ void main() {
         // lit = 1;
     }
     if (sun_dir.z > 0) {
+        // lit *= max(0, 1 + dot(vec3(0, 0, 1), normalize(sun_dir)) * 2);
         lit = 0;
     }
 
@@ -156,7 +156,7 @@ void main() {
 
     // Final color calculation
     // color = diffuse_color * AMBIENT + diffuse_color * diffuse * lit + diffuse_color * specular;
-    color = diffuse_color * sky_light +  lit * sun_color * diffuse_color * (diffuse + 0);
+    color = diffuse_color * sky_light +  lit * sun_color * diffuse_color * (diffuse + specular);
 
     // Set Border to distinguish hexagons
     if (x_radius > 0.98) {
