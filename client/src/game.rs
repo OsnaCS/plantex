@@ -95,6 +95,7 @@ impl Game {
             self.daytime.update(delta);
             self.sky_view.update(self.daytime.get_sun_position());
             self.sun.update(self.daytime.get_sun_position());
+
             // Display Outline of Hexagon looking at
             let vec = get_pillarsectionpos_looking_at(&self.world_manager.get_world(),
                                                       self.control_switcher.get_camera());

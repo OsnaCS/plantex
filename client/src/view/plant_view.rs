@@ -22,7 +22,7 @@ pub struct PlantView {
     instance_buf: VertexBuffer<Instance>,
     indices: IndexBuffer<u32>,
     shadow_indices: IndexBuffer<u32>,
-    renderer: Rc<PlantRenderer>, // pos: Point3f,
+    renderer: Rc<PlantRenderer>,
 }
 
 #[derive(Copy, Clone)]
@@ -86,14 +86,9 @@ impl PlantView {
     }
 
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
-        let tess_level_inner = 1.0 as f32;
-        let tess_level_outer = 1.0 as f32;
-
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
-            tess_level_inner: tess_level_inner,
-            tess_level_outer: tess_level_outer,
             camera_pos: camera.position.to_arr(),
         };
 
@@ -123,19 +118,15 @@ impl PlantView {
                                    depth_view_proj: &Matrix4<f32>,
                                    daytime: &DayTime,
                                    sun_dir: Vector3f) {
-        let tess_level_inner = 7.0 as f32;
-        let tess_level_outer = 7.0 as f32;
+        let tess_level_inner = 5.0 as f32;
+        let tess_level_outer = 5.0 as f32;
 
         let uniforms = uniform! {
-            // offset: self.pos.to_arr(),
-
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
             tess_level_inner: tess_level_inner,
             tess_level_outer: tess_level_outer,
             camera_pos: camera.position.to_arr(),
-            // plant_pos: self.pos.to_arr(),
-            cam_pos: camera.position.to_arr(),
             shadow_map: shadow_map.sampled().wrap_function(SamplerWrapFunction::Clamp),
             depth_view_proj: depth_view_proj.to_arr(),
             sun_dir: sun_dir.to_arr(),

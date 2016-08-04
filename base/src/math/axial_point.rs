@@ -44,9 +44,9 @@ impl AxialPoint {
         let y: f32 = -q - r;
 
         // Rounding
-        let mut rx: i32 = (q + 0.5) as i32;
-        let ry: i32 = (y + 0.5) as i32;
-        let mut rz: i32 = (r + 0.5) as i32;
+        let mut rx: i32 = q.round() as i32;
+        let ry: i32 = y.round() as i32;
+        let mut rz: i32 = r.round() as i32;
 
         // To test the right rounding
         let x_diff = (rx as f32 - q).abs();

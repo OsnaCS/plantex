@@ -17,7 +17,7 @@ use base::world::ground::GroundMaterial;
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
-    offset: AxialPoint,
+    pub offset: AxialPoint,
     renderer: Rc<ChunkRenderer>,
     /// Instance data buffer.
     pillar_buf: VertexBuffer<Instance>, /* save corner positions for draw
