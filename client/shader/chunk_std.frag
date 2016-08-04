@@ -14,6 +14,8 @@ out vec3 color;
 // Vector from the camera to the sun
 uniform vec3 sun_dir;
 uniform sampler2D shadow_map;
+uniform vec3 sun_color;
+uniform vec3 sky_light;
 
 // Normals to bump mapping the textures
 uniform sampler2D normal_sand;
@@ -63,16 +65,23 @@ mat3 cotangent_frame(vec3 normal, vec3 pos, vec2 uv) {
 }
 
 void main() {
+    // vec3 lightCoords = shadowCoord.xyz;
     vec3 lightCoords = shadowCoord.xyz / shadowCoord.w;
     lightCoords = lightCoords * 0.5 + 0.5;
     float lit;
     if (lightCoords.x < 0 || lightCoords.x > 1 || lightCoords.y < 0 || lightCoords.y > 1) {
         // Outside of shadow map. Guess brightness from sun angle.
         float sunDot = dot(vec3(0, 0, 1), normalize(sun_dir));
-        lit = max(-sunDot * 3.0, 0.0);
+        lit = max(-sunDot * 1.0, 0.0);
+        lit = 1;
     } else {
         vec2 moments = texture(shadow_map, lightCoords.xy).xy;
         lit = lightCoverage(moments, lightCoords.z - SHADOW_BIAS);
+        lit = mix(1.0, lit, 0.9);
+        // lit = 1;
+    }
+    if (sun_dir.z > 0) {
+        lit = 0;
     }
 
     // ==================
@@ -110,10 +119,10 @@ void main() {
     // Calculate Tangent Binormal Normal (tbn) Matrix to multiply with normal_map
     // to convert to real normals
     mat3 tbn = cotangent_frame(normal_map, x_position, x_tex_coords);
-    vec3 real_normal = normalize(tbn * -(normal_map * 2.0 - 1.0));
+    vec3 real_normal = normalize(tbn * -(normal_map * 1.6 - 1.0));
 
     // Calculate diffuse light component
-    float diffuse = max(0.0, dot(-sun_dir, real_normal));
+    float diffuse = max(0.0, dot(-normalize(sun_dir), real_normal));
 
 
     diffuse_color *= x_material_color;
@@ -125,32 +134,34 @@ void main() {
     vec3 half_direction = sun_dir;
     float specular = pow(max(dot(half_direction, real_normal), 0.0), 16.0);
 
-    if (x_ground == 1) {
-        diffuse *= 40;
-        specular *= 40;
-    } else if (x_ground == 2) {
-        diffuse *= 35;
-        specular *= 35;
-    } else if (x_ground == 3) {
-        diffuse *= 10;
-        specular *= 10;
-    } else if (x_ground == 4) {
-        diffuse *= 35;
-        specular *= 35;
-    } else if (x_ground == 5) {
-        diffuse *= 20;
-        specular *= 20;
-    } else if (x_ground == 7) {
-        diffuse *= 30;
-        specular *= 30;
-    }
+    // if (x_ground == 1) {
+    //     diffuse *= 40;
+    //     specular *= 40;
+    // } else if (x_ground == 2) {
+    //     diffuse *= 35;
+    //     specular *= 35;
+    // } else if (x_ground == 3) {
+    //     diffuse *= 10;
+    //     specular *= 10;
+    // } else if (x_ground == 4) {
+    //     diffuse *= 35;
+    //     specular *= 35;
+    // } else if (x_ground == 5) {
+    //     diffuse *= 20;
+    //     specular *= 20;
+    // } else if (x_ground == 7) {
+    //     diffuse *= 30;
+    //     specular *= 30;
+    // }
 
     // Final color calculation
-    color = diffuse_color * AMBIENT + diffuse_color * diffuse * lit + diffuse_color * specular;
+    // color = diffuse_color * AMBIENT + diffuse_color * diffuse * lit + diffuse_color * specular;
+    color = diffuse_color * sky_light +  lit * sun_color * diffuse_color * (diffuse + 0);
 
     // Set Border to distinguish hexagons
     if (x_radius > 0.98) {
-        color *= 0.7;
+        // color *= 0.7;
+        color = log(1 + color);
     }
 
     // apply fog to final color
@@ -166,5 +177,7 @@ void main() {
     }
 
     vec3 fog_color = vec3(0.05 + fog_time, 0.05 + fog_time, 0.1 + fog_time);
-    color = mix(color, fog_color, distance);
+    vec3 tmp_color = mix(color, fog_color, distance);
+    // color = tmp_color * ;
+    // color += tmp_color * sky_light;
 }

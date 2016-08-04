@@ -13,6 +13,7 @@ use base::prop::plant::{Plant, Tree};
 use std::rc::Rc;
 use super::PlantRenderer;
 use base::prop::plant::ControlPoint;
+use DayTime;
 
 /// Graphical representation of a 'base::Plant'
 pub struct PlantView {
@@ -117,6 +118,7 @@ impl PlantView {
                                    camera: &Camera,
                                    shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
+                                   daytime: &DayTime,
                                    sun_dir: Vector3f) {
         let tess_level_inner = 10.0 as f32;
         let tess_level_outer = 10.0 as f32;
@@ -134,6 +136,8 @@ impl PlantView {
             shadow_map: shadow_map.sampled().wrap_function(SamplerWrapFunction::Clamp),
             depth_view_proj: depth_view_proj.to_arr(),
             sun_dir: sun_dir.to_arr(),
+            sun_color: daytime.get_sun_color().to_arr(),
+            sky_light: daytime.get_sky_light().to_arr(),
         };
 
         let params = DrawParameters {

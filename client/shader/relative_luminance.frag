@@ -16,7 +16,7 @@ uniform sampler2D image;
 
 void main()
 {
-    float t = 3;
+    float t = 10;
     float tt = 1/t;
     FragColor = log((tt + dot(texture(image, i.frag_texcoord).rgb,
         vec3(0.2126, 0.7152, 0.0722))) * t);

@@ -14,6 +14,7 @@ use world::ChunkRenderer;
 use world::HexagonOutline;
 use GameContext;
 use util::ToArr;
+use DayTime;
 
 pub use world::chunk_view::ChunkView;
 pub use view::PlantView;
@@ -110,6 +111,7 @@ impl WorldView {
                                    camera: &Camera,
                                    shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
+                                   daytime: &DayTime,
                                    sun_dir: Vector3f,
                                    frustum: &SimpleCull) {
         for chunkview in self.chunks.values() {
@@ -117,6 +119,7 @@ impl WorldView {
                            camera,
                            shadow_map,
                            depth_view_proj,
+                           daytime,
                            sun_dir,
                            frustum);
         }
@@ -154,7 +157,12 @@ impl WorldView {
 
 
         for plantview in self.plant_views.values() {
-            plantview.draw(surface, camera, shadow_map, depth_view_proj, sun_dir);
+            plantview.draw(surface,
+                           camera,
+                           shadow_map,
+                           depth_view_proj,
+                           daytime,
+                           sun_dir);
         }
     }
 }
