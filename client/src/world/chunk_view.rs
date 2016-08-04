@@ -165,7 +165,8 @@ impl ChunkView {
         // }
 
         let real_off = self.offset.to_real();
-        let look_at2 = Vector2::new(camera.get_look_at_vector().x, camera.get_look_at_vector().y).normalize();
+        let look_at2 = Vector2::new(camera.get_look_at_vector().x, camera.get_look_at_vector().y)
+            .normalize();
         let pos2 = Point2::new(camera.position.x, camera.position.y);
 
         let player_to_chunk = real_off -
