@@ -246,8 +246,8 @@ impl Weather {
             }
         };
 
-        println!("sky: {:?}", self.sky_light);
-        println!("sun: {:?}", self.sun_color);
+        // println!("sky: {:?}", self.sky_light);
+        // println!("sun: {:?}", self.sun_color);
 
         let uniforms = uniform!{
                 form: self.form as i32,
