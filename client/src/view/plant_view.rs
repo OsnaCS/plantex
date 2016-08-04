@@ -125,8 +125,8 @@ impl PlantView {
                                    depth_view_proj: &Matrix4<f32>,
                                    daytime: &DayTime,
                                    sun_dir: Vector3f) {
-        let tess_level_inner = 10.0 as f32;
-        let tess_level_outer = 10.0 as f32;
+        let tess_level_inner = 7.0 as f32;
+        let tess_level_outer = 7.0 as f32;
 
         let uniforms = uniform! {
             // offset: self.pos.to_arr(),
