@@ -107,6 +107,7 @@ impl Game {
 
             try!(self.renderer.render(&*self.world_manager.get_view(),
                                       &self.control_switcher.get_camera(),
+                                      &self.daytime,
                                       &self.sun,
                                       &mut self.weather,
                                       &self.sky_view));

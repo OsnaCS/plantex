@@ -7,6 +7,7 @@ use glium::texture::Texture2d;
 use glium::uniforms::SamplerWrapFunction;
 use glium::uniforms::MinifySamplerFilter;
 use Camera;
+use DayTime;
 use util::ToArr;
 use view::{PlantRenderer, PlantView};
 use world::ChunkRenderer;
@@ -141,6 +142,7 @@ impl ChunkView {
                                    camera: &Camera,
                                    shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
+                                   daytime: &DayTime,
                                    sun_dir: Vector3f) {
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
@@ -149,6 +151,8 @@ impl ChunkView {
             depth_view_proj: depth_view_proj.to_arr(),
             sun_dir: sun_dir.to_arr(),
             cam_pos: camera.position.to_arr(),
+            sun_color: daytime.get_sun_color().to_arr(),
+            sky_light: daytime.get_sky_light().to_arr(),
 
             // Mipmapping and repeating the textures
             sand_texture:  self.renderer.noise_sand.sampled()

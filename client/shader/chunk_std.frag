@@ -14,6 +14,8 @@ out vec3 color;
 // Vector from the camera to the sun
 uniform vec3 sun_dir;
 uniform sampler2D shadow_map;
+uniform vec3 sun_color;
+uniform vec3 sky_light;
 
 // Normals to bump mapping the textures
 uniform sampler2D normal_sand;
@@ -146,7 +148,8 @@ void main() {
     }
 
     // Final color calculation
-    color = diffuse_color * AMBIENT + diffuse_color * diffuse * lit + diffuse_color * specular;
+    // color = diffuse_color * AMBIENT + diffuse_color * diffuse * lit + diffuse_color * specular;
+    color = diffuse_color * sky_light + diffuse_color * diffuse * lit + diffuse_color * specular;
 
     // Set Border to distinguish hexagons
     if (x_radius > 0.98) {
@@ -166,5 +169,7 @@ void main() {
     }
 
     vec3 fog_color = vec3(0.05 + fog_time, 0.05 + fog_time, 0.1 + fog_time);
-    color = mix(color, fog_color, distance);
+    vec3 tmp_color = mix(color, fog_color, distance);
+    color = tmp_color * sun_color;
+    color += tmp_color * sky_light;
 }

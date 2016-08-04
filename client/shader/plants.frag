@@ -11,6 +11,8 @@ out vec3 color;
 // Vector from the camera to the sun
 uniform vec3 sun_dir;
 uniform sampler2D shadow_map;
+uniform vec3 sun_color;
+uniform vec3 sky_light;
 
 const float SHADOW_BIAS = 0.001;    // FIXME does this even work?
 const float AMBIENT = 0.1;
@@ -43,7 +45,7 @@ void main() {
 
     float diffuse = max(0.0, dot(-sun_dir, tes_normal));
 
-    color = tes_color * AMBIENT + tes_color * diffuse * lit;
+    vec3 tmp_color = tes_color * AMBIENT + tes_color * diffuse * lit;
 
     // apply fog to final color
     float distance = (length(pos) / 130) * (length(pos) / 130);
@@ -57,5 +59,7 @@ void main() {
     }
 
     vec3 fog_color = vec3(0.05 + fog_time, 0.05 + fog_time, 0.1 + fog_time);
-    color = mix(color, fog_color, distance);
+    tmp_color = mix(tmp_color, fog_color, distance);
+    color = tmp_color * sky_light;
+    color += tmp_color * sun_color;
 }

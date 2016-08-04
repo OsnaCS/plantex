@@ -7,6 +7,7 @@ use view::SkyView;
 use std::rc::Rc;
 use std::error::Error;
 use std::env;
+use DayTime;
 use super::weather::Weather;
 use glium::texture::texture2d::Texture2d;
 use glium::texture::{DepthFormat, DepthTexture2d, MipmapsOption, UncompressedFloatFormat};
@@ -302,6 +303,7 @@ impl Renderer {
     pub fn render(&mut self,
                   world_view: &WorldView,
                   camera: &Camera,
+                  daytime: &DayTime,
                   sun: &Sun,
                   weather: &mut Weather,
                   sky_view: &SkyView)
@@ -348,6 +350,7 @@ impl Renderer {
                             camera,
                             &self.shadow_map,
                             &depth_mvp,
+                            daytime,
                             sun_dir);
             sky_view.draw_skydome(&mut hdr_buffer, camera);
             sun.draw_sun(&mut hdr_buffer, camera);
@@ -367,11 +370,11 @@ impl Renderer {
             self.last_lum = (1.0 - ADAPTION_SPEED_BRIGHT_DARK) * self.last_lum +
                             ADAPTION_SPEED_BRIGHT_DARK * adapt
         }
-        debug!("last_lum {}", self.last_lum);
+        // debug!("last_lum {}", self.last_lum);
 
         self.exposure = (1.0 - WE_WANT_OPTIMAL) * self.last_lum +
                         WE_WANT_OPTIMAL * OPTIMAL_EXPOSURE;
-        debug!("exp: {}", self.exposure);
+        info!("exp: {}", self.exposure);
 
         // ===================================================================
         //                                  Bloom
