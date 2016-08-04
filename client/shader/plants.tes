@@ -27,13 +27,13 @@ out vec3 pos;
 // Vertex/Pixel coordinates in shadow map
 out vec4 shadowCoord;
 
-in vec3 offset[] ;
+in vec3 offset[];
 uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
-uniform vec3 cam_pos;
+uniform vec3 camera_pos;
 uniform mat4 depth_view_proj;
 
-//interpolates 3D coordinates
+// interpolates 3D coordinates
 vec3 interpolate3D(vec3 v0, vec3 v1, vec3 v2)
 {
     return vec3(gl_TessCoord.x) * v0 + vec3(gl_TessCoord.y) * v1 + vec3(gl_TessCoord.z) * v2;
@@ -45,7 +45,7 @@ void main()
     tes_color = oPatch.Color;
     tes_normal = interpolate3D(oPatch.Normal[0], oPatch.Normal[1], oPatch.Normal[2]);
 
-    //Bezier deforming
+    // Bezier deforming
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
     float w = gl_TessCoord.z;
@@ -66,7 +66,7 @@ void main()
     gl_Position = proj_matrix * view_matrix * vec4(worldPos, 1);
 
     // position for fog
-    pos = worldPos - cam_pos;
+    pos = worldPos - camera_pos;
     pos = vec3(pos.x, pos.y, 0);
 
     // yes, this somehow is *also* the world position

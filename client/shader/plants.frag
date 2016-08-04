@@ -38,8 +38,7 @@ void main() {
     float lit;
     if (lightCoords.x < 0 || lightCoords.x > 1 || lightCoords.y < 0 || lightCoords.y > 1) {
         // Outside of shadow map. Guess brightness from sun angle.
-        // lit = max(-sunDot * 3.0, 0.0);
-        lit = 0;
+        lit = clamp(-sunDot * 3.0, 0, 1);
     } else {
         vec2 moments = texture(shadow_map, lightCoords.xy).xy;
         lit = lightCoverage(moments, lightCoords.z - SHADOW_BIAS);

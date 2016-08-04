@@ -95,7 +95,6 @@ seed = 42
 }
 
 impl Default for Config {
-
     // default values for config
     fn default() -> Self {
         Config {

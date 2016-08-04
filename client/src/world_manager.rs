@@ -65,15 +65,23 @@ impl WorldManager {
     /// already requested).
     fn update_player_chunk(&self) {
         let mut shared = self.shared.borrow_mut();
+        let load_distance = shared.load_distance;
         let player_chunk = shared.player_chunk.0;
-        let radius = shared.load_distance as i32;
+        let radius = load_distance as i32;
+
+        let is_chunk_in_range = |chunk_pos: AxialPoint| {
+            let chunk_center = chunk_pos * CHUNK_SIZE as i32 +
+                               AxialVector::new(CHUNK_SIZE as i32 / 2, CHUNK_SIZE as i32 / 2);
+            let player_center = player_chunk * CHUNK_SIZE as i32 +
+                                AxialVector::new(CHUNK_SIZE as i32 / 2, CHUNK_SIZE as i32 / 2);
+            (chunk_center - player_center).to_real().distance(Vector2f::zero()) < load_distance
+        };
 
         // Load new range
-        for qd in -radius..radius {
-            for rd in -radius..radius {
+        for qd in -radius..radius + 1 {
+            for rd in -radius..radius + 1 {
                 let chunk_pos = AxialPoint::new(player_chunk.q + qd, player_chunk.r + rd);
-                if (chunk_pos - player_chunk).to_real().distance(Vector2::zero()) <
-                   shared.load_distance {
+                if is_chunk_in_range(chunk_pos) {
                     let chunk_index = ChunkIndex(chunk_pos);
 
                     if !shared.world.chunks.contains_key(&chunk_index) {
@@ -91,8 +99,7 @@ impl WorldManager {
         let mut new_chunks = HashMap::new();
         for (index, chunk) in chunks {
             let chunk_pos = index.0;
-            if (chunk_pos - player_chunk).to_real().distance(Vector2::zero()) <
-               shared.load_distance {
+            if is_chunk_in_range(chunk_pos) {
                 // Still in range
                 new_chunks.insert(index, chunk);
             } else {
@@ -141,7 +148,9 @@ impl WorldManager {
         let mut shared = self.shared.borrow_mut();
         if shared.player_chunk.0 != chunk_pos {
             shared.player_chunk = ChunkIndex(chunk_pos);
-            debug!("player moved to chunk {:?}", chunk_pos);
+            debug!("player moved to chunk {:?} (player at {:?})",
+                   chunk_pos,
+                   pos);
             drop(shared);
 
             self.update_player_chunk();
@@ -154,6 +163,7 @@ impl WorldManager {
         self.load_world_around(Point2f::new(player_pos.x, player_pos.y));
 
         let mut shared = self.shared.borrow_mut();
+        let mut changed = false;
 
         loop {
             let (pos, chunk) = match shared.provided_chunks.try_recv() {
@@ -170,6 +180,7 @@ impl WorldManager {
                 Ok(val) => val,
             };
 
+            changed = true;
             shared.world_view.refresh_chunk(pos, &chunk, self.context.get_facade());
 
             shared.sent_requests.remove(&pos);
@@ -177,6 +188,10 @@ impl WorldManager {
             if res.is_err() {
                 warn!("chunk at {:?} already exists!", pos);
             }
+        }
+
+        if changed {
+            debug!("{} chunks loaded", shared.world.chunks.len());
         }
     }
 
