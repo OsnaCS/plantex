@@ -39,7 +39,8 @@ impl ChunkView {
         {
             // scope so we can borrow mut vec
             // let mut c = |x, pos: Point2f, z| {
-            //     if x == 0 || x == CHUNK_SIZE || x == (CHUNK_SIZE * CHUNK_SIZE - CHUNK_SIZE) ||
+            // if x == 0 || x == CHUNK_SIZE || x == (CHUNK_SIZE * CHUNK_SIZE -
+            // CHUNK_SIZE) ||
             //        x == (CHUNK_SIZE * CHUNK_SIZE - 1) {
             //         vec.push(Point3f::new(pos.x, pos.y, z));
             //     }
@@ -75,8 +76,7 @@ impl ChunkView {
         ChunkView {
             offset: offset,
             renderer: chunk_renderer,
-            pillar_buf: VertexBuffer::dynamic(facade, &sections).unwrap(),
-            // corner_ps: vec,
+            pillar_buf: VertexBuffer::dynamic(facade, &sections).unwrap(), // corner_ps: vec,
         }
     }
 
