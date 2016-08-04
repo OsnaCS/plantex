@@ -75,7 +75,7 @@ impl WorldManager {
             let player_center = player_chunk * CHUNK_SIZE as i32 +
                                 AxialVector::new(CHUNK_SIZE as i32 / 2, CHUNK_SIZE as i32 / 2);
             (chunk_center - player_center).to_real().distance(Vector2f::zero()) <
-                load_distance * CHUNK_SIZE as f32
+            load_distance * CHUNK_SIZE as f32
         };
 
         // Load new range
