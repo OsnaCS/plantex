@@ -1,4 +1,4 @@
-use base::world::{Chunk, ChunkIndex, World};
+use base::world::{CHUNK_SIZE, Chunk, ChunkIndex, HEX_OUTER_RADIUS, World};
 use base::math::*;
 use glium::{self, DrawParameters, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
@@ -165,10 +165,13 @@ impl ChunkView {
         // }
 
         let real_off = self.offset.to_real();
-        let player_to_chunk = Point3f::new(real_off.x, real_off.y, camera.position.z) -
-                              camera.position;
-        if camera.get_look_at_vector().z.abs() < 0.5 &&
-           dot(player_to_chunk, camera.get_look_at_vector()) < 0.0 {
+        let look_at2 = Vector2::new(camera.get_look_at_vector().x, camera.get_look_at_vector().y)
+            .normalize();
+        let pos2 = Point2::new(camera.position.x, camera.position.y);
+
+        let player_to_chunk = real_off -
+                              (pos2 + -look_at2 * CHUNK_SIZE.into() * HEX_OUTER_RADIUS * 2.8);
+        if camera.get_look_at_vector().z.abs() < 0.6 && dot(player_to_chunk, look_at2) < 0.0 {
             return;
         }
 
