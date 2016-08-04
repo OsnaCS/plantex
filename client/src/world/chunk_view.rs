@@ -112,12 +112,6 @@ impl ChunkView {
                   &uniforms,
                   &params)
             .unwrap();
-
-        for pillar in &self.pillars {
-            for plant in &pillar.plants {
-                plant.draw_shadow(surface, camera);
-            }
-        }
     }
 
     pub fn update<F: Facade>(&mut self, facade: &F, world: &mut World) {
