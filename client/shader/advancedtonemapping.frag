@@ -9,43 +9,54 @@ in VertexData {
 
 layout(location = 0) out vec4 frag_output;
 
-// adds value to each color channel
-vec3 add_val(vec3 color, float nmbr) {
-    color[0] += nmbr;
-    color[1] += nmbr;
-    color[2] += nmbr;
-    return color;
+const float shoulder_strength = 0.15;
+const float linear_strength = 0.50;
+const float linear_angle = 0.10;
+const float toe_strength = 0.20;
+const float toe_numerator = 0.02;
+const float toe_denominator = 0.30;
+const float linear_white = 11.2;
+
+// A gamma value of 2.2 is a default gamma value that
+// roughly estimates the average gamma of most displays.
+// sRGB color space
+const float gamma = 2.2;
+
+//other set of values that seem to look good
+/*
+const float shoulder_strength = 0.22;
+const float linear_strength = 0.30;
+const float linear_angle = 0.10;
+const float toe_strength = 0.20;
+const float toe_numerator = 0.01;
+const float toe_denominator = 0.30;
+const float linear_white = 11.2; // is the smallest luminance that will be mapped to 1.0
+*/
+
+// filmic tonemapping ala uncharted 2
+// note if you use it you have to redo all your lighting
+// you can not just switch it back on if your lighting is for
+// no dynamic range.
+vec3 tonemap(vec3 x)
+{
+    return (
+        (x*(shoulder_strength*x+linear_angle*linear_strength)+toe_strength*toe_numerator)/
+        (x*(shoulder_strength*x+linear_strength)+toe_strength*toe_denominator)
+        )
+        -toe_numerator/toe_denominator;
 }
 
 void main() {
     vec3 color = texture(decal_texture, i.frag_texcoord).rgb;
-    // filmic tonemapping ala uncharted 2
-    // note if you use it you have to redo all your lighting
-    // you can not just switch it back on if your lighting is for
-    // no dynamic range.
-    const float shoulder_strength = 0.22;
-    const float linear_strength = 0.30;
-    const float linear_angle = 0.10;
-    const float toe_strength = 0.20;
-    const float toe_numerator = 0.01;
-    const float toe_denominator = 0.30;
-    const float linear_white = 2.4; // is the smallest luminance that will be mapped to 1.0
-    float toe_angle = toe_numerator / toe_denominator;
+    //add Exposure
+    color *= exposure;
+    //exposure BIAS
+    color *= 2.0;
 
-    // brick of an equation for each color
-    vec3 temp = color * shoulder_strength;
-
-    // top part of fraction
-    vec3 high = add_val(temp, linear_strength * linear_angle);
-    high *= color;
-    high = add_val(high, toe_strength * toe_numerator);
-    // bottom part of fraction
-    vec3 div = add_val(temp, linear_strength);
-    div *= color;
-    div = add_val(div, toe_strength * toe_denominator);
-
-    // put all together
-    color = add_val(high/div, -toe_angle);
-
-    frag_output = vec4(color / linear_white, 1.0);
+    color = tonemap(color);
+    vec3 whitecsale = 1.0/tonemap(vec3(linear_white));
+    color *= whitecsale;
+    //gamma
+    color = pow(color, vec3(1/gamma));
+    frag_output = vec4(color, 1.0);
 }
