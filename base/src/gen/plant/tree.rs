@@ -193,15 +193,15 @@ impl PlantType {
             }
             PlantType::Conifer => {
                 Preset {
-                    trunk_diameter: 0.25..0.4,
+                    trunk_diameter: 0.175..0.3,
                     trunk_height: 5.0..8.0,
-                    trunk_diameter_top: 0.3..0.5,
+                    trunk_diameter_top: 0.2..0.3,
                     min_branch_height: 0.1..0.2,
                     branch_chance: 3.4,
-                    branch_diameter_factor: 0.3..0.5,
+                    branch_diameter_factor: 0.6..0.75,
                     branch_angle_deg: 90.0..90.00001,
                     branch_diam_reduction: 0.75..0.85,
-                    branch_segment_length: 11.25..11.26,
+                    branch_segment_length: 23.0..27.0,
                     branch_segment_angle: 1.0..2.0,
                     branch_segment_count: 1..4,
                     trunk_color: (0.4..0.4001, 0.3..0.3001, 0.2..0.2001),

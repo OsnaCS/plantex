@@ -66,7 +66,7 @@ impl Biome {
         match *self {
             Biome::GrassLand => {
                 static PLANTS: &'static [PlantType] = &[PlantType::RegularTree,
-                                                        PlantType::RegularTree,
+                                                        PlantType::OakTree,
                                                         PlantType::OakTree,
                                                         PlantType::ClumpOfGrass,
                                                         PlantType::ClumpOfGrass,
@@ -84,13 +84,14 @@ impl Biome {
             }
             Biome::Forest => {
                 static PLANTS: &'static [PlantType] = &[PlantType::RegularTree,
-                                                        PlantType::RegularTree,
                                                         PlantType::Conifer,
+                                                        PlantType::OakTree,
                                                         PlantType::OakTree,
                                                         PlantType::OakTree,
                                                         PlantType::Conifer,
                                                         PlantType::ClumpOfGrass,
                                                         PlantType::Conifer,
+                                                        PlantType::Flower,
                                                         PlantType::Shrub,
                                                         PlantType::Shrub];
                 PLANTS
@@ -111,6 +112,8 @@ impl Biome {
             Biome::Savanna => {
                 static PLANTS: &'static [PlantType] = &[PlantType::OakTree,
                                                         PlantType::ClumpOfGrass,
+                                                        PlantType::Shrub,
+                                                        PlantType::Shrub,
                                                         PlantType::Shrub,
                                                         PlantType::Shrub,
                                                         PlantType::Shrub,
