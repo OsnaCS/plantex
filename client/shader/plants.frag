@@ -60,14 +60,14 @@ void main() {
     if (distance > 1) {
         distance = 1;
     }
-    float fog_time = -(sun_dir.z / 3);
+    float fog_time = -(sun_dir.z / 3) * 30;
 
     if (fog_time < 0) {
         fog_time = 0;
     }
 
     vec3 fog_color = vec3(0.05 + fog_time, 0.05 + fog_time, 0.1 + fog_time);
-    // tmp_color = mix(tmp_color, fog_color, distance);
+    tmp_color = mix(tmp_color, fog_color, distance/1.5);
     // color = tmp_color * sky_light;
     // color += tmp_color * sun_color;
     color = tmp_color;
