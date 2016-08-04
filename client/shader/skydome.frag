@@ -184,5 +184,5 @@ void main() {
 
     star_color = vec3(max(0, (star - 0.48)) * 25)*0.4;
 
-    color = color * (u_sun_color + u_sky_light * 0.1) + star_color * 5;
+    color = color * 0.1 * (u_sun_color * 0.3 + u_sky_light) + star_color * 10;
 }

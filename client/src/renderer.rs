@@ -47,13 +47,13 @@ const BLOOM_ITERATION: u8 = 6;
 // Divisor to downsize blur texture
 // Increase to decrease bloom texture size DEFAULT: 2
 const BLUR_TEXTURE_DIVISOR: u32 = 2;
-const EXPOSURE_THRESHOLD: f32 = 0.5;
+const EXPOSURE_THRESHOLD: f32 = 0.2;
 
 // ===================  AUTOMATIC BRIGHTNESS ADAPTION  ===============
 
 // The following values define how well you can adapt to brightness / darkness.
 // The adaption of the eye is clamped between these values.
-const EYE_OPEN: f32 = 10.0;  //increase to allow to see better in the dark       DEFAULT:3.2
+const EYE_OPEN: f32 = 2.0;  //increase to allow to see better in the dark       DEFAULT:3.2
 const EYE_CLOSED: f32 = 0.1;  //decrease to allow to see brighter areas better  DEFAULT:0.8
 
 // The following values define how much the exposure value will be drawn to
@@ -312,7 +312,7 @@ impl Renderer {
                   weather: &mut Weather,
                   sky_view: &SkyView)
                   -> Result<(), Box<Error>> {
-        info!("------------ {:?}", daytime.get_sky_light());
+        // info!("------------ {:?}", daytime.get_sky_light());
         // ===================================================================
         // set up frustum
         // ===================================================================
@@ -388,7 +388,7 @@ impl Renderer {
         self.exposure = (1.0 - WE_WANT_OPTIMAL) * self.last_lum +
                         WE_WANT_OPTIMAL * OPTIMAL_EXPOSURE;
         // self.exposure = self.exposure.sqrt();
-        info!("exp: {}", self.exposure);
+        // info!("exp: {}", self.exposure);
 
         // ===================================================================
         //                                  Bloom
@@ -583,7 +583,7 @@ impl Renderer {
             });
 
         let mut avg_luminance = buf[0][0];
-        info!("avg_luminance: {}", avg_luminance);
+        // info!("avg_luminance: {}", avg_luminance);
         avg_luminance += 1.0 / (avg_luminance + DARKNESS_CORRECTION);
 
         // the exposure level is inversely propotional to the avg. luminance.
