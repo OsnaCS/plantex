@@ -21,6 +21,7 @@ pub struct PlantView {
     instances: HashMap<ChunkIndex, Vec<Instance>>,
     instance_buf: VertexBuffer<Instance>,
     indices: IndexBuffer<u32>,
+    shadow_indices: IndexBuffer<u32>,
     renderer: Rc<PlantRenderer>, // pos: Point3f,
 }
 
@@ -51,6 +52,10 @@ impl PlantView {
             indices: IndexBuffer::new(facade,
                                       PrimitiveType::Patches { vertices_per_patch: 3 },
                                       &indices)
+                .unwrap(),
+            shadow_indices: IndexBuffer::new(facade,
+                                             PrimitiveType::TrianglesList,
+                                             &indices)
                 .unwrap(),
             renderer: renderer,
         }
@@ -106,7 +111,7 @@ impl PlantView {
         };
 
         surface.draw((&self.vertices, self.instance_buf.per_instance().unwrap()),
-                  &self.indices,
+                  &self.shadow_indices,
                   &self.renderer.shadow_program(),
                   &uniforms,
                   &params)

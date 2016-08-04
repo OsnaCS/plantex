@@ -55,7 +55,6 @@ impl WorldView {
                                                                  chunk_pos.0.r *
                                                                  (1 * world::CHUNK_SIZE as i32)),
                                                  self.chunk_renderer.clone(),
-                                                 self.plant_renderer.clone(),
                                                  facade));
 
         for (pillar_pos, pillar) in chunk.pillars() {

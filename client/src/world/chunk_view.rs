@@ -1,4 +1,4 @@
-use base::world::{CHUNK_SIZE, Chunk, ChunkIndex, HexPillar, PropType, World};
+use base::world::{CHUNK_SIZE, Chunk, ChunkIndex, World};
 use base::math::*;
 use glium::{self, DrawParameters, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
@@ -11,7 +11,6 @@ use DayTime;
 use SimpleCull;
 use LOCATION;
 use util::ToArr;
-use view::{PlantRenderer, PlantView};
 use world::ChunkRenderer;
 use std::rc::Rc;
 use base::world::ground::GroundMaterial;
@@ -20,8 +19,6 @@ use base::world::ground::GroundMaterial;
 pub struct ChunkView {
     offset: AxialPoint,
     renderer: Rc<ChunkRenderer>,
-    plant_renderer: Rc<PlantRenderer>,
-    pillars: Vec<PillarView>,
     /// Instance data buffer.
     pillar_buf: VertexBuffer<Instance>,
     // save corner positions for draw
@@ -34,12 +31,10 @@ impl ChunkView {
     pub fn from_chunk<F: Facade>(chunk: &Chunk,
                                  offset: AxialPoint,
                                  chunk_renderer: Rc<ChunkRenderer>,
-                                 plant_renderer: Rc<PlantRenderer>,
                                  facade: &F)
                                  -> Self {
 
         let mut sections = Vec::new();
-        let mut pillars = Vec::new();
         let mut i = 0;
         let mut vec = Vec::new();
         {
@@ -57,7 +52,6 @@ impl ChunkView {
                 c(i, pos, height);
                 c(i, pos, 0.);
                 i += 1;
-                pillars.push(PillarView::from_pillar(pillar, plant_renderer.clone(), facade));
                 for section in pillar.sections() {
                     let g = match section.ground {
                         GroundMaterial::Grass => 1,
@@ -81,9 +75,7 @@ impl ChunkView {
 
         ChunkView {
             offset: offset,
-            plant_renderer: plant_renderer,
             renderer: chunk_renderer,
-            pillars: pillars,
             pillar_buf: VertexBuffer::dynamic(facade, &sections).unwrap(),
             corner_ps: vec,
         }
@@ -122,11 +114,9 @@ impl ChunkView {
         }
 
         let mut sections = Vec::new();
-        let mut pillars = Vec::new();
 
         for (axial, pillar) in chunk.unwrap().pillars() {
             let pos = self.offset.to_real() + axial.to_real();
-            pillars.push(PillarView::from_pillar(pillar, self.plant_renderer.clone(), facade));
             for section in pillar.sections() {
                 let g = match section.ground {
                     GroundMaterial::Grass => 1,
@@ -258,27 +248,3 @@ pub struct Instance {
 
 implement_vertex!(Instance, material_color, offset, ground, height);
 
-pub struct PillarView {
-    plants: Vec<PlantView>,
-}
-
-impl PillarView {
-    // fn from_pillar<F: Facade>( pos: Point2f,
-    fn from_pillar<F: Facade>(pillar: &HexPillar,
-                              plant_renderer: Rc<PlantRenderer>,
-                              facade: &F)
-                              -> PillarView {
-        PillarView {
-            plants: pillar.props()
-                .iter()
-                .map(|prop| {
-                    match prop.prop {
-                        PropType::Plant(ref plant) => {
-                            PlantView::from_plant(plant, plant_renderer.clone(), facade)
-                        }
-                    }
-                })
-                .collect(),
-        }
-    }
-}
