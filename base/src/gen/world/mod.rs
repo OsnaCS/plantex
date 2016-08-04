@@ -2,7 +2,7 @@
 pub mod biome;
 
 use world::{Chunk, ChunkIndex, ChunkProvider, HeightType, HexPillar};
-use world::{CHUNK_SIZE, GroundMaterial, PILLAR_STEP_HEIGHT, PillarSection, Prop, PropType};
+use world::{CHUNK_SIZE, GroundMaterial, PILLAR_STEP_HEIGHT, PillarSection, Prop};
 use rand::{Rand, Rng};
 use gen::{PlantGenerator, seeded_rng};
 use noise::{PermutationTable, open_simplex2, open_simplex3};
@@ -206,8 +206,6 @@ impl ChunkProvider for WorldGenerator {
                     baseline: height,
                     // for now, you can here set which plants should be placed
                     // all over the world
-                    prop: PropType::Plant(PlantGenerator::new(PlantType::WitheredTree)
-                        .generate(&mut rng)),
                     plant_index: plant_index as usize,
                 });
 
