@@ -148,23 +148,32 @@ impl ChunkView {
                                    sun_dir: Vector3f,
                                    frustum: &SimpleCull) {
 
-        // such skill much wow :D
-        let mut i = 0;
-        let mut c = || {
-            let a = i;
-            i += 1;
-            &self.corner_ps[a]
-        };
-        let corner = [c(), c(), c(), c(), c(), c(), c(), c()];
+        // // such skill much wow :D
+        // let mut i = 0;
+        // let mut c = || {
+        //     let a = i;
+        //     i += 1;
+        //     &self.corner_ps[a]
+        // };
+        // let corner = [c(), c(), c(), c(), c(), c(), c(), c()];
 
-        let render = match frustum.is_vis(corner) {
-            LOCATION::Outside => 0,
-            LOCATION::Inside => 1,
-            LOCATION::Intersect => 1,
-        };
-        if render == 0 {
+        // let render = match frustum.is_vis(corner) {
+        //     LOCATION::Outside => 0,
+        //     LOCATION::Inside => 1,
+        //     LOCATION::Intersect => 1,
+        // };
+        // if render == 0 {
+        //     return;
+        // }
+
+        let real_off = self.offset.to_real();
+        let player_to_chunk = Point3f::new(real_off.x, real_off.y, camera.position.z) -
+                              camera.position;
+        if camera.get_look_at_vector().z.abs() < 0.5 &&
+           dot(player_to_chunk, camera.get_look_at_vector()) < 0.0 {
             return;
         }
+
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
@@ -247,4 +256,3 @@ pub struct Instance {
 }
 
 implement_vertex!(Instance, material_color, offset, ground, height);
-

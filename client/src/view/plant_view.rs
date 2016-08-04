@@ -53,9 +53,7 @@ impl PlantView {
                                       PrimitiveType::Patches { vertices_per_patch: 3 },
                                       &indices)
                 .unwrap(),
-            shadow_indices: IndexBuffer::new(facade,
-                                             PrimitiveType::TrianglesList,
-                                             &indices)
+            shadow_indices: IndexBuffer::new(facade, PrimitiveType::TrianglesList, &indices)
                 .unwrap(),
             renderer: renderer,
         }
