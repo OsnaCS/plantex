@@ -163,6 +163,7 @@ impl ChunkView {
                                    daytime: &DayTime,
                                    sun_dir: Vector3f,
                                    frustum: &SimpleCull) {
+
         // such skill much wow :D
         let mut i = 0;
         let mut c = || {
