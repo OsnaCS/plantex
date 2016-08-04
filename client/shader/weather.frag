@@ -12,7 +12,7 @@ out vec4 color;
 void main() {
 
     // multiply our color with given HDR values
-    color = vec4(out_color) * vec4(sky_light, 1.0) * vec4(sun_color, 1.0);
+    color = vec4(out_color) * vec4(sky_light / 2, 1.0) * vec4(sun_color / 2, 1.0);
 
     if (length(out_position) > 1) {
         discard;

@@ -83,8 +83,8 @@ impl DayTime {
             max - (max * 0.5 * ((self.time_on_day - DAY_LENGTH / 2.0) / (DAY_LENGTH / 2.0)))
         };
 
-        if factor < 0.05 {
-            factor = 0.05;
+        if factor < 0.4 {
+            factor = 0.4;
         }
 
         vec.x = factor;
