@@ -26,7 +26,7 @@ struct OutputPatch {
     vec3 Color;
 };
 
-out patch OutputPatch oPatch;
+patch out OutputPatch oPatch;
 
 
 
@@ -40,11 +40,6 @@ vec3 ProjectToPlane(vec3 Point, vec3 PlanePoint, vec3 PlaneNormal)
     vec3 res = (Point-d);
     vec3 add = (res - PlanePoint);
     return (res + 2 * add);
-}
-
-vec3 interpolate3D(vec3 v0, vec3 v1, vec3 v2)
-{
-    return vec3(gl_TessCoord.x) * v0 + vec3(gl_TessCoord.y) * v1 + vec3(gl_TessCoord.z) * v2;
 }
 
 void CalcPositions()
