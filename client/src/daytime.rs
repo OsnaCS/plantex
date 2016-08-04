@@ -23,7 +23,7 @@ impl Default for DayTime {
         DayTime {
             time_year: 0,
             time_day: 0,
-            time_on_day: 0.0,
+            time_on_day: DAY_LENGTH / 3.0,
             speed: DEFAULT_TIME_SPEED,
         }
     }
