@@ -73,5 +73,5 @@ void main()
     vec4 world = view_matrix * vec4(worldPos, 1);
     gl_Position = proj_matrix * world;
     // coordinates on the shadow map
-    shadowCoord = depth_view_proj * world;
+    shadowCoord = depth_view_proj * vec4(worldPos, 1);
 }

@@ -53,13 +53,13 @@ const EXPOSURE_THRESHOLD: f32 = 0.5;
 
 // The following values define how well you can adapt to brightness / darkness.
 // The adaption of the eye is clamped between these values.
-const EYE_OPEN: f32 = 9.2;  //increase to allow to see better in the dark       DEFAULT:3.2
-const EYE_CLOSED: f32 = 0.005;  //decrease to allow to see brighter areas better  DEFAULT:0.8
+const EYE_OPEN: f32 = 10.0;  //increase to allow to see better in the dark       DEFAULT:3.2
+const EYE_CLOSED: f32 = 0.1;  //decrease to allow to see brighter areas better  DEFAULT:0.8
 
 // The following values define how much the exposure value will be drawn to
 // a given ("optimal") value.
 const OPTIMAL_EXPOSURE: f32 = 0.7;  // optimal Value that exposure should reach.    DEFAULT: 0.5
-const WE_WANT_OPTIMAL: f32 = 0.1;  // Agressiveness of exposure correction in [0;1] DEFAULT: 0.7
+const WE_WANT_OPTIMAL: f32 = 0.2;  // Agressiveness of exposure correction in [0;1] DEFAULT: 0.7
 
 // Speed of eye adaption. Lower values result in longer time needed
 // to adapt to different light conditions. Set to 1 to test without adaption
@@ -67,6 +67,8 @@ const WE_WANT_OPTIMAL: f32 = 0.1;  // Agressiveness of exposure correction in [0
 const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.25;  //adaption speed from bright to dark DEFAULT:0.25
 const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.06; //adaption speed from dark to bright  DEFAULT:0.06
 
+// increase to make darks less bright, decrease to darken nights
+const DARKNESS_CORRECTION: f32 = 4.0;   //Default: 4.0
 
 pub struct Renderer {
     context: Rc<GameContext>,
@@ -308,6 +310,7 @@ impl Renderer {
                   weather: &mut Weather,
                   sky_view: &SkyView)
                   -> Result<(), Box<Error>> {
+        info!("------------ {:?}", daytime.get_sky_light());
         // ===================================================================
         // check dimensions
         // ===================================================================
@@ -352,7 +355,7 @@ impl Renderer {
                             &depth_mvp,
                             daytime,
                             sun_dir);
-            sky_view.draw_skydome(&mut hdr_buffer, camera);
+            sky_view.draw_skydome(&mut hdr_buffer, camera, daytime);
             sun.draw_sun(&mut hdr_buffer, camera);
             weather.draw(&mut hdr_buffer, camera);
 
@@ -363,6 +366,7 @@ impl Renderer {
 
 
         let adapt = try!(self.adapt_brightness());
+        self.last_lum = adapt;
         if adapt >= self.last_lum {
             self.last_lum = (1.0 - ADAPTION_SPEED_DARK_BRIGHT) * self.last_lum +
                             ADAPTION_SPEED_DARK_BRIGHT * adapt;
@@ -374,6 +378,7 @@ impl Renderer {
 
         self.exposure = (1.0 - WE_WANT_OPTIMAL) * self.last_lum +
                         WE_WANT_OPTIMAL * OPTIMAL_EXPOSURE;
+        // self.exposure = self.exposure.sqrt();
         info!("exp: {}", self.exposure);
 
         // ===================================================================
@@ -495,8 +500,8 @@ impl Renderer {
         self.lum_relative_tex = Texture2d::empty_with_format(self.context.get_facade(),
                                                              UncompressedFloatFormat::F32,
                                                              MipmapsOption::NoMipmap,
-                                                             self.resolution.0,
-                                                             self.resolution.1)
+                                                             512,
+                                                             512)
             .unwrap();
     }
 
@@ -529,7 +534,7 @@ impl Renderer {
 
         let mut image = &self.lum_relative_tex;
 
-        for i in 0..10 {
+        for i in 0..9 {
             adaption_buffers.push(try!(SimpleFrameBuffer::new(self.context.get_facade(),
                                                               self.lum_texs[i]
                                                                   .to_color_attachment())));
@@ -568,15 +573,16 @@ impl Renderer {
                 height: 1,
             });
 
-        let avg_luminance = buf[0][0];
-
+        let mut avg_luminance = buf[0][0];
+        info!("avg_luminance: {}", avg_luminance);
+        avg_luminance += 1.0 / (avg_luminance + DARKNESS_CORRECTION);
 
         // the exposure level is inversely propotional to the avg. luminance.
         // log2 is necessary to adapt more for the lower than for the higher values.
         // (This is still WIP and will be changed in the next version.)
         // The +1 in the argument of the log is necessary because many color values
         // are <1 and would result in a negative result.
-        let adapted_luminance = (1.0 / avg_luminance)
+        let adapted_luminance = (2.0 / (avg_luminance * avg_luminance))
             .min(EYE_OPEN)
             .max(EYE_CLOSED);
         Ok(adapted_luminance)
@@ -697,7 +703,7 @@ implement_vertex!(Vertex, in_position, in_texcoord);
 
 fn initialize_luminosity(facade: &GlutinFacade) -> Vec<Texture2d> {
     let mut lum = Vec::with_capacity(10);
-    for i in 0..10 {
+    for i in 0..9 {
         lum.push(Texture2d::empty_with_format(facade,
                                               UncompressedFloatFormat::F32,
                                               MipmapsOption::NoMipmap,

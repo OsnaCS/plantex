@@ -5,6 +5,8 @@ in vec3 x_unit_coords;
 uniform vec3 u_sun_pos;
 uniform sampler2D u_star_map;
 
+uniform vec3 u_sun_color;
+uniform vec3 u_sky_light;
 
 out vec3 color;
 
@@ -180,7 +182,7 @@ void main() {
     // float star_value = 1 + theta * 0.01;
 
     star_color = vec3(max(0, (star - 0.48)) * 25)*0.4;
-    color = color + star_color;
+    color = color * (u_sun_color + u_sky_light * 0.1) + star_color * 5;
 
 
     // if (0 < ((star - 0.48) * 25)) {

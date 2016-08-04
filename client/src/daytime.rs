@@ -54,7 +54,7 @@ impl DayTime {
         let mut vec = Vector3f::new(0.0, 0.0, 0.0);
 
         let offset_factor = 1.1;
-        let max = 3000.0 / offset_factor;
+        let max = 30.0 / offset_factor;
 
         let factor = if self.time_on_day <= (DAY_LENGTH / 2.0) {
             max * (self.time_on_day / (DAY_LENGTH / 2.0))
@@ -75,13 +75,17 @@ impl DayTime {
         let mut vec = Vector3f::new(0.0, 0.0, 0.0);
 
         let offset_factor = 1.1;
-        let max = 100.0 / offset_factor;
+        let max = 1.0 / offset_factor;
 
-        let factor = if self.time_on_day <= (DAY_LENGTH / 2.0) {
+        let mut factor = if self.time_on_day <= (DAY_LENGTH / 2.0) {
             max * (self.time_on_day / (DAY_LENGTH / 2.0))
         } else {
-            max - (max * ((self.time_on_day - DAY_LENGTH / 2.0) / (DAY_LENGTH / 2.0)))
+            max - (max * 0.5 * ((self.time_on_day - DAY_LENGTH / 2.0) / (DAY_LENGTH / 2.0)))
         };
+
+        if factor < 0.05 {
+            factor = 0.05;
+        }
 
         vec.x = factor;
         vec.y = factor;

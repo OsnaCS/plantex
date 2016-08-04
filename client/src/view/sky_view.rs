@@ -10,6 +10,7 @@ use noise::{PermutationTable, open_simplex2};
 use rand::Rand;
 use base::gen::seeded_rng;
 use glium::texture::Texture2d;
+use DayTime;
 
 
 
@@ -75,11 +76,13 @@ impl SkyView {
             program: context.load_program("skydome").unwrap(),
             sun_position: Point3f::new(0.0, 0.0, -1000.0),
             star_map: Texture2d::new(context.get_facade(), v).expect("Could not load stars"),
-
         }
     }
 
-    pub fn draw_skydome<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
+    pub fn draw_skydome<S: glium::Surface>(&self,
+                                           surface: &mut S,
+                                           camera: &Camera,
+                                           daytime: &DayTime) {
 
         let pos = Point3::new(0.0, 0.0, 0.0);
 
@@ -92,6 +95,8 @@ impl SkyView {
             u_view_matrix: view_matrix.to_arr(),
             u_sun_pos: self.sun_position.to_arr(),
             u_star_map: &self.star_map,
+            u_sun_color: daytime.get_sun_color().to_arr(),
+            u_sky_light: daytime.get_sky_light().to_arr(),
         };
         let params = DrawParameters {
             depth: glium::Depth {
