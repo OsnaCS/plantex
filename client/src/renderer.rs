@@ -361,8 +361,7 @@ impl Renderer {
                             &self.shadow_map,
                             &depth_mvp,
                             daytime,
-                            sun_dir,
-                            &self.frustum);
+                            sun_dir);
             sky_view.draw_skydome(&mut hdr_buffer, camera, daytime);
 
             sun.draw_sun(&mut hdr_buffer, camera);

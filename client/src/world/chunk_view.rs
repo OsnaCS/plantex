@@ -1,4 +1,4 @@
-use base::world::{CHUNK_SIZE, Chunk, ChunkIndex, World};
+use base::world::{Chunk, ChunkIndex, World};
 use base::math::*;
 use glium::{self, DrawParameters, VertexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
@@ -8,8 +8,8 @@ use glium::uniforms::SamplerWrapFunction;
 use glium::uniforms::MinifySamplerFilter;
 use Camera;
 use DayTime;
-use SimpleCull;
-use LOCATION;
+// use SimpleCull;
+// use LOCATION;
 use util::ToArr;
 use world::ChunkRenderer;
 use std::rc::Rc;
@@ -20,9 +20,8 @@ pub struct ChunkView {
     offset: AxialPoint,
     renderer: Rc<ChunkRenderer>,
     /// Instance data buffer.
-    pillar_buf: VertexBuffer<Instance>,
-    // save corner positions for draw
-    corner_ps: Vec<Point3f>,
+    pillar_buf: VertexBuffer<Instance>, /* save corner positions for draw
+                                         * corner_ps: Vec<Point3f>, */
 }
 
 impl ChunkView {
@@ -35,23 +34,23 @@ impl ChunkView {
                                  -> Self {
 
         let mut sections = Vec::new();
-        let mut i = 0;
-        let mut vec = Vec::new();
+        // let mut i = 0;
+        // let mut vec = Vec::new();
         {
             // scope so we can borrow mut vec
-            let mut c = |x, pos: Point2f, z| {
-                if x == 0 || x == CHUNK_SIZE || x == (CHUNK_SIZE * CHUNK_SIZE - CHUNK_SIZE) ||
-                   x == (CHUNK_SIZE * CHUNK_SIZE - 1) {
-                    vec.push(Point3f::new(pos.x, pos.y, z));
-                }
-            };
+            // let mut c = |x, pos: Point2f, z| {
+            //     if x == 0 || x == CHUNK_SIZE || x == (CHUNK_SIZE * CHUNK_SIZE - CHUNK_SIZE) ||
+            //        x == (CHUNK_SIZE * CHUNK_SIZE - 1) {
+            //         vec.push(Point3f::new(pos.x, pos.y, z));
+            //     }
+            // };
             for (axial, pillar) in chunk.pillars() {
                 let pos = offset.to_real() + axial.to_real();
-                let height = 150.;
+                // let height = 150.;
                 // save if corner (assume fixed location of corners)
-                c(i, pos, height);
-                c(i, pos, 0.);
-                i += 1;
+                // c(i, pos, height);
+                // c(i, pos, 0.);
+                // i += 1;
                 for section in pillar.sections() {
                     let g = match section.ground {
                         GroundMaterial::Grass => 1,
@@ -77,7 +76,7 @@ impl ChunkView {
             offset: offset,
             renderer: chunk_renderer,
             pillar_buf: VertexBuffer::dynamic(facade, &sections).unwrap(),
-            corner_ps: vec,
+            // corner_ps: vec,
         }
     }
 
@@ -145,8 +144,7 @@ impl ChunkView {
                                    shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
                                    daytime: &DayTime,
-                                   sun_dir: Vector3f,
-                                   frustum: &SimpleCull) {
+                                   sun_dir: Vector3f) {
 
         // // such skill much wow :D
         // let mut i = 0;
