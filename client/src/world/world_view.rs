@@ -97,7 +97,9 @@ impl WorldView {
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         let mut chunk_list: Vec<_> = self.chunks.values().collect();
         chunk_list.sort_by_key(|chunk_view| {
-            chunk_view.offset.to_real().distance2(Point2f::new(camera.position.x, camera.position.y)) as u32
+            chunk_view.offset
+                .to_real()
+                .distance2(Point2f::new(camera.position.x, camera.position.y)) as u32
         });
 
         for chunkview in &chunk_list {
@@ -120,7 +122,9 @@ impl WorldView {
 
         let mut chunk_list: Vec<_> = self.chunks.values().collect();
         chunk_list.sort_by_key(|chunk_view| {
-            chunk_view.offset.to_real().distance2(Point2f::new(camera.position.x, camera.position.y)) as u32
+            chunk_view.offset
+                .to_real()
+                .distance2(Point2f::new(camera.position.x, camera.position.y)) as u32
         });
 
         for chunkview in &chunk_list {

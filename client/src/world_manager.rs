@@ -70,15 +70,16 @@ impl WorldManager {
         let radius = load_distance as i32;
 
         let is_chunk_in_range = |chunk_pos: AxialPoint| {
-            let chunk_center = chunk_pos * CHUNK_SIZE as i32 + AxialVector::new(CHUNK_SIZE as i32 / 2, CHUNK_SIZE as i32 / 2);
-            let player_center = player_chunk * CHUNK_SIZE as i32 + AxialVector::new(CHUNK_SIZE as i32 / 2, CHUNK_SIZE as i32 / 2);
-            (chunk_center - player_center).to_real().distance(Vector2f::zero()) <
-                   load_distance //* CHUNK_SIZE as f32
+            let chunk_center = chunk_pos * CHUNK_SIZE as i32 +
+                               AxialVector::new(CHUNK_SIZE as i32 / 2, CHUNK_SIZE as i32 / 2);
+            let player_center = player_chunk * CHUNK_SIZE as i32 +
+                                AxialVector::new(CHUNK_SIZE as i32 / 2, CHUNK_SIZE as i32 / 2);
+            (chunk_center - player_center).to_real().distance(Vector2f::zero()) < load_distance
         };
 
         // Load new range
-        for qd in -radius..radius+1 {
-            for rd in -radius..radius+1 {
+        for qd in -radius..radius + 1 {
+            for rd in -radius..radius + 1 {
                 let chunk_pos = AxialPoint::new(player_chunk.q + qd, player_chunk.r + rd);
                 if is_chunk_in_range(chunk_pos) {
                     let chunk_index = ChunkIndex(chunk_pos);
@@ -147,7 +148,9 @@ impl WorldManager {
         let mut shared = self.shared.borrow_mut();
         if shared.player_chunk.0 != chunk_pos {
             shared.player_chunk = ChunkIndex(chunk_pos);
-            debug!("player moved to chunk {:?} (player at {:?})", chunk_pos, pos);
+            debug!("player moved to chunk {:?} (player at {:?})",
+                   chunk_pos,
+                   pos);
             drop(shared);
 
             self.update_player_chunk();
