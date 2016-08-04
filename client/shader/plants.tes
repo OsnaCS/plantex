@@ -17,7 +17,7 @@ struct OutputPatch {
     vec3 Color;
 };
 
-in patch OutputPatch oPatch;
+patch in OutputPatch oPatch;
 
 out vec3 tePosition;
 out vec3 tes_normal;
