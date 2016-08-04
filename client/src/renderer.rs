@@ -1,7 +1,7 @@
 use base::math::*;
 use world::WorldView;
 use glium::Surface;
-use super::{Camera, GameContext};
+use super::{Camera, GameContext, SimpleCull};
 use view::Sun;
 use view::SkyView;
 use std::rc::Rc;
@@ -116,6 +116,7 @@ pub struct Renderer {
     lum_texs: Vec<Texture2d>,
     // last average luminance
     last_lum: f32,
+    frustum: SimpleCull,
     // current exposure level
     exposure: f32,
     lum_relative_tex: Texture2d,
@@ -197,6 +198,7 @@ impl Renderer {
             adaption_shrink_program: adaption_shrink_program,
             lum_texs: lum_texs,
             last_lum: last_lum,
+            frustum: SimpleCull::new(),
             exposure: exposure,
             lum_relative_tex: Texture2d::empty(context.get_facade(), 1, 1).unwrap(),
             relative_luminance_program: relative_luminance_program,
@@ -312,6 +314,11 @@ impl Renderer {
                   -> Result<(), Box<Error>> {
         info!("------------ {:?}", daytime.get_sky_light());
         // ===================================================================
+        // set up frustum
+        // ===================================================================
+        self.frustum.set_up(camera.position, camera.get_look_at_vector(), 80.);
+
+        // ===================================================================
         // check dimensions
         // ===================================================================
         let new_res = self.context.get_facade().get_framebuffer_dimensions();
@@ -354,8 +361,10 @@ impl Renderer {
                             &self.shadow_map,
                             &depth_mvp,
                             daytime,
-                            sun_dir);
+                            sun_dir,
+                            &self.frustum);
             sky_view.draw_skydome(&mut hdr_buffer, camera, daytime);
+
             sun.draw_sun(&mut hdr_buffer, camera);
             weather.draw(&mut hdr_buffer, camera);
 
@@ -619,7 +628,6 @@ impl Renderer {
                                                                          .to_color_attachment()));
 
         bloom_blur_horz_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
-
 
         let mut bloom_blur_vert_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
                                                                      self.bloom_vert_tex

@@ -33,7 +33,7 @@ void main() {
     float bottomred = -0.1;
     float black = -0.3;
 
-    float lum_factor = 1.0; //change this into a constant
+    float lum_factor = 10.0; //change this into a constant
 
     vec3 upperblue_color = vec3 (12.0, 43.0, 80.0)*lum_factor;
     vec3 blue_color = vec3 (22.0, 77.0, 142.0)*lum_factor;
@@ -105,11 +105,11 @@ void main() {
     // Calculate dummy blue gradient sky color
     vec3 high_noon_color = vec3(((theta / PI)-0.2)*0.5,((theta / PI)-0.1)*0.5,1.0)*lum_factor;
     sunset_color = sunset_color / 255;
-    vec3 nightblue_color = (vec3 (0.0, 0.0, 11.0) / 255)*lum_factor ;
+    vec3 nightblue_color = (vec3 (0.0, 0.0, 1.0) / 255);
 
     float nighttime = -0.2;
     float sunrise_start = 0.0;
-    float sunset_start = -0.15;
+    float sunset_start = 0.0;
     float high_noon_start = 0.3;
 
     float sun_z = normalize(u_sun_pos).z;
@@ -153,7 +153,7 @@ void main() {
         float size = sun_start - nighttime;
         float diff = sun_z - nighttime;
         float percent= diff/size;
-        color = (nightblue_color + (sunset_color - nightblue_color) * percent);
+        color = mix(nightblue_color, sunset_color, percent);
         color = mix(color, nightblue_color, phi_diff);
         color = mix(color, nightblue_color, theta_tmp);
     // sunrise to high_noon OR high_noon to sunset
@@ -161,9 +161,10 @@ void main() {
         float size = high_noon_start - sun_start;
         float diff = sun_z - sun_start;
         float percent= diff/size;
-        color = (sunset_color + (high_noon_color - sunset_color) * percent);
-        color = mix(color, nightblue_color, phi_diff);
+        // color = mix(sunset_color, high_noon_color, percent);
+        color = mix(sunset_color, nightblue_color, phi_diff);
         color = mix(color, nightblue_color, theta_tmp);
+        color = mix(color, high_noon_color, percent);
     // high_noon
     } else if (sun_z >= high_noon_start) {
         color = high_noon_color;
@@ -175,17 +176,13 @@ void main() {
     // float star = texture(u_star_map, vec2(theta*0.8, 0.5 + theta*phi*0.8));
     vec3 test = normalize(vec3(sin(theta)*cos(phi),sin(theta)*sin(phi),0));
     test *= theta;
-    float star = texture(u_star_map, vec2(test.x ,test.y));
+    float star = texture(u_star_map, vec2(test.x, test.y)).r;
 
     vec3 star_color = vec3(0.0, 0.0, 0.0);
 
     // float star_value = 1 + theta * 0.01;
 
     star_color = vec3(max(0, (star - 0.48)) * 25)*0.4;
+
     color = color * (u_sun_color + u_sky_light * 0.1) + star_color * 5;
-
-
-    // if (0 < ((star - 0.48) * 25)) {
-    //     color = star_color;
-    // }
 }

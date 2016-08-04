@@ -6,6 +6,7 @@ use glium::{self, DepthTest, DrawParameters, LinearBlendingFactor};
 use glium::draw_parameters::BlendingFunction;
 use glium::texture::Texture2d;
 use Camera;
+use SimpleCull;
 use std::collections::HashMap;
 use std::rc::Rc;
 use view::PlantRenderer;
@@ -111,14 +112,16 @@ impl WorldView {
                                    shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
                                    daytime: &DayTime,
-                                   sun_dir: Vector3f) {
+                                   sun_dir: Vector3f,
+                                   frustum: &SimpleCull) {
         for chunkview in self.chunks.values() {
             chunkview.draw(surface,
                            camera,
                            shadow_map,
                            depth_view_proj,
                            daytime,
-                           sun_dir);
+                           sun_dir,
+                           frustum);
         }
         if self.outline.display {
             // Draw outline

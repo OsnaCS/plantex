@@ -20,6 +20,7 @@ mod weather;
 mod world;
 mod world_manager;
 mod event_manager;
+mod frustum;
 pub mod view;
 pub mod util;
 pub mod daytime;
@@ -33,6 +34,9 @@ pub use event_manager::*;
 pub use game_context::GameContext;
 pub use renderer::Renderer;
 pub use world_manager::WorldManager;
+pub use frustum::Frustum;
+pub use frustum::LOCATION;
+pub use frustum::SimpleCull;
 
 use game::Game;
 use std::net::SocketAddr;
