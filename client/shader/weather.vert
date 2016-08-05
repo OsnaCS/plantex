@@ -1,4 +1,4 @@
- #version 330
+#version 330
 in vec3 position;
 in vec3 point;
 
@@ -7,8 +7,8 @@ uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
 uniform mat4 scaling_matrix;
 uniform int form;
-uniform vec4 sun_color;
-uniform vec4 sky_light;
+uniform vec3 sun_color;
+uniform vec3 sky_light;
 
 
 out vec2 out_position;
