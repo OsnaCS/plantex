@@ -101,7 +101,7 @@ impl Game {
 
             frames += 1;
             if next_fps_measure < Instant::now() {
-                info!("{} FPS", frames);
+                // info!("{} FPS", frames);
                 next_fps_measure = Instant::now() + Duration::from_secs(1);
                 frames = 0;
             }

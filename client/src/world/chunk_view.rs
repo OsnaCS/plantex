@@ -1,7 +1,7 @@
 #![allow(unused_imports)]
 
 
-use base::world::{Chunk, HexPillar, PropType, CHUNK_SIZE, HEX_OUTER_RADIUS, HeightType};
+use base::world::{Chunk, HexPillar, PillarSection, PropType, CHUNK_SIZE, HEX_OUTER_RADIUS, HeightType};
 use base::math::*;
 use glium::index::PrimitiveType;
 use glium::{self, DrawParameters, VertexBuffer, IndexBuffer, Program,};
@@ -62,11 +62,15 @@ impl ChunkView {
         //     }
         // }
 
-        let (raw_buf, raw_indices) = Self::get_vertices(chunk);
+        let (raw_buf, raw_indices) = if offset != AxialPoint::new(0, 0) {
+            (Vec::new(), Vec::new())
+        } else {
+            Self::get_vertices(chunk)
+        };
 
         // let raw_indices = [0, 1, 2];
 
-        println!("{:?} -> {:?}", offset, offset.to_real());
+        // println!("{:?} -> {:?}", offset, offset.to_real());
 
         ChunkView {
             renderer: chunk_renderer,
@@ -84,36 +88,8 @@ impl ChunkView {
         let mut vertices = Vec::new();
         let mut indices = Vec::new();
 
-        let norm_corners_to_neighbor = [
-            (NORM_CORNERS[4], NORM_CORNERS[5]),
-            (NORM_CORNERS[5], NORM_CORNERS[0]),
-            (NORM_CORNERS[0], NORM_CORNERS[1]),
-        ];
-
-        let corner_uv = [
-            [1.0 - (0.5 - SQRT_3 / 4.0), 0.25],
-            [1.0 - (0.5 - SQRT_3 / 4.0), 0.75],
-            [0.5, 1.0],
-            [0.5 - SQRT_3 / 4.0, 0.75],
-            [0.5 - SQRT_3 / 4.0, 0.25],
-            [0.5, 0.0],
-        ];
-
         Chunk::for_pillars_positions(|pos| {
-            // All neighbors in the directions:
-            // - positive r, q stays the same
-            // - positive q, r stays the same
-            // - positive q and negative r (s stays the same)
-            let neighbors = [
-                pos + AxialVector::new(0, 1),
-                pos + AxialVector::new(1, 0),
-                pos + AxialVector::new(1, -1),
-            ];
-
-            // let pos = AxialPoint::new(pos.r, pos.q);
-
             let tmp_col = [pos.q as f32 / (CHUNK_SIZE  as f32), pos.r as f32 / (CHUNK_SIZE  as f32), 0.0];
-            // println!("{:?} -> {:?}  ~~~ {:?}", pos, pos.to_real(), tmp_col);
 
             for sec in chunk[pos].sections() {
                 let ground = sec.ground.get_id();
@@ -138,7 +114,7 @@ impl ChunkView {
                     });
 
                     // Add all points of top face
-                    let iter = NORM_CORNERS.iter().map(|c| c * HEX_OUTER_RADIUS).zip(&corner_uv).enumerate();
+                    let iter = NORM_CORNERS.iter().map(|c| c * HEX_OUTER_RADIUS).zip(CORNER_UV).enumerate();
                     for (i, (corner, &uv)) in iter {
                         let i = i as u32;
                         let pos2D = pos.to_real() + corner;
@@ -166,138 +142,142 @@ impl ChunkView {
                 }
 
 
-                // Add faces to neighbor *chunks*. We don't know how to render
+                // // Add faces to neighbor *chunks*. We don't know how to render
 
-                // Add faces to all neighbors in the directions:
-                // - positive q, r stays the same
-                // - positive r, q stays the same
-                // - positive q and negative r (s stays the same)
-                for (&neighbor_pos, &side) in neighbors.iter().zip(&norm_corners_to_neighbor) {
-                    // Check if the neighbor even exists in the current chunk,
-                    // if not, proceed with the next.
-                    let skip = neighbor_pos.q >= CHUNK_SIZE.into()
-                        || neighbor_pos.r >= CHUNK_SIZE.into()
-                        || neighbor_pos.r < 0;
-                    if skip {
-                        continue;
-                    }
+                // // Add faces to all neighbors in the directions:
+                // // - positive q, r stays the same
+                // // - positive r, q stays the same
+                // // - positive q and negative r (s stays the same)
+                // for (&neighbor_pos, &side) in neighbors.iter().zip(&norm_corners_to_neighbor) {
+                //     // Check if the neighbor even exists in the current chunk,
+                //     // if not, proceed with the next.
+                //     let skip = neighbor_pos.q >= CHUNK_SIZE.into()
+                //         || neighbor_pos.r >= CHUNK_SIZE.into()
+                //         || neighbor_pos.r < 0;
+                //     if skip {
+                //         continue;
+                //     }
 
 
-                    // Find the neighbor sections we need to interact with. Our
-                    // section `sec` has `top` and `bottom`. We can classify other
-                    // sections (`other`) into three different classes:
-                    // _________________________________________________
-                    //                      +
-                    //                      |
-                    //                      +
-                    //                                   +
-                    //  sec.top -------+                 |
-                    //                 |          +      +
-                    //                 |          |
-                    //                 |          |
-                    //                 |          +      +
-                    //  sec.bottom ----+                 |
-                    //                      +            +
-                    //                      |
-                    //                      +
-                    // ________________________________________________
-                    //                      ^     ^      ^
-                    // Completely outside --+     |      |
-                    // (a)                        |      |
-                    //    Completely inside (b) --+      |
-                    //                                   |
-                    //                           Partially inside (c)
-                    //
-                    // - (a): we won't interact with those (ignore)
-                    // - (b) and (c): luckily we don't really need to distinguish
-                    //   between those two cases. More about this in a comment
-                    //   further down
-                    let fitting_neighbor_sections = chunk[neighbor_pos]
-                        .sections()
-                        .iter()
-                        .filter(|other| {
-                            sec.top > other.bottom && sec.bottom < other.top
-                        });
-                    let mut at_least_one_fitted = false;
+                //     // Find the neighbor sections we need to interact with. Our
+                //     // section `sec` has `top` and `bottom`. We can classify other
+                //     // sections (`other`) into three different classes:
+                //     // _________________________________________________
+                //     //                      +
+                //     //                      |
+                //     //                      +
+                //     //                                   +
+                //     //  sec.top -------+                 |
+                //     //                 |          +      +
+                //     //                 |          |
+                //     //                 |          |
+                //     //                 |          +      +
+                //     //  sec.bottom ----+                 |
+                //     //                      +            +
+                //     //                      |
+                //     //                      +
+                //     // ________________________________________________
+                //     //                      ^     ^      ^
+                //     // Completely outside --+     |      |
+                //     // (a)                        |      |
+                //     //    Completely inside (b) --+      |
+                //     //                                   |
+                //     //                           Partially inside (c)
+                //     //
+                //     // - (a): we won't interact with those (ignore)
+                //     // - (b) and (c): luckily we don't really need to distinguish
+                //     //   between those two cases. More about this in a comment
+                //     //   further down
+                //     let fitting_neighbor_sections = chunk[neighbor_pos]
+                //         .sections()
+                //         .iter()
+                //         .filter(|other| {
+                //             sec.top > other.bottom && sec.bottom < other.top
+                //         });
+                //     let mut at_least_one_fitted = false;
 
-                    for other in fitting_neighbor_sections {
-                        at_least_one_fitted = true;
+                //     for other in fitting_neighbor_sections {
+                //         at_least_one_fitted = true;
 
-                        // Regardless of being case (a) or (b) we need to draw
-                        // two faces: from top to top and bottom to bottom.
-                        // The normal, `material_color` and `ground` depend on
-                        // what pillar-end is higher.
+                //         // Regardless of being case (a) or (b) we need to draw
+                //         // two faces: from top to top and bottom to bottom.
+                //         // The normal, `material_color` and `ground` depend on
+                //         // what pillar-end is higher.
 
-                        // TODO: normal is dummy value!
+                //         // TODO: normal is dummy value!
 
-                        // Draw top-top-face
-                        if sec.top != other.top {
-                            add_side(
-                                false,
-                                (sec.top, sec.ground),
-                                (other.top, other.ground),
-                                [pos.to_real() + side.0, pos.to_real() + side.1],
-                                &mut vertices,
-                                &mut indices
-                            );
-                        }
+                //         // Draw top-top-face
+                //         if sec.top != other.top {
+                //             add_side(
+                //                 false,
+                //                 (sec.top, sec.ground),
+                //                 (other.top, other.ground),
+                //                 [pos.to_real() + side.0, pos.to_real() + side.1],
+                //                 &mut vertices,
+                //                 &mut indices
+                //             );
+                //         }
 
-                        // Draw bottom-bottom-face
-                        if sec.bottom != other.bottom {
-                            add_side(
-                                true,
-                                (sec.bottom, sec.ground),
-                                (other.bottom, other.ground),
-                                [pos.to_real() + side.0, pos.to_real() + side.1],
-                                &mut vertices,
-                                &mut indices
-                            );
-                        }
-                        // if sec.bottom != other.bottom {
-                        //     let (normal, color, ground) = if sec.bottom < other.bottom {
-                        //         // Material of `sec` is used, normals point to `other`
-                        //         ([1.0, 0.0, 0.0], sec.ground.get_color(), sec.ground)
-                        //     } else {
-                        //         // Material of `other` is used, normals point to `sec`
-                        //         ([1.0, 0.0, 0.0], other.ground.get_color(), other.ground)
-                        //     };
-                        //     let lower = min(sec.bottom, sec.bottom);
-                        //     let higher = max(sec.bottom, sec.bottom);
+                //         // Draw bottom-bottom-face
+                //         if sec.bottom != other.bottom {
+                //             add_side(
+                //                 true,
+                //                 (sec.bottom, sec.ground),
+                //                 (other.bottom, other.ground),
+                //                 [pos.to_real() + side.0, pos.to_real() + side.1],
+                //                 &mut vertices,
+                //                 &mut indices
+                //             );
+                //         }
+                //         // if sec.bottom != other.bottom {
+                //         //     let (normal, color, ground) = if sec.bottom < other.bottom {
+                //         //         // Material of `sec` is used, normals point to `other`
+                //         //         ([1.0, 0.0, 0.0], sec.ground.get_color(), sec.ground)
+                //         //     } else {
+                //         //         // Material of `other` is used, normals point to `sec`
+                //         //         ([1.0, 0.0, 0.0], other.ground.get_color(), other.ground)
+                //         //     };
+                //         //     let lower = min(sec.bottom, sec.bottom);
+                //         //     let higher = max(sec.bottom, sec.bottom);
 
-                        //     let prev_len = vertices.len() as u32;
+                //         //     let prev_len = vertices.len() as u32;
 
-                        //     // lower two vertices
-                        //     for &z in &[lower, higher] {
-                        //         for xy in [side.0, side.1].iter().map(|s| pos.to_real() + s) {
-                        //             vertices.push(Vertex {
-                        //                 position: [xy.x, xy.y, z.to_real()],
-                        //                 normal: normal,
-                        //                 radius: 0.0,
-                        //                 tex_coords: [0.0, 0.0],
-                        //                 material_color: color,
-                        //                 ground: ground.get_id(),
-                        //             });
-                        //         }
-                        //     }
+                //         //     // lower two vertices
+                //         //     for &z in &[lower, higher] {
+                //         //         for xy in [side.0, side.1].iter().map(|s| pos.to_real() + s) {
+                //         //             vertices.push(Vertex {
+                //         //                 position: [xy.x, xy.y, z.to_real()],
+                //         //                 normal: normal,
+                //         //                 radius: 0.0,
+                //         //                 tex_coords: [0.0, 0.0],
+                //         //                 material_color: color,
+                //         //                 ground: ground.get_id(),
+                //         //             });
+                //         //         }
+                //         //     }
 
-                        //     indices.extend_from_slice(&[
-                        //         prev_len, prev_len + 2, prev_len + 1,
-                        //         prev_len + 3, prev_len + 2, prev_len + 1,
-                        //     ]);
-                        // }
-                    }
+                //         //     indices.extend_from_slice(&[
+                //         //         prev_len, prev_len + 2, prev_len + 1,
+                //         //         prev_len + 3, prev_len + 2, prev_len + 1,
+                //         //     ]);
+                //         // }
+                //     }
 
-                    if !at_least_one_fitted {
-                        // add_side(
-                        //     false,
-                        //     (sec.top, sec.ground),
-                        //     (sec.bottom, sec.ground),
-                        //     [pos.to_real() + side.0, pos.to_real() + side.1],
-                        //     &mut vertices,
-                        //     &mut indices
-                        // );
-                    }
-                }
+                //     if !at_least_one_fitted {
+                //         // add_side(
+                //         //     false,
+                //         //     (sec.top, sec.ground),
+                //         //     (sec.bottom, sec.ground),
+                //         //     [pos.to_real() + side.0, pos.to_real() + side.1],
+                //         //     &mut vertices,
+                //         //     &mut indices
+                //         // );
+                //     }
+                // }
+            }
+
+            for &dir in SIDE_PROPAGATION_NEIGHBORS {
+                connect_pillars(pos, dir, chunk, &mut vertices, &mut indices);
             }
         });
 
@@ -382,7 +362,7 @@ impl ChunkView {
                 ..Default::default()
             },
             point_size: Some(10.0),
-            backface_culling: BackfaceCullingMode::CullCounterClockwise,
+            // backface_culling: BackfaceCullingMode::CullCounterClockwise,
             ..Default::default()
         };
 
@@ -462,12 +442,12 @@ implement_vertex!(Instance, material_color, offset, ground, height);
 /// When the center of a hex pillar with the outer radius 1 sits in the origin
 /// the corners have the following coordinates.
 const NORM_CORNERS: &'static [Vector2f] = &[
-    Vector2f { x:  SQRT_3 / 2.0, y:  0.5 }, // 0: top-left
+    Vector2f { x: -SQRT_3 / 2.0, y:  0.5 }, // 0: top-left
     Vector2f { x:  0.0,          y:  1.0 }, // 1: top
-    Vector2f { x: -SQRT_3 / 2.0, y:  0.5 }, // 2: top-right
-    Vector2f { x: -SQRT_3 / 2.0, y: -0.5 }, // 3: bottom-right
+    Vector2f { x:  SQRT_3 / 2.0, y:  0.5 }, // 2: top-right
+    Vector2f { x:  SQRT_3 / 2.0, y: -0.5 }, // 3: bottom-right
     Vector2f { x:  0.0,          y: -1.0 }, // 4: bottom
-    Vector2f { x:  SQRT_3 / 2.0, y: -0.5 }, // 5: bottom left
+    Vector2f { x: -SQRT_3 / 2.0, y: -0.5 }, // 5: bottom left
 ];
 
 /// Groups together two corner coordinates of a specific edge.
@@ -480,7 +460,25 @@ const EDGE_CORNERS_TO_NEIGHBOR: &'static [(Vector2f, Vector2f)] = &[
     (NORM_CORNERS[5], NORM_CORNERS[0]), // q: -1, r:  0, left
 ];
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+/// UV texture coordinates for all corners
+const CORNER_UV: &'static [[f32; 2]] = &[
+    [1.0 - (0.5 - SQRT_3 / 4.0), 0.25],
+    [1.0 - (0.5 - SQRT_3 / 4.0), 0.75],
+    [0.5, 1.0],
+    [0.5 - SQRT_3 / 4.0, 0.75],
+    [0.5 - SQRT_3 / 4.0, 0.25],
+    [0.5, 0.0],
+];
+
+/// We add faces for sides to neighbors in these directions
+const SIDE_PROPAGATION_NEIGHBORS: &'static [EdgeDir] = &[
+    EdgeDir::BottomRight,
+    EdgeDir::Right,
+    EdgeDir::TopRight,
+];
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[allow(dead_code)]
 enum CornerDir {
     TopLeft,
     Top,
@@ -504,7 +502,8 @@ impl CornerDir {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[allow(dead_code)]
 enum EdgeDir {
     TopLeft,
     TopRight,
@@ -526,25 +525,200 @@ impl EdgeDir {
             EdgeDir::Left => 5,
         }
     }
+
+    fn axial_vec(&self) -> AxialVector {
+        match *self {
+            EdgeDir::TopLeft => AxialVector::new(0, -1),
+            EdgeDir::TopRight => AxialVector::new(1, -1),
+            EdgeDir::Right => AxialVector::new(1,  0),
+            EdgeDir::BottomRight => AxialVector::new(0,  1),
+            EdgeDir::BottomLeft => AxialVector::new(1,  1),
+            EdgeDir::Left => AxialVector::new(1,  0),
+        }
+    }
 }
 
 
 fn connect_pillars(
-    a: &HexPillar,
-    b: &HexPillar,
+    a_pos: AxialPoint,
     a_to_b: EdgeDir,
+    chunk: &Chunk,
     vertices: &mut Vec<Vertex>,
     indices: &mut Vec<u32>,
 ) {
-    let mut a_sections = a.sections().iter().peekable();
-    let mut b_sections = b.sections().iter().peekable();
+    let neighbor_pos = a_pos + a_to_b.axial_vec();
 
-    loop {
+    let skip = neighbor_pos.q >= CHUNK_SIZE.into()
+        || neighbor_pos.r >= CHUNK_SIZE.into()
+        || neighbor_pos.q < 0
+        || neighbor_pos.r < 0;
+    if skip {
+        return;
+    }
 
+    println!("--------------------");
+    println!("a_to_b: {:?}", a_to_b);
+    println!("self: {:?}", a_pos);
+    println!("neighbor: {:?}", neighbor_pos);
+    println!("-------");
+
+    let a = &chunk[a_pos];
+    let b = &chunk[neighbor_pos];
+
+    println!("a: {:#?}", a.sections());
+    println!("b: {:#?}", b.sections());
+
+    // let mut a_sections = a.sections().iter().peekable();
+    // let mut b_sections = b.sections().iter().peekable();
+
+    let ab = [a, b];
+
+    // #[derive(PartialEq, Eq, PartialOrd, Ord)]
+    // enum Pillar {
+    //     A,
+    //     B,
+    // }
+
+    // impl Pillar {
+    //     fn idx(&self) -> usize {
+    //         match *self {
+    //             A => 0,
+    //             B => 1,
+    //         }
+    //     }
+    // }
+
+    macro_rules! pair_iter {
+        ($a:expr, $b:expr) => (::std::iter::once($a).chain(::std::iter::once($b)))
+    }
+
+    use std::iter::Peekable;
+    struct Scanline<I: Iterator> {
+        a: Peekable<I>,
+        b: Peekable<I>,
+    }
+
+    impl<I> Iterator for Scanline<I> where I: Iterator<Item=(HeightType, GroundMaterial)> {
+        type Item = (HeightType, GroundMaterial);
+        fn next(&mut self) -> Option<Self::Item> {
+            let choose_a = match (self.a.peek(), self.b.peek()) {
+                (Some(a), Some(b)) => {
+                    if a.0 < b.0 {
+                        Some(true)
+                    } else {
+                        Some(false)
+                    }
+                }
+                (None, Some(_)) => Some(false),
+                (Some(_), None) => Some(true),
+                _ => None,
+            };
+
+            match choose_a {
+                Some(true) => self.a.next(),
+                Some(false) => self.b.next(),
+                None => None,
+            }
+        }
+    }
+
+    let flat_a: Vec<_> = a.sections()
+        .iter()
+        .flat_map(|s| pair_iter!((s.bottom, s.ground), (s.top, s.ground)))
+        .collect();
+    let flat_b: Vec<_> = b.sections()
+        .iter()
+        .flat_map(|s| pair_iter!((s.bottom, s.ground), (s.top, s.ground)))
+        .collect();
+
+    let interesting_points = Scanline {
+        a: flat_a.into_iter().peekable(),
+        b: flat_b.into_iter().peekable(),
+    };
+
+    // let mut scanline = Vec::with_capacity(
+    //     (a.sections().len() + b.sections().len()) * 2
+    // );
+    // for a in a.sections() {
+    //     scanline.push()
+    // }
+
+
+    let mut start_height = HeightType::from_units(0);
+    let mut start_ground = GroundMaterial::Debug;
+    let mut need_side = false;
+    for (p_height, p_ground) in interesting_points {
+        println!("--> {:?}", p_height);
+        need_side = !need_side;
+        if need_side {
+            start_height = p_height;
+            start_ground = p_ground;
+        } else {
+            if start_height == p_height {
+                continue;
+            }
+            println!("add side from {} to {}", start_height.units(), p_height.units());
+            add_side_new(
+                start_height,
+                p_height,
+                start_ground,
+                false,
+                a_to_b,
+                a_pos,
+                vertices,
+                indices,
+            );
+        }
     }
 
 }
 
+
+fn add_side_new(
+    bottom: HeightType,
+    top: HeightType,
+    ground: GroundMaterial,
+    normal_outside: bool,
+    dir: EdgeDir,
+    offset: AxialPoint,
+    vertices: &mut Vec<Vertex>,
+    indices: &mut Vec<u32>,
+) {
+    // TODO: normal is dummy
+    let prev_len = vertices.len() as u32;
+    let corners = EDGE_CORNERS_TO_NEIGHBOR[dir.idx()];
+    // println!("offset {:?}", offset);
+    // println!("corners: {:?}", corners);
+    for &z in &[bottom, top] {
+        for xy in [corners.0, corners.1].iter().map(|c| offset.to_real() + c) {
+            // println!("vertex at {:?}", (xy.x, xy.y, z.to_real()));
+            let zz = (z.to_real() - bottom.to_real()) / (top.to_real() - bottom.to_real());
+
+            vertices.push(Vertex {
+                position: [xy.x, xy.y, z.to_real()],
+                normal: [0.0, 0.0, 0.0],
+                radius: 0.0,
+                tex_coords: [0.0, 0.0],
+                // material_color: color,
+                // material_color: [xy.x - pos.to_real().x, xy.y - pos.to_real().y, zz],
+                material_color: [0.0, 0.0, zz],
+                ground: ground.get_id(),
+            });
+        }
+    }
+
+    if normal_outside {
+        indices.extend_from_slice(&[
+            prev_len, prev_len + 2, prev_len + 1,
+            prev_len + 3, prev_len + 1, prev_len + 2,
+        ]);
+    } else {
+        indices.extend_from_slice(&[
+            prev_len, prev_len + 1, prev_len + 2,
+            prev_len + 3, prev_len + 2, prev_len + 1,
+        ]);
+    };
+}
 
 fn add_side(
     normal_to_upper: bool,

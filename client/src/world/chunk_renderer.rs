@@ -42,8 +42,8 @@ pub struct ChunkRenderer {
 
 impl ChunkRenderer {
     pub fn new(context: Rc<GameContext>) -> Self {
-        let mut vertices = Vec::new();
-        let mut indices = Vec::new();
+        let vertices = Vec::new();
+        let indices = Vec::new();
         // get_top_hexagon_model(&mut vertices, &mut indices);
         // get_bottom_hexagon_model(&mut vertices, &mut indices);
         // get_side_hexagon_model(4, 5, &mut vertices, &mut indices);
