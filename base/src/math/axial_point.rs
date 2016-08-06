@@ -32,7 +32,7 @@ impl AxialPoint {
     pub fn to_real(&self) -> Point2f {
         Point2f {
             x: ((2 * self.q + self.r) as DefaultFloat) * HEX_INNER_RADIUS,
-            y: (self.r as DefaultFloat) * (3.0 / 2.0) * HEX_OUTER_RADIUS,
+            y: -(self.r as DefaultFloat) * (3.0 / 2.0) * HEX_OUTER_RADIUS,
         }
     }
 

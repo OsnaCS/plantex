@@ -90,7 +90,7 @@ impl Chunk {
 
         for q in start_q..start_q + CHUNK_SIZE as i32 {
             for r in start_r..start_r + CHUNK_SIZE as i32 {
-                let pos = AxialPoint::new(q.into(), r.into());
+                let pos = AxialPoint::new(q, r);
                 hec.push(func(pos));
             }
         }

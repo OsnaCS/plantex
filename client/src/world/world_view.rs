@@ -85,14 +85,17 @@ impl WorldView {
                                    shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
                                    sun_dir: Vector3f) {
-        for chunkview in self.chunks.values() {
+        for (idx, chunkview) in &self.chunks {
+            if idx.0 != AxialPoint::new(0, 0) {
+                continue;
+            }
             chunkview.draw(surface, camera, shadow_map, depth_view_proj, sun_dir);
         }
 
-        for plantview_vec in self.plant_views.values() {
-            for plantview in plantview_vec {
-                plantview.draw(surface, camera);
-            }
-        }
+        // for plantview_vec in self.plant_views.values() {
+        //     for plantview in plantview_vec {
+        //         plantview.draw(surface, camera);
+        //     }
+        // }
     }
 }

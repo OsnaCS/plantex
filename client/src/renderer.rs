@@ -1,3 +1,6 @@
+#![allow(unused_imports)]
+#![allow(dead_code)]
+#![allow(unused_variables)]
 use base::math::*;
 use world::WorldView;
 use glium::Surface;
@@ -39,7 +42,7 @@ const SHADOW_ORTHO_FAR: f32 = 600.0;
 // 0: Disable Bloom
 // 1: Enable Bloom
 // 2: Show only Bloom Map
-const BLOOM_STATE: i8 = 1;
+const BLOOM_STATE: i8 = 0;
 // number of times the light texture will be blured.
 // each iteration contains one horizontal and one vertical blur
 const BLOOM_ITERATION: u8 = 10;
@@ -197,68 +200,68 @@ impl Renderer {
                                       SHADOW_ORTHO_HEIGHT / 2.0,
                                       SHADOW_ORTHO_NEAR,
                                       SHADOW_ORTHO_FAR));
-        world_view.draw_shadow(&mut shadow_target, &sun_cam);
+        // world_view.draw_shadow(&mut shadow_target, &sun_cam);
 
         // Blur the shadow map to get soft shadows
 
         // Blur in horizontal direction into a new frame buffer:
-        let mut blur_horz_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
-                                                               self.shadow_horz_blur
-                                                                   .to_color_attachment()));
+        // let mut blur_horz_buffer = try!(SimpleFrameBuffer::new(self.context.get_facade(),
+        //                                                        self.shadow_horz_blur
+        //                                                            .to_color_attachment()));
 
-        for _ in 0..2 {
-            blur_horz_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
-
-
-            try!(blur_horz_buffer.draw(&self.quad_vertex_buffer,
-                                       &self.quad_index_buffer,
-                                       &self.bloom_blur_program,
-                                       &uniform! {
-                                            image: self.shadow_map.sampled()
-                                              .wrap_function(SamplerWrapFunction::Clamp),
-                                            horizontal: true,
-                                        },
-                                       &Default::default()));
-
-            // ...then blur in vertical direction into the normal shadow map
-            try!(shadow_target.draw(&self.quad_vertex_buffer,
-                                    &self.quad_index_buffer,
-                                    &self.bloom_blur_program,
-                                    &uniform! {
-                                        image: self.shadow_horz_blur.sampled()
-                                          .wrap_function(SamplerWrapFunction::Clamp),
-                                        horizontal: false,
-                                    },
-                                    &Default::default()));
-        }
+        // for _ in 0..2 {
+        //     blur_horz_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
 
-        // Blend the motion blur texture over the whole scene
-        let uniforms = uniform! {
-            image: &self.shadow_motion_blur,
-        };
-        let params = DrawParameters {
-            blend: Blend {
-                color: BlendingFunction::Addition {
-                    source: LinearBlendingFactor::ConstantAlpha,
-                    destination: LinearBlendingFactor::OneMinusConstantAlpha,
-                },
-                alpha: BlendingFunction::AlwaysReplace,
-                constant_value: (0.0, 0.0, 0.0, 0.05),
-            },
-            ..Default::default()
-        };
+        //     try!(blur_horz_buffer.draw(&self.quad_vertex_buffer,
+        //                                &self.quad_index_buffer,
+        //                                &self.bloom_blur_program,
+        //                                &uniform! {
+        //                                     image: self.shadow_map.sampled()
+        //                                       .wrap_function(SamplerWrapFunction::Clamp),
+        //                                     horizontal: true,
+        //                                 },
+        //                                &Default::default()));
 
-        try!(shadow_target.draw(&self.quad_vertex_buffer,
-                                &self.quad_index_buffer,
-                                &self.shadow_blend_program,
-                                &uniforms,
-                                &params));
+        //     // ...then blur in vertical direction into the normal shadow map
+        //     try!(shadow_target.draw(&self.quad_vertex_buffer,
+        //                             &self.quad_index_buffer,
+        //                             &self.bloom_blur_program,
+        //                             &uniform! {
+        //                                 image: self.shadow_horz_blur.sampled()
+        //                                   .wrap_function(SamplerWrapFunction::Clamp),
+        //                                 horizontal: false,
+        //                             },
+        //                             &Default::default()));
+        // }
+
+
+        // // Blend the motion blur texture over the whole scene
+        // let uniforms = uniform! {
+        //     image: &self.shadow_motion_blur,
+        // };
+        // let params = DrawParameters {
+        //     blend: Blend {
+        //         color: BlendingFunction::Addition {
+        //             source: LinearBlendingFactor::ConstantAlpha,
+        //             destination: LinearBlendingFactor::OneMinusConstantAlpha,
+        //         },
+        //         alpha: BlendingFunction::AlwaysReplace,
+        //         constant_value: (0.0, 0.0, 0.0, 0.05),
+        //     },
+        //     ..Default::default()
+        // };
+
+        // try!(shadow_target.draw(&self.quad_vertex_buffer,
+        //                         &self.quad_index_buffer,
+        //                         &self.shadow_blend_program,
+        //                         &uniforms,
+        //                         &params));
 
 
         // Copy final shadow map to motion blur texture
-        shadow_target.fill(&self.shadow_motion_blur.as_surface(),
-                           MagnifySamplerFilter::Nearest);
+        // shadow_target.fill(&self.shadow_motion_blur.as_surface(),
+        //                    MagnifySamplerFilter::Nearest);
 
         Ok(sun_cam.proj_matrix() * sun_cam.view_matrix())
     }
@@ -314,9 +317,9 @@ impl Renderer {
                             &self.shadow_map,
                             &depth_mvp,
                             sun_dir);
-            sky_view.draw_skydome(&mut hdr_buffer, camera);
-            sun.draw_sun(&mut hdr_buffer, camera);
-            weather.draw(&mut hdr_buffer, camera);
+            // sky_view.draw_skydome(&mut hdr_buffer, camera);
+            // sun.draw_sun(&mut hdr_buffer, camera);
+            // weather.draw(&mut hdr_buffer, camera);
 
         }
         // ===================================================================

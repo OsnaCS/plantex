@@ -37,6 +37,11 @@ use std::net::SocketAddr;
 use std::error::Error;
 
 pub fn start_game(config: Config, server: SocketAddr) -> Result<(), Box<Error>> {
+    // base::world::Chunk::for_pillars_positions(|pos| {
+    //     // println!("{:?} -> {:?}", pos, pos.to_real());
+    // });
+
+
     let game = try!(Game::new(config, server));
     game.run()
 }

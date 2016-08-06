@@ -9,6 +9,7 @@ use noise::{PermutationTable, open_simplex2, open_simplex3};
 use gen::world::biome::Biome;
 use prop::plant::Plant;
 use gen::plant::tree::PlantType;
+use math::*;
 
 /// Land "fill noise" scaling in x, y, and z direction.
 const LAND_NOISE_SCALE: (f32, f32, f32) = (0.03, 0.03, 0.05);
