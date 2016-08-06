@@ -36,7 +36,7 @@ impl AxialVector {
     /// system using `world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS}`.
     pub fn to_real(&self) -> Vector2f {
         Vector2f {
-            x: ((2 * self.q + self.r) as DefaultFloat) * HEX_INNER_RADIUS,
+            x: ((2 * self.q - self.r) as DefaultFloat) * HEX_INNER_RADIUS,
             y: (self.r as DefaultFloat) * (3.0 / 2.0) * HEX_OUTER_RADIUS,
         }
     }

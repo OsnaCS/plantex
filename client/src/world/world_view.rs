@@ -86,9 +86,9 @@ impl WorldView {
                                    depth_view_proj: &Matrix4<f32>,
                                    sun_dir: Vector3f) {
         for (idx, chunkview) in &self.chunks {
-            if idx.0 != AxialPoint::new(0, 0) {
-                continue;
-            }
+            // if idx.0 != AxialPoint::new(0, 0) {
+            //     continue;
+            // }
             chunkview.draw(surface, camera, shadow_map, depth_view_proj, sun_dir);
         }
 

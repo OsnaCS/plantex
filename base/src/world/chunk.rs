@@ -30,8 +30,8 @@ impl<'a> Iterator for ChunkPillars<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.i < CHUNK_SIZE * CHUNK_SIZE {
-            let axial = AxialVector::new((self.i / CHUNK_SIZE).into(),
-                                         (self.i % CHUNK_SIZE).into());
+            let axial = AxialVector::new((self.i % CHUNK_SIZE).into(),
+                                         (self.i / CHUNK_SIZE).into());
             let item = (axial, &self.pillars[self.i as usize]);
             self.i += 1;
             Some(item)
@@ -88,8 +88,8 @@ impl Chunk {
         let start_q = CHUNK_SIZE as i32 * chunk_index.0.q;
         let start_r = CHUNK_SIZE as i32 * chunk_index.0.r;
 
-        for q in start_q..start_q + CHUNK_SIZE as i32 {
-            for r in start_r..start_r + CHUNK_SIZE as i32 {
+        for r in start_r..start_r + CHUNK_SIZE as i32 {
+            for q in start_q..start_q + CHUNK_SIZE as i32 {
                 let pos = AxialPoint::new(q, r);
                 hec.push(func(pos));
             }

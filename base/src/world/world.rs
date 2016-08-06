@@ -59,9 +59,9 @@ impl World {
             if inner_pos.r < 0 {
                 inner_pos.r += chunk_size;
             }
-            if chunk_pos.q != chunk_pos.r {
-                ::std::mem::swap(&mut inner_pos.r, &mut inner_pos.q);
-            }
+            // if chunk_pos.q != chunk_pos.r {
+            //     ::std::mem::swap(&mut inner_pos.r, &mut inner_pos.q);
+            // }
             &chunk[inner_pos]
         });
 

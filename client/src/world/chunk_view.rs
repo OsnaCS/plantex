@@ -38,49 +38,20 @@ impl ChunkView {
                                  facade: &F)
                                  -> Self {
 
-        // let mut sections = Vec::new();
 
-        // for (axial, pillar) in chunk.pillars() {
-        //     let pos = offset.to_real() + axial.to_real();
-        //     for section in pillar.sections() {
-        //         let g = match section.ground {
-        //             GroundMaterial::Grass => 1,
-        //             GroundMaterial::Sand => 2,
-        //             GroundMaterial::Snow => 3,
-        //             GroundMaterial::Dirt => 4,
-        //             GroundMaterial::Stone => 5,
-        //             GroundMaterial::JungleGrass => 1,
-        //             GroundMaterial::Mulch => 7,
-        //             GroundMaterial::Debug => 8,
-        //         };
-        //         sections.push(Instance {
-        //             material_color: section.ground.get_color(),
-        //             ground: g,
-        //             offset: [pos.x, pos.y, section.bottom.to_real()],
-        //             height: (section.top.units() - section.bottom.units()) as f32,
-        //         });
-        //     }
-        // }
-
-        let (raw_buf, raw_indices) = if offset != AxialPoint::new(0, 0) {
+        let (raw_buf, raw_indices) = if false && offset != AxialPoint::new(0, 0) {
             (Vec::new(), Vec::new())
         } else {
             Self::get_vertices(chunk)
         };
 
-        // let raw_indices = [0, 1, 2];
-
-        // println!("{:?} -> {:?}", offset, offset.to_real());
-
         ChunkView {
             renderer: chunk_renderer,
-            // pillar_buf: VertexBuffer::dynamic(facade, &sections).unwrap(),
             vertex_buf: VertexBuffer::new(facade, &raw_buf).unwrap(),
             index_buf: IndexBuffer::new(facade,
                                       PrimitiveType::TrianglesList,
                                       &raw_indices).unwrap(),
             offset: offset,
-            // index_buf: ::glium::index::NoIndices(PrimitiveType::Points),
         }
     }
 
@@ -89,13 +60,14 @@ impl ChunkView {
         let mut indices = Vec::new();
 
         Chunk::for_pillars_positions(|pos| {
-            let tmp_col = [pos.q as f32 / (CHUNK_SIZE  as f32), pos.r as f32 / (CHUNK_SIZE  as f32), 0.0];
+            // let tmp_col = [pos.q as f32 / (CHUNK_SIZE  as f32), pos.r as f32 / (CHUNK_SIZE  as f32), 0.0];
 
             for sec in chunk[pos].sections() {
                 let ground = sec.ground.get_id();
 
                 // Add top and bottom face
                 for &(height, rev) in &[(sec.top, false), (sec.bottom, true)] {
+                    // let tmp_col = [height.to_real(); 3];
                     let prev_len = vertices.len() as u32;
                     // we skip all bottom faces at 0 completely
                     if height.units() == 0 {
@@ -108,12 +80,11 @@ impl ChunkView {
                         normal: [0.0, 0.0, 1.0],
                         radius: 0.0,
                         tex_coords: [0.5, 0.5],
-                        // material_color: sec.ground.get_color(),
-                        material_color: tmp_col,
+                        material_color: sec.ground.get_color(),
+                        // material_color: tmp_col,
                         ground: ground,
                     });
 
-                    // Add all points of top face
                     let iter = NORM_CORNERS.iter().map(|c| c * HEX_OUTER_RADIUS).zip(CORNER_UV).enumerate();
                     for (i, (corner, &uv)) in iter {
                         let i = i as u32;
@@ -124,8 +95,8 @@ impl ChunkView {
                             normal: [0.0, 0.0, 1.0],
                             radius: 1.0,
                             tex_coords: uv,
-                            // material_color: sec.ground.get_color(),
-                            material_color: tmp_col,
+                            material_color: sec.ground.get_color(),
+                            // material_color: tmp_col,
                             ground: ground,
                         });
 
@@ -140,145 +111,13 @@ impl ChunkView {
                         }
                     }
                 }
-
-
-                // // Add faces to neighbor *chunks*. We don't know how to render
-
-                // // Add faces to all neighbors in the directions:
-                // // - positive q, r stays the same
-                // // - positive r, q stays the same
-                // // - positive q and negative r (s stays the same)
-                // for (&neighbor_pos, &side) in neighbors.iter().zip(&norm_corners_to_neighbor) {
-                //     // Check if the neighbor even exists in the current chunk,
-                //     // if not, proceed with the next.
-                //     let skip = neighbor_pos.q >= CHUNK_SIZE.into()
-                //         || neighbor_pos.r >= CHUNK_SIZE.into()
-                //         || neighbor_pos.r < 0;
-                //     if skip {
-                //         continue;
-                //     }
-
-
-                //     // Find the neighbor sections we need to interact with. Our
-                //     // section `sec` has `top` and `bottom`. We can classify other
-                //     // sections (`other`) into three different classes:
-                //     // _________________________________________________
-                //     //                      +
-                //     //                      |
-                //     //                      +
-                //     //                                   +
-                //     //  sec.top -------+                 |
-                //     //                 |          +      +
-                //     //                 |          |
-                //     //                 |          |
-                //     //                 |          +      +
-                //     //  sec.bottom ----+                 |
-                //     //                      +            +
-                //     //                      |
-                //     //                      +
-                //     // ________________________________________________
-                //     //                      ^     ^      ^
-                //     // Completely outside --+     |      |
-                //     // (a)                        |      |
-                //     //    Completely inside (b) --+      |
-                //     //                                   |
-                //     //                           Partially inside (c)
-                //     //
-                //     // - (a): we won't interact with those (ignore)
-                //     // - (b) and (c): luckily we don't really need to distinguish
-                //     //   between those two cases. More about this in a comment
-                //     //   further down
-                //     let fitting_neighbor_sections = chunk[neighbor_pos]
-                //         .sections()
-                //         .iter()
-                //         .filter(|other| {
-                //             sec.top > other.bottom && sec.bottom < other.top
-                //         });
-                //     let mut at_least_one_fitted = false;
-
-                //     for other in fitting_neighbor_sections {
-                //         at_least_one_fitted = true;
-
-                //         // Regardless of being case (a) or (b) we need to draw
-                //         // two faces: from top to top and bottom to bottom.
-                //         // The normal, `material_color` and `ground` depend on
-                //         // what pillar-end is higher.
-
-                //         // TODO: normal is dummy value!
-
-                //         // Draw top-top-face
-                //         if sec.top != other.top {
-                //             add_side(
-                //                 false,
-                //                 (sec.top, sec.ground),
-                //                 (other.top, other.ground),
-                //                 [pos.to_real() + side.0, pos.to_real() + side.1],
-                //                 &mut vertices,
-                //                 &mut indices
-                //             );
-                //         }
-
-                //         // Draw bottom-bottom-face
-                //         if sec.bottom != other.bottom {
-                //             add_side(
-                //                 true,
-                //                 (sec.bottom, sec.ground),
-                //                 (other.bottom, other.ground),
-                //                 [pos.to_real() + side.0, pos.to_real() + side.1],
-                //                 &mut vertices,
-                //                 &mut indices
-                //             );
-                //         }
-                //         // if sec.bottom != other.bottom {
-                //         //     let (normal, color, ground) = if sec.bottom < other.bottom {
-                //         //         // Material of `sec` is used, normals point to `other`
-                //         //         ([1.0, 0.0, 0.0], sec.ground.get_color(), sec.ground)
-                //         //     } else {
-                //         //         // Material of `other` is used, normals point to `sec`
-                //         //         ([1.0, 0.0, 0.0], other.ground.get_color(), other.ground)
-                //         //     };
-                //         //     let lower = min(sec.bottom, sec.bottom);
-                //         //     let higher = max(sec.bottom, sec.bottom);
-
-                //         //     let prev_len = vertices.len() as u32;
-
-                //         //     // lower two vertices
-                //         //     for &z in &[lower, higher] {
-                //         //         for xy in [side.0, side.1].iter().map(|s| pos.to_real() + s) {
-                //         //             vertices.push(Vertex {
-                //         //                 position: [xy.x, xy.y, z.to_real()],
-                //         //                 normal: normal,
-                //         //                 radius: 0.0,
-                //         //                 tex_coords: [0.0, 0.0],
-                //         //                 material_color: color,
-                //         //                 ground: ground.get_id(),
-                //         //             });
-                //         //         }
-                //         //     }
-
-                //         //     indices.extend_from_slice(&[
-                //         //         prev_len, prev_len + 2, prev_len + 1,
-                //         //         prev_len + 3, prev_len + 2, prev_len + 1,
-                //         //     ]);
-                //         // }
-                //     }
-
-                //     if !at_least_one_fitted {
-                //         // add_side(
-                //         //     false,
-                //         //     (sec.top, sec.ground),
-                //         //     (sec.bottom, sec.ground),
-                //         //     [pos.to_real() + side.0, pos.to_real() + side.1],
-                //         //     &mut vertices,
-                //         //     &mut indices
-                //         // );
-                //     }
-                // }
             }
 
             for &dir in SIDE_PROPAGATION_NEIGHBORS {
                 connect_pillars(pos, dir, chunk, &mut vertices, &mut indices);
             }
+
+            add_outer_shell(pos, chunk, &mut vertices, &mut indices);
         });
 
         (vertices, indices)
@@ -422,11 +261,11 @@ implement_vertex!(Instance, material_color, offset, ground, height);
 //  |  \  ⬢ ⬢ ⬢ ⬢ ⬢
 //  |   \  ⬢ ⬢ ⬢ ⬢ ⬢
 //  V    V  ⬢ ⬢ ⬢ ⬢ ⬢
-//  y     r
+//  -y   -r
 //
 //
 //
-//     (q: 0, r: -1)    top      (q:1, r: -1)
+//     (q: 0, r: 1)     top      (q:1, r: 1)
 //
 //      top-left       _~^~_       top-right
 //                  _~^     ^~_
@@ -436,7 +275,7 @@ implement_vertex!(Instance, material_color, offset, ground, height);
 //                |             |
 //                ^~_         _~^
 //    bottom-left    ^~_   _~^   bottom-right
-//   (q: -1, r: 1)      ^~^     (q: 0, r: 1)
+//   (q: -1, r: -1)     ^~^     (q: 0, r: -1)
 //                    bottom
 
 /// When the center of a hex pillar with the outer radius 1 sits in the origin
@@ -452,11 +291,11 @@ const NORM_CORNERS: &'static [Vector2f] = &[
 
 /// Groups together two corner coordinates of a specific edge.
 const EDGE_CORNERS_TO_NEIGHBOR: &'static [(Vector2f, Vector2f)] = &[
-    (NORM_CORNERS[0], NORM_CORNERS[1]), // q:  0, r: -1, top-left
-    (NORM_CORNERS[1], NORM_CORNERS[2]), // q:  1, r: -1, top-right
+    (NORM_CORNERS[0], NORM_CORNERS[1]), // q:  0, r:  1, top-left
+    (NORM_CORNERS[1], NORM_CORNERS[2]), // q:  1, r:  1, top-right
     (NORM_CORNERS[2], NORM_CORNERS[3]), // q:  1, r:  0, right
-    (NORM_CORNERS[3], NORM_CORNERS[4]), // q:  0, r:  1, bottom-right
-    (NORM_CORNERS[4], NORM_CORNERS[5]), // q: -1, r:  1, bottom-left
+    (NORM_CORNERS[3], NORM_CORNERS[4]), // q:  0, r: -1, bottom-right
+    (NORM_CORNERS[4], NORM_CORNERS[5]), // q: -1, r: -1, bottom-left
     (NORM_CORNERS[5], NORM_CORNERS[0]), // q: -1, r:  0, left
 ];
 
@@ -528,16 +367,57 @@ impl EdgeDir {
 
     fn axial_vec(&self) -> AxialVector {
         match *self {
-            EdgeDir::TopLeft => AxialVector::new(0, -1),
-            EdgeDir::TopRight => AxialVector::new(1, -1),
-            EdgeDir::Right => AxialVector::new(1,  0),
-            EdgeDir::BottomRight => AxialVector::new(0,  1),
-            EdgeDir::BottomLeft => AxialVector::new(1,  1),
-            EdgeDir::Left => AxialVector::new(1,  0),
+            EdgeDir::TopLeft        => AxialVector::new( 0,  1),
+            EdgeDir::TopRight       => AxialVector::new( 1,  1),
+            EdgeDir::Right          => AxialVector::new( 1,  0),
+            EdgeDir::BottomRight    => AxialVector::new( 0, -1),
+            EdgeDir::BottomLeft     => AxialVector::new(-1, -1),
+            EdgeDir::Left           => AxialVector::new(-1,  0),
         }
     }
 }
 
+fn add_outer_shell(
+    pos: AxialPoint,
+    chunk: &Chunk,
+    vertices: &mut Vec<Vertex>,
+    indices: &mut Vec<u32>,
+) {
+    let neighbors = [
+        EdgeDir::TopLeft,
+        EdgeDir::TopRight,
+        EdgeDir::Right,
+        EdgeDir::BottomRight,
+        EdgeDir::BottomLeft,
+        EdgeDir::Left,
+    ];
+
+    for &neighbor in &neighbors {
+        let neighbor_pos = pos + neighbor.axial_vec();
+        let is_outer =
+            neighbor_pos.q >= CHUNK_SIZE.into()
+            || neighbor_pos.r >= CHUNK_SIZE.into()
+            || neighbor_pos.q < 0
+            || neighbor_pos.r < 0;
+
+        if is_outer {
+            // if neighbor == EdgeDir::BottomLeft;
+
+            for sec in chunk[pos].sections() {
+                add_side(
+                    sec.bottom,
+                    sec.top,
+                    sec.ground,
+                    false,
+                    neighbor,
+                    pos,
+                    vertices,
+                    indices,
+                );
+            }
+        }
+    }
+}
 
 fn connect_pillars(
     a_pos: AxialPoint,
@@ -556,14 +436,14 @@ fn connect_pillars(
         return;
     }
 
+    let a = &chunk[a_pos];
+    let b = &chunk[neighbor_pos];
+
     // println!("--------------------");
     // println!("a_to_b: {:?}", a_to_b);
     // println!("self: {:?}", a_pos);
     // println!("neighbor: {:?}", neighbor_pos);
     // println!("-------");
-
-    let a = &chunk[a_pos];
-    let b = &chunk[neighbor_pos];
 
     // println!("a: {:#?}", a.sections());
     // println!("b: {:#?}", b.sections());
@@ -695,6 +575,10 @@ fn connect_pillars(
         }
     }
 
+    // ----------------------------------------------------------------------
+    // Here we combine both iterators and create a third one by applying a
+    // rather complicated map function. This third and final iterator yields
+    // the final data to add a side.
     let raw_intervals = PairUp {
         original: IntervalPoints::new(a.sections(), b.sections()) //.inspect(|x| println!("-- {:?}", x))
     };
@@ -786,7 +670,7 @@ fn connect_pillars(
     });
 
     for (lower, upper, pillar, sec_idx, normal_to_a) in sides {
-        add_side_new(
+        add_side(
             lower,
             upper,
             ab[pillar.idx()].sections()[sec_idx].ground,
@@ -797,95 +681,10 @@ fn connect_pillars(
             indices,
         );
     }
-
-
-    // macro_rules! pair_iter {
-    //     ($a:expr, $b:expr) => (::std::iter::once($a).chain(::std::iter::once($b)))
-    // }
-
-    // use std::iter::Peekable;
-    // struct Scanline<I: Iterator> {
-    //     a: Peekable<I>,
-    //     b: Peekable<I>,
-    // }
-
-    // impl<I> Iterator for Scanline<I> where I: Iterator<Item=(HeightType, GroundMaterial)> {
-    //     type Item = (HeightType, GroundMaterial);
-    //     fn next(&mut self) -> Option<Self::Item> {
-    //         let choose_a = match (self.a.peek(), self.b.peek()) {
-    //             (Some(a), Some(b)) => {
-    //                 if a.0 < b.0 {
-    //                     Some(true)
-    //                 } else {
-    //                     Some(false)
-    //                 }
-    //             }
-    //             (None, Some(_)) => Some(false),
-    //             (Some(_), None) => Some(true),
-    //             _ => None,
-    //         };
-
-    //         match choose_a {
-    //             Some(true) => self.a.next(),
-    //             Some(false) => self.b.next(),
-    //             None => None,
-    //         }
-    //     }
-    // }
-
-    // let flat_a: Vec<_> = a.sections()
-    //     .iter()
-    //     .flat_map(|s| pair_iter!((s.bottom, s.ground), (s.top, s.ground)))
-    //     .collect();
-    // let flat_b: Vec<_> = b.sections()
-    //     .iter()
-    //     .flat_map(|s| pair_iter!((s.bottom, s.ground), (s.top, s.ground)))
-    //     .collect();
-
-    // let interesting_points = Scanline {
-    //     a: flat_a.into_iter().peekable(),
-    //     b: flat_b.into_iter().peekable(),
-    // };
-
-    // let mut scanline = Vec::with_capacity(
-    //     (a.sections().len() + b.sections().len()) * 2
-    // );
-    // for a in a.sections() {
-    //     scanline.push()
-    // }
-
-
-    // let mut start_height = HeightType::from_units(0);
-    // let mut start_ground = GroundMaterial::Debug;
-    // let mut need_side = false;
-    // for (p_height, p_ground) in interesting_points {
-    //     println!("--> {:?}", p_height);
-    //     need_side = !need_side;
-    //     if need_side {
-    //         start_height = p_height;
-    //         start_ground = p_ground;
-    //     } else {
-    //         if start_height == p_height {
-    //             continue;
-    //         }
-    //         println!("add side from {} to {}", start_height.units(), p_height.units());
-    //         add_side_new(
-    //             start_height,
-    //             p_height,
-    //             start_ground,
-    //             false,
-    //             a_to_b,
-    //             a_pos,
-    //             vertices,
-    //             indices,
-    //         );
-    //     }
-    // }
-
 }
 
 
-fn add_side_new(
+fn add_side(
     bottom: HeightType,
     top: HeightType,
     ground: GroundMaterial,
@@ -898,11 +697,8 @@ fn add_side_new(
     // TODO: normal is dummy
     let prev_len = vertices.len() as u32;
     let corners = EDGE_CORNERS_TO_NEIGHBOR[dir.idx()];
-    // println!("offset {:?}", offset);
-    // println!("corners: {:?}", corners);
     for &z in &[bottom, top] {
         for xy in [corners.0, corners.1].iter().map(|c| offset.to_real() + c) {
-            // println!("vertex at {:?}", (xy.x, xy.y, z.to_real()));
             let zz = (z.to_real() - bottom.to_real()) / (top.to_real() - bottom.to_real());
 
             vertices.push(Vertex {
@@ -930,52 +726,3 @@ fn add_side_new(
         ]);
     };
 }
-
-// fn add_side(
-//     normal_to_upper: bool,
-//     (a_height, a_ground): (HeightType, GroundMaterial),
-//     (b_height, b_ground): (HeightType, GroundMaterial),
-//     corner_pos_cw: [Point2f; 2],
-//     vertices: &mut Vec<Vertex>,
-//     indices: &mut Vec<u32>,
-// ) {
-//     // TODO: normal is dummy
-//     let (normal, ground) = if (a_height > b_height) ^ normal_to_upper {
-//         ([1.0, 0.0, 0.0], a_ground)
-//     } else {
-//         ([1.0, 0.0, 0.0], b_ground)
-//     };
-//     let lower = min(a_height, b_height);
-//     let higher = max(a_height, b_height);
-
-//     let prev_len = vertices.len() as u32;
-
-//     for &z in &[lower, higher] {
-//         for xy in &corner_pos_cw {
-//             let zz = (z.to_real() - lower.to_real()) / (higher.to_real() - lower.to_real());
-
-//             vertices.push(Vertex {
-//                 position: [xy.x, xy.y, z.to_real()],
-//                 normal: normal,
-//                 radius: 0.0,
-//                 tex_coords: [0.0, 0.0],
-//                 // material_color: color,
-//                 // material_color: [xy.x - pos.to_real().x, xy.y - pos.to_real().y, zz],
-//                 material_color: [0.0, 0.0, zz],
-//                 ground: ground.get_id(),
-//             });
-//         }
-//     }
-
-//     if (a_height > b_height) ^ normal_to_upper {
-//         indices.extend_from_slice(&[
-//             prev_len, prev_len + 2, prev_len + 1,
-//             prev_len + 3, prev_len + 1, prev_len + 2,
-//         ]);
-//     } else {
-//         indices.extend_from_slice(&[
-//             prev_len, prev_len + 1, prev_len + 2,
-//             prev_len + 3, prev_len + 2, prev_len + 1,
-//         ]);
-//     };
-// }

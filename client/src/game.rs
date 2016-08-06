@@ -16,6 +16,7 @@ use super::DayTime;
 use super::weather::Weather;
 use player::Player;
 use control_switcher::ControlSwitcher;
+use base::math::*;
 
 pub struct Game {
     renderer: Renderer,
@@ -101,7 +102,10 @@ impl Game {
 
             frames += 1;
             if next_fps_measure < Instant::now() {
-                // info!("{} FPS", frames);
+                let pos = self.control_switcher.get_camera().position;
+                let pos2 = Point2::new(pos.x, pos.y);
+                let ax = AxialPoint::from_real(pos2);
+                info!("{} FPS ||| pos: {:?} (axial: {:?}, back: {:?})", frames, pos, ax, ax.to_real());
                 next_fps_measure = Instant::now() + Duration::from_secs(1);
                 frames = 0;
             }

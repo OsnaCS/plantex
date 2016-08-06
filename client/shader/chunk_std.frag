@@ -127,6 +127,7 @@ void main() {
     }
 
     diffuse_color *= x_material_color;
+    // diffuse_color = x_material_color/100;
 
     // vec3 diffuse_color = x_material_color;
 
