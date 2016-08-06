@@ -131,12 +131,12 @@ impl ChunkView {
 
                         if rev {
                             indices.push(prev_len);
-                            indices.push(prev_len + i + 1);
                             indices.push(prev_len + ((i + 1) % 6) + 1);
+                            indices.push(prev_len + i + 1);
                         } else {
                             indices.push(prev_len);
-                            indices.push(prev_len + ((i + 1) % 6) + 1);
                             indices.push(prev_len + i + 1);
+                            indices.push(prev_len + ((i + 1) % 6) + 1);
                         }
                     }
                 }
@@ -362,7 +362,7 @@ impl ChunkView {
                 ..Default::default()
             },
             point_size: Some(10.0),
-            // backface_culling: BackfaceCullingMode::CullCounterClockwise,
+            backface_culling: BackfaceCullingMode::CullCounterClockwise,
             ..Default::default()
         };
 
@@ -556,85 +556,296 @@ fn connect_pillars(
         return;
     }
 
-    println!("--------------------");
-    println!("a_to_b: {:?}", a_to_b);
-    println!("self: {:?}", a_pos);
-    println!("neighbor: {:?}", neighbor_pos);
-    println!("-------");
+    // println!("--------------------");
+    // println!("a_to_b: {:?}", a_to_b);
+    // println!("self: {:?}", a_pos);
+    // println!("neighbor: {:?}", neighbor_pos);
+    // println!("-------");
 
     let a = &chunk[a_pos];
     let b = &chunk[neighbor_pos];
 
-    println!("a: {:#?}", a.sections());
-    println!("b: {:#?}", b.sections());
+    // println!("a: {:#?}", a.sections());
+    // println!("b: {:#?}", b.sections());
 
     // let mut a_sections = a.sections().iter().peekable();
     // let mut b_sections = b.sections().iter().peekable();
 
     let ab = [a, b];
 
-    // #[derive(PartialEq, Eq, PartialOrd, Ord)]
-    // enum Pillar {
-    //     A,
-    //     B,
-    // }
-
-    // impl Pillar {
-    //     fn idx(&self) -> usize {
-    //         match *self {
-    //             A => 0,
-    //             B => 1,
-    //         }
-    //     }
-    // }
-
-    macro_rules! pair_iter {
-        ($a:expr, $b:expr) => (::std::iter::once($a).chain(::std::iter::once($b)))
+    #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
+    enum Pillar {
+        A,
+        B,
     }
 
-    use std::iter::Peekable;
-    struct Scanline<I: Iterator> {
-        a: Peekable<I>,
-        b: Peekable<I>,
-    }
-
-    impl<I> Iterator for Scanline<I> where I: Iterator<Item=(HeightType, GroundMaterial)> {
-        type Item = (HeightType, GroundMaterial);
-        fn next(&mut self) -> Option<Self::Item> {
-            let choose_a = match (self.a.peek(), self.b.peek()) {
-                (Some(a), Some(b)) => {
-                    if a.0 < b.0 {
-                        Some(true)
-                    } else {
-                        Some(false)
-                    }
-                }
-                (None, Some(_)) => Some(false),
-                (Some(_), None) => Some(true),
-                _ => None,
-            };
-
-            match choose_a {
-                Some(true) => self.a.next(),
-                Some(false) => self.b.next(),
-                None => None,
+    impl Pillar {
+        fn idx(&self) -> usize {
+            match *self {
+                Pillar::A => 0,
+                Pillar::B => 1,
             }
         }
     }
 
-    let flat_a: Vec<_> = a.sections()
-        .iter()
-        .flat_map(|s| pair_iter!((s.bottom, s.ground), (s.top, s.ground)))
-        .collect();
-    let flat_b: Vec<_> = b.sections()
-        .iter()
-        .flat_map(|s| pair_iter!((s.bottom, s.ground), (s.top, s.ground)))
-        .collect();
 
-    let interesting_points = Scanline {
-        a: flat_a.into_iter().peekable(),
-        b: flat_b.into_iter().peekable(),
+    // ----------------------------------------------------------------------
+    /// This iterator takes two slices of `PillarSection`s and spits out a
+    /// series of tuples `(height, pillar, is_top)`. The yielded items are
+    /// ordered ascendingly by the key `height`. Each item knows from what
+    /// pillar the height is from and if that height was the top or bottom
+    /// of a pillar section.
+    ///
+    /// *Note*: this iterator assumes that the slices of pillar sections are
+    /// sorted, that there are no overlapping sections and that bottom < top is
+    /// true for all sections.
+    struct IntervalPoints<'c> {
+        a: &'c [PillarSection],
+        b: &'c [PillarSection],
+        a_idx: usize,
+        b_idx: usize,
+        /// `true` means that `a.bottom` was already yielded
+        within_a: bool,
+        /// `true` means that `b.bottom` was already yielded
+        within_b: bool,
+    }
+
+    impl<'c> IntervalPoints<'c> {
+        fn new(a: &'c [PillarSection], b: &'c [PillarSection]) -> Self {
+            IntervalPoints {
+                a: a,
+                b: b,
+                a_idx: 0,
+                b_idx: 0,
+                within_a: false,
+                within_b: false,
+            }
+        }
+    }
+
+    impl<'c> Iterator for IntervalPoints<'c> {
+        type Item = (HeightType, Pillar, usize, usize, bool);
+        fn next(&mut self) -> Option<Self::Item> {
+            // Determine the next height that would be yielded from a/b.
+            let next_a = self.a.get(self.a_idx).map(|sec| {
+                if self.within_a {
+                    sec.top
+                } else {
+                    sec.bottom
+                }
+            });
+            let next_b = self.b.get(self.b_idx).map(|sec| {
+                if self.within_b {
+                    sec.top
+                } else {
+                    sec.bottom
+                }
+            });
+
+            // If both pillars can still yield height points, choose the one
+            // with the smaller height. Otherwise choose the one thats
+            // available.
+            let yield_from_a = match (next_a, next_b) {
+                (Some(ha), Some(hb)) => ha < hb,
+                (Some(_), None) => true,
+                (None, Some(_)) => false,
+                // we will yield `a` anyway, because it is `None`
+                (None, None) => true,
+            };
+
+            if yield_from_a {
+                let sec_a_idx = self.a_idx;
+                if self.within_a {
+                    // we will now yield a's top
+                    self.a_idx += 1;
+                }
+                self.within_a = !self.within_a;
+
+                next_a.map(|h| (h, Pillar::A, sec_a_idx, self.b_idx, !self.within_a))
+            } else {
+                let sec_b_idx = self.b_idx;
+                if self.within_b {
+                    // we will now yield b's top
+                    self.b_idx += 1;
+                }
+                self.within_b = !self.within_b;
+
+                next_b.map(|h| (h, Pillar::B, self.a_idx, sec_b_idx, !self.within_b))
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    /// This iterator takes another iterator and groups together two yielded
+    /// items from the original iterator in a pair. *Note*: it assumes that the
+    /// original iterator yields an even number of items.
+    struct PairUp<I: Iterator> {
+        original: I,
+    }
+
+    impl<I: Iterator> Iterator for PairUp<I> {
+        type Item = (I::Item, I::Item);
+
+        fn next(&mut self) -> Option<Self::Item> {
+            self.original.next().map(|first| (
+                first,
+                self.original.next()
+                    .expect("original iterator yielded an odd number of items"),
+            ))
+        }
+    }
+
+    let raw_intervals = PairUp {
+        original: IntervalPoints::new(a.sections(), b.sections()) //.inspect(|x| println!("-- {:?}", x))
     };
+    let sides = raw_intervals.map(|(lower, upper)| {
+        let (l_height, l_pillar, l_sec_a_idx, l_sec_b_idx, l_is_top) = lower;
+        let (u_height, u_pillar, u_sec_a_idx, u_sec_b_idx, u_is_top) = upper;
+
+        let (pillar, sec_idx, normal_to_a) = match ((l_pillar, l_is_top), (u_pillar, u_is_top)) {
+            // It's impossible to have two consecutive interval points of the
+            // same type: the height list is sorted and there should be a top
+            // in between two bottoms of one pillar.
+            ((Pillar::A, false), (Pillar::A, false)) => unreachable!(),
+            ((Pillar::A,  true), (Pillar::A,  true)) => unreachable!(),
+            ((Pillar::B, false), (Pillar::B, false)) => unreachable!(),
+            ((Pillar::B,  true), (Pillar::B,  true)) => unreachable!(),
+
+            // These are the cases where both interval points are from the same
+            // pillar. This means that either the two sections do not intersect
+            // at all in the given interval or that one section is a super-
+            // interval of two other ones:
+            //
+            // ---+
+            //    | +---
+            //    | | b
+            //    | +---
+            //  a |           <-- (b.top, b.bottom)
+            //    | +---
+            //    | | b
+            //    | +---
+            // ---+
+            //
+            //      +---
+            // ---+ |
+            //  a | |
+            // ---+ |
+            //      | b       <-- (a.top, a.bottom)
+            // ---+ |
+            //  a | |
+            // ---+ |
+            //      +---
+            ((Pillar::A, false), (Pillar::A, true)) => (Pillar::A, u_sec_a_idx, false),
+            ((Pillar::B, false), (Pillar::B, true)) => (Pillar::B, u_sec_b_idx, true),
+            ((Pillar::A, true), (Pillar::A, false)) => (Pillar::B, u_sec_b_idx, true),
+            ((Pillar::B, true), (Pillar::B, false)) => (Pillar::A, u_sec_a_idx, false),
+
+            // ---+
+            //    |         <-- (b.top, a.top)       [1]  (=> A)
+            //  a | +---
+            //    | |       <-- (a.bottom, b.top)    [2]
+            // ---+ | b
+            //      |       <-- (b.bottom, a.bottom) [3]  (=> B)
+            //      +---
+            //
+            // Cases [1] and [3] are possible, case [2] is not: the iterator
+            // always pairs up two consecutive height values (which are sorted)
+            // and thus it's impossible to get such a pair.
+            ((Pillar::B,  true), (Pillar::A,  true)) => (Pillar::A, u_sec_a_idx, false),
+            ((Pillar::A, false), (Pillar::B,  true)) => unreachable!(),
+            ((Pillar::B, false), (Pillar::A, false)) => (Pillar::B, l_sec_b_idx, true),
+
+            //      +---
+            //      |       <-- (a.top, b.top)       [1]  (=> B)
+            // ---+ | b
+            //    | |       <-- (b.bottom, a.top)    [2]
+            //  a | +---
+            //    |         <-- (a.bottom, b.bottom) [3]  (=> A)
+            // ---+
+            //
+            // The same as above but with a and b switched.
+            ((Pillar::A,  true), (Pillar::B,  true)) => (Pillar::B, l_sec_b_idx, true),
+            ((Pillar::B, false), (Pillar::A,  true)) => unreachable!(),
+            ((Pillar::A, false), (Pillar::B, false)) => (Pillar::A, u_sec_a_idx, false),
+
+            // ---+
+            //  a |
+            // ---+
+            //              <-- impossible
+            //      +---
+            //      | b
+            //      +---
+            //
+            // The pairing argument from above applies here too: it's impossible
+            // to get the displayed interval at this point.
+            ((Pillar::A, true), (Pillar::B, false)) => unreachable!(),
+            ((Pillar::B, true), (Pillar::A, false)) => unreachable!(),
+        };
+
+        (l_height, u_height, pillar, sec_idx, normal_to_a)
+    });
+
+    for (lower, upper, pillar, sec_idx, normal_to_a) in sides {
+        add_side_new(
+            lower,
+            upper,
+            ab[pillar.idx()].sections()[sec_idx].ground,
+            normal_to_a,
+            a_to_b,
+            a_pos,
+            vertices,
+            indices,
+        );
+    }
+
+
+    // macro_rules! pair_iter {
+    //     ($a:expr, $b:expr) => (::std::iter::once($a).chain(::std::iter::once($b)))
+    // }
+
+    // use std::iter::Peekable;
+    // struct Scanline<I: Iterator> {
+    //     a: Peekable<I>,
+    //     b: Peekable<I>,
+    // }
+
+    // impl<I> Iterator for Scanline<I> where I: Iterator<Item=(HeightType, GroundMaterial)> {
+    //     type Item = (HeightType, GroundMaterial);
+    //     fn next(&mut self) -> Option<Self::Item> {
+    //         let choose_a = match (self.a.peek(), self.b.peek()) {
+    //             (Some(a), Some(b)) => {
+    //                 if a.0 < b.0 {
+    //                     Some(true)
+    //                 } else {
+    //                     Some(false)
+    //                 }
+    //             }
+    //             (None, Some(_)) => Some(false),
+    //             (Some(_), None) => Some(true),
+    //             _ => None,
+    //         };
+
+    //         match choose_a {
+    //             Some(true) => self.a.next(),
+    //             Some(false) => self.b.next(),
+    //             None => None,
+    //         }
+    //     }
+    // }
+
+    // let flat_a: Vec<_> = a.sections()
+    //     .iter()
+    //     .flat_map(|s| pair_iter!((s.bottom, s.ground), (s.top, s.ground)))
+    //     .collect();
+    // let flat_b: Vec<_> = b.sections()
+    //     .iter()
+    //     .flat_map(|s| pair_iter!((s.bottom, s.ground), (s.top, s.ground)))
+    //     .collect();
+
+    // let interesting_points = Scanline {
+    //     a: flat_a.into_iter().peekable(),
+    //     b: flat_b.into_iter().peekable(),
+    // };
 
     // let mut scanline = Vec::with_capacity(
     //     (a.sections().len() + b.sections().len()) * 2
@@ -644,32 +855,32 @@ fn connect_pillars(
     // }
 
 
-    let mut start_height = HeightType::from_units(0);
-    let mut start_ground = GroundMaterial::Debug;
-    let mut need_side = false;
-    for (p_height, p_ground) in interesting_points {
-        println!("--> {:?}", p_height);
-        need_side = !need_side;
-        if need_side {
-            start_height = p_height;
-            start_ground = p_ground;
-        } else {
-            if start_height == p_height {
-                continue;
-            }
-            println!("add side from {} to {}", start_height.units(), p_height.units());
-            add_side_new(
-                start_height,
-                p_height,
-                start_ground,
-                false,
-                a_to_b,
-                a_pos,
-                vertices,
-                indices,
-            );
-        }
-    }
+    // let mut start_height = HeightType::from_units(0);
+    // let mut start_ground = GroundMaterial::Debug;
+    // let mut need_side = false;
+    // for (p_height, p_ground) in interesting_points {
+    //     println!("--> {:?}", p_height);
+    //     need_side = !need_side;
+    //     if need_side {
+    //         start_height = p_height;
+    //         start_ground = p_ground;
+    //     } else {
+    //         if start_height == p_height {
+    //             continue;
+    //         }
+    //         println!("add side from {} to {}", start_height.units(), p_height.units());
+    //         add_side_new(
+    //             start_height,
+    //             p_height,
+    //             start_ground,
+    //             false,
+    //             a_to_b,
+    //             a_pos,
+    //             vertices,
+    //             indices,
+    //         );
+    //     }
+    // }
 
 }
 
@@ -678,7 +889,7 @@ fn add_side_new(
     bottom: HeightType,
     top: HeightType,
     ground: GroundMaterial,
-    normal_outside: bool,
+    normal_to_a: bool,
     dir: EdgeDir,
     offset: AxialPoint,
     vertices: &mut Vec<Vertex>,
@@ -707,7 +918,7 @@ fn add_side_new(
         }
     }
 
-    if normal_outside {
+    if normal_to_a {
         indices.extend_from_slice(&[
             prev_len, prev_len + 2, prev_len + 1,
             prev_len + 3, prev_len + 1, prev_len + 2,
@@ -720,51 +931,51 @@ fn add_side_new(
     };
 }
 
-fn add_side(
-    normal_to_upper: bool,
-    (a_height, a_ground): (HeightType, GroundMaterial),
-    (b_height, b_ground): (HeightType, GroundMaterial),
-    corner_pos_cw: [Point2f; 2],
-    vertices: &mut Vec<Vertex>,
-    indices: &mut Vec<u32>,
-) {
-    // TODO: normal is dummy
-    let (normal, ground) = if (a_height > b_height) ^ normal_to_upper {
-        ([1.0, 0.0, 0.0], a_ground)
-    } else {
-        ([1.0, 0.0, 0.0], b_ground)
-    };
-    let lower = min(a_height, b_height);
-    let higher = max(a_height, b_height);
+// fn add_side(
+//     normal_to_upper: bool,
+//     (a_height, a_ground): (HeightType, GroundMaterial),
+//     (b_height, b_ground): (HeightType, GroundMaterial),
+//     corner_pos_cw: [Point2f; 2],
+//     vertices: &mut Vec<Vertex>,
+//     indices: &mut Vec<u32>,
+// ) {
+//     // TODO: normal is dummy
+//     let (normal, ground) = if (a_height > b_height) ^ normal_to_upper {
+//         ([1.0, 0.0, 0.0], a_ground)
+//     } else {
+//         ([1.0, 0.0, 0.0], b_ground)
+//     };
+//     let lower = min(a_height, b_height);
+//     let higher = max(a_height, b_height);
 
-    let prev_len = vertices.len() as u32;
+//     let prev_len = vertices.len() as u32;
 
-    for &z in &[lower, higher] {
-        for xy in &corner_pos_cw {
-            let zz = (z.to_real() - lower.to_real()) / (higher.to_real() - lower.to_real());
+//     for &z in &[lower, higher] {
+//         for xy in &corner_pos_cw {
+//             let zz = (z.to_real() - lower.to_real()) / (higher.to_real() - lower.to_real());
 
-            vertices.push(Vertex {
-                position: [xy.x, xy.y, z.to_real()],
-                normal: normal,
-                radius: 0.0,
-                tex_coords: [0.0, 0.0],
-                // material_color: color,
-                // material_color: [xy.x - pos.to_real().x, xy.y - pos.to_real().y, zz],
-                material_color: [0.0, 0.0, zz],
-                ground: ground.get_id(),
-            });
-        }
-    }
+//             vertices.push(Vertex {
+//                 position: [xy.x, xy.y, z.to_real()],
+//                 normal: normal,
+//                 radius: 0.0,
+//                 tex_coords: [0.0, 0.0],
+//                 // material_color: color,
+//                 // material_color: [xy.x - pos.to_real().x, xy.y - pos.to_real().y, zz],
+//                 material_color: [0.0, 0.0, zz],
+//                 ground: ground.get_id(),
+//             });
+//         }
+//     }
 
-    if (a_height > b_height) ^ normal_to_upper {
-        indices.extend_from_slice(&[
-            prev_len, prev_len + 2, prev_len + 1,
-            prev_len + 3, prev_len + 1, prev_len + 2,
-        ]);
-    } else {
-        indices.extend_from_slice(&[
-            prev_len, prev_len + 1, prev_len + 2,
-            prev_len + 3, prev_len + 2, prev_len + 1,
-        ]);
-    };
-}
+//     if (a_height > b_height) ^ normal_to_upper {
+//         indices.extend_from_slice(&[
+//             prev_len, prev_len + 2, prev_len + 1,
+//             prev_len + 3, prev_len + 1, prev_len + 2,
+//         ]);
+//     } else {
+//         indices.extend_from_slice(&[
+//             prev_len, prev_len + 1, prev_len + 2,
+//             prev_len + 3, prev_len + 2, prev_len + 1,
+//         ]);
+//     };
+// }
