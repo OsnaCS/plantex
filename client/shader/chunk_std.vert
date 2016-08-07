@@ -27,7 +27,6 @@ uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
 uniform mat4 depth_view_proj;
 uniform vec2 offset;
-uniform vec3 cam_pos;
 
 void main() {
     vec4 world_coords = vec4(
@@ -43,10 +42,6 @@ void main() {
     x_radius = radius;
     x_tex_coords = tex_coords;
 
-    x_position = position;
+    x_position = world_coords.xyz;
     x_ground = ground;
-
-    // position in relation to player ignoring hight, needed for fog
-    // pos = vec3(offset - cam_pos);
-    pos = vec3(pos.x, pos.y, 0);
 }
