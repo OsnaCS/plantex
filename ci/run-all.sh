@@ -9,7 +9,8 @@ MY_PATH="`dirname \"$0\"`"
 $MY_PATH/check-basic-style.sh
 
 # check that everything is formatted with rustfmt
-$MY_PATH/check-rustfmt.sh
+# EDIT: we don't want to check it anymore...
+# $MY_PATH/check-rustfmt.sh
 
 # check that everything compiles and all tests pass
 $MY_PATH/test-all.sh
