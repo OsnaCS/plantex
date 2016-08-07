@@ -1,13 +1,4 @@
-#![allow(unused_imports)]
-#![allow(dead_code)]
-#![allow(unused_variables)]
-
-use base::world;
-use base::math::SQRT_3;
-use std::f32::consts;
-use world::chunk_view::Vertex;
-use glium::{IndexBuffer, Program, VertexBuffer};
-use glium::index::PrimitiveType;
+use glium::Program;
 use glium::texture::Texture2d;
 use GameContext;
 use std::rc::Rc;
@@ -20,11 +11,6 @@ pub struct ChunkRenderer {
     program: Program,
     /// Shadow map shader
     shadow_program: Program,
-    /// Vertex buffer for a single `HexPillar`, repeated, scaled and colored as
-    /// needed to draw chunks.
-    pillar_vbuf: VertexBuffer<Vertex>,
-    /// Index Buffer for `pillar_vbuf`.
-    pillar_ibuf: IndexBuffer<u32>,
     pub noise_sand: Texture2d,
     pub noise_snow: Texture2d,
     pub noise_grass: Texture2d,
@@ -42,17 +28,6 @@ pub struct ChunkRenderer {
 
 impl ChunkRenderer {
     pub fn new(context: Rc<GameContext>) -> Self {
-        let vertices = Vec::new();
-        let indices = Vec::new();
-        // get_top_hexagon_model(&mut vertices, &mut indices);
-        // get_bottom_hexagon_model(&mut vertices, &mut indices);
-        // get_side_hexagon_model(4, 5, &mut vertices, &mut indices);
-        // get_side_hexagon_model(1, 2, &mut vertices, &mut indices);
-        // get_side_hexagon_model(5, 0, &mut vertices, &mut indices);
-        // get_side_hexagon_model(0, 1, &mut vertices, &mut indices);
-        // get_side_hexagon_model(3, 4, &mut vertices, &mut indices);
-        // get_side_hexagon_model(2, 3, &mut vertices, &mut indices);
-
         let sand = tex_generator::create_texture_maps(GroundMaterial::Sand);
         let snow = tex_generator::create_texture_maps(GroundMaterial::Snow);
         let grass = tex_generator::create_texture_maps(GroundMaterial::Grass);
@@ -66,11 +41,6 @@ impl ChunkRenderer {
         ChunkRenderer {
             program: context.load_program("chunk_std").unwrap(),
             shadow_program: context.load_program("chunk_shadow").unwrap(),
-            pillar_vbuf: VertexBuffer::new(context.get_facade(), &vertices).unwrap(),
-            pillar_ibuf: IndexBuffer::new(context.get_facade(),
-                                          PrimitiveType::TrianglesList,
-                                          &indices)
-                .unwrap(),
             noise_sand: Texture2d::new(context.get_facade(), sand.1).unwrap(),
             noise_snow: Texture2d::new(context.get_facade(), snow.1).unwrap(),
             noise_grass: Texture2d::new(context.get_facade(), grass.1).unwrap(),
@@ -107,40 +77,30 @@ impl ChunkRenderer {
     pub fn shadow_program(&self) -> &Program {
         &self.shadow_program
     }
-
-    /// Gets the `VertexBuffer` to use for drawing a pillar
-    pub fn pillar_vertices(&self) -> &VertexBuffer<Vertex> {
-        &self.pillar_vbuf
-    }
-
-    /// Gets the `IndexBuffer` to use for drawing a pillar
-    pub fn pillar_indices(&self) -> &IndexBuffer<u32> {
-        &self.pillar_ibuf
-    }
 }
 
 
-/// Calculates one Point-coordinates of a Hexagon
-fn hex_corner(size: f32, i: i32) -> (f32, f32) {
-    let angle_deg = 60.0 * (i as f32) + 30.0;
-    let angle_rad = (consts::PI / 180.0) * angle_deg;
+// /// Calculates one Point-coordinates of a Hexagon
+// fn hex_corner(size: f32, i: i32) -> (f32, f32) {
+//     let angle_deg = 60.0 * (i as f32) + 30.0;
+//     let angle_rad = (consts::PI / 180.0) * angle_deg;
 
-    (size * angle_rad.cos(), size * angle_rad.sin())
-}
+//     (size * angle_rad.cos(), size * angle_rad.sin())
+// }
 
-/// Calculate texture coordinates
-fn tex_map(i: i32) -> (f32, f32) {
-    match i {
-        0 => (1.0 - (0.5 - SQRT_3 / 4.0), 0.25),
-        1 => (1.0 - (0.5 - SQRT_3 / 4.0), 0.75),
-        2 => (0.5, 1.0),
-        3 => (0.5 - SQRT_3 / 4.0, 0.75),
-        4 => (0.5 - SQRT_3 / 4.0, 0.25),
-        5 => (0.5, 0.0),
-        // TODO: ERROR HANDLING
-        _ => (0.0, 0.0),
-    }
-}
+// /// Calculate texture coordinates
+// fn tex_map(i: i32) -> (f32, f32) {
+//     match i {
+//         0 => (1.0 - (0.5 - SQRT_3 / 4.0), 0.25),
+//         1 => (1.0 - (0.5 - SQRT_3 / 4.0), 0.75),
+//         2 => (0.5, 1.0),
+//         3 => (0.5 - SQRT_3 / 4.0, 0.75),
+//         4 => (0.5 - SQRT_3 / 4.0, 0.25),
+//         5 => (0.5, 0.0),
+//         // TODO: ERROR HANDLING
+//         _ => (0.0, 0.0),
+//     }
+// }
 
 // /// Calculates the top face of the Hexagon and normals
 // fn get_top_hexagon_model(vertices: &mut Vec<Vertex>, indices: &mut Vec<u32>) {

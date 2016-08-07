@@ -123,28 +123,28 @@ impl ChunkView {
         (vertices, indices)
     }
 
-    pub fn draw_shadow<S: glium::Surface>(&self, _surface: &mut S, _camera: &Camera) {
-        // let uniforms = uniform! {
-        //     proj_matrix: camera.proj_matrix().to_arr(),
-        //     view_matrix: camera.view_matrix().to_arr(),
-        // };
-        // let params = DrawParameters {
-        //     depth: glium::Depth {
-        //         write: true,
-        //         test: DepthTest::IfLess,
-        //         ..Default::default()
-        //     },
-        //     backface_culling: BackfaceCullingMode::CullClockwise,
-        //     multisampling: true,
-        //     ..Default::default()
-        // };
+    pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
+        let uniforms = uniform! {
+            proj_matrix: camera.proj_matrix().to_arr(),
+            view_matrix: camera.view_matrix().to_arr(),
+        };
+        let params = DrawParameters {
+            depth: glium::Depth {
+                write: true,
+                test: DepthTest::IfLess,
+                ..Default::default()
+            },
+            backface_culling: BackfaceCullingMode::CullClockwise,
+            multisampling: true,
+            ..Default::default()
+        };
 
-        // surface.draw((self.renderer.pillar_vertices(), self.pillar_buf.per_instance().unwrap()),
-        //           self.renderer.pillar_indices(),
-        //           self.renderer.shadow_program(),
-        //           &uniforms,
-        //           &params)
-        //     .unwrap();
+        surface.draw(
+            &self.vertex_buf,
+            &self.index_buf,
+            self.renderer.shadow_program(),
+            &uniforms,
+            &params).unwrap();
 
         // for pillar in &self.pillars {
         //     for plant in &pillar.plants {
@@ -205,20 +205,12 @@ impl ChunkView {
             ..Default::default()
         };
 
-        // surface.draw((self.renderer.pillar_vertices(), self.pillar_buf.per_instance().unwrap()),
-        //           self.renderer.pillar_indices(),
-        //           self.renderer.program(),
-        //           &uniforms,
-        //           &params)
-        //     .unwrap();
-        surface.draw(&self.vertex_buf,
-                    &self.index_buf,
-                    // &::glium::index::NoIndices(PrimitiveType::Points),
-                  // self.renderer.pillar_indices(),
-                  self.renderer.program(),
-                  &uniforms,
-                  &params)
-            .unwrap();
+        surface.draw(
+            &self.vertex_buf,
+            &self.index_buf,
+            self.renderer.program(),
+            &uniforms,
+            &params).unwrap();
     }
 }
 

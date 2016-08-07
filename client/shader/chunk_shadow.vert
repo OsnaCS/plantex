@@ -4,20 +4,14 @@
 in vec3 position;
 in vec3 normal;
 
-// Per-instance attributes:
-// Height in units, not world coordinates, since the "pillar prototype" has a
-// height of one unit.
-in float height;
-in vec3 offset;
-//in vec3 material_color;
-
 uniform mat4 proj_matrix;
 uniform mat4 view_matrix;
+uniform vec2 offset;
 
 void main() {
     vec4 world_coords = vec4(
         position.xy + offset.xy,
-        position.z * height + offset.z,
+        position.z,
         1);
     gl_Position = proj_matrix * view_matrix * world_coords;
 }

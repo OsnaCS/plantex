@@ -27,7 +27,6 @@ uniform sampler2D snow_texture;
 uniform sampler2D stone_texture;
 uniform sampler2D dirt_texture;
 uniform sampler2D mulch_texture;
-uniform ivec2 offset_ax;
 
 // Percentage-closer filtering (square) radius in pixels
 const int SHADOW_PCF_RADIUS = 1;
@@ -63,8 +62,6 @@ mat3 cotangent_frame(vec3 normal, vec3 pos, vec2 uv) {
 }
 
 void main() {
-    // color = vec3(1, 1, 0);
-    // return;
     vec3 lightCoords = shadowCoord.xyz / shadowCoord.w;
     lightCoords = lightCoords * 0.5 + 0.5;
     vec2 moments = texture(shadow_map, lightCoords.xy).xy;
@@ -127,7 +124,6 @@ void main() {
     }
 
     diffuse_color *= x_material_color;
-    // diffuse_color = x_material_color/100;
 
     // vec3 diffuse_color = x_material_color;
 
@@ -151,12 +147,10 @@ void main() {
 
     // Final color calculation
     color = diffuse_color * AMBIENT + diffuse_color * diffuse * lit;
-    // color.b = offset_ax.y / (10*16.0) + 0.5;
-    // color.rg = vec2(0);
     // color = diffuse_color * AMBIENT + normal_color_map * diffuse;
 
     // Set Border to distinguish hexagons
     if (x_radius > 0.98) {
-        color = vec3(0);
+        color *= 0.7;
     }
 }

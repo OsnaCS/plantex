@@ -5,12 +5,6 @@ in vec3 position;
 in vec3 normal;
 in float radius;
 in vec2 tex_coords;
-
-// Per-instance attributes:
-// Height in units, not world coordinates, since the "pillar prototype" has a
-// height of one unit.
-// in float height;
-// in vec3 offset;
 in vec3 material_color;
 in int ground;
 
@@ -37,7 +31,6 @@ void main() {
     vec4 world_coords = vec4(
         position.xy + offset.xy,
         position.z,
-        // position.z * height + offset.z,
         1);
 
     gl_Position = proj_matrix * view_matrix * world_coords;
@@ -47,10 +40,6 @@ void main() {
     x_material_color = material_color;
     x_radius = radius;
     x_tex_coords = tex_coords;
-
-    // if(tex_coords.y > 1.5){
-    //     x_tex_coords.y = height;
-    // }
 
     x_position = position;
     x_ground = ground;
