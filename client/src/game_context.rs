@@ -47,8 +47,15 @@ impl GameContext {
         try!(vert.read_to_string(&mut vert_buf));
         try!(frag.read_to_string(&mut frag_buf));
 
-        let tcs = load_if_present(&format!("client/shader/{}.tcs", shader)).ok();
-        let tes = load_if_present(&format!("client/shader/{}.tes", shader)).ok();
+        let (tcs, tes);
+        if self.config.tessellation {
+            tcs = load_if_present(&format!("client/shader/{}.tcs", shader)).ok();
+            tes = load_if_present(&format!("client/shader/{}.tes", shader)).ok();
+        } else {
+            // Don't even try to load the tessellation shaders if tessellation is off
+            tcs = None;
+            tes = None;
+        }
 
         let source = program::SourceCode {
             vertex_shader: &vert_buf,
@@ -64,4 +71,6 @@ impl GameContext {
         }
         Ok(try!(prog))
     }
+
+    // TODO: `load_post_processing_program` which loads a default vertex shader
 }
