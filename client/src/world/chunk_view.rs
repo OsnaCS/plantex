@@ -50,6 +50,7 @@ impl ChunkView {
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
+            offset: self.offset.to_real().to_arr(),
         };
 
         let params = DrawParameters {
