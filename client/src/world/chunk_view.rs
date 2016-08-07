@@ -1,27 +1,33 @@
-use base::world::{World, ChunkIndex, Chunk, PillarSection, CHUNK_SIZE, HEX_OUTER_RADIUS, PILLAR_STEP_HEIGHT, HeightType};
 use base::math::*;
-use glium::index::PrimitiveType;
-use glium::{self, DrawParameters, VertexBuffer, IndexBuffer};
-use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
-use glium::backend::Facade;
-use glium::texture::Texture2d;
-use glium::uniforms::SamplerWrapFunction;
-use glium::uniforms::MinifySamplerFilter;
+use base::world::ground::GroundMaterial;
+use base::world::{
+    Chunk,
+    CHUNK_SIZE,
+    ChunkIndex,
+    HeightType,
+    HEX_OUTER_RADIUS,
+    HexPillar,
+    PILLAR_STEP_HEIGHT,
+    PillarSection,
+    World,
+};
 use Camera;
 use DayTime;
-// use SimpleCull;
-// use LOCATION;
+use glium::backend::Facade;
+use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
+use glium::index::PrimitiveType;
+use glium::texture::Texture2d;
+use glium::uniforms::MinifySamplerFilter;
+use glium::uniforms::SamplerWrapFunction;
+use glium::{self, DrawParameters, IndexBuffer, VertexBuffer};
+use std::rc::Rc;
 use util::ToArr;
 use world::ChunkRenderer;
-use std::rc::Rc;
-use base::world::ground::GroundMaterial;
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
-    pub offset: AxialPoint,
+    offset: AxialPoint,
     renderer: Rc<ChunkRenderer>,
-    /// Instance data buffer.
-    // pillar_buf: VertexBuffer<Instance>,
     vertex_buf: VertexBuffer<Vertex>,
     index_buf: IndexBuffer<u32>,
 }
@@ -44,6 +50,11 @@ impl ChunkView {
                                       PrimitiveType::TrianglesList,
                                       &raw_indices).unwrap(),
         }
+    }
+
+    /// Returns the chunks's offset.
+    pub fn offset(&self) -> AxialPoint {
+        self.offset
     }
 
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
@@ -145,7 +156,6 @@ impl ChunkView {
                 test: DepthTest::IfLess,
                 ..Default::default()
             },
-            point_size: Some(10.0),
             backface_culling: BackfaceCullingMode::CullCounterClockwise,
             ..Default::default()
         };
@@ -173,10 +183,12 @@ pub struct Vertex {
 
 implement_vertex!(Vertex, position, normal, radius, tex_coords, material_color, ground);
 
-// Here are a few constants describing various properties of a hexagon in a
-// grid. Our hexagons are pointy topped and their position is described by an
-// axial coordinate (q, r). Every axial point has a corresponding (floating
-// point) point (x, y) in world coordinates.
+// ============================================================================
+// ===== functions and types for vertex and index buffer creation
+// ============================================================================
+// Our hexagons are pointy topped and their position is described by an axial
+// coordinate (q, r). Every axial point has a corresponding (floating point)
+// point (x, y) in world coordinates.
 //
 //  +--------------> q/x
 //  |\  ⬢ ⬢ ⬢ ⬢ ⬢
@@ -187,6 +199,7 @@ implement_vertex!(Vertex, position, normal, radius, tex_coords, material_color, 
 //  -y   -r
 //
 //
+// --- Names of corners and coordinates of sides:
 //
 //     (q: 0, r: 1)     top      (q:1, r: 1)
 //
@@ -200,9 +213,15 @@ implement_vertex!(Vertex, position, normal, radius, tex_coords, material_color, 
 //    bottom-left    ^~_   _~^   bottom-right
 //   (q: -1, r: -1)     ^~^     (q: 0, r: -1)
 //                    bottom
+//
+//
+// --------------------------------------------------------------------------
+// Here are a few constants describing coordinates and vectors of edges or
+// corners of a hexagon.
 
-/// When the center of a hex pillar with the outer radius 1 sits in the origin
-/// the corners have the following coordinates.
+/// When the center of a hex pillar with the outer radius 1 sits in the origin,
+/// the corners have the following coordinates. To get real world positions
+/// multiply these values with `HEX_OUTER_RADIUS`.
 const NORM_CORNERS: &'static [Vector2f] = &[
     Vector2f { x: -SQRT_3 / 2.0, y:  0.5 }, // 0: top-left
     Vector2f { x:  0.0,          y:  1.0 }, // 1: top
@@ -222,6 +241,8 @@ const EDGE_CORNERS_TO_NEIGHBOR: &'static [(Vector2f, Vector2f)] = &[
     (NORM_CORNERS[5], NORM_CORNERS[0]), // q: -1, r:  0, left
 ];
 
+/// Normal vectors pointing to the edges of the hexagon. To get real world
+/// positions, multiply these values with `HEX_INNER_RADIUS`.
 const EDGE_NORMALS: &'static [Vector2f] = & [
     Vector2f { x: -0.5, y:  SQRT_3 / 2.0 }, // 0: top-left
     Vector2f { x:  0.5, y:  SQRT_3 / 2.0 }, // 1: top-right
@@ -235,13 +256,13 @@ const EDGE_NORMALS: &'static [Vector2f] = & [
 const CORNER_UV: &'static [[f32; 2]] = &[
     [1.0 - (0.5 - SQRT_3 / 4.0), 0.25],
     [1.0 - (0.5 - SQRT_3 / 4.0), 0.75],
-    [0.5, 1.0],
-    [0.5 - SQRT_3 / 4.0, 0.75],
-    [0.5 - SQRT_3 / 4.0, 0.25],
-    [0.5, 0.0],
+    [                       0.5, 1.0 ],
+    [      (0.5 - SQRT_3 / 4.0), 0.75],
+    [      (0.5 - SQRT_3 / 4.0), 0.25],
+    [                       0.5, 0.0 ],
 ];
 
-/// We add faces for sides to neighbors in these directions
+/// We add faces for sides to neighbors in these directions.
 const SIDE_PROPAGATION_NEIGHBORS: &'static [EdgeDir] = &[
     EdgeDir::BottomRight,
     EdgeDir::Right,
@@ -249,32 +270,6 @@ const SIDE_PROPAGATION_NEIGHBORS: &'static [EdgeDir] = &[
 ];
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-#[allow(dead_code)]
-enum CornerDir {
-    TopLeft,
-    Top,
-    TopRight,
-    BottomRight,
-    Bottom,
-    BottomLeft,
-}
-
-// impl CornerDir {
-//     /// Index for array lookup
-//     fn idx(&self) -> usize {
-//         match *self {
-//             CornerDir::TopLeft => 0,
-//             CornerDir::Top => 1,
-//             CornerDir::TopRight => 2,
-//             CornerDir::BottomRight => 3,
-//             CornerDir::Bottom => 4,
-//             CornerDir::BottomLeft => 5,
-//         }
-//     }
-// }
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-#[allow(dead_code)]
 enum EdgeDir {
     TopLeft,
     TopRight,
@@ -285,7 +280,7 @@ enum EdgeDir {
 }
 
 impl EdgeDir {
-    /// Index for array lookup
+    /// Index for lookup in the const arrays above.
     fn idx(&self) -> usize {
         match *self {
             EdgeDir::TopLeft => 0,
@@ -297,6 +292,7 @@ impl EdgeDir {
         }
     }
 
+    /// The corresponding vector for the direction.
     fn axial_vec(&self) -> AxialVector {
         match *self {
             EdgeDir::TopLeft        => AxialVector::new( 0,  1),
@@ -309,9 +305,125 @@ impl EdgeDir {
     }
 }
 
+// --------------------------------------------------------------------------
+// We have a few functions to create both buffers.
+
+/// Generates a pair of vertex and index buffer which represent the given
+/// `Chunk`.
+///
+/// This function (and the other helper functions) assume a few important
+/// things about the given `Chunk`:
+///
+/// - all pillar sections within a pillar are sorted
+/// - no two pillar sections within one pillar overlap
+/// - `top > bottom` is true for all pillar sections
+///
+/// If the given chunk does not comply to these properties, this function could
+/// do anything, including eating your laundry.
+///
+/// In the goemetry represented by the two returned buffers, there are no
+/// inside facing faces with the exception of the "outer shell". In other
+/// words: the buffer hold one or more closed goemetries which don't have
+/// any faces inside. This, again, is not exactly true, because all faces
+/// at height 0 are discarded, because the player will never see them anyway.
+///
+/// The buffers aren't minimal yet! There are still quite a few things that
+/// could be optimized. For example, vertices of the top face could be shared
+/// with the neighbor pillar under special circumstances. Another optimization
+/// is a bit more ugly: we could connect side pieces with the same position and
+/// orientation. Sadly this "creates" geometry inside our blobs of world.
+fn get_vertices(chunk: &Chunk) -> (Vec<Vertex>, Vec<u32>) {
+    // Make a crude guess how many vertices we will need. This assumes that the
+    // chunk has at least one pillar section per pillar.
+    //
+    // Here we just account for the seven vertices/six triangles per top face.
+    let minimal_vlen = (CHUNK_SIZE as usize).pow(2) * 7;
+    let minimal_ilen = (CHUNK_SIZE as usize).pow(2) * 6 * 3;
+
+    let mut vertices = Vec::with_capacity(minimal_vlen);
+    let mut indices = Vec::with_capacity(minimal_ilen);
+
+    Chunk::for_pillars_positions(|pos| {
+        add_top_and_bottom_face(pos, &chunk[pos], &mut vertices, &mut indices);
+
+        // We only do this in one direction to handle every edge only once.
+        for &dir in SIDE_PROPAGATION_NEIGHBORS {
+            connect_pillars(pos, dir, chunk, &mut vertices, &mut indices);
+        }
+
+        // Add sides to the outside if this pillar on the outer edge.
+        add_outer_shell(pos, &chunk[pos], &mut vertices, &mut indices);
+    });
+
+    (vertices, indices)
+}
+
+/// Adds the top and bottom face for every section in a pillar, but completely
+/// ignores all faces at height 0.
+fn add_top_and_bottom_face(
+    pos: AxialPoint,
+    pillar: &HexPillar,
+    vertices: &mut Vec<Vertex>,
+    indices: &mut Vec<u32>
+) {
+    for sec in pillar.sections() {
+        let ground = sec.ground.get_id();
+
+        // Add top and bottom face
+        for &(height, normal, rev) in &[(sec.top, [0.0, 0.0, 1.0], false), (sec.bottom, [0.0, 0.0, -1.0], true)] {
+            let prev_len = vertices.len() as u32;
+
+            // We completely skip all faces at height 0
+            if height.units() == 0 {
+                continue;
+            }
+
+            // Add center point
+            vertices.push(Vertex {
+                position: [pos.to_real().x, pos.to_real().y, height.to_real()],
+                normal: normal,
+                radius: 0.0,
+                tex_coords: [0.5, 0.5],
+                material_color: sec.ground.get_color(),
+                ground: ground,
+            });
+
+            // Iterate over all corners with position and uv coordinates
+            let iter = NORM_CORNERS.iter()
+                .map(|c| c * HEX_OUTER_RADIUS)
+                .zip(CORNER_UV).enumerate();
+            for (i, (corner, &uv)) in iter {
+                let i = i as u32;
+                let pos2d = pos.to_real() + corner;
+
+                vertices.push(Vertex {
+                    position: [pos2d.x, pos2d.y, height.to_real()],
+                    normal: normal,
+                    radius: 1.0,
+                    tex_coords: uv,
+                    material_color: sec.ground.get_color(),
+                    ground: ground,
+                });
+
+                if rev {
+                    indices.push(prev_len);
+                    indices.push(prev_len + ((i + 1) % 6) + 1);
+                    indices.push(prev_len + i + 1);
+                } else {
+                    indices.push(prev_len);
+                    indices.push(prev_len + i + 1);
+                    indices.push(prev_len + ((i + 1) % 6) + 1);
+                }
+            }
+        }
+    }
+}
+
+/// If the given pillar is on the outer edge of the chunk, this function adds
+/// faces to cover those sides.
 fn add_outer_shell(
     pos: AxialPoint,
-    chunk: &Chunk,
+    pillar: &HexPillar,
     vertices: &mut Vec<Vertex>,
     indices: &mut Vec<u32>,
 ) {
@@ -325,6 +437,8 @@ fn add_outer_shell(
     ];
 
     for &neighbor in &neighbors {
+        // Check if this neighbor is outside of the current chunk. If yes, we
+        // need to add sides, otherwise we skip it.
         let neighbor_pos = pos + neighbor.axial_vec();
         let is_outer =
             neighbor_pos.q >= CHUNK_SIZE.into()
@@ -333,9 +447,7 @@ fn add_outer_shell(
             || neighbor_pos.r < 0;
 
         if is_outer {
-            // if neighbor == EdgeDir::BottomLeft;
-
-            for sec in chunk[pos].sections() {
+            for sec in pillar.sections() {
                 add_side(
                     sec.bottom,
                     sec.top,
@@ -351,71 +463,11 @@ fn add_outer_shell(
     }
 }
 
-fn get_vertices(chunk: &Chunk) -> (Vec<Vertex>, Vec<u32>) {
-    let mut vertices = Vec::new();
-    let mut indices = Vec::new();
-
-    Chunk::for_pillars_positions(|pos| {
-        for sec in chunk[pos].sections() {
-            let ground = sec.ground.get_id();
-
-            // Add top and bottom face
-            for &(height, normal, rev) in &[(sec.top, [0.0, 0.0, 1.0], false), (sec.bottom, [0.0, 0.0, -1.0], true)] {
-                let prev_len = vertices.len() as u32;
-
-                // we skip all bottom faces at 0 completely
-                if height.units() == 0 {
-                    continue;
-                }
-
-                // Add center point
-                vertices.push(Vertex {
-                    position: [pos.to_real().x, pos.to_real().y, height.to_real()],
-                    normal: normal,
-                    radius: 0.0,
-                    tex_coords: [0.5, 0.5],
-                    material_color: sec.ground.get_color(),
-                    ground: ground,
-                });
-
-                let iter = NORM_CORNERS.iter().map(|c| c * HEX_OUTER_RADIUS).zip(CORNER_UV).enumerate();
-                for (i, (corner, &uv)) in iter {
-                    let i = i as u32;
-                    let pos2d = pos.to_real() + corner;
-
-                    vertices.push(Vertex {
-                        position: [pos2d.x, pos2d.y, height.to_real()],
-                        normal: normal,
-                        radius: 1.0,
-                        tex_coords: uv,
-                        material_color: sec.ground.get_color(),
-                        // material_color: tmp_col,
-                        ground: ground,
-                    });
-
-                    if rev {
-                        indices.push(prev_len);
-                        indices.push(prev_len + ((i + 1) % 6) + 1);
-                        indices.push(prev_len + i + 1);
-                    } else {
-                        indices.push(prev_len);
-                        indices.push(prev_len + i + 1);
-                        indices.push(prev_len + ((i + 1) % 6) + 1);
-                    }
-                }
-            }
-        }
-
-        for &dir in SIDE_PROPAGATION_NEIGHBORS {
-            connect_pillars(pos, dir, chunk, &mut vertices, &mut indices);
-        }
-
-        add_outer_shell(pos, chunk, &mut vertices, &mut indices);
-    });
-
-    (vertices, indices)
-}
-
+/// Given two pillars, this adds faces in between where necessary.
+///
+/// This sounds like a rather easy task, but I failed to come up with a very
+/// easy solution. I think this is by far the most complicated algorithm of
+/// all functions in this module. Detailed description inside the function.
 fn connect_pillars(
     a_pos: AxialPoint,
     a_to_b: EdgeDir,
@@ -423,21 +475,26 @@ fn connect_pillars(
     vertices: &mut Vec<Vertex>,
     indices: &mut Vec<u32>,
 ) {
-    let neighbor_pos = a_pos + a_to_b.axial_vec();
+    // We'll call the two pillars 'a' and 'b'.
+    let b_pos = a_pos + a_to_b.axial_vec();
 
-    let skip = neighbor_pos.q >= CHUNK_SIZE.into()
-        || neighbor_pos.r >= CHUNK_SIZE.into()
-        || neighbor_pos.q < 0
-        || neighbor_pos.r < 0;
+    // If b isn't even inside this chunk, we will skip it. `add_outer_shell`
+    // will repair those holes.
+    let skip = b_pos.q >= CHUNK_SIZE.into()
+        || b_pos.r >= CHUNK_SIZE.into()
+        || b_pos.q < 0
+        || b_pos.r < 0;
     if skip {
         return;
     }
 
+    // Define shorter names and create an array which we can index easily later
+    // on.
     let a = &chunk[a_pos];
-    let b = &chunk[neighbor_pos];
-
+    let b = &chunk[b_pos];
     let ab = [a, b];
 
+    /// This is a small helper type to differentiate between the two pillars.
     #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
     enum Pillar {
         A,
@@ -445,6 +502,7 @@ fn connect_pillars(
     }
 
     impl Pillar {
+        /// Returns the index that can be used to index the `ab` array above.
         fn idx(&self) -> usize {
             match *self {
                 Pillar::A => 0,
@@ -453,17 +511,28 @@ fn connect_pillars(
         }
     }
 
+    // ----------------------------------------------------------------------
+    // Two solve the problem at hand and add all necessary faces with the
+    // correct position, orientation and material, we use three layers of
+    // abstraction. Each one is an iterator over different items and the latter
+    // two map over the previous one.
 
     // ----------------------------------------------------------------------
     /// This iterator takes two slices of `PillarSection`s and spits out a
-    /// series of tuples `(height, pillar, is_top)`. The yielded items are
-    /// ordered ascendingly by the key `height`. Each item knows from what
-    /// pillar the height is from and if that height was the top or bottom
-    /// of a pillar section.
+    /// series of tuples representing a single "interesting" point:
+    ///
+    /// - `height`: height of the current point
+    /// - `pillar`: what pillar (a or b) does this point belong to?
+    /// - `a_idx`: the index of the section of a that is active at `height`
+    /// - `b_idx`: the index of the section of b that is active at `height`
+    /// - `is_top`: whether or not the current point is the top or bottom
+    ///             of the section
+
+    /// The yielded items are ordered ascendingly by the key `height`.
     ///
     /// *Note*: this iterator assumes that the slices of pillar sections are
-    /// sorted, that there are no overlapping sections and that bottom < top is
-    /// true for all sections.
+    /// sorted, that there are no overlapping sections and that `bottom < top`
+    /// is true for all sections.
     struct IntervalPoints<'c> {
         a: &'c [PillarSection],
         b: &'c [PillarSection],
@@ -490,6 +559,7 @@ fn connect_pillars(
 
     impl<'c> Iterator for IntervalPoints<'c> {
         type Item = (HeightType, Pillar, usize, usize, bool);
+
         fn next(&mut self) -> Option<Self::Item> {
             // Determine the next height that would be yielded from a/b.
             let next_a = self.a.get(self.a_idx).map(|sec| {
@@ -519,7 +589,9 @@ fn connect_pillars(
             };
 
             if yield_from_a {
+                // save the section index that was active
                 let sec_a_idx = self.a_idx;
+
                 if self.within_a {
                     // we will now yield a's top
                     self.a_idx += 1;
@@ -528,7 +600,9 @@ fn connect_pillars(
 
                 next_a.map(|h| (h, Pillar::A, sec_a_idx, self.b_idx, !self.within_a))
             } else {
+                // save the section index that was active
                 let sec_b_idx = self.b_idx;
+
                 if self.within_b {
                     // we will now yield b's top
                     self.b_idx += 1;
@@ -544,6 +618,10 @@ fn connect_pillars(
     /// This iterator takes another iterator and groups together two yielded
     /// items from the original iterator in a pair. *Note*: it assumes that the
     /// original iterator yields an even number of items.
+    ///
+    /// It uses the fact that we only need to add sides between points `2*n`
+    /// and `2*n + 1` but never the other way around, if all points are sorted
+    /// by height.
     struct PairUp<I: Iterator> {
         original: I,
     }
@@ -563,10 +641,11 @@ fn connect_pillars(
     // ----------------------------------------------------------------------
     // Here we combine both iterators and create a third one by applying a
     // rather complicated map function. This third and final iterator yields
-    // the final data to add a side.
+    // the final data required to add a side.
     let raw_intervals = PairUp {
-        original: IntervalPoints::new(a.sections(), b.sections()) //.inspect(|x| println!("-- {:?}", x))
+        original: IntervalPoints::new(a.sections(), b.sections())
     };
+
     let sides = raw_intervals.map(|(lower, upper)| {
         let (l_height, l_pillar,          _ , l_sec_b_idx, l_is_top) = lower;
         let (u_height, u_pillar, u_sec_a_idx, u_sec_b_idx, u_is_top) = upper;
@@ -668,7 +747,7 @@ fn connect_pillars(
     }
 }
 
-
+/// This function adds a side with the given parameter.
 fn add_side(
     bottom: HeightType,
     top: HeightType,
@@ -683,10 +762,12 @@ fn add_side(
     let (ca, cb) = EDGE_CORNERS_TO_NEIGHBOR[dir.idx()];
     let normal = EDGE_NORMALS[dir.idx()];
     let corner_cw = [
-        (offset.to_real() + ca, 0.25),
-        (offset.to_real() + cb, 0.75),
+        (offset.to_real() + ca * HEX_OUTER_RADIUS, 0.25),
+        (offset.to_real() + cb * HEX_OUTER_RADIUS, 0.75),
     ];
 
+    // In order to have correctly stretched textures, we have to change one
+    // texture coordinate depending on the height.
     let v_bottom = 0.5 * (top.to_real() - bottom.to_real()) / PILLAR_STEP_HEIGHT;
 
     for &(z, v) in &[(bottom, v_bottom), (top, 0.0)] {
