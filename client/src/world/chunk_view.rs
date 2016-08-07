@@ -370,7 +370,12 @@ fn add_top_and_bottom_face(
         let ground = sec.ground.get_id();
 
         // Add top and bottom face
-        for &(height, normal, rev) in &[(sec.top, [0.0, 0.0, 1.0], false), (sec.bottom, [0.0, 0.0, -1.0], true)] {
+        let face_props = [
+            (sec.top, [0.0, 0.0, 1.0], false),
+            (sec.bottom, [0.0, 0.0, -1.0], true)
+        ];
+
+        for &(height, normal, rev) in &face_props {
             let prev_len = vertices.len() as u32;
 
             // We completely skip all faces at height 0
