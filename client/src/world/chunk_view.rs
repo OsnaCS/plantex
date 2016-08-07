@@ -1,7 +1,7 @@
-use base::world::{World, ChunkIndex, Chunk, HexPillar, PillarSection, CHUNK_SIZE, HEX_OUTER_RADIUS, PILLAR_STEP_HEIGHT, HeightType};
+use base::world::{World, ChunkIndex, Chunk, PillarSection, CHUNK_SIZE, HEX_OUTER_RADIUS, PILLAR_STEP_HEIGHT, HeightType};
 use base::math::*;
 use glium::index::PrimitiveType;
-use glium::{self, DrawParameters, VertexBuffer, IndexBuffer, Program,};
+use glium::{self, DrawParameters, VertexBuffer, IndexBuffer};
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
 use glium::backend::Facade;
 use glium::texture::Texture2d;
@@ -15,7 +15,6 @@ use util::ToArr;
 use world::ChunkRenderer;
 use std::rc::Rc;
 use base::world::ground::GroundMaterial;
-use std::cmp::{min, max};
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
@@ -35,7 +34,7 @@ impl ChunkView {
                                  chunk_renderer: Rc<ChunkRenderer>,
                                  facade: &F)
                                  -> Self {
-        let (raw_buf, raw_indices) = Self::get_vertices(chunk);
+        let (raw_buf, raw_indices) = get_vertices(chunk);
 
         ChunkView {
             offset: offset,
@@ -45,74 +44,6 @@ impl ChunkView {
                                       PrimitiveType::TrianglesList,
                                       &raw_indices).unwrap(),
         }
-    }
-
-    pub fn get_vertices(chunk: &Chunk) -> (Vec<Vertex>, Vec<u32>) {
-        let mut vertices = Vec::new();
-        let mut indices = Vec::new();
-
-        Chunk::for_pillars_positions(|pos| {
-            // let tmp_col = [pos.q as f32 / (CHUNK_SIZE  as f32), pos.r as f32 / (CHUNK_SIZE  as f32), 0.0];
-
-            for sec in chunk[pos].sections() {
-                let ground = sec.ground.get_id();
-
-                // Add top and bottom face
-                for &(height, normal, rev) in &[(sec.top, [0.0, 0.0, 1.0], false), (sec.bottom, [0.0, 0.0, -1.0], true)] {
-                    // let tmp_col = [height.to_real(); 3];
-                    let prev_len = vertices.len() as u32;
-                    // we skip all bottom faces at 0 completely
-                    if height.units() == 0 {
-                        continue;
-                    }
-
-                    // Add center point
-                    vertices.push(Vertex {
-                        position: [pos.to_real().x, pos.to_real().y, height.to_real()],
-                        normal: normal,
-                        radius: 0.0,
-                        tex_coords: [0.5, 0.5],
-                        material_color: sec.ground.get_color(),
-                        // material_color: tmp_col,
-                        ground: ground,
-                    });
-
-                    let iter = NORM_CORNERS.iter().map(|c| c * HEX_OUTER_RADIUS).zip(CORNER_UV).enumerate();
-                    for (i, (corner, &uv)) in iter {
-                        let i = i as u32;
-                        let pos2D = pos.to_real() + corner;
-
-                        vertices.push(Vertex {
-                            position: [pos2D.x, pos2D.y, height.to_real()],
-                            normal: normal,
-                            radius: 1.0,
-                            tex_coords: uv,
-                            material_color: sec.ground.get_color(),
-                            // material_color: tmp_col,
-                            ground: ground,
-                        });
-
-                        if rev {
-                            indices.push(prev_len);
-                            indices.push(prev_len + ((i + 1) % 6) + 1);
-                            indices.push(prev_len + i + 1);
-                        } else {
-                            indices.push(prev_len);
-                            indices.push(prev_len + i + 1);
-                            indices.push(prev_len + ((i + 1) % 6) + 1);
-                        }
-                    }
-                }
-            }
-
-            for &dir in SIDE_PROPAGATION_NEIGHBORS {
-                connect_pillars(pos, dir, chunk, &mut vertices, &mut indices);
-            }
-
-            add_outer_shell(pos, chunk, &mut vertices, &mut indices);
-        });
-
-        (vertices, indices)
     }
 
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
@@ -127,7 +58,7 @@ impl ChunkView {
                 test: DepthTest::IfLess,
                 ..Default::default()
             },
-            backface_culling: BackfaceCullingMode::CullClockwise,
+            backface_culling: BackfaceCullingMode::CullCounterClockwise,
             multisampling: true,
             ..Default::default()
         };
@@ -142,7 +73,7 @@ impl ChunkView {
 
     pub fn update<F: Facade>(&mut self, facade: &F, world: &World) {
         let chunk = world.chunk_at(ChunkIndex(self.offset)).unwrap();
-        let (vbuf, ibuf) = Self::get_vertices(&chunk);
+        let (vbuf, ibuf) = get_vertices(&chunk);
 
         self.vertex_buf = VertexBuffer::new(facade, &vbuf).unwrap();
         self.index_buf = IndexBuffer::new(facade,
@@ -327,19 +258,19 @@ enum CornerDir {
     BottomLeft,
 }
 
-impl CornerDir {
-    /// Index for array lookup
-    fn idx(&self) -> usize {
-        match *self {
-            CornerDir::TopLeft => 0,
-            CornerDir::Top => 1,
-            CornerDir::TopRight => 2,
-            CornerDir::BottomRight => 3,
-            CornerDir::Bottom => 4,
-            CornerDir::BottomLeft => 5,
-        }
-    }
-}
+// impl CornerDir {
+//     /// Index for array lookup
+//     fn idx(&self) -> usize {
+//         match *self {
+//             CornerDir::TopLeft => 0,
+//             CornerDir::Top => 1,
+//             CornerDir::TopRight => 2,
+//             CornerDir::BottomRight => 3,
+//             CornerDir::Bottom => 4,
+//             CornerDir::BottomLeft => 5,
+//         }
+//     }
+// }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[allow(dead_code)]
@@ -419,6 +350,71 @@ fn add_outer_shell(
     }
 }
 
+fn get_vertices(chunk: &Chunk) -> (Vec<Vertex>, Vec<u32>) {
+    let mut vertices = Vec::new();
+    let mut indices = Vec::new();
+
+    Chunk::for_pillars_positions(|pos| {
+        for sec in chunk[pos].sections() {
+            let ground = sec.ground.get_id();
+
+            // Add top and bottom face
+            for &(height, normal, rev) in &[(sec.top, [0.0, 0.0, 1.0], false), (sec.bottom, [0.0, 0.0, -1.0], true)] {
+                let prev_len = vertices.len() as u32;
+
+                // we skip all bottom faces at 0 completely
+                if height.units() == 0 {
+                    continue;
+                }
+
+                // Add center point
+                vertices.push(Vertex {
+                    position: [pos.to_real().x, pos.to_real().y, height.to_real()],
+                    normal: normal,
+                    radius: 0.0,
+                    tex_coords: [0.5, 0.5],
+                    material_color: sec.ground.get_color(),
+                    ground: ground,
+                });
+
+                let iter = NORM_CORNERS.iter().map(|c| c * HEX_OUTER_RADIUS).zip(CORNER_UV).enumerate();
+                for (i, (corner, &uv)) in iter {
+                    let i = i as u32;
+                    let pos2d = pos.to_real() + corner;
+
+                    vertices.push(Vertex {
+                        position: [pos2d.x, pos2d.y, height.to_real()],
+                        normal: normal,
+                        radius: 1.0,
+                        tex_coords: uv,
+                        material_color: sec.ground.get_color(),
+                        // material_color: tmp_col,
+                        ground: ground,
+                    });
+
+                    if rev {
+                        indices.push(prev_len);
+                        indices.push(prev_len + ((i + 1) % 6) + 1);
+                        indices.push(prev_len + i + 1);
+                    } else {
+                        indices.push(prev_len);
+                        indices.push(prev_len + i + 1);
+                        indices.push(prev_len + ((i + 1) % 6) + 1);
+                    }
+                }
+            }
+        }
+
+        for &dir in SIDE_PROPAGATION_NEIGHBORS {
+            connect_pillars(pos, dir, chunk, &mut vertices, &mut indices);
+        }
+
+        add_outer_shell(pos, chunk, &mut vertices, &mut indices);
+    });
+
+    (vertices, indices)
+}
+
 fn connect_pillars(
     a_pos: AxialPoint,
     a_to_b: EdgeDir,
@@ -438,18 +434,6 @@ fn connect_pillars(
 
     let a = &chunk[a_pos];
     let b = &chunk[neighbor_pos];
-
-    // println!("--------------------");
-    // println!("a_to_b: {:?}", a_to_b);
-    // println!("self: {:?}", a_pos);
-    // println!("neighbor: {:?}", neighbor_pos);
-    // println!("-------");
-
-    // println!("a: {:#?}", a.sections());
-    // println!("b: {:#?}", b.sections());
-
-    // let mut a_sections = a.sections().iter().peekable();
-    // let mut b_sections = b.sections().iter().peekable();
 
     let ab = [a, b];
 
@@ -583,7 +567,7 @@ fn connect_pillars(
         original: IntervalPoints::new(a.sections(), b.sections()) //.inspect(|x| println!("-- {:?}", x))
     };
     let sides = raw_intervals.map(|(lower, upper)| {
-        let (l_height, l_pillar, l_sec_a_idx, l_sec_b_idx, l_is_top) = lower;
+        let (l_height, l_pillar,          _ , l_sec_b_idx, l_is_top) = lower;
         let (u_height, u_pillar, u_sec_a_idx, u_sec_b_idx, u_is_top) = upper;
 
         let (pillar, sec_idx, normal_to_a) = match ((l_pillar, l_is_top), (u_pillar, u_is_top)) {
@@ -712,8 +696,6 @@ fn add_side(
                 radius: 0.0,
                 tex_coords: [u, v],
                 material_color: ground.get_color(),
-                // material_color: [xy.x - pos.to_real().x, xy.y - pos.to_real().y, zz],
-                // material_color: [0.0, 0.0, zz],
                 ground: ground.get_id(),
             });
         }

@@ -167,13 +167,13 @@ impl WorldView {
         }
 
 
-        for plantview in self.plant_views.values() {
-            plantview.draw(surface,
-                           camera,
-                           shadow_map,
-                           depth_view_proj,
-                           daytime,
-                           sun_dir);
-        }
+        // for plantview in self.plant_views.values() {
+        //     plantview.draw(surface,
+        //                    camera,
+        //                    shadow_map,
+        //                    depth_view_proj,
+        //                    daytime,
+        //                    sun_dir);
+        // }
     }
 }
