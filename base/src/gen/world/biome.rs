@@ -40,7 +40,7 @@ impl Biome {
             Biome::Desert => 0.46,
             Biome::Snow => 0.35,
             Biome::Forest => 0.25,
-            Biome::RainForest => 0.2,
+            Biome::RainForest => 0.21,
             Biome::Savanna => 0.375,
             Biome::Stone => 0.45,
             Biome::Debug => 1.0,
@@ -65,8 +65,8 @@ impl Biome {
     pub fn plant_distribution(&self) -> &'static [PlantType] {
         match *self {
             Biome::GrassLand => {
-                static PLANTS: &'static [PlantType] = &[PlantType::RegularTree,
-                                                        PlantType::RegularTree,
+                static PLANTS: &'static [PlantType] = &[PlantType::WitheredTree,
+                                                        PlantType::OakTree,
                                                         PlantType::OakTree,
                                                         PlantType::ClumpOfGrass,
                                                         PlantType::ClumpOfGrass,
@@ -83,14 +83,15 @@ impl Biome {
                 PLANTS
             }
             Biome::Forest => {
-                static PLANTS: &'static [PlantType] = &[PlantType::RegularTree,
-                                                        PlantType::RegularTree,
+                static PLANTS: &'static [PlantType] = &[PlantType::WitheredTree,
                                                         PlantType::Conifer,
+                                                        PlantType::OakTree,
                                                         PlantType::OakTree,
                                                         PlantType::OakTree,
                                                         PlantType::Conifer,
                                                         PlantType::ClumpOfGrass,
                                                         PlantType::Conifer,
+                                                        PlantType::Flower,
                                                         PlantType::Shrub,
                                                         PlantType::Shrub];
                 PLANTS
@@ -105,12 +106,14 @@ impl Biome {
                                                         PlantType::ClumpOfGrass,
                                                         PlantType::OakTree,
                                                         PlantType::Shrub,
-                                                        PlantType::RegularTree];
+                                                        PlantType::WitheredTree];
                 PLANTS
             }
             Biome::Savanna => {
                 static PLANTS: &'static [PlantType] = &[PlantType::OakTree,
                                                         PlantType::ClumpOfGrass,
+                                                        PlantType::Shrub,
+                                                        PlantType::Shrub,
                                                         PlantType::Shrub,
                                                         PlantType::Shrub,
                                                         PlantType::Shrub,

@@ -1,10 +1,15 @@
-use glium::Program;
+use base::world;
+use std::f32::consts;
+use world::chunk_view::Vertex;
+use glium::{IndexBuffer, Program, VertexBuffer};
+use glium::index::PrimitiveType;
 use glium::texture::Texture2d;
 use GameContext;
 use std::rc::Rc;
 use super::tex_generator;
 use super::normal_converter;
 use base::world::ground::GroundMaterial;
+use base::math::*;
 
 pub struct ChunkRenderer {
     /// Chunk shader
@@ -17,17 +22,19 @@ pub struct ChunkRenderer {
     pub noise_stone: Texture2d,
     pub noise_dirt: Texture2d,
     pub noise_mulch: Texture2d,
-
+    /// Normalmaps for fragment shader
     pub normal_sand: Texture2d,
     pub normal_snow: Texture2d,
     pub normal_grass: Texture2d,
     pub normal_stone: Texture2d,
     pub normal_dirt: Texture2d,
     pub normal_mulch: Texture2d,
+    pub outline: HexagonOutline,
 }
 
 impl ChunkRenderer {
     pub fn new(context: Rc<GameContext>) -> Self {
+        // Get a tupel of a heightmap and texturemap
         let sand = tex_generator::create_texture_maps(GroundMaterial::Sand);
         let snow = tex_generator::create_texture_maps(GroundMaterial::Snow);
         let grass = tex_generator::create_texture_maps(GroundMaterial::Grass);
@@ -35,12 +42,10 @@ impl ChunkRenderer {
         let dirt = tex_generator::create_texture_maps(GroundMaterial::Dirt);
         let mulch = tex_generator::create_texture_maps(GroundMaterial::Mulch);
 
-        // TODO: Maybe fix function return type instead of
-        // calling create_sand(...).1
-        // Are we only using the first value?
         ChunkRenderer {
             program: context.load_program("chunk_std").unwrap(),
             shadow_program: context.load_program("chunk_shadow").unwrap(),
+            // Creating a sampler2D from the texturemap
             noise_sand: Texture2d::new(context.get_facade(), sand.1).unwrap(),
             noise_snow: Texture2d::new(context.get_facade(), snow.1).unwrap(),
             noise_grass: Texture2d::new(context.get_facade(), grass.1).unwrap(),
@@ -48,6 +53,7 @@ impl ChunkRenderer {
             noise_dirt: Texture2d::new(context.get_facade(), dirt.1).unwrap(),
             noise_mulch: Texture2d::new(context.get_facade(), mulch.1).unwrap(),
 
+            // Creating a sampler2D from the heightmap
             normal_sand: Texture2d::new(context.get_facade(),
                                         normal_converter::convert(sand.0, 1.0))
                 .unwrap(),
@@ -66,6 +72,7 @@ impl ChunkRenderer {
             normal_mulch: Texture2d::new(context.get_facade(),
                                          normal_converter::convert(mulch.0, 1.0))
                 .unwrap(),
+            outline: HexagonOutline::new(context),
         }
     }
 
@@ -78,6 +85,56 @@ impl ChunkRenderer {
         &self.shadow_program
     }
 }
+
+pub struct HexagonOutline {
+    program: Program,
+    vbuf: VertexBuffer<Vertex>,
+    ibuf: IndexBuffer<u32>,
+    pub pos: Vector3f,
+    pub display: bool,
+}
+
+impl HexagonOutline {
+    pub fn new(context: Rc<GameContext>) -> Self {
+        // Initialize HexagonOutline
+        let mut vertices = Vec::new();
+        let mut indices = Vec::new();
+        // get_top_hexagon_model(&mut vertices, &mut indices);
+        // get_bottom_hexagon_model(&mut vertices, &mut indices);
+        // get_side_hexagon_model(4, 5, &mut vertices, &mut indices);
+        // get_side_hexagon_model(1, 2, &mut vertices, &mut indices);
+        // get_side_hexagon_model(5, 0, &mut vertices, &mut indices);
+        // get_side_hexagon_model(0, 1, &mut vertices, &mut indices);
+        // get_side_hexagon_model(3, 4, &mut vertices, &mut indices);
+        // get_side_hexagon_model(2, 3, &mut vertices, &mut indices);
+
+        HexagonOutline {
+            program: context.load_program("outline").unwrap(),
+            vbuf: VertexBuffer::new(context.get_facade(), &vertices).unwrap(),
+            ibuf: IndexBuffer::new(context.get_facade(), PrimitiveType::TrianglesList, &indices)
+                .unwrap(),
+            pos: Vector3f::new(0.0, 0.0, 50.0),
+            display: false,
+        }
+    }
+
+    pub fn position(&self) -> &Vector3f {
+        &self.pos
+    }
+
+    pub fn vertices(&self) -> &VertexBuffer<Vertex> {
+        &self.vbuf
+    }
+
+    pub fn indices(&self) -> &IndexBuffer<u32> {
+        &self.ibuf
+    }
+
+    pub fn program(&self) -> &Program {
+        &self.program
+    }
+}
+
 
 
 // /// Calculates one Point-coordinates of a Hexagon

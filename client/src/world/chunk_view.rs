@@ -1,7 +1,4 @@
-#![allow(unused_imports)]
-
-
-use base::world::{Chunk, HexPillar, PillarSection, PropType, CHUNK_SIZE, HEX_OUTER_RADIUS, PILLAR_STEP_HEIGHT, HeightType};
+use base::world::{World, ChunkIndex, Chunk, HexPillar, PillarSection, CHUNK_SIZE, HEX_OUTER_RADIUS, PILLAR_STEP_HEIGHT, HeightType};
 use base::math::*;
 use glium::index::PrimitiveType;
 use glium::{self, DrawParameters, VertexBuffer, IndexBuffer, Program,};
@@ -11,8 +8,10 @@ use glium::texture::Texture2d;
 use glium::uniforms::SamplerWrapFunction;
 use glium::uniforms::MinifySamplerFilter;
 use Camera;
+use DayTime;
+// use SimpleCull;
+// use LOCATION;
 use util::ToArr;
-use view::{PlantRenderer, PlantView};
 use world::ChunkRenderer;
 use std::rc::Rc;
 use base::world::ground::GroundMaterial;
@@ -20,12 +19,12 @@ use std::cmp::{min, max};
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
+    pub offset: AxialPoint,
     renderer: Rc<ChunkRenderer>,
     /// Instance data buffer.
     // pillar_buf: VertexBuffer<Instance>,
     vertex_buf: VertexBuffer<Vertex>,
     index_buf: IndexBuffer<u32>,
-    offset: AxialPoint,
 }
 
 impl ChunkView {
@@ -34,24 +33,17 @@ impl ChunkView {
     pub fn from_chunk<F: Facade>(chunk: &Chunk,
                                  offset: AxialPoint,
                                  chunk_renderer: Rc<ChunkRenderer>,
-                                 plant_renderer: Rc<PlantRenderer>,
                                  facade: &F)
                                  -> Self {
-
-
-        let (raw_buf, raw_indices) = if false && offset != AxialPoint::new(0, 0) {
-            (Vec::new(), Vec::new())
-        } else {
-            Self::get_vertices(chunk)
-        };
+        let (raw_buf, raw_indices) = Self::get_vertices(chunk);
 
         ChunkView {
+            offset: offset,
             renderer: chunk_renderer,
             vertex_buf: VertexBuffer::new(facade, &raw_buf).unwrap(),
             index_buf: IndexBuffer::new(facade,
                                       PrimitiveType::TrianglesList,
                                       &raw_indices).unwrap(),
-            offset: offset,
         }
     }
 
@@ -128,6 +120,7 @@ impl ChunkView {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
         };
+
         let params = DrawParameters {
             depth: glium::Depth {
                 write: true,
@@ -145,12 +138,17 @@ impl ChunkView {
             self.renderer.shadow_program(),
             &uniforms,
             &params).unwrap();
+    }
 
-        // for pillar in &self.pillars {
-        //     for plant in &pillar.plants {
-        //         plant.draw_shadow(surface, camera);
-        //     }
-        // }
+    pub fn update<F: Facade>(&mut self, facade: &F, world: &World) {
+        let chunk = world.chunk_at(ChunkIndex(self.offset)).unwrap();
+        let (vbuf, ibuf) = Self::get_vertices(&chunk);
+
+        self.vertex_buf = VertexBuffer::new(facade, &vbuf).unwrap();
+        self.index_buf = IndexBuffer::new(facade,
+                                  PrimitiveType::TrianglesList,
+                                  &ibuf).unwrap();
+
     }
 
     pub fn draw<S: glium::Surface>(&self,
@@ -158,7 +156,19 @@ impl ChunkView {
                                    camera: &Camera,
                                    shadow_map: &Texture2d,
                                    depth_view_proj: &Matrix4<f32>,
+                                   daytime: &DayTime,
                                    sun_dir: Vector3f) {
+        let real_off = self.offset.to_real();
+        let look_at2 = Vector2::new(camera.get_look_at_vector().x, camera.get_look_at_vector().y)
+            .normalize();
+        let pos2 = Point2::new(camera.position.x, camera.position.y);
+
+        let player_to_chunk = real_off -
+                              (pos2 + -look_at2 * CHUNK_SIZE.into() * HEX_OUTER_RADIUS * 2.8);
+        if camera.get_look_at_vector().z.abs() < 0.6 && dot(player_to_chunk, look_at2) < 0.0 {
+            return;
+        }
+
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
@@ -166,8 +176,11 @@ impl ChunkView {
             depth_view_proj: depth_view_proj.to_arr(),
             sun_dir: sun_dir.to_arr(),
             offset: self.offset.to_real().to_arr(),
-            offset_ax: [self.offset.q, self.offset.r],
+            cam_pos: camera.position.to_arr(),
+            sun_color: daytime.get_sun_color().to_arr(),
+            sky_light: daytime.get_sky_light().to_arr(),
 
+            // Mipmapping and repeating the textures
             sand_texture:  self.renderer.noise_sand.sampled()
                 .minify_filter(MinifySamplerFilter::NearestMipmapLinear)
                 .wrap_function(SamplerWrapFunction::Repeat),
@@ -227,20 +240,6 @@ pub struct Vertex {
 }
 
 implement_vertex!(Vertex, position, normal, radius, tex_coords, material_color, ground);
-
-/// Instance data for each pillar section.
-#[derive(Debug, Copy, Clone)]
-pub struct Instance {
-    ground: i32,
-    /// Material color.
-    material_color: [f32; 3],
-    /// Offset in world coordinates.
-    offset: [f32; 3],
-    /// Pillar height.
-    height: f32,
-}
-
-implement_vertex!(Instance, material_color, offset, ground, height);
 
 // Here are a few constants describing various properties of a hexagon in a
 // grid. Our hexagons are pointy topped and their position is described by an

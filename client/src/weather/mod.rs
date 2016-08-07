@@ -8,8 +8,10 @@ use base::math::*;
 use base::gen::world::biome;
 use base::world::PillarIndex;
 use GameContext;
+use DayTime;
 use std::rc::Rc;
 use std::f32::consts::PI;
+use std::f32;
 
 const BOX_SIZE: f32 = 20.0;
 
@@ -36,7 +38,6 @@ pub enum Strength {
 
 #[derive(Copy, Clone)]
 pub struct Particle {
-    vertices: [Vertex; 4],
     position: Point3<f32>,
     velocity: f32,
     trans_x: f32,
@@ -80,10 +81,6 @@ impl Particle {
         }
 
         Particle {
-            vertices: [Vertex { point: [1.0, 1.0, 0.0] },
-                       Vertex { point: [-1.0, 1.0, 0.0] },
-                       Vertex { point: [1.0, -1.0, 0.0] },
-                       Vertex { point: [-1.0, -1.0, 0.0] }],
             position: Point3::new(cam_pos.x + radius * Rad::sin(angle),
                                   cam_pos.y + radius * Rad::cos(angle),
                                   cam_pos.z + (BOX_SIZE * rand::random::<f32>() + 0.5)),
@@ -94,6 +91,50 @@ impl Particle {
             lifetime: (rand::random::<f32>() + 0.5) * 100.0,
         }
     }
+
+    /// returns true iff particle is inside a cave
+    fn in_cave(&self, world_manager: &super::WorldManager) -> bool {
+        let mut height = 0.0;
+        let mut above = 0.0;
+
+        let world = world_manager.get_world();
+        let relevant_pos = Point2f::new(self.position.x, self.position.y);
+        let pillar_index = PillarIndex(AxialPoint::from_real(relevant_pos));
+
+        let vec_len = world.pillar_at(pillar_index)
+            .map(|pillar| pillar.sections().len())
+            .unwrap_or(0);
+
+        let pillar_vec = world.pillar_at(pillar_index).map(|pillar| pillar.sections());
+
+        if pillar_vec.is_some() {
+            let new_pillar_vec = pillar_vec.unwrap();
+
+            if vec_len == 1 {
+                height = new_pillar_vec[0].top.to_real();
+                above = f32::INFINITY;
+            } else {
+                for i in 0..vec_len {
+                    if i != vec_len - 1 {
+                        if new_pillar_vec[i].top.to_real() < self.position.z &&
+                           self.position.z < new_pillar_vec[i + 1].bottom.to_real() {
+                            height = new_pillar_vec[i].top.to_real();
+                            above = new_pillar_vec[i + 1].bottom.to_real();
+                            break;
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        height = new_pillar_vec[i].top.to_real();
+                        above = f32::INFINITY;
+                        break;
+                    }
+                }
+            }
+        }
+
+        !(self.position.z > height && above == f32::INFINITY)
+    }
 }
 
 
@@ -103,8 +144,8 @@ pub struct Weather {
     indices: glium::index::NoIndices,
     context: Rc<GameContext>,
     camera: Camera,
-    particle_buf: VertexBuffer<Instance>,
     actual_buf: VertexBuffer<Instance>,
+    vertex_buffer: VertexBuffer<Vertex>,
     form: Form,
     strength: Strength,
     wind: Vector2f,
@@ -113,6 +154,8 @@ pub struct Weather {
     weather_time: f32,
     last_biome: biome::Biome,
     change: bool,
+    sun_color: Vector3f,
+    sky_light: Vector3f,
 }
 
 impl Weather {
@@ -122,7 +165,12 @@ impl Weather {
         let weather_program = context.load_program("weather").unwrap();
         let camera = Camera::new(context.get_config().resolution.aspect_ratio());
         let sections = glium::VertexBuffer::new(context.get_facade(), &[]).unwrap();
-        let sections2 = glium::VertexBuffer::new(context.get_facade(), &[]).unwrap();
+
+        let buffer = vec![Vertex { point: [1.0, 1.0, 0.0] },
+                          Vertex { point: [-1.0, 1.0, 0.0] },
+                          Vertex { point: [1.0, -1.0, 0.0] },
+                          Vertex { point: [-1.0, -1.0, 0.0] }];
+        let vertex_buffer = glium::VertexBuffer::new(context.get_facade(), &buffer).unwrap();
 
         Weather {
             particles: vec,
@@ -130,8 +178,8 @@ impl Weather {
             indices: index_buffer,
             context: context,
             camera: camera,
-            particle_buf: sections,
-            actual_buf: sections2,
+            actual_buf: sections,
+            vertex_buffer: vertex_buffer,
             form: Form::Rain,
             strength: Strength::None,
             wind: Vector2f::new(rand::random::<f32>(), rand::random::<f32>()),
@@ -140,12 +188,14 @@ impl Weather {
             weather_time: 0.0,
             last_biome: biome::Biome::GrassLand,
             change: false,
+            sun_color: Vector3f::new(0.0, 0.0, 0.0),
+            sky_light: Vector3f::new(0.0, 0.0, 0.0),
         }
     }
 
     /// Draws particles on the screen
     pub fn draw<S: glium::Surface>(&mut self, surface: &mut S, camera: &Camera) {
-        if self.strength as u8 == 0 && self.particles.len() == 0 {
+        if self.strength == Strength::None && self.particles.len() == 0 {
             return;
         }
 
@@ -165,16 +215,10 @@ impl Weather {
             ..Default::default()
         };
 
-
-
-        let buffer = vec![Vertex { point: [1.0, 1.0, 0.0] },
-                          Vertex { point: [-1.0, 1.0, 0.0] },
-                          Vertex { point: [1.0, -1.0, 0.0] },
-                          Vertex { point: [-1.0, -1.0, 0.0] }];
-        let vertex_buffer = glium::VertexBuffer::new(self.context.get_facade(), &buffer).unwrap();
         let scaling: Matrix4<f32>;
         let view = camera.view_matrix();
         let color: Vector4f;
+
         match self.form {
             Form::Snow => {
                 color = Vector4f::new(0.7, 0.7, 0.7, 1.0);
@@ -186,8 +230,6 @@ impl Weather {
             }
             Form::Rain => {
                 color = Vector4f::new(0.35, 0.43, 0.47, 1.0);
-
-
 
                 scaling = Matrix4::from_cols(Vector4f::new(0.01, 0.0, 0.0, 0.0),
                                              Vector4f::new(0.0, 0.05, 0.0, 0.0),
@@ -204,6 +246,8 @@ impl Weather {
             }
         };
 
+        debug!("sky: {:?}", self.sky_light);
+        debug!("sun: {:?}", self.sun_color);
 
         let uniforms = uniform!{
                 form: self.form as i32,
@@ -211,16 +255,16 @@ impl Weather {
                 proj_matrix: camera.proj_matrix().to_arr(),
                 scaling_matrix: scaling.to_arr(),
                 color: color.to_arr(),
+                sky_light: self.sky_light.to_arr(),
+                sun_color: self.sun_color.to_arr(),
             };
 
-
-        surface.draw((&vertex_buffer, self.actual_buf.per_instance().unwrap()),
+        surface.draw((&self.vertex_buffer, self.actual_buf.per_instance().unwrap()),
                   &self.indices,
                   &self.program,
                   &uniforms,
                   &params)
             .unwrap();
-
     }
 
     /// updates particles in terms of lifetime and position dependend on their
@@ -228,13 +272,14 @@ impl Weather {
     /// particles that are in the back of the player or in caves. Also
     /// responsible for setting the
     /// apropriate weather.
-    pub fn update(&mut self, camera: &Camera, delta: f32, world_manager: &super::WorldManager) {
-        // stops a weather before an other type starts
-        if self.change == true {
-            for particle in &mut self.particles {
-                particle.lifetime -= 25.0 * delta;
-            }
-        }
+    pub fn update(&mut self,
+                  camera: &Camera,
+                  delta: f32,
+                  world_manager: &super::WorldManager,
+                  daytime: &DayTime) {
+
+        self.sun_color = daytime.get_sun_color();
+        self.sky_light = daytime.get_sky_light();
 
         // Toggle downfall
         let world = world_manager.get_world();
@@ -257,12 +302,12 @@ impl Weather {
                         }
                         self.form = Form::Rain;
                         self.last_biome = biome::Biome::GrassLand;
-                        match chance {
-                            0.0...5.0 => self.strength = Strength::Weak,
-                            5.0...8.0 => self.strength = Strength::Medium,
-                            8.0...10.0 => self.strength = Strength::Heavy,
-                            _ => self.strength = Strength::None,
-                        }
+                        self.strength = match chance {
+                            0.0...5.0 => Strength::Weak,
+                            5.0...8.0 => Strength::Medium,
+                            8.0...10.0 => Strength::Heavy,
+                            _ => Strength::None,
+                        };
                     }
 
                     biome::Biome::Desert => {
@@ -273,12 +318,12 @@ impl Weather {
                         }
                         self.form = Form::Rain;
                         self.last_biome = biome::Biome::Desert;
-                        match chance {
-                            0.0...1.0 => self.strength = Strength::Weak,
-                            1.0...2.0 => self.strength = Strength::Medium,
-                            2.0...4.0 => self.strength = Strength::Heavy,
-                            _ => self.strength = Strength::None,
-                        }
+                        self.strength = match chance {
+                            0.0...1.0 => Strength::Weak,
+                            1.0...2.0 => Strength::Medium,
+                            2.0...4.0 => Strength::Heavy,
+                            _ => Strength::None,
+                        };
                     }
 
                     biome::Biome::Snow => {
@@ -289,12 +334,12 @@ impl Weather {
                         }
                         self.form = Form::Snow;
                         self.last_biome = biome::Biome::Snow;
-                        match chance {
-                            0.0...20.0 => self.strength = Strength::Weak,
-                            20.0...50.0 => self.strength = Strength::Medium,
-                            50.0...75.0 => self.strength = Strength::Heavy,
-                            _ => self.strength = Strength::None,
-                        }
+                        self.strength = match chance {
+                            0.0...20.0 => Strength::Weak,
+                            20.0...50.0 => Strength::Medium,
+                            50.0...75.0 => Strength::Heavy,
+                            _ => Strength::None,
+                        };
                     }
 
                     biome::Biome::Forest => {
@@ -305,12 +350,12 @@ impl Weather {
                         }
                         self.form = Form::Pollen;
                         self.last_biome = biome::Biome::Forest;
-                        match chance {
-                            0.0...15.0 => self.strength = Strength::Weak,
-                            15.0...35.0 => self.strength = Strength::Medium,
-                            35.0...65.0 => self.strength = Strength::Heavy,
-                            _ => self.strength = Strength::None,
-                        }
+                        self.strength = match chance {
+                            0.0...15.0 => Strength::Weak,
+                            15.0...35.0 => Strength::Medium,
+                            35.0...65.0 => Strength::Heavy,
+                            _ => Strength::None,
+                        };
                     }
 
                     biome::Biome::RainForest => {
@@ -321,12 +366,12 @@ impl Weather {
                         }
                         self.form = Form::Rain;
                         self.last_biome = biome::Biome::RainForest;
-                        match chance {
-                            0.0...21.0 => self.strength = Strength::Weak,
-                            21.0...51.0 => self.strength = Strength::Medium,
-                            51.0...81.0 => self.strength = Strength::Heavy,
-                            _ => self.strength = Strength::None,
-                        }
+                        self.strength = match chance {
+                            0.0...21.0 => Strength::Weak,
+                            21.0...51.0 => Strength::Medium,
+                            51.0...81.0 => Strength::Heavy,
+                            _ => Strength::None,
+                        };
                     }
 
                     biome::Biome::Savanna => {
@@ -337,12 +382,12 @@ impl Weather {
                         }
                         self.form = Form::Pollen;
                         self.last_biome = biome::Biome::Savanna;
-                        match chance {
-                            0.0...5.0 => self.strength = Strength::Weak,
-                            5.0...7.0 => self.strength = Strength::Medium,
-                            7.0...9.0 => self.strength = Strength::Heavy,
-                            _ => self.strength = Strength::None,
-                        }
+                        self.strength = match chance {
+                            0.0...5.0 => Strength::Weak,
+                            5.0...7.0 => Strength::Medium,
+                            7.0...9.0 => Strength::Heavy,
+                            _ => Strength::None,
+                        };
                     }
 
                     biome::Biome::Stone => {
@@ -353,15 +398,13 @@ impl Weather {
                         }
                         self.form = Form::Rain;
                         self.last_biome = biome::Biome::Stone;
-                        match chance {
-                            0.0...7.0 => self.strength = Strength::Weak,
-                            7.0...12.0 => self.strength = Strength::Medium,
-                            12.0...17.0 => self.strength = Strength::Heavy,
-                            _ => self.strength = Strength::None,
-
-                        }
+                        self.strength = match chance {
+                            0.0...7.0 => Strength::Weak,
+                            7.0...12.0 => Strength::Medium,
+                            12.0...17.0 => Strength::Heavy,
+                            _ => Strength::None,
+                        };
                     }
-
                     biome::Biome::Debug => (),
                 }
                 self.weather_time = 0.0;
@@ -369,13 +412,14 @@ impl Weather {
         }
 
         // stops method if no weather is set
-        if self.strength as u8 == 0 && self.particles.len() == 0 {
+        if self.strength == Strength::None && self.particles.len() == 0 {
             self.change = false;
             return;
         }
 
         // wind settings
         self.delta_time += delta;
+
         if self.delta_time >= 90.0 {
             self.wind.x += (rand::random::<f32>() * 0.4) - 0.2;
             self.wind.y += (rand::random::<f32>() * 0.4) - 0.2;
@@ -385,62 +429,61 @@ impl Weather {
 
         // setting amount of particles depending on form
         self.camera = *camera;
-        let max_count: usize;
-        match self.form {
-            Form::Pollen => max_count = 40 * self.strength as usize,
-            _ => max_count = 750 * self.strength as usize,
-        }
+
+        let max_count = match self.form {
+            Form::Pollen => 40 * self.strength as usize,
+            _ => 750 * self.strength as usize,
+        };
+
         if self.particles.len() < max_count && !self.change {
             let count = max_count / 10;
             for _ in 0..count {
                 self.particles.push(Particle::new(camera.position));
             }
-
         }
 
         // deletes dead particles
         self.particles.retain(|&p| p.lifetime > 0.0);
 
-        // creates vertex buffer with particles which are alive
-        let mut tmp = Vec::new();
-        for particle in self.particles.iter() {
-            tmp.push(Instance {
-                position: [particle.position.x, particle.position.y, particle.position.z],
-            })
-        }
-        let vertex_buffer = glium::VertexBuffer::new(self.context.get_facade(), &tmp).unwrap();
-        self.particle_buf = vertex_buffer;
-
         // instancing and position updating for particles
-        let mut mapping = self.particle_buf.map();
-        let mut tmp2 = Vec::new();
-        for (particle, instance) in &mut self.particles.iter_mut().zip(mapping.iter_mut()) {
-            particle.lifetime -= 1.0 * delta;
+        let mut tmp_instances = Vec::new();
+
+        for particle in &mut self.particles.iter_mut() {
+            // if weather changes, kill particles much faster
+            if self.change {
+                particle.lifetime -= 25.0 * delta;
+            } else {
+                particle.lifetime -= 1.0 * delta;
+            }
+
             match self.form {
+
                 Form::Snow => {
-                    instance.position[2] = instance.position[2] - (particle.velocity * 3.0 * delta);
-                    instance.position[0] += (particle.trans_x.sin() * 0.05 +
-                                             (self.wind.x * self.wind_speed) * delta) *
-                                            0.5;
-                    instance.position[1] += (particle.trans_y.cos() * 0.05 +
-                                             (self.wind.y * self.wind_speed) * delta) *
-                                            0.5;
+                    particle.position.z -= particle.velocity * 3.0 * delta;
+                    particle.position.x += (particle.trans_x.sin() * 0.05 +
+                                            (self.wind.x * self.wind_speed) * delta) *
+                                           0.5;
+                    particle.position.y += (particle.trans_y.cos() * 0.05 +
+                                            (self.wind.y * self.wind_speed) * delta) *
+                                           0.5;
                     particle.trans_y += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_x += PI * 0.005 * (rand::random::<f32>() - 0.5);
                 }
 
                 Form::Rain => {
-                    instance.position[0] += ((self.wind.x * self.wind_speed) * delta) * 2.0;
-                    instance.position[1] += ((self.wind.y * self.wind_speed) * delta) * 2.0;
-                    instance.position[2] = instance.position[2] -
-                                           ((particle.velocity + 0.5) * 50.0 * delta)
+                    particle.position.x += ((self.wind.x * self.wind_speed) * delta) * 2.0;
+                    particle.position.y += ((self.wind.y * self.wind_speed) * delta) * 2.0;
+                    particle.position.z = particle.position.z -
+                                          ((particle.velocity + 0.5) * 50.0 * delta)
                 }
+
                 Form::Pollen => {
-                    instance.position[0] +=
+                    particle.position.x +=
                         (particle.trans_x.sin() * delta * (self.wind.x * self.wind_speed)) * 2.0;
-                    instance.position[1] +=
+                    particle.position.y +=
                         (particle.trans_y.cos() * delta * (self.wind.y * self.wind_speed)) * 2.0;
-                    instance.position[2] += (particle.trans_z.sin() - 0.5) * 0.5 * delta;
+                    particle.position.z += (particle.trans_z.sin() - 0.5) * 0.5 * delta;
+
                     particle.trans_y += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_x += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_z += PI * 0.005 * (rand::random::<f32>() - 0.3);
@@ -449,74 +492,40 @@ impl Weather {
             }
 
             // moving particles which fell out of box to the other direction of it
-            let pix_vec = Point2::new(instance.position[0], instance.position[1]);
+            let pix_vec = Point2::new(particle.position.x, particle.position[1]);
             let cam_vec = Point2::new(camera.position.x, camera.position.y);
             let tmp = pix_vec - cam_vec;
             let len = ((tmp.x * tmp.x) + (tmp.y * tmp.y)).sqrt();
+
             let size = match self.form {
                 Form::Pollen => BOX_SIZE / 5.0,
                 _ => 1.0,
             };
+
             if len > BOX_SIZE - size || len < -BOX_SIZE - size {
-                instance.position[0] = instance.position[0] - (1.95 * tmp.x);
-                instance.position[1] = instance.position[1] - (1.95 * tmp.y);
-            }
-            if instance.position[2] < self.camera.position.z - BOX_SIZE / size {
-                instance.position[2] += 1.9 * (BOX_SIZE / size);
-            }
-            if instance.position[2] > self.camera.position.z + BOX_SIZE / size {
-                instance.position[2] -= 1.9 * (BOX_SIZE / size);
+                particle.position.x = particle.position.x - (1.95 * tmp.x);
+                particle.position.y = particle.position.y - (1.95 * tmp.y);
             }
 
-            // prevent particles from beeing drawn if in caves or behind the player
-            let tmp_point = Point3::new(instance.position[0],
-                                        instance.position[1],
-                                        instance.position[2]);
-            particle.position.x = tmp_point.x;
-            particle.position.y = tmp_point.y;
-            particle.position.z = tmp_point.z;
-            let mut height = 0.0;
-            let world = world_manager.get_world();
-            let relevant_pos = Point2f::new(instance.position[0], instance.position[1]);
-            let pillar_index = PillarIndex(AxialPoint::from_real(relevant_pos));
-            let vec_len = world.pillar_at(pillar_index)
-                .map(|pillar| pillar.sections().len())
-                .unwrap_or(0);
-            let pillar_vec = world.pillar_at(pillar_index).map(|pillar| pillar.sections());
-            if pillar_vec.is_some() {
-                let new_pillar_vec = pillar_vec.unwrap();
-
-                if vec_len == 1 {
-                    height = new_pillar_vec[0].top.to_real();
-                } else {
-                    for i in 0..vec_len {
-                        if i != vec_len - 1 {
-                            if new_pillar_vec[i].top.to_real() < instance.position[2] &&
-                               instance.position[2] < new_pillar_vec[i + 1].bottom.to_real() {
-                                height = new_pillar_vec[i].top.to_real();
-                                break;
-                            } else {
-                                continue;
-                            }
-                        } else {
-                            height = new_pillar_vec[i].top.to_real();
-                            break;
-                        }
-                    }
-                }
+            if particle.position.z < self.camera.position.z - BOX_SIZE / size {
+                particle.position.z += 1.9 * (BOX_SIZE / size);
             }
-            if ((tmp_point - camera.position).dot(camera.get_look_at_vector())) > 0.0 &&
-               instance.position[2] > height {
-                tmp2.push(Instance {
-                    position: [instance.position[0], instance.position[1], instance.position[2]],
+
+            if particle.position.z > self.camera.position.z + BOX_SIZE / size {
+                particle.position.z -= 1.9 * (BOX_SIZE / size);
+            }
+
+            // prevents drawing the particle if in cave or behind the player
+            if !particle.in_cave(&world_manager) &&
+               ((particle.position - camera.position).dot(camera.get_look_at_vector())) > 0.0 {
+                tmp_instances.push(Instance {
+                    position: [particle.position.x, particle.position.y, particle.position.z],
                 })
             }
-
-            // updating lifetime of particles
-            particle.lifetime -= 1.0 * delta;
         }
         // create vertex buffer from left particles
-        let vertex_buffer = glium::VertexBuffer::new(self.context.get_facade(), &tmp2).unwrap();
+        let vertex_buffer = glium::VertexBuffer::new(self.context.get_facade(), &tmp_instances)
+            .unwrap();
         self.actual_buf = vertex_buffer;
 
         // if all particles are deleted allow new weather

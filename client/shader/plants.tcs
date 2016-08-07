@@ -5,10 +5,13 @@ layout(vertices = 1) out;
 in vec3 vPosition[];
 in vec3 material_color[];
 in vec3 surfaceNormal[];
+in vec3 vOffset[];
+
+out vec3 offset[];
+
 uniform float tess_level_inner;
 uniform float tess_level_outer;
 uniform vec3 camera_pos;
-uniform vec3 offset;
 
 struct OutputPatch {
     vec3 WorldPos_B030;
@@ -27,10 +30,6 @@ struct OutputPatch {
 
 patch out OutputPatch oPatch;
 
-
-
-#define ID gl_InvocationID
-
 vec3 ProjectToPlane(vec3 Point, vec3 PlanePoint, vec3 PlaneNormal)
 {
     vec3 v = Point - PlanePoint;
@@ -41,14 +40,8 @@ vec3 ProjectToPlane(vec3 Point, vec3 PlanePoint, vec3 PlaneNormal)
     return (res + 2 * add);
 }
 
-
 void CalcPositions()
 {
-    // The original vertices stay the same
-    oPatch.WorldPos_B030 = vPosition[0];
-    oPatch.WorldPos_B003 = vPosition[1];
-    oPatch.WorldPos_B300 = vPosition[2];
-
     // Edges are names according to the opposing vertex
     vec3 EdgeB300 = oPatch.WorldPos_B003 - oPatch.WorldPos_B030;
     vec3 EdgeB030 = oPatch.WorldPos_B300 - oPatch.WorldPos_B003;
@@ -91,30 +84,36 @@ void CalcPositions()
 }
 
 void main() {
-    //setting Normals
+    // setting Normals
     for (int i = 0; i < 3; i++) {
         oPatch.Normal[i] = surfaceNormal[i];
     }
 
-    //handle tesselation level on distance
-    int len = int(length(camera_pos-offset)/5);
-    float inner=tess_level_inner;
-    float outer=tess_level_outer;
+    offset[gl_InvocationID] = vOffset[gl_InvocationID];
 
-    if(len>tess_level_inner-1 || len>tess_level_inner-1){
-        inner=1.0;
-        outer=1.0;
-    }else{
+    // The original vertices stay the same
+    oPatch.WorldPos_B030 = vPosition[0];
+    oPatch.WorldPos_B003 = vPosition[1];
+    oPatch.WorldPos_B300 = vPosition[2];
+
+    // handle tesselation level on distance
+    int len = int(length(camera_pos - offset[0]) / 3);
+    float inner = tess_level_inner;
+    float outer = tess_level_outer;
+
+    if (len > tess_level_inner - 1 || len > tess_level_inner - 1){
+        inner = 1.0;
+        outer = 1.0;
+    } else {
         inner = inner - len;
         outer = outer - len;
+        CalcPositions();
     }
 
-    oPatch.Color=material_color[0];
-    CalcPositions();
+    oPatch.Color = material_color[0];
 
-        gl_TessLevelInner[0] = inner;
-        gl_TessLevelOuter[0] = outer;
-        gl_TessLevelOuter[1] = outer;
-        gl_TessLevelOuter[2] = outer;
-
+    gl_TessLevelInner[0] = inner;
+    gl_TessLevelOuter[0] = outer;
+    gl_TessLevelOuter[1] = outer;
+    gl_TessLevelOuter[2] = outer;
 }

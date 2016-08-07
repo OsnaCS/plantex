@@ -1,10 +1,10 @@
 #version 330 core
 
 // ===================================================================
-//                   Brightness Adaption Shrinking
+//                   Greyscale with relative luminance
 // ===================================================================
 //
-//
+// Creates a greyscale texture with relative luminance.
 
 out float FragColor;
 
@@ -16,5 +16,8 @@ uniform sampler2D image;
 
 void main()
 {
-    FragColor = texture(image, i.frag_texcoord).r;
+    float t = 10;
+    float tt = 1/t;
+    FragColor = log((tt + dot(texture(image, i.frag_texcoord).rgb,
+        vec3(0.2126, 0.7152, 0.0722))) * t);
 }

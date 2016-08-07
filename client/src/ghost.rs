@@ -64,6 +64,9 @@ impl Ghost {
     pub fn get_camera(&self) -> Camera {
         self.cam
     }
+    pub fn set_camera(&mut self, cam: Camera) {
+        self.cam = cam;
+    }
 }
 
 

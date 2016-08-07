@@ -3,6 +3,10 @@
 in vec3 x_unit_coords;
 
 uniform vec3 u_sun_pos;
+uniform sampler2D u_star_map;
+
+uniform vec3 u_sun_color;
+uniform vec3 u_sky_light;
 
 out vec3 color;
 
@@ -29,14 +33,16 @@ void main() {
     float bottomred = -0.1;
     float black = -0.3;
 
-    vec3 upperblue_color = vec3 (12.0, 43.0, 80.0);
-    vec3 blue_color = vec3 (22.0, 77.0, 142.0);
-    vec3 lightblue_color = vec3 (62.0, 134.0, 142.0);
-    vec3 dirtyblue_color = vec3 (105.0, 142.0, 137.0);
-    vec3 dirtyyellow_color = vec3 (170.0, 142.0, 85.0);
-    vec3 yellow_color = vec3 (255.0, 125.0, 0.0);
-    vec3 red_color = vec3 (255.0, 0.0, 0.0);
-    vec3 bottomred_color = vec3 (120.0, 0.0, 0.0);
+    float lum_factor = 10.0; //change this into a constant
+
+    vec3 upperblue_color = vec3 (12.0, 43.0, 80.0)*lum_factor;
+    vec3 blue_color = vec3 (22.0, 77.0, 142.0)*lum_factor;
+    vec3 lightblue_color = vec3 (62.0, 134.0, 142.0)*lum_factor;
+    vec3 dirtyblue_color = vec3 (105.0, 142.0, 137.0)*lum_factor;
+    vec3 dirtyyellow_color = vec3 (170.0, 142.0, 85.0)*lum_factor;
+    vec3 yellow_color = vec3 (255.0, 125.0, 0.0)*lum_factor;
+    vec3 red_color = vec3 (255.0, 0.0, 0.0)*lum_factor;
+    vec3 bottomred_color = vec3 (120.0, 0.0, 0.0)*lum_factor;
     vec3 black_color = vec3 (0.0, 0.0, 0.0);
 
     vec3 sunset_color;
@@ -93,28 +99,24 @@ void main() {
     }
 
     // Calculates phi
-    // unit vector.x varies from [-1..1] therefore arccos from unit_vector.x,
-    // varies from [PI..0] respectively
-    // But because this is only functional for the upper hemisphere,
-    // the phi for the lower hemisphere is calculated in the if statement
-
-    float phi = atan(unit_vector.y, unit_vector.x);
+    // goes from 0..2*PI
+    float phi = atan(unit_vector.y, unit_vector.x) ;
 
     // Calculate dummy blue gradient sky color
-    vec3 high_noon_color = vec3((theta / PI)-0.2,(theta / PI)-0.1,1.0);
+    vec3 high_noon_color = vec3(((theta / PI)-0.2)*0.5,((theta / PI)-0.1)*0.5,1.0)*lum_factor;
     sunset_color = sunset_color / 255;
-    vec3 nightblue_color = vec3 (0.0, 0.0, 41.0) / 255;
+    vec3 nightblue_color = (vec3 (0.0, 0.0, 1.0) / 255);
 
-    float nighttime = -0.2;
+    float nighttime = -0.1;
     float sunrise_start = 0.0;
-    float sunset_start = -0.15;
+    float sunset_start = 0.1;
     float high_noon_start = 0.3;
 
     float sun_z = normalize(u_sun_pos).z;
     float sun_x = normalize(u_sun_pos).x;
     float sun_y = normalize(u_sun_pos).y;
 
-    float sun_phi = atan(sun_y, sun_x);
+    float sun_phi = atan(sun_y, sun_x) ;
 
     // distance between current vertex and sun in phi direction
     // divided by 2*PI to get a value between 0 and 1
@@ -123,7 +125,17 @@ void main() {
     if (phi_diff > 0.5) {
         phi_diff = 1.0 - phi_diff;
     }
-    phi_diff *= 2.0;
+
+    phi_diff = 1 - 2 * phi_diff;
+    phi_diff = phi_diff*phi_diff;
+    phi_diff = 1 - phi_diff;
+    // phi_diff *= 2.2;
+    // if (phi_diff>1) {
+    //     phi_diff=1;
+    // }
+
+    float theta_tmp = 1 - clamp(theta, 0.0, 1.0);
+
 
     float sun_start;
     if (sun_x > 0) {
@@ -137,21 +149,40 @@ void main() {
     if (sun_z < nighttime) {
         color = nightblue_color;
     // night to sunrise OR sunset to night
-    } else if (sun_z > nighttime && sun_z < sun_start) {
+    } else if (sun_z >= nighttime && sun_z < sun_start) {
         float size = sun_start - nighttime;
         float diff = sun_z - nighttime;
         float percent= diff/size;
-        color = (nightblue_color + (sunset_color - nightblue_color) * percent);
+        color = mix(nightblue_color, sunset_color, percent);
         color = mix(color, nightblue_color, phi_diff);
+        color = mix(color, nightblue_color, theta_tmp);
     // sunrise to high_noon OR high_noon to sunset
-    } else if (sun_z > sun_start && sun_z < high_noon_start) {
+    } else if (sun_z >= sun_start && sun_z < high_noon_start) {
         float size = high_noon_start - sun_start;
         float diff = sun_z - sun_start;
         float percent= diff/size;
-        color = (sunset_color + (high_noon_color - sunset_color) * percent);
-        color = mix(color, nightblue_color, phi_diff);
+        // color = mix(sunset_color, high_noon_color, percent);
+        color = mix(sunset_color, nightblue_color, phi_diff);
+        color = mix(color, nightblue_color, theta_tmp);
+        color = mix(color, high_noon_color, percent);
     // high_noon
-    } else if (sun_z > high_noon_start) {
+    } else if (sun_z >= high_noon_start) {
         color = high_noon_color;
     }
+
+    // add stars
+
+    // later better, so the top of the sky has stars too
+    // float star = texture(u_star_map, vec2(theta*0.8, 0.5 + theta*phi*0.8));
+    vec3 test = normalize(vec3(sin(theta)*cos(phi),sin(theta)*sin(phi),0));
+    test *= theta;
+    float star = texture(u_star_map, vec2(test.x, test.y)).r;
+
+    vec3 star_color = vec3(0.0, 0.0, 0.0);
+
+    // float star_value = 1 + theta * 0.01;
+
+    star_color = vec3(max(0, (star - 0.48)) * 15)*0.4;
+
+    color = color * 0.1 * (u_sun_color * 0.3 + u_sky_light) + star_color;
 }

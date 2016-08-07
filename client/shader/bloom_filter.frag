@@ -7,6 +7,7 @@
 // Filter bright areas and only map those to the texture.
 
 uniform sampler2D decal_texture;
+uniform float bloom_threshhold;
 
 in VertexData {
     vec2 frag_texcoord;
@@ -20,9 +21,12 @@ void main() {
 
     // transform proper brightness. Values adapt for eye vision, for explanation see:
     // https://en.wikipedia.org/wiki/Luma_%28video%29#Use_of_relative_luminance
-    if (dot(col, vec3(0.2126, 0.7152, 0.0722)) > 1.0) {
-        out_color = vec4(col, 1.0);
-    } else {
-        out_color = vec4(0);
-    }
+    float lum = dot(col, vec3(0.2126, 0.7152, 0.0722));
+    float percentage = (lum - bloom_threshhold) / (3 * bloom_threshhold);
+    out_color = vec4(mix(vec3(0), col, clamp(percentage, 0, 1)), 0);
+    // if (lum > bloom_threshhold) {
+    //     out_color = vec4(col, 1.0);
+    // } else {
+    //     out_color = vec4(0);
+    // }
 }

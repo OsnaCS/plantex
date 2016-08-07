@@ -1,5 +1,4 @@
 use super::{GroundMaterial, HeightType};
-use prop;
 use gen::world::biome::Biome;
 
 /// Represents one pillar of hexgonal shape in the game world.
@@ -25,6 +24,11 @@ impl HexPillar {
     /// Returns a slice of this pillar's sections.
     pub fn sections(&self) -> &[PillarSection] {
         &self.sections
+    }
+
+    /// Returns a slice of this pillar's sections.
+    pub fn sections_mut(&mut self) -> &mut Vec<PillarSection> {
+        &mut self.sections
     }
 
     /// Returns a slice of this pillar's props.
@@ -63,14 +67,6 @@ impl PillarSection {
 pub struct Prop {
     /// The height/baseline at which the prop starts
     pub baseline: HeightType,
-    /// The actual prop data
-    pub prop: PropType,
     /// index in the plant_list vector
     pub plant_index: usize,
-}
-
-/// Represents one of many different prop types
-#[derive(Clone, Debug)]
-pub enum PropType {
-    Plant(prop::Plant),
 }

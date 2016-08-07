@@ -10,10 +10,10 @@ out vec3 material_color;
 out vec3 surfaceNormal;
 out vec3 vOffset;
 
+
+uniform mat4 proj_matrix;
+uniform mat4 view_matrix;
+
 void main() {
-    //setting out Variables for Tesselation Controll Shader
-    material_color = color;
-    surfaceNormal= normal;
-    vPosition = position;
-    vOffset=offset.xyz;
+    gl_Position = proj_matrix * view_matrix * vec4(position + offset, 1);
 }

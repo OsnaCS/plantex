@@ -9,6 +9,7 @@ use std::sync::mpsc::{Receiver, Sender, TryRecvError, channel};
 use base::world::{CHUNK_SIZE, ChunkIndex};
 use base::math::*;
 use world::WorldView;
+use std::cell::RefMut;
 
 #[derive(Clone)]
 pub struct WorldManager {
@@ -64,15 +65,24 @@ impl WorldManager {
     /// already requested).
     fn update_player_chunk(&self) {
         let mut shared = self.shared.borrow_mut();
+        let load_distance = shared.load_distance;
         let player_chunk = shared.player_chunk.0;
-        let radius = shared.load_distance as i32;
+        let radius = load_distance as i32;
+
+        let is_chunk_in_range = |chunk_pos: AxialPoint| {
+            let chunk_center = chunk_pos * CHUNK_SIZE as i32 +
+                               AxialVector::new(CHUNK_SIZE as i32 / 2, CHUNK_SIZE as i32 / 2);
+            let player_center = player_chunk * CHUNK_SIZE as i32 +
+                                AxialVector::new(CHUNK_SIZE as i32 / 2, CHUNK_SIZE as i32 / 2);
+            (chunk_center - player_center).to_real().distance(Vector2f::zero()) <
+            load_distance * CHUNK_SIZE as f32
+        };
 
         // Load new range
-        for qd in -radius..radius {
-            for rd in -radius..radius {
+        for qd in -radius..radius + 1 {
+            for rd in -radius..radius + 1 {
                 let chunk_pos = AxialPoint::new(player_chunk.q + qd, player_chunk.r + rd);
-                if (chunk_pos - player_chunk).to_real().distance(Vector2::zero()) <
-                   shared.load_distance {
+                if is_chunk_in_range(chunk_pos) {
                     let chunk_index = ChunkIndex(chunk_pos);
 
                     if !shared.world.chunks.contains_key(&chunk_index) {
@@ -90,8 +100,7 @@ impl WorldManager {
         let mut new_chunks = HashMap::new();
         for (index, chunk) in chunks {
             let chunk_pos = index.0;
-            if (chunk_pos - player_chunk).to_real().distance(Vector2::zero()) <
-               shared.load_distance {
+            if is_chunk_in_range(chunk_pos) {
                 // Still in range
                 new_chunks.insert(index, chunk);
             } else {
@@ -112,9 +121,22 @@ impl WorldManager {
         Ref::map(self.shared.borrow(), |shared| &shared.world)
     }
 
+    pub fn mut_world(&self) -> RefMut<World> {
+        RefMut::map(self.shared.borrow_mut(), |shared| &mut shared.world)
+    }
+
     /// Returns an immutable reference to the world view.
     pub fn get_view(&self) -> Ref<WorldView> {
         Ref::map(self.shared.borrow(), |shared| &shared.world_view)
+    }
+
+    /// Returns an mutable reference to the world view.
+    pub fn get_mut_view(&self) -> RefMut<WorldView> {
+        RefMut::map(self.shared.borrow_mut(), |shared| &mut shared.world_view)
+    }
+
+    pub fn get_context(&self) -> &Rc<GameContext> {
+        &self.context
     }
 
     /// Starts to generate all chunks within `load_distance` (config parameter)
@@ -127,7 +149,9 @@ impl WorldManager {
         let mut shared = self.shared.borrow_mut();
         if shared.player_chunk.0 != chunk_pos {
             shared.player_chunk = ChunkIndex(chunk_pos);
-            debug!("player moved to chunk {:?}", chunk_pos);
+            debug!("player moved to chunk {:?} (player at {:?})",
+                   chunk_pos,
+                   pos);
             drop(shared);
 
             self.update_player_chunk();
@@ -140,6 +164,7 @@ impl WorldManager {
         self.load_world_around(Point2f::new(player_pos.x, player_pos.y));
 
         let mut shared = self.shared.borrow_mut();
+        let mut changed = false;
 
         loop {
             let (pos, chunk) = match shared.provided_chunks.try_recv() {
@@ -156,6 +181,7 @@ impl WorldManager {
                 Ok(val) => val,
             };
 
+            changed = true;
             shared.world_view.refresh_chunk(pos, &chunk, self.context.get_facade());
 
             shared.sent_requests.remove(&pos);
@@ -164,6 +190,24 @@ impl WorldManager {
                 warn!("chunk at {:?} already exists!", pos);
             }
         }
+
+        if changed {
+            debug!("{} chunks loaded", shared.world.chunks.len());
+        }
+    }
+
+    pub fn recalculate_chunk(&mut self, pos: AxialPoint) {
+        use std::ops::DerefMut;
+
+        let mut shared_tmp = self.shared.borrow_mut();
+        let shared = shared_tmp.deref_mut();
+
+        let chunk_pos = AxialPoint::new(pos.q / CHUNK_SIZE as i32, pos.r / CHUNK_SIZE as i32);
+        let index = ChunkIndex(chunk_pos);
+
+        shared.world_view.refresh_chunk(index,
+                                        shared.world.chunk_at(index).unwrap(),
+                                        self.context.get_facade());
     }
 }
 
