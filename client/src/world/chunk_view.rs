@@ -1,7 +1,7 @@
 #![allow(unused_imports)]
 
 
-use base::world::{Chunk, HexPillar, PillarSection, PropType, CHUNK_SIZE, HEX_OUTER_RADIUS, HeightType};
+use base::world::{Chunk, HexPillar, PillarSection, PropType, CHUNK_SIZE, HEX_OUTER_RADIUS, PILLAR_STEP_HEIGHT, HeightType};
 use base::math::*;
 use glium::index::PrimitiveType;
 use glium::{self, DrawParameters, VertexBuffer, IndexBuffer, Program,};
@@ -66,7 +66,7 @@ impl ChunkView {
                 let ground = sec.ground.get_id();
 
                 // Add top and bottom face
-                for &(height, rev) in &[(sec.top, false), (sec.bottom, true)] {
+                for &(height, normal, rev) in &[(sec.top, [0.0, 0.0, 1.0], false), (sec.bottom, [0.0, 0.0, -1.0], true)] {
                     // let tmp_col = [height.to_real(); 3];
                     let prev_len = vertices.len() as u32;
                     // we skip all bottom faces at 0 completely
@@ -77,7 +77,7 @@ impl ChunkView {
                     // Add center point
                     vertices.push(Vertex {
                         position: [pos.to_real().x, pos.to_real().y, height.to_real()],
-                        normal: [0.0, 0.0, 1.0],
+                        normal: normal,
                         radius: 0.0,
                         tex_coords: [0.5, 0.5],
                         material_color: sec.ground.get_color(),
@@ -92,7 +92,7 @@ impl ChunkView {
 
                         vertices.push(Vertex {
                             position: [pos2D.x, pos2D.y, height.to_real()],
-                            normal: [0.0, 0.0, 1.0],
+                            normal: normal,
                             radius: 1.0,
                             tex_coords: uv,
                             material_color: sec.ground.get_color(),
@@ -297,6 +297,15 @@ const EDGE_CORNERS_TO_NEIGHBOR: &'static [(Vector2f, Vector2f)] = &[
     (NORM_CORNERS[3], NORM_CORNERS[4]), // q:  0, r: -1, bottom-right
     (NORM_CORNERS[4], NORM_CORNERS[5]), // q: -1, r: -1, bottom-left
     (NORM_CORNERS[5], NORM_CORNERS[0]), // q: -1, r:  0, left
+];
+
+const EDGE_NORMALS: &'static [Vector2f] = & [
+    Vector2f { x: -0.5, y:  SQRT_3 / 2.0 }, // 0: top-left
+    Vector2f { x:  0.5, y:  SQRT_3 / 2.0 }, // 1: top-right
+    Vector2f { x:  1.0, y:  0.0          }, // 2: right
+    Vector2f { x:  0.5, y: -SQRT_3 / 2.0 }, // 3: bottom-right
+    Vector2f { x: -0.5, y: -SQRT_3 / 2.0 }, // 4: bottom-left
+    Vector2f { x: -1.0, y:  0.0          }, // 5: left
 ];
 
 /// UV texture coordinates for all corners
@@ -694,21 +703,26 @@ fn add_side(
     vertices: &mut Vec<Vertex>,
     indices: &mut Vec<u32>,
 ) {
-    // TODO: normal is dummy
     let prev_len = vertices.len() as u32;
-    let corners = EDGE_CORNERS_TO_NEIGHBOR[dir.idx()];
-    for &z in &[bottom, top] {
-        for xy in [corners.0, corners.1].iter().map(|c| offset.to_real() + c) {
-            let zz = (z.to_real() - bottom.to_real()) / (top.to_real() - bottom.to_real());
+    let (ca, cb) = EDGE_CORNERS_TO_NEIGHBOR[dir.idx()];
+    let normal = EDGE_NORMALS[dir.idx()];
+    let corner_cw = [
+        (offset.to_real() + ca, 0.25),
+        (offset.to_real() + cb, 0.75),
+    ];
 
+    let v_bottom = 0.5 * (top.to_real() - bottom.to_real()) / PILLAR_STEP_HEIGHT;
+
+    for &(z, v) in &[(bottom, v_bottom), (top, 0.0)] {
+        for &(xy, u) in &corner_cw {
             vertices.push(Vertex {
                 position: [xy.x, xy.y, z.to_real()],
-                normal: [0.0, 0.0, 0.0],
+                normal: [normal.x, normal.y, 0.0],
                 radius: 0.0,
-                tex_coords: [0.0, 0.0],
-                // material_color: color,
+                tex_coords: [u, v],
+                material_color: ground.get_color(),
                 // material_color: [xy.x - pos.to_real().x, xy.y - pos.to_real().y, zz],
-                material_color: [0.0, 0.0, zz],
+                // material_color: [0.0, 0.0, zz],
                 ground: ground.get_id(),
             });
         }
