@@ -44,7 +44,7 @@ impl AxialPoint {
         let s = -q - r;
 
         // Rounding
-        let mut rq = q.round();
+        let rq = q.round();
         let mut rr = r.round();
         let mut rs = s.round();
 
@@ -54,7 +54,7 @@ impl AxialPoint {
         let s_diff = (rs - s).abs();
 
         if q_diff > r_diff && q_diff > s_diff {
-            rq = -rr - rs;
+            // rq = -rr - rs;
         } else if s_diff > r_diff {
             rr = -rq - rs;
         } else {
