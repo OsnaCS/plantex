@@ -752,7 +752,13 @@ fn connect_pillars(
     }
 }
 
-/// This function adds a side with the given parameter.
+/// This function adds a side with from the height `bottom` to `top` with the
+/// material `ground`. The side is added between the pillars at `offset`
+/// (pillar 'a') and `offset + dir` (pillar 'b'). `normal_to_a` determines
+/// what direction the side is facing: when it's `false`, it's facing 'b' (in
+/// the `dir` direction), when it's `true`, it's facing 'a' (`-dir`). The
+/// direction the side is facing determines the normal as well as the winding
+/// order.
 fn add_side(
     bottom: HeightType,
     top: HeightType,
@@ -765,7 +771,7 @@ fn add_side(
 ) {
     let prev_len = vertices.len() as u32;
     let (ca, cb) = EDGE_CORNERS_TO_NEIGHBOR[dir.idx()];
-    let normal = EDGE_NORMALS[dir.idx()];
+    let normal = EDGE_NORMALS[dir.idx()] * if normal_to_a { -1.0 } else  { 1.0 };
     let corner_cw = [
         (offset.to_real() + ca * HEX_OUTER_RADIUS, 0.25),
         (offset.to_real() + cb * HEX_OUTER_RADIUS, 0.75),

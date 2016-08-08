@@ -36,7 +36,10 @@ impl AxialPoint {
         }
     }
 
-    /// Return the `AxialPoint` from a `Point2f`
+    /// Return the `AxialPoint` from a `Point2f`. It's the [pixel to hex
+    /// algorithm from redblobgames.com][1].
+    ///
+    /// [1]: http://www.redblobgames.com/grids/hexagons/#pixel-to-hex
     pub fn from_real(real: Point2f) -> Self {
         let q = (real.x * ::math::SQRT_3 / 3.0 - real.y / 3.0) / HEX_OUTER_RADIUS;
         let r = (real.y * 2.0 / 3.0) / HEX_OUTER_RADIUS;
@@ -54,6 +57,10 @@ impl AxialPoint {
         let s_diff = (rs - s).abs();
 
         if q_diff > r_diff && q_diff > s_diff {
+            // The following line is not needed since we convert from cube
+            // coordinates to axial coordinates right away. To match the
+            // algorithm from the blog post more closely, this line and the
+            // if-else structure is kept.
             // rq = -rr - rs;
         } else if s_diff > r_diff {
             rr = -rq - rs;
