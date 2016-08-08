@@ -1,4 +1,4 @@
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum GroundMaterial {
     Dirt,
     Grass,
@@ -22,6 +22,19 @@ impl GroundMaterial {
             GroundMaterial::JungleGrass => [0.1, 0.26, 0.04],
             GroundMaterial::Mulch => [0.332, 0.219, 0.109],
             GroundMaterial::Debug => [1.0, 0.0, 0.0],
+        }
+    }
+
+    pub fn get_id(&self) -> i32 {
+        match *self {
+            GroundMaterial::Grass => 1,
+            GroundMaterial::Sand => 2,
+            GroundMaterial::Snow => 3,
+            GroundMaterial::Dirt => 4,
+            GroundMaterial::Stone => 5,
+            GroundMaterial::JungleGrass => 1,
+            GroundMaterial::Mulch => 7,
+            GroundMaterial::Debug => 8,
         }
     }
 }

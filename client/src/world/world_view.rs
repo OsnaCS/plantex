@@ -97,7 +97,7 @@ impl WorldView {
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         let mut chunk_list: Vec<_> = self.chunks.values().collect();
         chunk_list.sort_by_key(|chunk_view| {
-            chunk_view.offset
+            chunk_view.offset()
                 .to_real()
                 .distance2(Point2f::new(camera.position.x, camera.position.y)) as u32
         });
@@ -119,10 +119,9 @@ impl WorldView {
                                    depth_view_proj: &Matrix4<f32>,
                                    daytime: &DayTime,
                                    sun_dir: Vector3f) {
-
         let mut chunk_list: Vec<_> = self.chunks.values().collect();
         chunk_list.sort_by_key(|chunk_view| {
-            chunk_view.offset
+            chunk_view.offset()
                 .to_real()
                 .distance2(Point2f::new(camera.position.x, camera.position.y)) as u32
         });
@@ -154,9 +153,9 @@ impl WorldView {
             };
 
             let outline_uniforms = uniform! {
-              outline_pos: self.outline.position().to_arr(),
-              proj_matrix: camera.proj_matrix().to_arr(),
-              view_matrix: camera.view_matrix().to_arr()
+                outline_pos: self.outline.position().to_arr(),
+                proj_matrix: camera.proj_matrix().to_arr(),
+                view_matrix: camera.view_matrix().to_arr()
             };
 
             surface.draw(self.outline.vertices(),

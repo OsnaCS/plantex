@@ -16,6 +16,7 @@ uniform vec3 sun_dir;
 uniform sampler2D shadow_map;
 uniform vec3 sun_color;
 uniform vec3 sky_light;
+uniform vec3 cam_pos;
 
 // Normals to bump mapping the textures
 uniform sampler2D normal_sand;
@@ -165,7 +166,8 @@ void main() {
     }
 
     // apply fog to final color
-    float distance = (length(pos) / 130) * (length(pos) / 130);
+    vec3 player_to_frag = x_position - cam_pos;
+    float distance = pow(length(player_to_frag.xy) / 130, 2);
     if (distance > 1) {
         distance = 1;
     }
