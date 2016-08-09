@@ -10,7 +10,8 @@ git:
 before_script:
   - |
       export PATH=$HOME/.local/bin:$HOME/.cargo/bin:$PATH &&
-      ci/install-tools.sh &&
+      ci/install-tools.sh
+  - |
       ci/install-glslangValidator.sh
 script:
   - ci/run-all.sh
