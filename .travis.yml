@@ -1,9 +1,6 @@
 language: rust
 rust: stable
-cache:
-  - cargo
-  - directories:
-    - validator
+cache: cargo
 sudo: false
 git:
   depth: 1
