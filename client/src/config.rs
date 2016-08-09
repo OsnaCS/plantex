@@ -20,6 +20,7 @@ pub struct Config {
     pub tessellation: bool,
     pub bloom: bool,
     pub vsync: bool,
+    pub highlight_pillar: bool,
     pub seed: u64, /* view range
                     * anti aliasing
                     * Controls
@@ -56,6 +57,10 @@ impl Config {
                 .help("[on/off]")
                 .takes_value(true)
                 .long("vsync"))
+            .arg(Arg::with_name("HighlightPillar")
+                .help("[on/off]")
+                .takes_value(true)
+                .long("highlight"))
             .arg(Arg::with_name("Seed")
                 .help("'Takes a specified seed to generate map'")
                 .takes_value(true)
@@ -85,6 +90,7 @@ vsync = false
 
 [Game_settings]
 seed = 42
+highlight_pillar = true
             "#;
 
             let mut f = try!(File::create("config.toml"));
@@ -110,6 +116,7 @@ impl Default for Config {
             tessellation: true,
             bloom: true,
             vsync: false,
+            highlight_pillar: true,
             seed: 42,
         }
     }
@@ -239,6 +246,17 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
             None => return Err("vsync value in config file is invalid".into()),
         };
 
+        // Pillar Highlighting
+        let highlight = match value.lookup("Game_settings.seed") {
+            Some(n) => n,
+            None => return Err("highlight in config file is invalid".into()),
+        };
+
+        match highlight.as_bool() {
+            Some(n) => default_config.highlight_pillar = n,
+            None => return Err("highlight value in config file is invalid".into()),
+        };
+
 
         // world seed
         let seed = match value.lookup("Game_settings.seed") {
@@ -317,6 +335,15 @@ fn config_command(mut toml_config: Config, matches: &ArgMatches) -> Result<Confi
             "on" => toml_config.vsync = true,
             "off" => toml_config.vsync = false,
             _ => return Err("Vsync can only be set on or off on command line".into()),
+        }
+    }
+
+    // Highlighting
+    if let Some(highlight) = matches.value_of("HighlightPillar") {
+        match highlight {
+            "on" => toml_config.highlight_pillar = true,
+            "off" => toml_config.highlight_pillar = false,
+            _ => return Err("Highlighting from command line is invalid".into()),
         }
     }
 

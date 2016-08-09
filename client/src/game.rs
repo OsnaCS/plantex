@@ -96,19 +96,22 @@ impl Game {
             self.sky_view.update(self.daytime.get_sun_position());
             self.sun.update(self.daytime.get_sun_position());
 
-            // Display Outline of Hexagon looking at
-            let vec = get_pillarsectionpos_looking_at(&self.world_manager.get_world(),
-                                                      self.control_switcher.get_camera());
-            match vec {
-                Some(n) => {
-                    // self.remove_hexagon_at(n.1, n.0.z);
-                    let mut view = self.world_manager.get_mut_view();
-                    view.outline.display = true;
-                    view.outline.pos = n.0;
-                }
-                None => {
-                    let mut view = self.world_manager.get_mut_view();
-                    view.outline.display = false;
+            // Check for pillar outline highlight switch
+            if self.world_manager.get_context().get_config().highlight_pillar {
+                // Display Outline of Hexagon looking at
+                let vec = get_pillarsectionpos_looking_at(&self.world_manager.get_world(),
+                                                          self.control_switcher.get_camera());
+                match vec {
+                    Some(n) => {
+                        // self.remove_hexagon_at(n.1, n.0.z);
+                        let mut view = self.world_manager.get_mut_view();
+                        view.outline.display = true;
+                        view.outline.pos = n.0;
+                    }
+                    None => {
+                        let mut view = self.world_manager.get_mut_view();
+                        view.outline.display = false;
+                    }
                 }
             }
 
