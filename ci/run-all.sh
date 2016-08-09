@@ -13,11 +13,17 @@ $MY_PATH/check-basic-style.sh
 # $MY_PATH/check-rustfmt.sh
 
 # add validator to PATH
+# validate shaders only if glslangValidator was successfully installed
+# the tool only works on linux so I make this check to run run_all.sh on osx
 VALIDATOR_PATH=`find $PWD -name glslangValidator`
-export PATH=$PATH:`dirname $VALIDATOR_PATH`
-
-# validate shaders
-$MY_PATH/validate-shaders.sh
+if [ ! -z $VALIDATOR_PATH ]; then
+    export PATH=$PATH:`dirname $VALIDATOR_PATH`
+    $MY_PATH/validate-shaders.sh
+else
+    echo ""
+    echo "======= glslangValidator was not found! ======"
+    echo "...skipping shader validation..."
+fi
 
 # check that everything compiles and all tests pass
 $MY_PATH/test-all.sh
