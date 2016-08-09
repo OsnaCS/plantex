@@ -7,7 +7,11 @@ git:
 addons:
   apt:
     packages:
+      - g++-6
       - libstdc++6
+before_install:
+  - sudo apt-get
+
 before_script:
   - |
       export PATH=$HOME/.local/bin:$HOME/.cargo/bin:$PATH &&
