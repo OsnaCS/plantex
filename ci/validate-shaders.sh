@@ -1,5 +1,7 @@
 #!/bin/bash
 
+strings /usr/lib/libstdc++.so.6 | grep LIBCXX
+
 set -o errexit -o nounset
 
 echo ""
