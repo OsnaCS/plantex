@@ -118,14 +118,9 @@ impl PlantView {
                                    depth_view_proj: &Matrix4<f32>,
                                    daytime: &DayTime,
                                    sun_dir: Vector3f) {
-        let tess_level_inner = 5.0 as f32;
-        let tess_level_outer = 5.0 as f32;
-
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
-            tess_level_inner: tess_level_inner,
-            tess_level_outer: tess_level_outer,
             camera_pos: camera.position.to_arr(),
             shadow_map: shadow_map.sampled().wrap_function(SamplerWrapFunction::Clamp),
             depth_view_proj: depth_view_proj.to_arr(),
@@ -144,13 +139,18 @@ impl PlantView {
             ..Default::default()
         };
 
+        let indices = if self.renderer.context().get_config().tessellation {
+            &self.indices
+        } else {
+            &self.shadow_indices
+        };
+
         surface.draw((&self.vertices, self.instance_buf.per_instance().unwrap()),
-                  &self.indices,
+                  indices,
                   &self.renderer.program(),
                   &uniforms,
                   &params)
             .unwrap();
-
     }
 }
 

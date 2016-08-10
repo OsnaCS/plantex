@@ -9,9 +9,10 @@ in vec3 vOffset[];
 
 out vec3 offset[];
 
-uniform float tess_level_inner;
-uniform float tess_level_outer;
 uniform vec3 camera_pos;
+
+const float TESS_LEVEL_INNER = 5.0;
+const float TESS_LEVEL_OUTER = 5.0;
 
 struct OutputPatch {
     vec3 WorldPos_B030;
@@ -98,10 +99,10 @@ void main() {
 
     // handle tesselation level on distance
     int len = int(length(camera_pos - offset[0]) / 3);
-    float inner = tess_level_inner;
-    float outer = tess_level_outer;
+    float inner = TESS_LEVEL_INNER;
+    float outer = TESS_LEVEL_OUTER;
 
-    if (len > tess_level_inner - 1 || len > tess_level_inner - 1){
+    if (len > TESS_LEVEL_INNER - 1 || len > TESS_LEVEL_INNER - 1){
         inner = 1.0;
         outer = 1.0;
     } else {

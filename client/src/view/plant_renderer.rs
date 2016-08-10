@@ -10,8 +10,14 @@ pub struct PlantRenderer {
 
 impl PlantRenderer {
     pub fn new(context: Rc<GameContext>) -> Self {
+        let program = if context.get_config().tessellation {
+            context.load_program("plants")
+        } else {
+            context.load_program("plants_notess")
+        };
+
         PlantRenderer {
-            program: context.load_program("plants").unwrap(),
+            program: program.unwrap(),
             shadow_program: context.load_program("plant_shadow").unwrap(),
             context: context,
         }

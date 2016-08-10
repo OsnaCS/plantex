@@ -17,6 +17,7 @@ pub struct Config {
     pub resolution: Dimension2u,
     pub window_mode: WindowMode,
     pub window_title: String,
+    pub tessellation: bool,
     pub bloom: bool,
     pub vsync: bool,
     pub highlight_pillar: bool,
@@ -26,6 +27,7 @@ pub struct Config {
                     * frames
                     * Chunkrange */
 }
+
 impl Config {
     /// creates a new Config in three steps:
     /// 1. loads default config
@@ -43,6 +45,10 @@ impl Config {
                 .help("[Windowed, FullScreen] 'Sets WindowMode'")
                 .takes_value(true)
                 .long("windowmode"))
+            .arg(Arg::with_name("Tessellation")
+                .help("[on/off]")
+                .takes_value(true)
+                .long("tessellation"))
             .arg(Arg::with_name("Bloom")
                 .help("[on/off]")
                 .takes_value(true)
@@ -107,6 +113,7 @@ impl Default for Config {
             resolution: Dimension2::new(800, 600),
             window_mode: WindowMode::Windowed,
             window_title: format!("Plantex {}", env!("CARGO_PKG_VERSION")),
+            tessellation: true,
             bloom: true,
             vsync: false,
             highlight_pillar: true,
@@ -204,6 +211,18 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
         }
 
 
+        // Tessellation
+        let tessellation = match value.lookup("Graphic.tessellation") {
+            Some(n) => n,
+            None => return Err("tessellation in config file is invalid".into()),
+        };
+
+        match tessellation.as_bool() {
+            Some(n) => default_config.tessellation = n,
+            None => return Err("tessellation value in config file is invalid".into()),
+        };
+
+
         // Bloom
         let bloom = match value.lookup("Graphic.bloom") {
             Some(n) => n,
@@ -289,6 +308,15 @@ fn config_command(mut toml_config: Config, matches: &ArgMatches) -> Result<Confi
             "Windowed" => toml_config.window_mode = WindowMode::Windowed,
             "FullScreen" => toml_config.window_mode = WindowMode::FullScreen,
             _ => return Err("invalid Window Mode in command line argument".into()),
+        }
+    }
+
+    // Tessellation
+    if let Some(tessellation) = matches.value_of("Tessellation") {
+        match tessellation {
+            "on" => toml_config.tessellation = true,
+            "off" => toml_config.tessellation = false,
+            _ => return Err("Tessellation can only be set on or off on command line".into()),
         }
     }
 
