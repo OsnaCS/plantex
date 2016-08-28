@@ -105,6 +105,17 @@ void main() {
     if (len > TESS_LEVEL_INNER - 1 || len > TESS_LEVEL_INNER - 1){
         inner = 1.0;
         outer = 1.0;
+
+
+        // set to dummy values (not setting them causes glitches on some GPUs)
+        oPatch.WorldPos_B021 = vec3(0);
+        oPatch.WorldPos_B012 = vec3(0);
+        oPatch.WorldPos_B102 = vec3(0);
+        oPatch.WorldPos_B201 = vec3(0);
+        oPatch.WorldPos_B210 = vec3(0);
+        oPatch.WorldPos_B120 = vec3(0);
+        oPatch.WorldPos_B111 = vec3(0);
+
     } else {
         inner = inner - len;
         outer = outer - len;
