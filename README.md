@@ -10,6 +10,7 @@ This game was developed in a three week programming practical at the university 
 " target="_blank"><img src="http://i.imgur.com/pXSWW5f.jpg" 
 alt="Plantex Trailer" width="558" height="315" border="10"></img></a></p>
 
+Everything you see is procedurally generated -- there are no static textures, meshes or worlds! A different seed will generate completely different textures, plants, stars and a different world. You can find more images further down.
 
 ## Run the game
 
@@ -25,15 +26,15 @@ For all other platforms you have to compile the game yourself. Clone this reposi
 $ cargo build --release
 ```
 
-After the compilation has finished, you can run the game by either executing the binary in `./target/release/` or executing:
-
-```bash
-$ cargo run --release --bin plantex
-```
+After the compilation has finished, you can run the game by either executing the binary in `./target/release/` or just `cargo run --release --bin plantex`.
 
 ## Images
 
-*TODO*
+![next to a rain forest](http://i.imgur.com/MqHlejR.jpg)
+
+![snow biome](http://i.imgur.com/NpCoJIg.jpg)
+
+![different plants](http://i.imgur.com/LLGLWNy.png)
 
 ## Documentation
 
