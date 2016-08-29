@@ -247,7 +247,7 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
         };
 
         // Pillar Highlighting
-        let highlight = match value.lookup("Game_settings.seed") {
+        let highlight = match value.lookup("Game_settings.highlight_pillar") {
             Some(n) => n,
             None => return Err("highlight in config file is invalid".into()),
         };
