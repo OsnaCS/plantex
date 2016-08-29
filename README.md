@@ -20,13 +20,13 @@ Precompiled binaries for Windows x64 can be downloaded on the [releases page](ht
 
 ### Compile the game
 
-For all other platforms you have to compile the game yourself. Clone this repository (or download it as ZIP file) and execute:
+For all other platforms you have to compile the game yourself. First make sure you have a Rust compiler and `cargo` installed. Then clone this repository (or download it as ZIP file) and execute:
 
 ```bash
 $ cargo build --release
 ```
 
-After the compilation has finished, you can run the game by either executing the binary in `./target/release/` or just `cargo run --release --bin plantex`.
+After the compilation has finished, you can run the game by either executing the binary in `./target/release/` or just `cargo run --release --bin plantex`. 
 
 ## Images
 
@@ -57,4 +57,4 @@ Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any
 additional terms or conditions.
 
-Development will probably stop after the practical has ended. If there is enough interest in the game idea, the game is probably rewritten from scratch (the code in this repository often is far from optimal). Don't hesitate to make suggestions or file PRs, though! Just keep in mind the status of this project...
+Development will probably stop after the practical has ended. If there is enough interest in the game idea, the game is probably rewritten from scratch (the code in this repository often is far from optimal). Don't hesitate to make suggestions or file PRs, though! Just keep the status of this project in mind ...
