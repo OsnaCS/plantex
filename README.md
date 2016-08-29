@@ -4,26 +4,43 @@
 [![License](https://img.shields.io/github/license/OsnaCS/plantex.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](http://opensource.org/licenses/MIT)
 
-Documentation: [**`base`**](https://osnacs.github.io/plantex/base/index.html),
-                 [**`client`**](https://osnacs.github.io/plantex/client/index.html),
-                 [**`server`**](https://osnacs.github.io/plantex/server/index.html)
+This game was developed in a three week programming practical at the university of Osnabrück :-)
 
-## Compile and run the application
+<p align="center"><a href="http://www.youtube.com/watch?feature=player_embedded&v=X1E-dWKzm-Y
+" target="_blank"><img src="http://i.imgur.com/pXSWW5f.jpg" 
+alt="Plantex Trailer" width="558" height="315" border="10"></img></a></p>
 
-To compile both, the server and client executable, run:
+Everything you see is procedurally generated -- there are no static textures, meshes or worlds! A different seed will generate completely different textures, plants, stars and a different world. You can find more images further down.
+
+## Run the game
+
+### Windows binaries
+
+Precompiled binaries for Windows x64 can be downloaded on the [releases page](https://github.com/OsnaCS/plantex/releases). Latest build: [v0.1.0](https://github.com/OsnaCS/plantex/releases/download/v0.1.0/plantex-win.zip).
+
+### Compile the game
+
+For all other platforms you have to compile the game yourself. First make sure you have a Rust compiler and `cargo` installed. Then clone this repository (or download it as ZIP file) and execute:
 
 ```bash
-$ cargo build
+$ cargo build --release
 ```
 
-To compile and run the client, run:
+After the compilation has finished, you can run the game by either executing the binary in `./target/release/` or just `cargo run --release --bin plantex`. 
 
-```bash
-$ cargo run --release --bin plantex
-```
+## Images
 
-Use `plantex-server` to run the server.
+![next to a rain forest](http://i.imgur.com/MqHlejR.jpg)
 
+![snow biome](http://i.imgur.com/NpCoJIg.jpg)
+
+![different plants](http://i.imgur.com/LLGLWNy.png)
+
+## Documentation
+
+- [**`base`**](https://osnacs.github.io/plantex/base/index.html)
+- [**`client`**](https://osnacs.github.io/plantex/client/index.html)
+- [**`server`**](https://osnacs.github.io/plantex/server/index.html)
 
 ## License
 
@@ -39,3 +56,5 @@ at your option.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any
 additional terms or conditions.
+
+Development will probably stop after the practical has ended. If there is enough interest in the game idea, the game is probably rewritten from scratch (the code in this repository often is far from optimal). Don't hesitate to make suggestions or file PRs, though! Just keep the status of this project in mind ...
