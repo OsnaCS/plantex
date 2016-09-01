@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WlPointer` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WlPointer">
+
+    <title>wayland_client::wayland::seat::WlPointer - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>wayland</a>::<wbr><a href='index.html'>seat</a></p><script>window.sidebarCurrent = {name: 'WlPointer', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>wayland</a>::<wbr><a href='index.html'>seat</a>::<wbr><a class='struct' href=''>WlPointer</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-2218' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#2599-2602' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct WlPointer {
+    // some fields omitted
+}</pre><div class='docblock'><p>pointer input device</p>
+
+<p>The wl_pointer interface represents one or more input devices,
+such as mice, which control the pointer location and pointer_focus
+of a seat.</p>
+
+<p>The wl_pointer interface generates motion, enter and leave
+events for the surfaces that the pointer is located over,
+and button and axis events for button presses, button releases
+and scrolling.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../../../wayland_client/wayland/seat/struct.WlPointer.html' title='wayland_client::wayland::seat::WlPointer'>WlPointer</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-2361' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#2793-2847' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.set_cursor' class='method'><code>fn <a href='#method.set_cursor' class='fnname'>set_cursor</a>(&amp;self, serial: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, surface: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../../../wayland_client/wayland/compositor/struct.WlSurface.html' title='wayland_client::wayland::compositor::WlSurface'>WlSurface</a>&gt;, hotspot_x: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, hotspot_y: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<div class='docblock'><p>set the pointer surface</p>
+
+<p>Set the pointer surface, i.e., the surface that contains the
+pointer image (cursor). This request gives the surface the role
+of a cursor. If the surface already has another role, it raises
+a protocol error.</p>
+
+<p>The cursor actually changes only if the pointer
+focus for this device is one of the requesting client&#39;s surfaces
+or the surface parameter is the current pointer surface. If
+there was a previous surface set with this request it is
+replaced. If surface is NULL, the pointer image is hidden.</p>
+
+<p>The parameters hotspot_x and hotspot_y define the position of
+the pointer surface relative to the pointer location. Its
+top-left corner is always at (x, y) - (hotspot_x, hotspot_y),
+where (x, y) are the coordinates of the pointer location, in surface
+local coordinates.</p>
+
+<p>On surface.attach requests to the pointer surface, hotspot_x
+and hotspot_y are decremented by the x and y parameters
+passed to the request. Attach must be confirmed by
+wl_surface.commit as usual.</p>
+
+<p>The hotspot can also be updated by passing the currently set
+pointer surface to this request with new values for hotspot_x
+and hotspot_y.</p>
+
+<p>The current and pending input regions of the wl_surface are
+cleared, and wl_surface.set_input_region is ignored until the
+wl_surface is no longer used as the cursor. When the use as a
+cursor ends, the current and pending input regions become
+undefined, and the wl_surface is unmapped.</p>
+</div><h4 id='method.release' class='method'><code>fn <a href='#method.release' class='fnname'>release</a>(self)</code></h4>
+<div class='docblock'><p>release the pointer object</p>
+
+<p>Using this request client can tell the server that it is not going to
+use the pointer object anymore.</p>
+
+<p>This request destroys the pointer proxy object, so user must not call
+wl_pointer_destroy() after using this request.</p>
+
+<p>Requires interface version <code>&gt;= 3</code>.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a> for <a class='struct' href='../../../wayland_client/wayland/seat/struct.WlPointer.html' title='wayland_client::wayland::seat::WlPointer'>WlPointer</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-2221' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#2604' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> for <a class='struct' href='../../../wayland_client/wayland/seat/struct.WlPointer.html' title='wayland_client::wayland::seat::WlPointer'>WlPointer</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-2222' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#2605' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='../../../wayland_client/trait.Proxy.html' title='wayland_client::Proxy'>Proxy</a> for <a class='struct' href='../../../wayland_client/wayland/seat/struct.WlPointer.html' title='wayland_client::wayland::seat::WlPointer'>WlPointer</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-2223' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#2606-2624' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.ptr' class='method'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a><a class='enum' href='../../../wayland_sys/client/enum.wl_proxy.html' title='wayland_sys::client::wl_proxy'>wl_proxy</a></code></h4>
+<h4 id='method.interface' class='method'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.interface' class='fnname'>interface</a>() -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a><a class='struct' href='../../../wayland_sys/common/struct.wl_interface.html' title='wayland_sys::common::wl_interface'>wl_interface</a></code></h4>
+<h4 id='method.interface_name' class='method'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.interface_name' class='fnname'>interface_name</a>() -&gt; &amp;'static <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a></code></h4>
+<div class='docblock'><p>The internal name of this interface, as advertized by the registry if it is a global.</p>
+</div><h4 id='method.version' class='method'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.version' class='fnname'>version</a>() -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></h4>
+<div class='docblock'><p>The maximum version of this interface handled by the library.</p>
+</div><h4 id='method.id' class='method'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.id' class='fnname'>id</a>(&amp;self) -&gt; <a class='struct' href='../../../wayland_client/struct.ProxyId.html' title='wayland_client::ProxyId'>ProxyId</a></code></h4>
+<div class='docblock'><p>Get the id of this proxy</p>
+</div><h4 id='method.from_ptr' class='method'><code>unsafe fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.from_ptr' class='fnname'>from_ptr</a>(ptr: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a><a class='enum' href='../../../wayland_sys/client/enum.wl_proxy.html' title='wayland_sys::client::wl_proxy'>wl_proxy</a>) -&gt; <a class='struct' href='../../../wayland_client/wayland/seat/struct.WlPointer.html' title='wayland_client::wayland::seat::WlPointer'>WlPointer</a></code></h4>
+<div class='docblock'><p>Creates a proxy from a fresh ptr</p>
+</div><h4 id='method.from_ptr_no_own' class='method'><code>unsafe fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.from_ptr_no_own' class='fnname'>from_ptr_no_own</a>(ptr: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a><a class='enum' href='../../../wayland_sys/client/enum.wl_proxy.html' title='wayland_sys::client::wl_proxy'>wl_proxy</a>) -&gt; <a class='struct' href='../../../wayland_client/wayland/seat/struct.WlPointer.html' title='wayland_client::wayland::seat::WlPointer'>WlPointer</a></code></h4>
+<div class='docblock'><p>Creates a proxy from a ptr that is managed elsewhere <a href="../../../wayland_client/trait.Proxy.html#tymethod.from_ptr_no_own">Read more</a></p>
+</div><h4 id='method.set_evt_iterator' class='method'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.set_evt_iterator' class='fnname'>set_evt_iterator</a>(&amp;mut self, evt: &amp;<a class='struct' href='../../../wayland_client/struct.EventIterator.html' title='wayland_client::EventIterator'>EventIterator</a>)</code></h4>
+<div class='docblock'><p>Set the event iterator associated to this proxy</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../../wayland_client/wayland/seat/struct.WlPointer.html' title='wayland_client::wayland::seat::WlPointer'>WlPointer</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-2239' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#2626-2630' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, fmt: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>,&nbsp;<a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html' title='core::fmt::Error'>Error</a>&gt;</code></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../../../wayland_client/wayland/seat/struct.WlPointer.html' title='wayland_client::wayland::seat::WlPointer'>WlPointer</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-2370' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#2849-2853' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
+<div class='docblock'><p>A method called when the value goes out of scope. <a href="https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop">Read more</a></p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

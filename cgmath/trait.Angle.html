@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Angle` trait in crate `cgmath`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Angle">
+
+    <title>cgmath::Angle - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>cgmath</a></p><script>window.sidebarCurrent = {name: 'Angle', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>cgmath</a>::<wbr><a class='trait' href=''>Angle</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-389' class='srclink' href='../src/cgmath/structure.rs.html#536-732' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait Angle <span class='where'>where Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html' title='core::cmp::PartialOrd'>PartialOrd</a>, Self: <a class='trait' href='../cgmath/trait.ApproxEq.html' title='cgmath::ApproxEq'>ApproxEq</a>&lt;Epsilon=Self::Unitless&gt;, Self: <a class='trait' href='../cgmath/prelude/trait.Zero.html' title='cgmath::prelude::Zero'>Zero</a>, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a>&lt;Output=Self&gt;, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;Self,&nbsp;Output=Self&gt;, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;Self,&nbsp;Output=Self&gt;, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html' title='core::ops::Rem'>Rem</a>&lt;Self,&nbsp;Output=Self&gt;, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;Self::Unitless,&nbsp;Output=Self&gt;, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;Self,&nbsp;Output=Self::Unitless&gt;, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;Self::Unitless,&nbsp;Output=Self&gt;</span> {
+    type <a href='#associatedtype.Unitless' class='type'>Unitless</a>: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>;
+    fn <a href='#tymethod.full_turn' class='fnname'>full_turn</a>() -&gt; Self;
+    fn <a href='#tymethod.sin' class='fnname'>sin</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>;
+    fn <a href='#tymethod.cos' class='fnname'>cos</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>;
+    fn <a href='#tymethod.tan' class='fnname'>tan</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>;
+    fn <a href='#tymethod.sin_cos' class='fnname'>sin_cos</a>(self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>, Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a>;
+    fn <a href='#tymethod.asin' class='fnname'>asin</a>(ratio: Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>) -&gt; Self;
+    fn <a href='#tymethod.acos' class='fnname'>acos</a>(ratio: Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>) -&gt; Self;
+    fn <a href='#tymethod.atan' class='fnname'>atan</a>(ratio: Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>) -&gt; Self;
+    fn <a href='#tymethod.atan2' class='fnname'>atan2</a>(a: Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>, b: Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>) -&gt; Self;
+
+    fn <a href='#method.normalize' class='fnname'>normalize</a>(self) -&gt; Self { ... }
+    fn <a href='#method.opposite' class='fnname'>opposite</a>(self) -&gt; Self { ... }
+    fn <a href='#method.bisect' class='fnname'>bisect</a>(self, other: Self) -&gt; Self { ... }
+    fn <a href='#method.turn_div_2' class='fnname'>turn_div_2</a>() -&gt; Self { ... }
+    fn <a href='#method.turn_div_3' class='fnname'>turn_div_3</a>() -&gt; Self { ... }
+    fn <a href='#method.turn_div_4' class='fnname'>turn_div_4</a>() -&gt; Self { ... }
+    fn <a href='#method.turn_div_6' class='fnname'>turn_div_6</a>() -&gt; Self { ... }
+    fn <a href='#method.csc' class='fnname'>csc</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a> { ... }
+    fn <a href='#method.cot' class='fnname'>cot</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a> { ... }
+    fn <a href='#method.sec' class='fnname'>sec</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a> { ... }
+}</pre><div class='docblock'><p>Angles and their associated trigonometric functions.</p>
+
+<p>Typed angles allow for the writing of self-documenting code that makes it
+clear when semantic violations have occured - for example, adding degrees to
+radians, or adding a number to an angle.</p>
+</div>
+            <h2 id='associated-types'>Associated Types</h2>
+            <div class='methods'>
+        <h3 id='associatedtype.Unitless' class='method stab '><code>type <a href='#associatedtype.Unitless' class='type'>Unitless</a>: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a></code></h3></div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.full_turn' class='method stab '><code>fn <a href='#tymethod.full_turn' class='fnname'>full_turn</a>() -&gt; Self</code></h3><div class='docblock'><p>A full rotation.</p>
+</div><h3 id='tymethod.sin' class='method stab '><code>fn <a href='#tymethod.sin' class='fnname'>sin</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a></code></h3><div class='docblock'><p>Compute the sine of the angle, returning a unitless ratio.</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>prelude</span>::<span class='op'>*</span>;
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>Rad</span>;
+
+<span class='kw'>let</span> <span class='ident'>angle</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>new</span>(<span class='number'>35.0</span>);
+<span class='kw'>let</span> <span class='ident'>ratio</span>: <span class='ident'>f32</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>sin</span>(<span class='ident'>angle</span>);</pre>
+</div><h3 id='tymethod.cos' class='method stab '><code>fn <a href='#tymethod.cos' class='fnname'>cos</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a></code></h3><div class='docblock'><p>Compute the cosine of the angle, returning a unitless ratio.</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>prelude</span>::<span class='op'>*</span>;
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>Rad</span>;
+
+<span class='kw'>let</span> <span class='ident'>angle</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>new</span>(<span class='number'>35.0</span>);
+<span class='kw'>let</span> <span class='ident'>ratio</span>: <span class='ident'>f32</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>cos</span>(<span class='ident'>angle</span>);</pre>
+</div><h3 id='tymethod.tan' class='method stab '><code>fn <a href='#tymethod.tan' class='fnname'>tan</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a></code></h3><div class='docblock'><p>Compute the tangent of the angle, returning a unitless ratio.</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>prelude</span>::<span class='op'>*</span>;
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>Rad</span>;
+
+<span class='kw'>let</span> <span class='ident'>angle</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>new</span>(<span class='number'>35.0</span>);
+<span class='kw'>let</span> <span class='ident'>ratio</span>: <span class='ident'>f32</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>tan</span>(<span class='ident'>angle</span>);</pre>
+</div><h3 id='tymethod.sin_cos' class='method stab '><code>fn <a href='#tymethod.sin_cos' class='fnname'>sin_cos</a>(self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>, Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></h3><div class='docblock'><p>Compute the sine and cosine of the angle, returning the result as a
+pair.</p>
+
+<p>This does not have any performance benefits, but calculating both the
+sine and cosine of a single angle is a common operation.</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>prelude</span>::<span class='op'>*</span>;
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>Rad</span>;
+
+<span class='kw'>let</span> <span class='ident'>angle</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>new</span>(<span class='number'>35.0</span>);
+<span class='kw'>let</span> (<span class='ident'>s</span>, <span class='ident'>c</span>) <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>sin_cos</span>(<span class='ident'>angle</span>);</pre>
+</div><h3 id='tymethod.asin' class='method stab '><code>fn <a href='#tymethod.asin' class='fnname'>asin</a>(ratio: Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>) -&gt; Self</code></h3><div class='docblock'><p>Compute the arcsine of the ratio, returning the resulting angle.</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>prelude</span>::<span class='op'>*</span>;
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>Rad</span>;
+
+<span class='kw'>let</span> <span class='ident'>angle</span>: <span class='ident'>Rad</span><span class='op'>&lt;</span><span class='ident'>f32</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>asin</span>(<span class='number'>0.5</span>);</pre>
+</div><h3 id='tymethod.acos' class='method stab '><code>fn <a href='#tymethod.acos' class='fnname'>acos</a>(ratio: Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>) -&gt; Self</code></h3><div class='docblock'><p>Compute the arccosine of the ratio, returning the resulting angle.</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>prelude</span>::<span class='op'>*</span>;
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>Rad</span>;
+
+<span class='kw'>let</span> <span class='ident'>angle</span>: <span class='ident'>Rad</span><span class='op'>&lt;</span><span class='ident'>f32</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>acos</span>(<span class='number'>0.5</span>);</pre>
+</div><h3 id='tymethod.atan' class='method stab '><code>fn <a href='#tymethod.atan' class='fnname'>atan</a>(ratio: Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>) -&gt; Self</code></h3><div class='docblock'><p>Compute the arctangent of the ratio, returning the resulting angle.</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>prelude</span>::<span class='op'>*</span>;
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>Rad</span>;
+
+<span class='kw'>let</span> <span class='ident'>angle</span>: <span class='ident'>Rad</span><span class='op'>&lt;</span><span class='ident'>f32</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>atan</span>(<span class='number'>0.5</span>);</pre>
+</div><h3 id='tymethod.atan2' class='method stab '><code>fn <a href='#tymethod.atan2' class='fnname'>atan2</a>(a: Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>, b: Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a>) -&gt; Self</code></h3></div>
+            <h2 id='provided-methods'>Provided Methods</h2>
+            <div class='methods'>
+        <h3 id='method.normalize' class='method stab '><code>fn <a href='#method.normalize' class='fnname'>normalize</a>(self) -&gt; Self</code></h3><div class='docblock'><p>Return the angle, normalized to the range <code>[0, full_turn)</code>.</p>
+</div><h3 id='method.opposite' class='method stab '><code>fn <a href='#method.opposite' class='fnname'>opposite</a>(self) -&gt; Self</code></h3><div class='docblock'><p>Return the angle rotated by half a turn.</p>
+</div><h3 id='method.bisect' class='method stab '><code>fn <a href='#method.bisect' class='fnname'>bisect</a>(self, other: Self) -&gt; Self</code></h3><div class='docblock'><p>Returns the interior bisector of the two angles.</p>
+</div><h3 id='method.turn_div_2' class='method stab '><code>fn <a href='#method.turn_div_2' class='fnname'>turn_div_2</a>() -&gt; Self</code></h3><div class='docblock'><p>Half of a full rotation.</p>
+</div><h3 id='method.turn_div_3' class='method stab '><code>fn <a href='#method.turn_div_3' class='fnname'>turn_div_3</a>() -&gt; Self</code></h3><div class='docblock'><p>A third of a full rotation.</p>
+</div><h3 id='method.turn_div_4' class='method stab '><code>fn <a href='#method.turn_div_4' class='fnname'>turn_div_4</a>() -&gt; Self</code></h3><div class='docblock'><p>A quarter of a full rotation.</p>
+</div><h3 id='method.turn_div_6' class='method stab '><code>fn <a href='#method.turn_div_6' class='fnname'>turn_div_6</a>() -&gt; Self</code></h3><div class='docblock'><p>A sixth of a full rotation.</p>
+</div><h3 id='method.csc' class='method stab '><code>fn <a href='#method.csc' class='fnname'>csc</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a></code></h3><div class='docblock'><p>Compute the cosecant of the angle.</p>
+
+<p>This is the same as computing the reciprocal of <code>Self::sin</code>.</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>prelude</span>::<span class='op'>*</span>;
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>Rad</span>;
+
+<span class='kw'>let</span> <span class='ident'>angle</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>new</span>(<span class='number'>35.0</span>);
+<span class='kw'>let</span> <span class='ident'>ratio</span>: <span class='ident'>f32</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>csc</span>(<span class='ident'>angle</span>);</pre>
+</div><h3 id='method.cot' class='method stab '><code>fn <a href='#method.cot' class='fnname'>cot</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a></code></h3><div class='docblock'><p>Compute the cotangent of the angle.</p>
+
+<p>This is the same as computing the reciprocal of <code>Self::tan</code>.</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>prelude</span>::<span class='op'>*</span>;
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>Rad</span>;
+
+<span class='kw'>let</span> <span class='ident'>angle</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>new</span>(<span class='number'>35.0</span>);
+<span class='kw'>let</span> <span class='ident'>ratio</span>: <span class='ident'>f32</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>cot</span>(<span class='ident'>angle</span>);</pre>
+</div><h3 id='method.sec' class='method stab '><code>fn <a href='#method.sec' class='fnname'>sec</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a></code></h3><div class='docblock'><p>Compute the secant of the angle.</p>
+
+<p>This is the same as computing the reciprocal of <code>Self::cos</code>.</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>prelude</span>::<span class='op'>*</span>;
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>Rad</span>;
+
+<span class='kw'>let</span> <span class='ident'>angle</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>new</span>(<span class='number'>35.0</span>);
+<span class='kw'>let</span> <span class='ident'>ratio</span>: <span class='ident'>f32</span> <span class='op'>=</span> <span class='ident'>Rad</span>::<span class='ident'>sec</span>(<span class='ident'>angle</span>);</pre>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; Angle for <a class='struct' href='../cgmath/struct.Rad.html' title='cgmath::Rad'>Rad</a>&lt;S&gt;</code></li>
+<li><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; Angle for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></li>
+</ul><script type="text/javascript" async
+                         src="../implementors/cgmath/trait.Angle.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "cgmath";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

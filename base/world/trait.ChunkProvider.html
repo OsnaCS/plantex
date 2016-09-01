@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `ChunkProvider` trait in crate `base`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, ChunkProvider">
+
+    <title>base::world::ChunkProvider - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>base</a>::<wbr><a href='index.html'>world</a></p><script>window.sidebarCurrent = {name: 'ChunkProvider', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>base</a>::<wbr><a href='index.html'>world</a>::<wbr><a class='trait' href=''>ChunkProvider</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-996' class='srclink' href='../../src/base/base/src/world/provider.rs.html#7-26' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait ChunkProvider: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> {
+    fn <a href='#tymethod.load_chunk' class='fnname'>load_chunk</a>(&amp;self, pos: <a class='struct' href='../../base/world/struct.ChunkIndex.html' title='base::world::ChunkIndex'>ChunkIndex</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../base/world/chunk/struct.Chunk.html' title='base::world::chunk::Chunk'>Chunk</a>&gt;;
+    fn <a href='#tymethod.is_chunk_loadable' class='fnname'>is_chunk_loadable</a>(&amp;self, pos: <a class='struct' href='../../base/world/struct.ChunkIndex.html' title='base::world::ChunkIndex'>ChunkIndex</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
+    fn <a href='#tymethod.get_plant_list' class='fnname'>get_plant_list</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../../base/prop/plant/enum.Plant.html' title='base::prop::plant::Plant'>Plant</a>&gt;;
+}</pre><div class='docblock'><p>A type that can load a game world, specifically single chunks of it. This
+could mean loading a saved world from a file, generating a world
+procedurally or loading a world from a server.</p>
+</div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.load_chunk' class='method stab '><code>fn <a href='#tymethod.load_chunk' class='fnname'>load_chunk</a>(&amp;self, pos: <a class='struct' href='../../base/world/struct.ChunkIndex.html' title='base::world::ChunkIndex'>ChunkIndex</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../base/world/chunk/struct.Chunk.html' title='base::world::chunk::Chunk'>Chunk</a>&gt;</code></h3><div class='docblock'><p>Attempt to load a chunk from the world. This may fail (e.g. when
+loading from a file and the chunk is not yet saved in the file).</p>
+
+<p>The given position is not a world position, but a chunk index. See the
+documentation of <code>ChunkIndex</code> for more information.</p>
+
+<h1 id='warning' class='section-header'><a href='#warning'>Warning</a></h1>
+<p>This function may take some time to complete! To check whether a chunk
+can be loaded at all, prefer <code>is_chunk_loadable()</code>.</p>
+</div><h3 id='tymethod.is_chunk_loadable' class='method stab '><code>fn <a href='#tymethod.is_chunk_loadable' class='fnname'>is_chunk_loadable</a>(&amp;self, pos: <a class='struct' href='../../base/world/struct.ChunkIndex.html' title='base::world::ChunkIndex'>ChunkIndex</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Determines whether or not the chunk at the given position can be
+loaded. This function is expected to return quickly.</p>
+</div><h3 id='tymethod.get_plant_list' class='method stab '><code>fn <a href='#tymethod.get_plant_list' class='fnname'>get_plant_list</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='enum' href='../../base/prop/plant/enum.Plant.html' title='base::prop::plant::Plant'>Plant</a>&gt;</code></h3><div class='docblock'><p>Returns a Vector of all specific plants to be rendered in the world.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl ChunkProvider for <a class='struct' href='../../base/gen/world/struct.WorldGenerator.html' title='base::gen::world::WorldGenerator'>WorldGenerator</a></code></li>
+<li><code>impl ChunkProvider for <a class='struct' href='../../base/world/struct.NullProvider.html' title='base::world::NullProvider'>NullProvider</a></code></li>
+<li><code>impl&lt;P:&nbsp;<a class='trait' href='../../base/world/trait.ChunkProvider.html' title='base::world::ChunkProvider'>ChunkProvider</a>,&nbsp;F:&nbsp;<a class='trait' href='../../base/world/trait.ChunkProvider.html' title='base::world::ChunkProvider'>ChunkProvider</a>&gt; ChunkProvider for <a class='struct' href='../../base/world/struct.FallbackProvider.html' title='base::world::FallbackProvider'>FallbackProvider</a>&lt;P,&nbsp;F&gt;</code></li>
+</ul><script type="text/javascript" async
+                         src="../../implementors/base/world/trait.ChunkProvider.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "base";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

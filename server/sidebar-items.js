@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["start_local_server","Starts a server in a different thread, returns the address to connect to."],["start_server","Starts a Plantex server listening for connections on the given `TcpListener`."]]});

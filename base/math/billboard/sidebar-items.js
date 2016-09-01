@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["spherical","Modifies a view matrix so that transformed objects always face the camera."]]});

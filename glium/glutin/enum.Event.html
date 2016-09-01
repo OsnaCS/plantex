@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Event` enum in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Event">
+
+    <title>glium::glutin::Event - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>glutin</a></p><script>window.sidebarCurrent = {name: 'Event', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>glium</a>::<wbr><a href='index.html'>glutin</a>::<wbr><a class='enum' href=''>Event</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-4583' class='srclink' href='../../glutin/events/enum.Event.html?gotosrc=4583' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum Event {
+    Resized(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>),
+    Moved(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>),
+    Closed,
+    DroppedFile(<a class='struct' href='https://doc.rust-lang.org/nightly/std/path/struct.PathBuf.html' title='std::path::PathBuf'>PathBuf</a>),
+    ReceivedCharacter(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.char.html'>char</a>),
+    Focused(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>),
+    KeyboardInput(<a class='enum' href='../../glium/glutin/enum.ElementState.html' title='glium::glutin::ElementState'>ElementState</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>,&nbsp;<a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../glium/glutin/enum.VirtualKeyCode.html' title='glium::glutin::VirtualKeyCode'>VirtualKeyCode</a>&gt;),
+    MouseMoved(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>),
+    MouseWheel(<a class='enum' href='../../glium/glutin/enum.MouseScrollDelta.html' title='glium::glutin::MouseScrollDelta'>MouseScrollDelta</a>,&nbsp;<a class='enum' href='../../glium/glutin/enum.TouchPhase.html' title='glium::glutin::TouchPhase'>TouchPhase</a>),
+    MouseInput(<a class='enum' href='../../glium/glutin/enum.ElementState.html' title='glium::glutin::ElementState'>ElementState</a>,&nbsp;<a class='enum' href='../../glium/glutin/enum.MouseButton.html' title='glium::glutin::MouseButton'>MouseButton</a>),
+    TouchpadPressure(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i64.html'>i64</a>),
+    Awakened,
+    Refresh,
+    Suspended(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>),
+    Touch(<a class='struct' href='../../glium/glutin/struct.Touch.html' title='glium::glutin::Touch'>Touch</a>),
+}</pre><h2 class='variants'>Variants</h2>
+<span id='variant.Resized' class='variant'><code>Resized(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)</code></span><div class='docblock'><p>The size of the window has changed.</p>
+</div><span id='variant.Moved' class='variant'><code>Moved(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></span><div class='docblock'><p>The position of the window has changed.</p>
+</div><span id='variant.Closed' class='variant'><code>Closed</code></span><div class='docblock'><p>The window has been closed.</p>
+</div><span id='variant.DroppedFile' class='variant'><code>DroppedFile(<a class='struct' href='https://doc.rust-lang.org/nightly/std/path/struct.PathBuf.html' title='std::path::PathBuf'>PathBuf</a>)</code></span><div class='docblock'><p>A file has been dropped into the window.</p>
+</div><span id='variant.ReceivedCharacter' class='variant'><code>ReceivedCharacter(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.char.html'>char</a>)</code></span><div class='docblock'><p>The window received a unicode character.</p>
+</div><span id='variant.Focused' class='variant'><code>Focused(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>)</code></span><div class='docblock'><p>The window gained or lost focus.</p>
+
+<p>The parameter is true if the window has gained focus, and false if it has lost focus.</p>
+</div><span id='variant.KeyboardInput' class='variant'><code>KeyboardInput(<a class='enum' href='../../glium/glutin/enum.ElementState.html' title='glium::glutin::ElementState'>ElementState</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>,&nbsp;<a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../glium/glutin/enum.VirtualKeyCode.html' title='glium::glutin::VirtualKeyCode'>VirtualKeyCode</a>&gt;)</code></span><div class='docblock'><p>An event from the keyboard has been received.</p>
+</div><span id='variant.MouseMoved' class='variant'><code>MouseMoved(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></span><div class='docblock'><p>The cursor has moved on the window.</p>
+
+<p>The parameter are the (x,y) coords in pixels relative to the top-left corner of the window.</p>
+</div><span id='variant.MouseWheel' class='variant'><code>MouseWheel(<a class='enum' href='../../glium/glutin/enum.MouseScrollDelta.html' title='glium::glutin::MouseScrollDelta'>MouseScrollDelta</a>,&nbsp;<a class='enum' href='../../glium/glutin/enum.TouchPhase.html' title='glium::glutin::TouchPhase'>TouchPhase</a>)</code></span><div class='docblock'><p>A mouse wheel movement or touchpad scroll occurred.</p>
+</div><span id='variant.MouseInput' class='variant'><code>MouseInput(<a class='enum' href='../../glium/glutin/enum.ElementState.html' title='glium::glutin::ElementState'>ElementState</a>,&nbsp;<a class='enum' href='../../glium/glutin/enum.MouseButton.html' title='glium::glutin::MouseButton'>MouseButton</a>)</code></span><div class='docblock'><p>An event from the mouse has been received.</p>
+</div><span id='variant.TouchpadPressure' class='variant'><code>TouchpadPressure(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i64.html'>i64</a>)</code></span><div class='docblock'><p>Touchpad pressure event.</p>
+
+<p>At the moment, only supported on Apple forcetouch-capable macbooks.
+The parameters are: pressure level (value between 0 and 1 representing how hard the touchpad
+is being pressed) and stage (integer representing the click level).</p>
+</div><span id='variant.Awakened' class='variant'><code>Awakened</code></span><div class='docblock'><p>The event loop was woken up by another thread.</p>
+</div><span id='variant.Refresh' class='variant'><code>Refresh</code></span><div class='docblock'><p>The window needs to be redrawn.</p>
+</div><span id='variant.Suspended' class='variant'><code>Suspended(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>)</code></span><div class='docblock'><p>App has been suspended or resumed.</p>
+
+<p>The parameter is true if app was suspended, and false if it has been resumed.</p>
+</div><span id='variant.Touch' class='variant'><code>Touch(<a class='struct' href='../../glium/glutin/struct.Touch.html' title='glium::glutin::Touch'>Touch</a>)</code></span><div class='docblock'><p>Touch event has been received</p>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../glium/glutin/enum.Event.html' title='glium::glutin::Event'>Event</a></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>,&nbsp;<a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html' title='core::fmt::Error'>Error</a>&gt;</code></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../glium/glutin/enum.Event.html' title='glium::glutin::Event'>Event</a></code></span><span class='out-of-band'></span></h3>
+<div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../glium/glutin/enum.Event.html' title='glium::glutin::Event'>Event</a></code></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

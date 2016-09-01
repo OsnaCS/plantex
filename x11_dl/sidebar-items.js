@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["dpms",""],["error",""],["glx",""],["keysym",""],["xcursor",""],["xf86vmode",""],["xfixes",""],["xft",""],["xinerama",""],["xinput",""],["xinput2",""],["xlib",""],["xmd",""],["xmu",""],["xrandr",""],["xrecord",""],["xrender",""],["xt",""],["xtest",""]]});

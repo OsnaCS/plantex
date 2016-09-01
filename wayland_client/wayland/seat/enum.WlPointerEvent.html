@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WlPointerEvent` enum in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WlPointerEvent">
+
+    <title>wayland_client::wayland::seat::WlPointerEvent - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>wayland</a>::<wbr><a href='index.html'>seat</a></p><script>window.sidebarCurrent = {name: 'WlPointerEvent', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>wayland</a>::<wbr><a href='index.html'>seat</a>::<wbr><a class='enum' href=''>WlPointerEvent</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-2310' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#2689-2751' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum WlPointerEvent {
+    Enter(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='struct' href='../../../wayland_client/struct.ProxyId.html' title='wayland_client::ProxyId'>ProxyId</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>),
+    Leave(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='struct' href='../../../wayland_client/struct.ProxyId.html' title='wayland_client::ProxyId'>ProxyId</a>),
+    Motion(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>),
+    Button(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='enum' href='../../../wayland_client/wayland/seat/enum.WlPointerButtonState.html' title='wayland_client::wayland::seat::WlPointerButtonState'>WlPointerButtonState</a>),
+    Axis(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='enum' href='../../../wayland_client/wayland/seat/enum.WlPointerAxis.html' title='wayland_client::wayland::seat::WlPointerAxis'>WlPointerAxis</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>),
+}</pre><h2 class='variants'>Variants</h2>
+<span id='variant.Enter' class='variant'><code>Enter(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='struct' href='../../../wayland_client/struct.ProxyId.html' title='wayland_client::ProxyId'>ProxyId</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>)</code></span><div class='docblock'><p>enter event</p>
+
+<p>Notification that this seat&#39;s pointer is focused on a certain
+surface.</p>
+
+<p>When an seat&#39;s focus enters a surface, the pointer image
+is undefined and a client should respond to this event by setting
+an appropriate pointer image with the set_cursor request.</p>
+
+<p>Values: serial, surface, surface_x, surface_y,</p>
+</div><span id='variant.Leave' class='variant'><code>Leave(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='struct' href='../../../wayland_client/struct.ProxyId.html' title='wayland_client::ProxyId'>ProxyId</a>)</code></span><div class='docblock'><p>leave event</p>
+
+<p>Notification that this seat&#39;s pointer is no longer focused on
+a certain surface.</p>
+
+<p>The leave notification is sent before the enter notification
+for the new focus.</p>
+
+<p>Values: serial, surface,</p>
+</div><span id='variant.Motion' class='variant'><code>Motion(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>)</code></span><div class='docblock'><p>pointer motion event</p>
+
+<p>Notification of pointer location change. The arguments
+surface_x and surface_y are the location relative to the
+focused surface.</p>
+
+<p>Values: time, surface_x, surface_y,</p>
+</div><span id='variant.Button' class='variant'><code>Button(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='enum' href='../../../wayland_client/wayland/seat/enum.WlPointerButtonState.html' title='wayland_client::wayland::seat::WlPointerButtonState'>WlPointerButtonState</a>)</code></span><div class='docblock'><p>pointer button event</p>
+
+<p>Mouse button click and release notifications.</p>
+
+<p>The location of the click is given by the last motion or
+enter event.
+The time argument is a timestamp with millisecond
+granularity, with an undefined base.</p>
+
+<p>Values: serial, time, button, state,</p>
+</div><span id='variant.Axis' class='variant'><code>Axis(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='enum' href='../../../wayland_client/wayland/seat/enum.WlPointerAxis.html' title='wayland_client::wayland::seat::WlPointerAxis'>WlPointerAxis</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>)</code></span><div class='docblock'><p>axis event</p>
+
+<p>Scroll and other axis notifications.</p>
+
+<p>For scroll events (vertical and horizontal scroll axes), the
+value parameter is the length of a vector along the specified
+axis in a coordinate space identical to those of motion events,
+representing a relative movement along the specified axis.</p>
+
+<p>For devices that support movements non-parallel to axes multiple
+axis events will be emitted.</p>
+
+<p>When applicable, for example for touch pads, the server can
+choose to emit scroll events where the motion vector is
+equivalent to a motion event vector.</p>
+
+<p>When applicable, clients can transform its view relative to the
+scroll distance.</p>
+
+<p>Values: time, axis, value,</p>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../../wayland_client/wayland/seat/enum.WlPointerEvent.html' title='wayland_client::wayland::seat::WlPointerEvent'>WlPointerEvent</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-2285' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#2688' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Deg` struct in crate `cgmath`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Deg">
+
+    <title>cgmath::Deg - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>cgmath</a></p><script>window.sidebarCurrent = {name: 'Deg', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>cgmath</a>::<wbr><a class='struct' href=''>Deg</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-8862' class='srclink' href='../src/cgmath/angle.rs.html#47' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Deg&lt;S&gt; {
+    pub s: S,
+}</pre><div class='docblock'><p>An angle, in degrees.</p>
+
+<p>This type is marked as <code>#[repr(C, packed)]</code>.</p>
+</div><h2 class='fields'>Fields</h2><span id='structfield.s' class='structfield'><code>s: S</code>
+                           </span><span class='stab '></span><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9142' class='srclink' href='../src/cgmath/angle.rs.html#70-75' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(value: S) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html' title='core::cmp::PartialOrd'>PartialOrd</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html' title='core::cmp::PartialOrd'>PartialOrd</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-8795' class='srclink' href='../src/cgmath/angle.rs.html#44' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.partial_cmp' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#tymethod.partial_cmp' class='fnname'>partial_cmp</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='https://doc.rust-lang.org/nightly/core/cmp/enum.Ordering.html' title='core::cmp::Ordering'>Ordering</a>&gt;</code></h4>
+<div class='docblock'><p>This method returns an ordering between <code>self</code> and <code>other</code> values if one exists. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#tymethod.partial_cmp">Read more</a></p>
+</div><h4 id='method.lt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.lt' class='fnname'>lt</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>This method tests less than (for <code>self</code> and <code>other</code>) and is used by the <code>&lt;</code> operator. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.lt">Read more</a></p>
+</div><h4 id='method.le' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.le' class='fnname'>le</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>This method tests less than or equal to (for <code>self</code> and <code>other</code>) and is used by the <code>&lt;=</code> operator. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.le">Read more</a></p>
+</div><h4 id='method.gt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.gt' class='fnname'>gt</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>This method tests greater than (for <code>self</code> and <code>other</code>) and is used by the <code>&gt;</code> operator. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.gt">Read more</a></p>
+</div><h4 id='method.ge' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.ge' class='fnname'>ge</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>This method tests greater than or equal to (for <code>self</code> and <code>other</code>) and is used by the <code>&gt;=</code> operator. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html#method.ge">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-8823' class='srclink' href='../src/cgmath/angle.rs.html#44' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-8835' class='srclink' href='../src/cgmath/angle.rs.html#44' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-8840' class='srclink' href='../src/cgmath/angle.rs.html#44' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a>&gt; <a class='trait' href='../rustc_serialize/serialize/trait.Decodable.html' title='rustc_serialize::serialize::Decodable'>Decodable</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-8842' class='srclink' href='../src/cgmath/angle.rs.html#45' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.decode' class='method'><code>fn <a href='../rustc_serialize/serialize/trait.Decodable.html#tymethod.decode' class='fnname'>decode</a>&lt;__DS:&nbsp;<a class='trait' href='../rustc_serialize/serialize/trait.Decoder.html' title='rustc_serialize::serialize::Decoder'>Decoder</a>&gt;(__arg_0: &amp;mut __DS) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;,&nbsp;__DS::Error&gt;</code></h4>
+</div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a>&gt; <a class='trait' href='../rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-8851' class='srclink' href='../src/cgmath/angle.rs.html#45' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.encode' class='method'><code>fn <a href='../rustc_serialize/serialize/trait.Encodable.html#tymethod.encode' class='fnname'>encode</a>&lt;__SS:&nbsp;<a class='trait' href='../rustc_serialize/serialize/trait.Encoder.html' title='rustc_serialize::serialize::Encoder'>Encoder</a>&gt;(&amp;self, __arg_0: &amp;mut __SS) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>,&nbsp;__SS::Error&gt;</code></h4>
+</div><h3 class='impl'><span class='in-band'><code>impl&lt;S&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html' title='core::convert::From'>From</a>&lt;<a class='struct' href='../cgmath/struct.Rad.html' title='cgmath::Rad'>Rad</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt; <span class='where'>where S: <a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a></span></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-8871' class='srclink' href='../src/cgmath/angle.rs.html#54-59' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from' class='fnname'>from</a>(r: <a class='struct' href='../cgmath/struct.Rad.html' title='cgmath::Rad'>Rad</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>Performs the conversion.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../cgmath/prelude/trait.Zero.html' title='cgmath::prelude::Zero'>Zero</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9146' class='srclink' href='../src/cgmath/angle.rs.html#77-87' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.zero' class='method'><code>fn <a href='../cgmath/prelude/trait.Zero.html#tymethod.zero' class='fnname'>zero</a>() -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>Returns the additive identity element of <code>Self</code>, <code>0</code>. <a href="../cgmath/prelude/trait.Zero.html#tymethod.zero">Read more</a></p>
+</div><h4 id='method.is_zero' class='method'><code>fn <a href='../cgmath/prelude/trait.Zero.html#tymethod.is_zero' class='fnname'>is_zero</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>Returns <code>true</code> if <code>self</code> is equal to the additive identity.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Angle</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9151' class='srclink' href='../src/cgmath/angle.rs.html#89-103' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Unitless' class='type'><code>type <a href='../cgmath/prelude/trait.Angle.html#associatedtype.Unitless' class='type'>Unitless</a> = S</code></h4>
+<h4 id='method.full_turn' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#tymethod.full_turn' class='fnname'>full_turn</a>() -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>A full rotation.</p>
+</div><h4 id='method.sin' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#tymethod.sin' class='fnname'>sin</a>(self) -&gt; S</code></h4>
+<div class='docblock'><p>Compute the sine of the angle, returning a unitless ratio. <a href="../cgmath/prelude/trait.Angle.html#tymethod.sin">Read more</a></p>
+</div><h4 id='method.cos' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#tymethod.cos' class='fnname'>cos</a>(self) -&gt; S</code></h4>
+<div class='docblock'><p>Compute the cosine of the angle, returning a unitless ratio. <a href="../cgmath/prelude/trait.Angle.html#tymethod.cos">Read more</a></p>
+</div><h4 id='method.tan' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#tymethod.tan' class='fnname'>tan</a>(self) -&gt; S</code></h4>
+<div class='docblock'><p>Compute the tangent of the angle, returning a unitless ratio. <a href="../cgmath/prelude/trait.Angle.html#tymethod.tan">Read more</a></p>
+</div><h4 id='method.sin_cos' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#tymethod.sin_cos' class='fnname'>sin_cos</a>(self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a>S, S<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></h4>
+<div class='docblock'><p>Compute the sine and cosine of the angle, returning the result as a pair. <a href="../cgmath/prelude/trait.Angle.html#tymethod.sin_cos">Read more</a></p>
+</div><h4 id='method.asin' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#tymethod.asin' class='fnname'>asin</a>(a: S) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>Compute the arcsine of the ratio, returning the resulting angle. <a href="../cgmath/prelude/trait.Angle.html#tymethod.asin">Read more</a></p>
+</div><h4 id='method.acos' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#tymethod.acos' class='fnname'>acos</a>(a: S) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>Compute the arccosine of the ratio, returning the resulting angle. <a href="../cgmath/prelude/trait.Angle.html#tymethod.acos">Read more</a></p>
+</div><h4 id='method.atan' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#tymethod.atan' class='fnname'>atan</a>(a: S) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>Compute the arctangent of the ratio, returning the resulting angle. <a href="../cgmath/prelude/trait.Angle.html#tymethod.atan">Read more</a></p>
+</div><h4 id='method.atan2' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#tymethod.atan2' class='fnname'>atan2</a>(a: S, b: S) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<h4 id='method.normalize' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#method.normalize' class='fnname'>normalize</a>(self) -&gt; Self</code></h4>
+<div class='docblock'><p>Return the angle, normalized to the range <code>[0, full_turn)</code>.</p>
+</div><h4 id='method.opposite' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#method.opposite' class='fnname'>opposite</a>(self) -&gt; Self</code></h4>
+<div class='docblock'><p>Return the angle rotated by half a turn.</p>
+</div><h4 id='method.bisect' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#method.bisect' class='fnname'>bisect</a>(self, other: Self) -&gt; Self</code></h4>
+<div class='docblock'><p>Returns the interior bisector of the two angles.</p>
+</div><h4 id='method.turn_div_2' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#method.turn_div_2' class='fnname'>turn_div_2</a>() -&gt; Self</code></h4>
+<div class='docblock'><p>Half of a full rotation.</p>
+</div><h4 id='method.turn_div_3' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#method.turn_div_3' class='fnname'>turn_div_3</a>() -&gt; Self</code></h4>
+<div class='docblock'><p>A third of a full rotation.</p>
+</div><h4 id='method.turn_div_4' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#method.turn_div_4' class='fnname'>turn_div_4</a>() -&gt; Self</code></h4>
+<div class='docblock'><p>A quarter of a full rotation.</p>
+</div><h4 id='method.turn_div_6' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#method.turn_div_6' class='fnname'>turn_div_6</a>() -&gt; Self</code></h4>
+<div class='docblock'><p>A sixth of a full rotation.</p>
+</div><h4 id='method.csc' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#method.csc' class='fnname'>csc</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a></code></h4>
+<div class='docblock'><p>Compute the cosecant of the angle. <a href="../cgmath/prelude/trait.Angle.html#method.csc">Read more</a></p>
+</div><h4 id='method.cot' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#method.cot' class='fnname'>cot</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a></code></h4>
+<div class='docblock'><p>Compute the cotangent of the angle. <a href="../cgmath/prelude/trait.Angle.html#method.cot">Read more</a></p>
+</div><h4 id='method.sec' class='method'><code>fn <a href='../cgmath/prelude/trait.Angle.html#method.sec' class='fnname'>sec</a>(self) -&gt; Self::<a class='trait' href='../cgmath/prelude/trait.Angle.html' title='cgmath::prelude::Angle'>Unitless</a></code></h4>
+<div class='docblock'><p>Compute the secant of the angle. <a href="../cgmath/prelude/trait.Angle.html#method.sec">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9172' class='srclink' href='../src/cgmath/angle.rs.html#105-110' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>-</code> operator</p>
+</div><h4 id='method.neg' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html#tymethod.neg' class='fnname'>neg</a>(self) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the unary <code>-</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html' title='core::ops::Neg'>Neg</a> for &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9177' class='srclink' href='../src/cgmath/angle.rs.html#112-117' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-1' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>-</code> operator</p>
+</div><h4 id='method.neg-1' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html#tymethod.neg' class='fnname'>neg</a>(self) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the unary <code>-</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9183' class='srclink' href='../src/cgmath/macros.rs.html#66-72' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-2' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>+</code> operator</p>
+</div><h4 id='method.add' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html#tymethod.add' class='fnname'>add</a>(self, other: <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>+</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;&amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9191' class='srclink' href='../src/cgmath/macros.rs.html#74-80' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-3' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>+</code> operator</p>
+</div><h4 id='method.add-1' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html#tymethod.add' class='fnname'>add</a>(self, other: &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>+</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9200' class='srclink' href='../src/cgmath/macros.rs.html#82-88' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-4' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>+</code> operator</p>
+</div><h4 id='method.add-2' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html#tymethod.add' class='fnname'>add</a>(self, other: <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>+</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;'b,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;&amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for &amp;'b <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9209' class='srclink' href='../src/cgmath/macros.rs.html#90-96' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-5' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>+</code> operator</p>
+</div><h4 id='method.add-3' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html#tymethod.add' class='fnname'>add</a>(self, other: &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>+</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9219' class='srclink' href='../src/cgmath/macros.rs.html#66-72' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-6' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>-</code> operator</p>
+</div><h4 id='method.sub' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html#tymethod.sub' class='fnname'>sub</a>(self, other: <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>-</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;&amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9227' class='srclink' href='../src/cgmath/macros.rs.html#74-80' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-7' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>-</code> operator</p>
+</div><h4 id='method.sub-1' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html#tymethod.sub' class='fnname'>sub</a>(self, other: &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>-</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9236' class='srclink' href='../src/cgmath/macros.rs.html#82-88' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-8' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>-</code> operator</p>
+</div><h4 id='method.sub-2' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html#tymethod.sub' class='fnname'>sub</a>(self, other: <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>-</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;'b,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;&amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for &amp;'b <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9245' class='srclink' href='../src/cgmath/macros.rs.html#90-96' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-9' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>-</code> operator</p>
+</div><h4 id='method.sub-3' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html#tymethod.sub' class='fnname'>sub</a>(self, other: &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>-</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9255' class='srclink' href='../src/cgmath/macros.rs.html#66-72' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-10' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#associatedtype.Output' class='type'>Output</a> = S</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>/</code> operator</p>
+</div><h4 id='method.div' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#tymethod.div' class='fnname'>div</a>(self, other: <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; S</code></h4>
+<div class='docblock'><p>The method for the <code>/</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;&amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9263' class='srclink' href='../src/cgmath/macros.rs.html#74-80' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-11' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#associatedtype.Output' class='type'>Output</a> = S</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>/</code> operator</p>
+</div><h4 id='method.div-1' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#tymethod.div' class='fnname'>div</a>(self, other: &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; S</code></h4>
+<div class='docblock'><p>The method for the <code>/</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9272' class='srclink' href='../src/cgmath/macros.rs.html#82-88' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-12' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#associatedtype.Output' class='type'>Output</a> = S</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>/</code> operator</p>
+</div><h4 id='method.div-2' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#tymethod.div' class='fnname'>div</a>(self, other: <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; S</code></h4>
+<div class='docblock'><p>The method for the <code>/</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;'b,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;&amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for &amp;'b <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9281' class='srclink' href='../src/cgmath/macros.rs.html#90-96' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-13' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#associatedtype.Output' class='type'>Output</a> = S</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>/</code> operator</p>
+</div><h4 id='method.div-3' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#tymethod.div' class='fnname'>div</a>(self, other: &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; S</code></h4>
+<div class='docblock'><p>The method for the <code>/</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html' title='core::ops::Rem'>Rem</a>&lt;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9291' class='srclink' href='../src/cgmath/macros.rs.html#66-72' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-14' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>%</code> operator</p>
+</div><h4 id='method.rem' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html#tymethod.rem' class='fnname'>rem</a>(self, other: <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>%</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html' title='core::ops::Rem'>Rem</a>&lt;&amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9299' class='srclink' href='../src/cgmath/macros.rs.html#74-80' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-15' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>%</code> operator</p>
+</div><h4 id='method.rem-1' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html#tymethod.rem' class='fnname'>rem</a>(self, other: &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>%</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html' title='core::ops::Rem'>Rem</a>&lt;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9308' class='srclink' href='../src/cgmath/macros.rs.html#82-88' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-16' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>%</code> operator</p>
+</div><h4 id='method.rem-2' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html#tymethod.rem' class='fnname'>rem</a>(self, other: <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>%</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;'b,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html' title='core::ops::Rem'>Rem</a>&lt;&amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for &amp;'b <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9317' class='srclink' href='../src/cgmath/macros.rs.html#90-96' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-17' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>%</code> operator</p>
+</div><h4 id='method.rem-3' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html#tymethod.rem' class='fnname'>rem</a>(self, other: &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>%</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.AddAssign.html' title='core::ops::AddAssign'>AddAssign</a>&lt;S&gt;&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.AddAssign.html' title='core::ops::AddAssign'>AddAssign</a>&lt;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9327' class='srclink' href='../src/cgmath/macros.rs.html#124-127' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.add_assign' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.AddAssign.html#tymethod.add_assign' class='fnname'>add_assign</a>(&amp;mut self, other: <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;)</code></h4>
+<div class='docblock'><p>The method for the <code>+=</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.SubAssign.html' title='core::ops::SubAssign'>SubAssign</a>&lt;S&gt;&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.SubAssign.html' title='core::ops::SubAssign'>SubAssign</a>&lt;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9332' class='srclink' href='../src/cgmath/macros.rs.html#124-127' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.sub_assign' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.SubAssign.html#tymethod.sub_assign' class='fnname'>sub_assign</a>(&amp;mut self, other: <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;)</code></h4>
+<div class='docblock'><p>The method for the <code>-=</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.RemAssign.html' title='core::ops::RemAssign'>RemAssign</a>&lt;S&gt;&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.RemAssign.html' title='core::ops::RemAssign'>RemAssign</a>&lt;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9337' class='srclink' href='../src/cgmath/macros.rs.html#124-127' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.rem_assign' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.RemAssign.html#tymethod.rem_assign' class='fnname'>rem_assign</a>(&amp;mut self, other: <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;)</code></h4>
+<div class='docblock'><p>The method for the <code>%=</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;S&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9342' class='srclink' href='../src/cgmath/macros.rs.html#46-52' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-18' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>*</code> operator</p>
+</div><h4 id='method.mul' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#tymethod.mul' class='fnname'>mul</a>(self, other: S) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>*</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;S&gt; for &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9350' class='srclink' href='../src/cgmath/macros.rs.html#54-60' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-19' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>*</code> operator</p>
+</div><h4 id='method.mul-1' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#tymethod.mul' class='fnname'>mul</a>(self, other: S) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>*</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;S&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9359' class='srclink' href='../src/cgmath/macros.rs.html#46-52' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-20' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>/</code> operator</p>
+</div><h4 id='method.div-4' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#tymethod.div' class='fnname'>div</a>(self, other: S) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>/</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;'a,&nbsp;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;S&gt; for &amp;'a <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9367' class='srclink' href='../src/cgmath/macros.rs.html#54-60' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-21' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>/</code> operator</p>
+</div><h4 id='method.div-5' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#tymethod.div' class='fnname'>div</a>(self, other: S) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>The method for the <code>/</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.MulAssign.html' title='core::ops::MulAssign'>MulAssign</a>&lt;S&gt;&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.MulAssign.html' title='core::ops::MulAssign'>MulAssign</a>&lt;S&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9376' class='srclink' href='../src/cgmath/macros.rs.html#124-127' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.mul_assign' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.MulAssign.html#tymethod.mul_assign' class='fnname'>mul_assign</a>(&amp;mut self, scalar: S)</code></h4>
+<div class='docblock'><p>The method for the <code>*=</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.DivAssign.html' title='core::ops::DivAssign'>DivAssign</a>&lt;S&gt;&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.DivAssign.html' title='core::ops::DivAssign'>DivAssign</a>&lt;S&gt; for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9381' class='srclink' href='../src/cgmath/macros.rs.html#124-127' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.div_assign' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.DivAssign.html#tymethod.div_assign' class='fnname'>div_assign</a>(&amp;mut self, scalar: S)</code></h4>
+<div class='docblock'><p>The method for the <code>/=</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; <a class='trait' href='../cgmath/trait.ApproxEq.html' title='cgmath::ApproxEq'>ApproxEq</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9386' class='srclink' href='../src/cgmath/angle.rs.html#154-161' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Epsilon' class='type'><code>type <a href='../cgmath/trait.ApproxEq.html#associatedtype.Epsilon' class='type'>Epsilon</a> = S</code></h4>
+<h4 id='method.approx_eq_eps' class='method'><code>fn <a href='../cgmath/trait.ApproxEq.html#tymethod.approx_eq_eps' class='fnname'>approx_eq_eps</a>(&amp;self, other: &amp;<a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;, epsilon: &amp;S) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.approx_epsilon' class='method'><code>fn <a href='../cgmath/trait.ApproxEq.html#method.approx_epsilon' class='fnname'>approx_epsilon</a>() -&gt; Self::<a class='trait' href='../cgmath/trait.ApproxEq.html' title='cgmath::ApproxEq'>Epsilon</a></code></h4>
+<h4 id='method.approx_eq' class='method'><code>fn <a href='../cgmath/trait.ApproxEq.html#method.approx_eq' class='fnname'>approx_eq</a>(&amp;self, other: &amp;Self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a> + <a class='trait' href='../rand/distributions/range/trait.SampleRange.html' title='rand::distributions::range::SampleRange'>SampleRange</a>&gt; <a class='trait' href='../rand/trait.Rand.html' title='rand::Rand'>Rand</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9393' class='srclink' href='../src/cgmath/angle.rs.html#163-168' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.rand' class='method'><code>fn <a href='../rand/trait.Rand.html#tymethod.rand' class='fnname'>rand</a>&lt;R:&nbsp;<a class='trait' href='../rand/trait.Rng.html' title='rand::Rng'>Rng</a>&gt;(rng: &amp;mut R) -&gt; <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></h4>
+<div class='docblock'><p>Generates a random instance of this type using the specified source of randomness. <a href="../rand/trait.Rand.html#tymethod.rand">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl&lt;S:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../cgmath/struct.Deg.html' title='cgmath::Deg'>Deg</a>&lt;S&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a id='src-9398' class='srclink' href='../src/cgmath/angle.rs.html#170-174' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, f: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "cgmath";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

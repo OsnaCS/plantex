@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["biome",""]],"struct":[["WorldGenerator","Main type to generate the game world. Implements the `ChunkProvider` trait (TODO, see #8)."]]});

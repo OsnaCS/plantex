@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["PlantType",""]],"struct":[["Preset","Parameters for the tree generator."],["TreeGen",""]]});

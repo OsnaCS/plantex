@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["ToArr","Helper trait to easily convert various `cgmath` types into array form to use them in glium"]]});

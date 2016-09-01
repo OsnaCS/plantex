@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WlDataDeviceEvent` enum in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WlDataDeviceEvent">
+
+    <title>wayland_client::wayland::data_device::WlDataDeviceEvent - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>wayland</a>::<wbr><a href='index.html'>data_device</a></p><script>window.sidebarCurrent = {name: 'WlDataDeviceEvent', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>wayland</a>::<wbr><a href='index.html'>data_device</a>::<wbr><a class='enum' href=''>WlDataDeviceEvent</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-1136' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#1274-1332' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum WlDataDeviceEvent {
+    DataOffer(<a class='struct' href='../../../wayland_client/wayland/data_device/struct.WlDataOffer.html' title='wayland_client::wayland::data_device::WlDataOffer'>WlDataOffer</a>),
+    Enter(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='struct' href='../../../wayland_client/struct.ProxyId.html' title='wayland_client::ProxyId'>ProxyId</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>,&nbsp;<a class='struct' href='../../../wayland_client/struct.ProxyId.html' title='wayland_client::ProxyId'>ProxyId</a>),
+    Leave,
+    Motion(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>),
+    Drop,
+    Selection(<a class='struct' href='../../../wayland_client/struct.ProxyId.html' title='wayland_client::ProxyId'>ProxyId</a>),
+}</pre><h2 class='variants'>Variants</h2>
+<span id='variant.DataOffer' class='variant'><code>DataOffer(<a class='struct' href='../../../wayland_client/wayland/data_device/struct.WlDataOffer.html' title='wayland_client::wayland::data_device::WlDataOffer'>WlDataOffer</a>)</code></span><div class='docblock'><p>introduce a new wl_data_offer</p>
+
+<p>The data_offer event introduces a new wl_data_offer object,
+which will subsequently be used in either the
+data_device.enter event (for drag-and-drop) or the
+data_device.selection event (for selections).  Immediately
+following the data_device_data_offer event, the new data_offer
+object will send out data_offer.offer events to describe the
+mime types it offers.</p>
+
+<p>Values: id,</p>
+</div><span id='variant.Enter' class='variant'><code>Enter(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='struct' href='../../../wayland_client/struct.ProxyId.html' title='wayland_client::ProxyId'>ProxyId</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>,&nbsp;<a class='struct' href='../../../wayland_client/struct.ProxyId.html' title='wayland_client::ProxyId'>ProxyId</a>)</code></span><div class='docblock'><p>initiate drag-and-drop session</p>
+
+<p>This event is sent when an active drag-and-drop pointer enters
+a surface owned by the client.  The position of the pointer at
+enter time is provided by the x and y arguments, in surface
+local coordinates.</p>
+
+<p>Values: serial, surface, x, y, id,</p>
+</div><span id='variant.Leave' class='variant'><code>Leave</code></span><div class='docblock'><p>end drag-and-drop session</p>
+
+<p>This event is sent when the drag-and-drop pointer leaves the
+surface and the session ends.  The client must destroy the
+wl_data_offer introduced at enter time at this point.</p>
+</div><span id='variant.Motion' class='variant'><code>Motion(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>)</code></span><div class='docblock'><p>drag-and-drop session motion</p>
+
+<p>This event is sent when the drag-and-drop pointer moves within
+the currently focused surface. The new position of the pointer
+is provided by the x and y arguments, in surface local
+coordinates.</p>
+
+<p>Values: time, x, y,</p>
+</div><span id='variant.Drop' class='variant'><code>Drop</code></span><div class='docblock'><p>end drag-and-drag session successfully</p>
+
+<p>The event is sent when a drag-and-drop operation is ended
+because the implicit grab is removed.</p>
+</div><span id='variant.Selection' class='variant'><code>Selection(<a class='struct' href='../../../wayland_client/struct.ProxyId.html' title='wayland_client::ProxyId'>ProxyId</a>)</code></span><div class='docblock'><p>advertise new selection</p>
+
+<p>The selection event is sent out to notify the client of a new
+wl_data_offer for the selection for this device.  The
+data_device.data_offer and the data_offer.offer events are
+sent out immediately before this event to introduce the data
+offer object.  The selection event is sent to a client
+immediately before receiving keyboard focus and when a new
+selection is set while the client has keyboard focus.  The
+data_offer is valid until a new data_offer or NULL is received
+or until the client loses keyboard focus.  The client must
+destroy the previous selection data_offer, if any, upon receiving
+this event.</p>
+
+<p>Values: id,</p>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../../wayland_client/wayland/data_device/enum.WlDataDeviceEvent.html' title='wayland_client::wayland::data_device::WlDataDeviceEvent'>WlDataDeviceEvent</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-1116' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#1273' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

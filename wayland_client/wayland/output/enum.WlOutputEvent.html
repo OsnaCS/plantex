@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WlOutputEvent` enum in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WlOutputEvent">
+
+    <title>wayland_client::wayland::output::WlOutputEvent - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>wayland</a>::<wbr><a href='index.html'>output</a></p><script>window.sidebarCurrent = {name: 'WlOutputEvent', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>wayland</a>::<wbr><a href='index.html'>output</a>::<wbr><a class='enum' href=''>WlOutputEvent</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-2903' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#3335-3393' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum WlOutputEvent {
+    Geometry(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='enum' href='../../../wayland_client/wayland/output/enum.WlOutputSubpixel.html' title='wayland_client::wayland::output::WlOutputSubpixel'>WlOutputSubpixel</a>,&nbsp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,&nbsp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,&nbsp;<a class='enum' href='../../../wayland_client/wayland/output/enum.WlOutputTransform.html' title='wayland_client::wayland::output::WlOutputTransform'>WlOutputTransform</a>),
+    Mode(<a class='struct' href='../../../wayland_client/wayland/output/WlOutputMode/struct.WlOutputMode.html' title='wayland_client::wayland::output::WlOutputMode::WlOutputMode'>WlOutputMode</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>),
+    Done,
+    Scale(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>),
+}</pre><h2 class='variants'>Variants</h2>
+<span id='variant.Geometry' class='variant'><code>Geometry(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='enum' href='../../../wayland_client/wayland/output/enum.WlOutputSubpixel.html' title='wayland_client::wayland::output::WlOutputSubpixel'>WlOutputSubpixel</a>,&nbsp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,&nbsp;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,&nbsp;<a class='enum' href='../../../wayland_client/wayland/output/enum.WlOutputTransform.html' title='wayland_client::wayland::output::WlOutputTransform'>WlOutputTransform</a>)</code></span><div class='docblock'><p>properties of the output</p>
+
+<p>The geometry event describes geometric properties of the output.
+The event is sent when binding to the output object and whenever
+any of the properties change.</p>
+
+<p>Values: x, y, physical_width, physical_height, subpixel, make, model, transform,</p>
+</div><span id='variant.Mode' class='variant'><code>Mode(<a class='struct' href='../../../wayland_client/wayland/output/WlOutputMode/struct.WlOutputMode.html' title='wayland_client::wayland::output::WlOutputMode::WlOutputMode'>WlOutputMode</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,&nbsp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></span><div class='docblock'><p>advertise available modes for the output</p>
+
+<p>The mode event describes an available mode for the output.</p>
+
+<p>The event is sent when binding to the output object and there
+will always be one mode, the current mode.  The event is sent
+again if an output changes mode, for the mode that is now
+current.  In other words, the current mode is always the last
+mode that was received with the current flag set.</p>
+
+<p>The size of a mode is given in physical hardware units of
+the output device. This is not necessarily the same as
+the output size in the global compositor space. For instance,
+the output may be scaled, as described in wl_output.scale,
+or transformed , as described in wl_output.transform.</p>
+
+<p>Values: flags, width, height, refresh,</p>
+</div><span id='variant.Done' class='variant'><code>Done</code></span><div class='docblock'><p>sent all information about output</p>
+
+<p>This event is sent after all other properties has been
+sent after binding to the output object and after any
+other property changes done after that. This allows
+changes to the output properties to be seen as
+atomic, even if they happen via multiple events.</p>
+</div><span id='variant.Scale' class='variant'><code>Scale(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></span><div class='docblock'><p>output scaling properties</p>
+
+<p>This event contains scaling geometry information
+that is not in the geometry event. It may be sent after
+binding the output object or if the output scale changes
+later. If it is not sent, the client should assume a
+scale of 1.</p>
+
+<p>A scale larger than 1 means that the compositor will
+automatically scale surface buffers by this amount
+when rendering. This is used for very high resolution
+displays where applications rendering at the native
+resolution would be too small to be legible.</p>
+
+<p>It is intended that scaling aware clients track the
+current output of a surface, and if it is on a scaled
+output it should use wl_surface.set_buffer_scale with
+the scale of the output. That way the compositor can
+avoid scaling the surface, and the client can supply
+a higher detail image.</p>
+
+<p>Values: factor,</p>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../../wayland_client/wayland/output/enum.WlOutputEvent.html' title='wayland_client::wayland::output::WlOutputEvent'>WlOutputEvent</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-2882' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#3334' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

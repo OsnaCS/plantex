@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WlShmFormat` enum in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WlShmFormat">
+
+    <title>wayland_client::wayland::shm::WlShmFormat - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>wayland</a>::<wbr><a href='index.html'>shm</a></p><script>window.sidebarCurrent = {name: 'WlShmFormat', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>wayland</a>::<wbr><a href='index.html'>shm</a>::<wbr><a class='enum' href=''>WlShmFormat</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-736' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#696-757' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum WlShmFormat {
+    Argb8888,
+    Xrgb8888,
+    C8,
+    Rgb332,
+    Bgr233,
+    Xrgb4444,
+    Xbgr4444,
+    Rgbx4444,
+    Bgrx4444,
+    Argb4444,
+    Abgr4444,
+    Rgba4444,
+    Bgra4444,
+    Xrgb1555,
+    Xbgr1555,
+    Rgbx5551,
+    Bgrx5551,
+    Argb1555,
+    Abgr1555,
+    Rgba5551,
+    Bgra5551,
+    Rgb565,
+    Bgr565,
+    Rgb888,
+    Bgr888,
+    Xbgr8888,
+    Rgbx8888,
+    Bgrx8888,
+    Abgr8888,
+    Rgba8888,
+    Bgra8888,
+    Xrgb2101010,
+    Xbgr2101010,
+    Rgbx1010102,
+    Bgrx1010102,
+    Argb2101010,
+    Abgr2101010,
+    Rgba1010102,
+    Bgra1010102,
+    Yuyv,
+    Yvyu,
+    Uyvy,
+    Vyuy,
+    Ayuv,
+    Nv12,
+    Nv21,
+    Nv16,
+    Nv61,
+    Yuv410,
+    Yvu410,
+    Yuv411,
+    Yvu411,
+    Yuv420,
+    Yvu420,
+    Yuv422,
+    Yvu422,
+    Yuv444,
+    Yvu444,
+}</pre><div class='docblock'><p>pixel formats</p>
+
+<p>This describes the memory layout of an individual pixel.</p>
+
+<p>All renderers should support argb8888 and xrgb8888 but any other
+formats are optional and may not be supported by the particular
+renderer in use.</p>
+</div><h2 class='variants'>Variants</h2>
+<span id='variant.Argb8888' class='variant'><code>Argb8888</code></span><div class='docblock'><p>32-bit ARGB format</p>
+</div><span id='variant.Xrgb8888' class='variant'><code>Xrgb8888</code></span><div class='docblock'><p>32-bit RGB format</p>
+</div><span id='variant.C8' class='variant'><code>C8</code></span><span id='variant.Rgb332' class='variant'><code>Rgb332</code></span><span id='variant.Bgr233' class='variant'><code>Bgr233</code></span><span id='variant.Xrgb4444' class='variant'><code>Xrgb4444</code></span><span id='variant.Xbgr4444' class='variant'><code>Xbgr4444</code></span><span id='variant.Rgbx4444' class='variant'><code>Rgbx4444</code></span><span id='variant.Bgrx4444' class='variant'><code>Bgrx4444</code></span><span id='variant.Argb4444' class='variant'><code>Argb4444</code></span><span id='variant.Abgr4444' class='variant'><code>Abgr4444</code></span><span id='variant.Rgba4444' class='variant'><code>Rgba4444</code></span><span id='variant.Bgra4444' class='variant'><code>Bgra4444</code></span><span id='variant.Xrgb1555' class='variant'><code>Xrgb1555</code></span><span id='variant.Xbgr1555' class='variant'><code>Xbgr1555</code></span><span id='variant.Rgbx5551' class='variant'><code>Rgbx5551</code></span><span id='variant.Bgrx5551' class='variant'><code>Bgrx5551</code></span><span id='variant.Argb1555' class='variant'><code>Argb1555</code></span><span id='variant.Abgr1555' class='variant'><code>Abgr1555</code></span><span id='variant.Rgba5551' class='variant'><code>Rgba5551</code></span><span id='variant.Bgra5551' class='variant'><code>Bgra5551</code></span><span id='variant.Rgb565' class='variant'><code>Rgb565</code></span><span id='variant.Bgr565' class='variant'><code>Bgr565</code></span><span id='variant.Rgb888' class='variant'><code>Rgb888</code></span><span id='variant.Bgr888' class='variant'><code>Bgr888</code></span><span id='variant.Xbgr8888' class='variant'><code>Xbgr8888</code></span><span id='variant.Rgbx8888' class='variant'><code>Rgbx8888</code></span><span id='variant.Bgrx8888' class='variant'><code>Bgrx8888</code></span><span id='variant.Abgr8888' class='variant'><code>Abgr8888</code></span><span id='variant.Rgba8888' class='variant'><code>Rgba8888</code></span><span id='variant.Bgra8888' class='variant'><code>Bgra8888</code></span><span id='variant.Xrgb2101010' class='variant'><code>Xrgb2101010</code></span><span id='variant.Xbgr2101010' class='variant'><code>Xbgr2101010</code></span><span id='variant.Rgbx1010102' class='variant'><code>Rgbx1010102</code></span><span id='variant.Bgrx1010102' class='variant'><code>Bgrx1010102</code></span><span id='variant.Argb2101010' class='variant'><code>Argb2101010</code></span><span id='variant.Abgr2101010' class='variant'><code>Abgr2101010</code></span><span id='variant.Rgba1010102' class='variant'><code>Rgba1010102</code></span><span id='variant.Bgra1010102' class='variant'><code>Bgra1010102</code></span><span id='variant.Yuyv' class='variant'><code>Yuyv</code></span><span id='variant.Yvyu' class='variant'><code>Yvyu</code></span><span id='variant.Uyvy' class='variant'><code>Uyvy</code></span><span id='variant.Vyuy' class='variant'><code>Vyuy</code></span><span id='variant.Ayuv' class='variant'><code>Ayuv</code></span><span id='variant.Nv12' class='variant'><code>Nv12</code></span><span id='variant.Nv21' class='variant'><code>Nv21</code></span><span id='variant.Nv16' class='variant'><code>Nv16</code></span><span id='variant.Nv61' class='variant'><code>Nv61</code></span><span id='variant.Yuv410' class='variant'><code>Yuv410</code></span><span id='variant.Yvu410' class='variant'><code>Yvu410</code></span><span id='variant.Yuv411' class='variant'><code>Yuv411</code></span><span id='variant.Yvu411' class='variant'><code>Yvu411</code></span><span id='variant.Yuv420' class='variant'><code>Yuv420</code></span><span id='variant.Yvu420' class='variant'><code>Yvu420</code></span><span id='variant.Yuv422' class='variant'><code>Yuv422</code></span><span id='variant.Yvu422' class='variant'><code>Yvu422</code></span><span id='variant.Yuv444' class='variant'><code>Yuv444</code></span><span id='variant.Yvu444' class='variant'><code>Yvu444</code></span><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../../wayland_client/wayland/shm/enum.WlShmFormat.html' title='wayland_client::wayland::shm::WlShmFormat'>WlShmFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-674' class='srclink' href='../../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#695' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

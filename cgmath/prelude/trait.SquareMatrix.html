@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `SquareMatrix` trait in crate `cgmath`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, SquareMatrix">
+
+    <title>cgmath::prelude::SquareMatrix - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>cgmath</a>::<wbr><a href='index.html'>prelude</a></p><script>window.sidebarCurrent = {name: 'SquareMatrix', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>cgmath</a>::<wbr><a href='index.html'>prelude</a>::<wbr><a class='trait' href=''>SquareMatrix</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-364' class='srclink' href='../../src/cgmath/structure.rs.html#454-528' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait SquareMatrix <span class='where'>where Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>Scalar</a>: <a class='trait' href='../../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>, Self: <a class='trait' href='../../cgmath/prelude/trait.One.html' title='cgmath::prelude::One'>One</a>, Self: <a class='trait' href='../../cgmath/prelude/trait.Matrix.html' title='cgmath::prelude::Matrix'>Matrix</a>&lt;Column=Self::ColumnRow,&nbsp;Row=Self::ColumnRow,&nbsp;Transpose=Self&gt;, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;Self::ColumnRow,&nbsp;Output=Self::ColumnRow&gt;, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;Self,&nbsp;Output=Self&gt;</span> {
+    type <a href='#associatedtype.ColumnRow' class='type'>ColumnRow</a>: <a class='trait' href='../../cgmath/prelude/trait.VectorSpace.html' title='cgmath::prelude::VectorSpace'>VectorSpace</a>&lt;Scalar=Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>Scalar</a>&gt; + <a class='trait' href='../../cgmath/prelude/trait.Array.html' title='cgmath::prelude::Array'>Array</a>&lt;Element=Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>Scalar</a>&gt;;
+    fn <a href='#tymethod.from_value' class='fnname'>from_value</a>(value: Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>Scalar</a>) -&gt; Self;
+    fn <a href='#tymethod.from_diagonal' class='fnname'>from_diagonal</a>(diagonal: Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>ColumnRow</a>) -&gt; Self;
+    fn <a href='#tymethod.transpose_self' class='fnname'>transpose_self</a>(&amp;mut self);
+    fn <a href='#tymethod.determinant' class='fnname'>determinant</a>(&amp;self) -&gt; Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>Scalar</a>;
+    fn <a href='#tymethod.diagonal' class='fnname'>diagonal</a>(&amp;self) -&gt; Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>ColumnRow</a>;
+    fn <a href='#tymethod.invert' class='fnname'>invert</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;;
+    fn <a href='#tymethod.is_diagonal' class='fnname'>is_diagonal</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
+    fn <a href='#tymethod.is_symmetric' class='fnname'>is_symmetric</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
+
+    fn <a href='#method.identity' class='fnname'>identity</a>() -&gt; Self { ... }
+    fn <a href='#method.trace' class='fnname'>trace</a>(&amp;self) -&gt; Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>Scalar</a> { ... }
+    fn <a href='#method.is_invertible' class='fnname'>is_invertible</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
+    fn <a href='#method.is_identity' class='fnname'>is_identity</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a> { ... }
+}</pre><div class='docblock'><p>A column-major major matrix where the rows and column vectors are of the same dimensions.</p>
+</div>
+            <h2 id='associated-types'>Associated Types</h2>
+            <div class='methods'>
+        <h3 id='associatedtype.ColumnRow' class='method stab '><code>type <a href='#associatedtype.ColumnRow' class='type'>ColumnRow</a>: <a class='trait' href='../../cgmath/prelude/trait.VectorSpace.html' title='cgmath::prelude::VectorSpace'>VectorSpace</a>&lt;Scalar=Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>Scalar</a>&gt; + <a class='trait' href='../../cgmath/prelude/trait.Array.html' title='cgmath::prelude::Array'>Array</a>&lt;Element=Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>Scalar</a>&gt;</code></h3><div class='docblock'><p>The row/column vector of the matrix.</p>
+
+<p>This is used to constrain the column and rows to be of the same type in lieu of equality
+constraints being implemented for <code>where</code> clauses. Once those are added, this type will
+likely go away.</p>
+</div></div>
+            <h2 id='required-methods'>Required Methods</h2>
+            <div class='methods'>
+        <h3 id='tymethod.from_value' class='method stab '><code>fn <a href='#tymethod.from_value' class='fnname'>from_value</a>(value: Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>Scalar</a>) -&gt; Self</code></h3><div class='docblock'><p>Create a new diagonal matrix using the supplied value.</p>
+</div><h3 id='tymethod.from_diagonal' class='method stab '><code>fn <a href='#tymethod.from_diagonal' class='fnname'>from_diagonal</a>(diagonal: Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>ColumnRow</a>) -&gt; Self</code></h3><div class='docblock'><p>Create a matrix from a non-uniform scale</p>
+</div><h3 id='tymethod.transpose_self' class='method stab '><code>fn <a href='#tymethod.transpose_self' class='fnname'>transpose_self</a>(&amp;mut self)</code></h3><div class='docblock'><p>Transpose this matrix in-place.</p>
+</div><h3 id='tymethod.determinant' class='method stab '><code>fn <a href='#tymethod.determinant' class='fnname'>determinant</a>(&amp;self) -&gt; Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>Scalar</a></code></h3><div class='docblock'><p>Take the determinant of this matrix.</p>
+</div><h3 id='tymethod.diagonal' class='method stab '><code>fn <a href='#tymethod.diagonal' class='fnname'>diagonal</a>(&amp;self) -&gt; Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>ColumnRow</a></code></h3><div class='docblock'><p>Return a vector containing the diagonal of this matrix.</p>
+</div><h3 id='tymethod.invert' class='method stab '><code>fn <a href='#tymethod.invert' class='fnname'>invert</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;Self&gt;</code></h3><div class='docblock'><p>Invert this matrix, returning a new matrix. <code>m.mul_m(m.invert())</code> is
+the identity matrix. Returns <code>None</code> if this matrix is not invertible
+(has a determinant of zero).</p>
+</div><h3 id='tymethod.is_diagonal' class='method stab '><code>fn <a href='#tymethod.is_diagonal' class='fnname'>is_diagonal</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Test if this is a diagonal matrix. That is, every element outside of
+the diagonal is 0.</p>
+</div><h3 id='tymethod.is_symmetric' class='method stab '><code>fn <a href='#tymethod.is_symmetric' class='fnname'>is_symmetric</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Test if this matrix is symmetric. That is, it is equal to its
+transpose.</p>
+</div></div>
+            <h2 id='provided-methods'>Provided Methods</h2>
+            <div class='methods'>
+        <h3 id='method.identity' class='method stab '><code>fn <a href='#method.identity' class='fnname'>identity</a>() -&gt; Self</code></h3><div class='docblock'><p>The <a href="https://en.wikipedia.org/wiki/Identity_matrix">identity matrix</a>. Multiplying this matrix with another should have
+no effect.</p>
+
+<p>Note that this is exactly the same as <code>One::one</code>. The term &#39;identity
+matrix&#39; is more common though, so we provide this method as an
+alternative.</p>
+</div><h3 id='method.trace' class='method stab '><code>fn <a href='#method.trace' class='fnname'>trace</a>(&amp;self) -&gt; Self::<a class='trait' href='../../cgmath/prelude/trait.SquareMatrix.html' title='cgmath::prelude::SquareMatrix'>Scalar</a></code></h3><div class='docblock'><p>Return the trace of this matrix. That is, the sum of the diagonal.</p>
+</div><h3 id='method.is_invertible' class='method stab '><code>fn <a href='#method.is_invertible' class='fnname'>is_invertible</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Test if this matrix is invertible.</p>
+</div><h3 id='method.is_identity' class='method stab '><code>fn <a href='#method.is_identity' class='fnname'>is_identity</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Test if this matrix is the identity matrix. That is, it is diagonal
+and every element in the diagonal is one.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;S:&nbsp;<a class='trait' href='../../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; SquareMatrix for <a class='struct' href='../../cgmath/struct.Matrix2.html' title='cgmath::Matrix2'>Matrix2</a>&lt;S&gt;</code></li>
+<li><code>impl&lt;S:&nbsp;<a class='trait' href='../../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; SquareMatrix for <a class='struct' href='../../cgmath/struct.Matrix3.html' title='cgmath::Matrix3'>Matrix3</a>&lt;S&gt;</code></li>
+<li><code>impl&lt;S:&nbsp;<a class='trait' href='../../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; SquareMatrix for <a class='struct' href='../../cgmath/struct.Matrix4.html' title='cgmath::Matrix4'>Matrix4</a>&lt;S&gt;</code></li>
+</ul><script type="text/javascript" async
+                         src="../../implementors/cgmath/prelude/trait.SquareMatrix.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "cgmath";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

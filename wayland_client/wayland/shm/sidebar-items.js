@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["WlBufferEvent",""],["WlShmEvent",""],["WlShmFormat","pixel formats"]],"struct":[["WlBuffer","content for a wl_surface"],["WlShm","shared memory support"],["WlShmPool","a shared memory pool"]]});

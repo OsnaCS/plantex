@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `AxialPoint` struct in crate `base`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, AxialPoint">
+
+    <title>base::math::AxialPoint - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>base</a>::<wbr><a href='index.html'>math</a></p><script>window.sidebarCurrent = {name: 'AxialPoint', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>base</a>::<wbr><a href='index.html'>math</a>::<wbr><a class='struct' href=''>AxialPoint</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-397' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#14-17' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct AxialPoint {
+    pub q: <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a>,
+    pub r: <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a>,
+}</pre><div class='docblock'><p>A 2-dimensional point in axial coordinates. See <a href="http://www.redblobgames.com/grids/hexagons/#coordinates">here</a> for more
+information.</p>
+</div><h2 class='fields'>Fields</h2><span id='structfield.q' class='structfield'><code>q: <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a></code>
+                           </span><span class='stab '></span><span id='structfield.r' class='structfield'><code>r: <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a></code>
+                           </span><span class='stab '></span><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-400' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#25-80' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(q: <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a>, r: <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a>) -&gt; Self</code></h4>
+<h4 id='method.to_real' class='method'><code>fn <a href='#method.to_real' class='fnname'>to_real</a>(&amp;self) -&gt; <a class='type' href='../../base/math/type.Point2f.html' title='base::math::Point2f'>Point2f</a></code></h4>
+<div class='docblock'><p>Returns the position of the hexagons center in the standard coordinate
+system using <code>world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS}</code>.</p>
+</div><h4 id='method.from_real' class='method'><code>fn <a href='#method.from_real' class='fnname'>from_real</a>(real: <a class='type' href='../../base/math/type.Point2f.html' title='base::math::Point2f'>Point2f</a>) -&gt; Self</code></h4>
+<div class='docblock'><p>Return the <code>AxialPoint</code> from a <code>Point2f</code>. It&#39;s the <a href="http://www.redblobgames.com/grids/hexagons/#pixel-to-hex">pixel to hex
+algorithm from redblobgames.com</a>.</p>
+</div><h4 id='method.s' class='method'><code>fn <a href='#method.s' class='fnname'>s</a>(&amp;self) -&gt; <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a></code></h4>
+<div class='docblock'><p>Returns the <code>s</code> component of corresponding cube coordinates. In cube
+coordinates &#39;q + r + s = 0&#39;, so saving <code>s</code> is redundant and can be
+calculated on the fly when needed.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a> for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-364' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#12' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.hash' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#tymethod.hash' class='fnname'>hash</a>&lt;__H:&nbsp;<a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html' title='core::hash::Hasher'>Hasher</a>&gt;(&amp;self, __arg_0: &amp;mut __H)</code></h4>
+<div class='docblock'><p>Feeds this value into the state given, updating the hasher as necessary.</p>
+</div><h4 id='method.hash_slice' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash_slice' class='fnname'>hash_slice</a>&lt;H&gt;(data: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[Self]</a>, state: &amp;mut H) <span class='where'>where H: <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html' title='core::hash::Hasher'>Hasher</a></span></code><div class='since' title='Stable since Rust version 1.3.0'>1.3.0</div></h4>
+<div class='docblock'><p>Feeds a slice of this type into the state provided.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-371' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#12' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-376' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#12' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-391' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#12' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-392' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#12' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-419' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#81-88' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, f: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;<a class='struct' href='../../base/math/struct.AxialVector.html' title='base::math::AxialVector'>AxialVector</a>&gt; for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-423' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#90-98' title='goto source code'>[src]</a></span></h3>
+<div class='docblock'><p>********************Basic Arithmetics************</p>
+</div><div class='impl-items'><h4 id='associatedtype.Output' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>+</code> operator</p>
+</div><h4 id='method.add' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html#tymethod.add' class='fnname'>add</a>(self, rhs: <a class='struct' href='../../base/math/struct.AxialVector.html' title='base::math::AxialVector'>AxialVector</a>) -&gt; <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></h4>
+<div class='docblock'><p>The method for the <code>+</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;<a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a>&gt; for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-428' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#99-107' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-1' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../../base/math/struct.AxialVector.html' title='base::math::AxialVector'>AxialVector</a></code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>-</code> operator</p>
+</div><h4 id='method.sub' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html#tymethod.sub' class='fnname'>sub</a>(self, rhs: <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a>) -&gt; <a class='struct' href='../../base/math/struct.AxialVector.html' title='base::math::AxialVector'>AxialVector</a></code></h4>
+<div class='docblock'><p>The method for the <code>-</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;<a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a>&gt; for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-433' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#108-116' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-2' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>*</code> operator</p>
+</div><h4 id='method.mul' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html#tymethod.mul' class='fnname'>mul</a>(self, rhs: <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a>) -&gt; <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></h4>
+<div class='docblock'><p>The method for the <code>*</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;<a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a>&gt; for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-438' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#117-125' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-3' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>/</code> operator</p>
+</div><h4 id='method.div' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html#tymethod.div' class='fnname'>div</a>(self, rhs: <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a>) -&gt; <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></h4>
+<div class='docblock'><p>The method for the <code>/</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html' title='core::ops::Rem'>Rem</a>&lt;<a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a>&gt; for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-443' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#126-134' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Output-4' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html#associatedtype.Output' class='type'>Output</a> = <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></h4>
+<div class='docblock'><p>The resulting type after applying the <code>%</code> operator</p>
+</div><h4 id='method.rem' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html#tymethod.rem' class='fnname'>rem</a>(self, d: <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a>) -&gt; <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></h4>
+<div class='docblock'><p>The method for the <code>%</code> operator</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Index.html' title='core::ops::Index'>Index</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>&gt; for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-448' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#136-145' title='goto source code'>[src]</a></span></h3>
+<div class='docblock'><p>********************Index************</p>
+</div><div class='impl-items'><h4 id='associatedtype.Output-5' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Index.html#associatedtype.Output' class='type'>Output</a> = <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a></code></h4>
+<div class='docblock'><p>The returned type after indexing</p>
+</div><h4 id='method.index' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Index.html#tymethod.index' class='fnname'>index</a>(&amp;self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; &amp;<a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a></code></h4>
+<div class='docblock'><p>The method for the indexing (<code>Foo[Bar]</code>) operation</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.IndexMut.html' title='core::ops::IndexMut'>IndexMut</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>&gt; for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-454' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#146-154' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.index_mut' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.IndexMut.html#tymethod.index_mut' class='fnname'>index_mut</a>(&amp;mut self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; &amp;mut <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a></code></h4>
+<div class='docblock'><p>The method for the indexing (<code>Foo[Bar]</code>) operation</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='../../cgmath/structure/trait.Array.html' title='cgmath::structure::Array'>Array</a> for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-459' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#156-173' title='goto source code'>[src]</a></span></h3>
+<div class='docblock'><p>********************Array************</p>
+</div><div class='impl-items'><h4 id='associatedtype.Element' class='type'><code>type <a href='../../cgmath/structure/trait.Array.html#associatedtype.Element' class='type'>Element</a> = <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a></code></h4>
+<h4 id='method.from_value' class='method'><code>fn <a href='../../cgmath/structure/trait.Array.html#tymethod.from_value' class='fnname'>from_value</a>(x: <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a>) -&gt; <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></h4>
+<div class='docblock'><p>Construct a vector from a single value, replicating it. <a href="../../cgmath/structure/trait.Array.html#tymethod.from_value">Read more</a></p>
+</div><h4 id='method.sum' class='method'><code>fn <a href='../../cgmath/structure/trait.Array.html#tymethod.sum' class='fnname'>sum</a>(self) -&gt; <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a></code></h4>
+<div class='docblock'><p>The sum of the elements of the array.</p>
+</div><h4 id='method.product' class='method'><code>fn <a href='../../cgmath/structure/trait.Array.html#tymethod.product' class='fnname'>product</a>(self) -&gt; <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a></code></h4>
+<div class='docblock'><p>The product of the elements of the array.</p>
+</div><h4 id='method.min' class='method'><code>fn <a href='../../cgmath/structure/trait.Array.html#tymethod.min' class='fnname'>min</a>(self) -&gt; <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a></code></h4>
+<div class='docblock'><p>The minimum element of the array.</p>
+</div><h4 id='method.max' class='method'><code>fn <a href='../../cgmath/structure/trait.Array.html#tymethod.max' class='fnname'>max</a>(self) -&gt; <a class='type' href='../../base/math/type.AxialType.html' title='base::math::AxialType'>AxialType</a></code></h4>
+<div class='docblock'><p>The maximum element of the array.</p>
+</div><h4 id='method.as_ptr' class='method'><code>fn <a href='../../cgmath/structure/trait.Array.html#method.as_ptr' class='fnname'>as_ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const </a>Self::<a class='trait' href='../../cgmath/structure/trait.Array.html' title='cgmath::structure::Array'>Element</a></code></h4>
+<div class='docblock'><p>Get the pointer to the first element of the array.</p>
+</div><h4 id='method.as_mut_ptr' class='method'><code>fn <a href='../../cgmath/structure/trait.Array.html#method.as_mut_ptr' class='fnname'>as_mut_ptr</a>(&amp;mut self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a>Self::<a class='trait' href='../../cgmath/structure/trait.Array.html' title='cgmath::structure::Array'>Element</a></code></h4>
+<div class='docblock'><p>Get a mutable pointer to the first element of the array.</p>
+</div><h4 id='method.swap_elements' class='method'><code>fn <a href='../../cgmath/structure/trait.Array.html#method.swap_elements' class='fnname'>swap_elements</a>(&amp;mut self, i: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, j: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>)</code></h4>
+<div class='docblock'><p>Swap the elements at indices <code>i</code> and <code>j</code> in-place.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='../../cgmath/structure/trait.MetricSpace.html' title='cgmath::structure::MetricSpace'>MetricSpace</a> for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-471' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#175-181' title='goto source code'>[src]</a></span></h3>
+<div class='docblock'><p>******************* Metric-Space************************</p>
+</div><div class='impl-items'><h4 id='associatedtype.Metric' class='type'><code>type <a href='../../cgmath/structure/trait.MetricSpace.html#associatedtype.Metric' class='type'>Metric</a> = <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a></code></h4>
+<div class='docblock'><p>The metric to be returned by the <code>distance</code> function.</p>
+</div><h4 id='method.distance2' class='method'><code>fn <a href='../../cgmath/structure/trait.MetricSpace.html#tymethod.distance2' class='fnname'>distance2</a>(self, other: <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a>) -&gt; Self::<a class='trait' href='../../cgmath/structure/trait.MetricSpace.html' title='cgmath::structure::MetricSpace'>Metric</a></code></h4>
+<div class='docblock'><p>Returns the squared distance. <a href="../../cgmath/structure/trait.MetricSpace.html#tymethod.distance2">Read more</a></p>
+</div><h4 id='method.distance' class='method'><code>fn <a href='../../cgmath/structure/trait.MetricSpace.html#method.distance' class='fnname'>distance</a>(self, other: Self) -&gt; Self::<a class='trait' href='../../cgmath/structure/trait.MetricSpace.html' title='cgmath::structure::MetricSpace'>Metric</a></code></h4>
+<div class='docblock'><p>The distance between two values.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='../../cgmath/structure/trait.EuclideanSpace.html' title='cgmath::structure::EuclideanSpace'>EuclideanSpace</a> for <a class='struct' href='../../base/math/struct.AxialPoint.html' title='base::math::AxialPoint'>AxialPoint</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-476' class='srclink' href='../../src/base/base/src/math/axial_point.rs.html#183-201' title='goto source code'>[src]</a></span></h3>
+<div class='docblock'><p>******************* EuclideanSpace**********************</p>
+</div><div class='impl-items'><h4 id='associatedtype.Scalar' class='type'><code>type <a href='../../cgmath/structure/trait.EuclideanSpace.html#associatedtype.Scalar' class='type'>Scalar</a> = <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a></code></h4>
+<div class='docblock'><p>The associated scalar over which the space is defined. <a href="../../cgmath/structure/trait.EuclideanSpace.html#associatedtype.Scalar">Read more</a></p>
+</div><h4 id='associatedtype.Diff' class='type'><code>type <a href='../../cgmath/structure/trait.EuclideanSpace.html#associatedtype.Diff' class='type'>Diff</a> = <a class='struct' href='../../base/math/struct.AxialVector.html' title='base::math::AxialVector'>AxialVector</a></code></h4>
+<div class='docblock'><p>The associated space of displacement vectors.</p>
+</div><h4 id='method.origin' class='method'><code>fn <a href='../../cgmath/structure/trait.EuclideanSpace.html#tymethod.origin' class='fnname'>origin</a>() -&gt; Self</code></h4>
+<div class='docblock'><p>The point at the origin of the Euclidean space.</p>
+</div><h4 id='method.from_vec' class='method'><code>fn <a href='../../cgmath/structure/trait.EuclideanSpace.html#tymethod.from_vec' class='fnname'>from_vec</a>(v: Self::<a class='trait' href='../../cgmath/structure/trait.EuclideanSpace.html' title='cgmath::structure::EuclideanSpace'>Diff</a>) -&gt; Self</code></h4>
+<div class='docblock'><p>Convert a displacement vector to a point. <a href="../../cgmath/structure/trait.EuclideanSpace.html#tymethod.from_vec">Read more</a></p>
+</div><h4 id='method.to_vec' class='method'><code>fn <a href='../../cgmath/structure/trait.EuclideanSpace.html#tymethod.to_vec' class='fnname'>to_vec</a>(self) -&gt; Self::<a class='trait' href='../../cgmath/structure/trait.EuclideanSpace.html' title='cgmath::structure::EuclideanSpace'>Diff</a></code></h4>
+<div class='docblock'><p>Convert a point to a displacement vector. <a href="../../cgmath/structure/trait.EuclideanSpace.html#tymethod.to_vec">Read more</a></p>
+</div><h4 id='method.dot' class='method'><code>fn <a href='../../cgmath/structure/trait.EuclideanSpace.html#tymethod.dot' class='fnname'>dot</a>(self, v: Self::<a class='trait' href='../../cgmath/structure/trait.EuclideanSpace.html' title='cgmath::structure::EuclideanSpace'>Diff</a>) -&gt; Self::<a class='trait' href='../../cgmath/structure/trait.EuclideanSpace.html' title='cgmath::structure::EuclideanSpace'>Scalar</a></code></h4>
+<div class='docblock'><p>This is a weird one, but its useful for plane calculations.</p>
+</div><h4 id='method.midpoint' class='method'><code>fn <a href='../../cgmath/structure/trait.EuclideanSpace.html#method.midpoint' class='fnname'>midpoint</a>(self, other: Self) -&gt; Self</code></h4>
+<div class='docblock'><p>Returns the middle point between two other points. <a href="../../cgmath/structure/trait.EuclideanSpace.html#method.midpoint">Read more</a></p>
+</div><h4 id='method.centroid' class='method'><code>fn <a href='../../cgmath/structure/trait.EuclideanSpace.html#method.centroid' class='fnname'>centroid</a>(points: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[Self]</a>) -&gt; Self</code></h4>
+<div class='docblock'><p>Returns the average position of all points in the slice. <a href="../../cgmath/structure/trait.EuclideanSpace.html#method.centroid">Read more</a></p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "base";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

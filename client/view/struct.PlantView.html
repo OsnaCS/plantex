@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `PlantView` struct in crate `client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, PlantView">
+
+    <title>client::view::PlantView - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>client</a>::<wbr><a href='index.html'>view</a></p><script>window.sidebarCurrent = {name: 'PlantView', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>client</a>::<wbr><a href='index.html'>view</a>::<wbr><a class='struct' href=''>PlantView</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-1936' class='srclink' href='../../src/client/client/src/view/plant_view.rs.html#19-26' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct PlantView {
+    // some fields omitted
+}</pre><div class='docblock'><p>Graphical representation of a &#39;base::Plant&#39;</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../../client/view/struct.PlantView.html' title='client::view::PlantView'>PlantView</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-1960' class='srclink' href='../../src/client/client/src/view/plant_view.rs.html#34-155' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from_plant' class='method'><code>fn <a href='#method.from_plant' class='fnname'>from_plant</a>&lt;F:&nbsp;<a class='trait' href='../../glium/backend/trait.Facade.html' title='glium::backend::Facade'>Facade</a>&gt;(plant: &amp;<a class='enum' href='../../base/prop/plant/enum.Plant.html' title='base::prop::plant::Plant'>Plant</a>, renderer: <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;<a class='struct' href='../../client/view/struct.PlantRenderer.html' title='client::view::PlantRenderer'>PlantRenderer</a>&gt;, facade: &amp;F) -&gt; Self</code></h4>
+<h4 id='method.add_instance_from_pos' class='method'><code>fn <a href='#method.add_instance_from_pos' class='fnname'>add_instance_from_pos</a>(&amp;mut self, chunk_pos: <a class='struct' href='../../base/world/struct.ChunkIndex.html' title='base::world::ChunkIndex'>ChunkIndex</a>, pos: <a class='type' href='../../base/math/type.Point3f.html' title='base::math::Point3f'>Point3f</a>)</code></h4>
+<h4 id='method.remove_instance_at_pos' class='method'><code>fn <a href='#method.remove_instance_at_pos' class='fnname'>remove_instance_at_pos</a>(&amp;mut self, chunk_pos: <a class='struct' href='../../base/world/struct.ChunkIndex.html' title='base::world::ChunkIndex'>ChunkIndex</a>)</code></h4>
+<h4 id='method.draw_shadow' class='method'><code>fn <a href='#method.draw_shadow' class='fnname'>draw_shadow</a>&lt;S:&nbsp;<a class='trait' href='../../glium/trait.Surface.html' title='glium::Surface'>Surface</a>&gt;(&amp;self, surface: &amp;mut S, camera: &amp;<a class='struct' href='../../client/struct.Camera.html' title='client::Camera'>Camera</a>)</code></h4>
+<h4 id='method.draw' class='method'><code>fn <a href='#method.draw' class='fnname'>draw</a>&lt;S:&nbsp;<a class='trait' href='../../glium/trait.Surface.html' title='glium::Surface'>Surface</a>&gt;(&amp;self, surface: &amp;mut S, camera: &amp;<a class='struct' href='../../client/struct.Camera.html' title='client::Camera'>Camera</a>, shadow_map: &amp;<a class='struct' href='../../glium/texture/texture2d/struct.Texture2d.html' title='glium::texture::texture2d::Texture2d'>Texture2d</a>, depth_view_proj: &amp;<a class='struct' href='../../cgmath/matrix/struct.Matrix4.html' title='cgmath::matrix::Matrix4'>Matrix4</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt;, daytime: &amp;<a class='struct' href='../../client/daytime/struct.DayTime.html' title='client::daytime::DayTime'>DayTime</a>, sun_dir: <a class='type' href='../../base/math/type.Vector3f.html' title='base::math::Vector3f'>Vector3f</a>)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

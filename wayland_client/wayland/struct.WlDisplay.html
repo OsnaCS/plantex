@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WlDisplay` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WlDisplay">
+
+    <title>wayland_client::wayland::WlDisplay - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>wayland_client</a>::<wbr><a href='index.html'>wayland</a></p><script>window.sidebarCurrent = {name: 'WlDisplay', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>wayland_client</a>::<wbr><a href='index.html'>wayland</a>::<wbr><a class='struct' href=''>WlDisplay</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-335' class='srclink' href='../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#88-91' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct WlDisplay {
+    // some fields omitted
+}</pre><div class='docblock'><p>core global object</p>
+
+<p>The core global object.  This is a special singleton object.  It
+is used for internal Wayland protocol features.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../../wayland_client/wayland/struct.WlDisplay.html' title='wayland_client::wayland::WlDisplay'>WlDisplay</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-407' class='srclink' href='../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#188-227' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.sync' class='method'><code>fn <a href='#method.sync' class='fnname'>sync</a>(&amp;self) -&gt; <a class='struct' href='../../wayland_client/wayland/struct.WlCallback.html' title='wayland_client::wayland::WlCallback'>WlCallback</a></code></h4>
+<div class='docblock'><p>asynchronous roundtrip</p>
+
+<p>The sync request asks the server to emit the &#39;done&#39; event
+on the returned wl_callback object.  Since requests are
+handled in-order and events are delivered in-order, this can
+be used as a barrier to ensure all previous requests and the
+resulting events have been handled.</p>
+
+<p>The object returned by this request will be destroyed by the
+compositor after the callback is fired and as such the client must not
+attempt to use it after that point.</p>
+
+<p>The callback_data passed in the callback is the event serial.</p>
+</div><h4 id='method.get_registry' class='method'><code>fn <a href='#method.get_registry' class='fnname'>get_registry</a>(&amp;self) -&gt; <a class='struct' href='../../wayland_client/wayland/struct.WlRegistry.html' title='wayland_client::wayland::WlRegistry'>WlRegistry</a></code></h4>
+<div class='docblock'><p>get global registry object</p>
+
+<p>This request creates a registry object that allows the client
+to list and bind the global objects available from the
+compositor.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../../wayland_client/wayland/struct.WlDisplay.html' title='wayland_client::wayland::WlDisplay'>WlDisplay</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-3270' class='srclink' href='../../src/wayland_client/wayland.rs.html#59-129' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.sync_roundtrip' class='method'><code>fn <a href='#method.sync_roundtrip' class='fnname'>sync_roundtrip</a>(&amp;mut self) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt;</code></h4>
+<div class='docblock'><p>Synchronous roundtrip</p>
+
+<p>This call will cause a synchonous roundtrip with the wayland server. I will block until all
+pending requests are send to the server and it has processed all of them and send the
+appropriate events.</p>
+
+<p>On success returns the number of dispatched events.</p>
+</div><h4 id='method.dispatch' class='method'><code>fn <a href='#method.dispatch' class='fnname'>dispatch</a>(&amp;mut self) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt;</code></h4>
+<div class='docblock'><p>Blocking dispatch</p>
+
+<p>Will dispatch all pending events from the internal buffer to the events iterators.
+If the buffer was empty, will read new events from the server socket, blocking if necessary.</p>
+
+<p>On success returns the number of dispatched events.</p>
+</div><h4 id='method.dispatch_pending' class='method'><code>fn <a href='#method.dispatch_pending' class='fnname'>dispatch_pending</a>(&amp;self) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt;</code></h4>
+<div class='docblock'><p>Non-blocking dispatch</p>
+
+<p>Will dispatch all pending events from the internal buffer to the events iterators.
+Will not try to read events from the server socket, hence never blocks.</p>
+
+<p>On success returns the number of dispatched events.</p>
+</div><h4 id='method.prepare_read' class='method'><code>fn <a href='#method.prepare_read' class='fnname'>prepare_read</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../wayland_client/wayland/struct.ReadEventsGuard.html' title='wayland_client::wayland::ReadEventsGuard'>ReadEventsGuard</a>&gt;</code></h4>
+<div class='docblock'><p>Prepare an conccurent read</p>
+
+<p>Will declare your intention to read events from the server socket. Contrarily to <code>dispatch()</code>
+or <code>sync_roundtrip()</code>, this method can be called several times conccurently.</p>
+
+<p>Will return <code>None</code> if there are still some events awaiting dispatch. In this case, you need
+to call <code>dispatch_pending()</code> before calling this method again.</p>
+
+<p>As long as the returned guard is in scope, no events can be dispatched to any event iterator.</p>
+
+<p>The guard can then be destroyed by two means:</p>
+
+<ul>
+<li>Calling its <code>cancel()</code> method (or letting it go out of scope): the read intention will
+be cancelled</li>
+<li>Calling its <code>read_events()</code> method: will block until all existing guards are destroyed
+by one of these methods, then events will be read and all blocked <code>read_events()</code> calls
+will return.</li>
+</ul>
+
+<p>This call will otherwise not block on the server socket if it is empty, and return
+an io error <code>WouldBlock</code> in such cases.</p>
+</div><h4 id='method.flush' class='method'><code>fn <a href='#method.flush' class='fnname'>flush</a>(&amp;self) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/std/io/error/type.Result.html' title='std::io::error::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt;</code></h4>
+<div class='docblock'><p>Non-blocking write to the server</p>
+
+<p>Will write as many requests as possible to the server socket. Never blocks: if not all
+requests coul be written, will return an io error <code>WouldBlock</code>.</p>
+
+<p>On success returns the number of written requests.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a> for <a class='struct' href='../../wayland_client/wayland/struct.WlDisplay.html' title='wayland_client::wayland::WlDisplay'>WlDisplay</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-338' class='srclink' href='../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#93' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> for <a class='struct' href='../../wayland_client/wayland/struct.WlDisplay.html' title='wayland_client::wayland::WlDisplay'>WlDisplay</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-339' class='srclink' href='../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#94' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='../../wayland_client/trait.Proxy.html' title='wayland_client::Proxy'>Proxy</a> for <a class='struct' href='../../wayland_client/wayland/struct.WlDisplay.html' title='wayland_client::wayland::WlDisplay'>WlDisplay</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-340' class='srclink' href='../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#95-110' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.ptr' class='method'><code>fn <a href='../../wayland_client/trait.Proxy.html#tymethod.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a><a class='enum' href='../../wayland_sys/client/enum.wl_proxy.html' title='wayland_sys::client::wl_proxy'>wl_proxy</a></code></h4>
+<h4 id='method.interface' class='method'><code>fn <a href='../../wayland_client/trait.Proxy.html#tymethod.interface' class='fnname'>interface</a>() -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a><a class='struct' href='../../wayland_sys/common/struct.wl_interface.html' title='wayland_sys::common::wl_interface'>wl_interface</a></code></h4>
+<h4 id='method.interface_name' class='method'><code>fn <a href='../../wayland_client/trait.Proxy.html#tymethod.interface_name' class='fnname'>interface_name</a>() -&gt; &amp;'static <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a></code></h4>
+<div class='docblock'><p>The internal name of this interface, as advertized by the registry if it is a global.</p>
+</div><h4 id='method.version' class='method'><code>fn <a href='../../wayland_client/trait.Proxy.html#tymethod.version' class='fnname'>version</a>() -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a></code></h4>
+<div class='docblock'><p>The maximum version of this interface handled by the library.</p>
+</div><h4 id='method.id' class='method'><code>fn <a href='../../wayland_client/trait.Proxy.html#tymethod.id' class='fnname'>id</a>(&amp;self) -&gt; <a class='struct' href='../../wayland_client/struct.ProxyId.html' title='wayland_client::ProxyId'>ProxyId</a></code></h4>
+<div class='docblock'><p>Get the id of this proxy</p>
+</div><h4 id='method.from_ptr' class='method'><code>unsafe fn <a href='../../wayland_client/trait.Proxy.html#tymethod.from_ptr' class='fnname'>from_ptr</a>(ptr: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a><a class='enum' href='../../wayland_sys/client/enum.wl_proxy.html' title='wayland_sys::client::wl_proxy'>wl_proxy</a>) -&gt; <a class='struct' href='../../wayland_client/wayland/struct.WlDisplay.html' title='wayland_client::wayland::WlDisplay'>WlDisplay</a></code></h4>
+<div class='docblock'><p>Creates a proxy from a fresh ptr</p>
+</div><h4 id='method.from_ptr_no_own' class='method'><code>unsafe fn <a href='../../wayland_client/trait.Proxy.html#tymethod.from_ptr_no_own' class='fnname'>from_ptr_no_own</a>(ptr: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a><a class='enum' href='../../wayland_sys/client/enum.wl_proxy.html' title='wayland_sys::client::wl_proxy'>wl_proxy</a>) -&gt; <a class='struct' href='../../wayland_client/wayland/struct.WlDisplay.html' title='wayland_client::wayland::WlDisplay'>WlDisplay</a></code></h4>
+<div class='docblock'><p>Creates a proxy from a ptr that is managed elsewhere <a href="../../wayland_client/trait.Proxy.html#tymethod.from_ptr_no_own">Read more</a></p>
+</div><h4 id='method.set_evt_iterator' class='method'><code>fn <a href='../../wayland_client/trait.Proxy.html#tymethod.set_evt_iterator' class='fnname'>set_evt_iterator</a>(&amp;mut self, evt: &amp;<a class='struct' href='../../wayland_client/struct.EventIterator.html' title='wayland_client::EventIterator'>EventIterator</a>)</code></h4>
+<div class='docblock'><p>Set the event iterator associated to this proxy</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../wayland_client/wayland/struct.WlDisplay.html' title='wayland_client::wayland::WlDisplay'>WlDisplay</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-355' class='srclink' href='../../src/wayland_client/home/travis/build/OsnaCS/plantex/target/debug/build/wayland-client-a4c38b9fe523cc64/out/wayland_client_api.rs.html#112-116' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, fmt: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>,&nbsp;<a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html' title='core::fmt::Error'>Error</a>&gt;</code></h4>
+<div class='docblock'><p>Formats the value using the given formatter.</p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../../wayland_client/wayland/struct.WlDisplay.html' title='wayland_client::wayland::WlDisplay'>WlDisplay</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-3286' class='srclink' href='../../src/wayland_client/wayland.rs.html#131-135' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
+<div class='docblock'><p>A method called when the value goes out of scope. <a href="https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop">Read more</a></p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

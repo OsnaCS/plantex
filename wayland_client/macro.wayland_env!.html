@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `wayland_env!` macro in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, wayland_env!">
+
+    <title>wayland_client::wayland_env! - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>wayland_client</a></p><script>window.sidebarCurrent = {name: 'wayland_env!', ty: 'macro', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content macro">
+<h1 class='fqn'><span class='in-band'><a href='index.html'>wayland_client</a>::<wbr><a class='macro' href=''>wayland_env!</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-3355' class='srclink' href='../src/wayland_client/env.rs.html#69-162' title='goto source code'>[src]</a></span></h1>
+<pre class='rust macro'>
+<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>wayland_env</span> {
+    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>structname</span>: <span class='ident'>ident</span>, $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>: <span class='ident'>ident</span> : <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>interface</span>: <span class='ident'>ty</span>),<span class='op'>*</span>) <span class='op'>=&gt;</span> { ... };
+}</pre>
+<div class='docblock'><p>This macro allows you to create a simple wayland environment handler.</p>
+
+<p>It will define a struct which upon creation communicates with the server
+to fetch the list of global objects and instanciate them with the newest
+interface version supported by both the server and the client library.</p>
+
+<p>This struct comes with a static constructor <code>init(display)</code>, which takes
+a display, and returns the created struct and an <code>EventIterator</code> associated
+with the display and all the global objects.</p>
+
+<p>Note that none of the events associated with the newly created objects are
+dispatched (expect for the registry), allowing you to change the event iterators
+associated with them before dispatching them, if you want to.</p>
+
+<p>The struct has these public fields:</p>
+
+<ul>
+<li><code>display</code>: the <code>WlDisplay</code> provided as argument</li>
+<li><code>registry</code>: a instance of the <code>WlRegistry</code> associated</li>
+<li><code>globals</code>: a <code>Vec</code> containing the globals advertized by the server, in the format
+<code>(global_id, interface_name, version)</code>
+Note here that <code>version</code> is the version advertized by the server.</li>
+<li>One field for each of the objects you specified, of type <code>Option&lt;T, u32&gt;</code>, in the format
+<code>(proxy, version)</code>. The value is <code>None</code> if this global was not advertized by the server.</li>
+</ul>
+
+<p>Note that:</p>
+
+<ul>
+<li>If you specify several objects of the same interface, only the first one will be
+populated.</li>
+<li>If a global is advertized several times (like <code>wl_seat</code> or <code>wl_output</code> can be), only
+the first one will be automatically bound (but all will still be listed in the <code>globals</code>
+list).</li>
+</ul>
+
+<p>The struct also provides two methods:</p>
+
+<ul>
+<li><code>fn rebind&lt;T: Proxy&gt;(&amp;self) -&gt; Option&lt;(T, u32)&gt;</code> which will try to bind once more a global
+(this allows you to effectively clone a global, and is perfectly legal). It will match
+the first global of that type that was encountered. Returns <code>None</code> if this global type was
+not encountered.</li>
+<li><code>fn rebind_id&lt;T: Proxy&gt;(&amp;self, id: u32) -&gt; Option&lt;(T, u32)&gt;</code> which will try to bind once
+more a global with given id as listed in <code>globals</code>. Returns <code>None</code> if given id is not known
+or if its interface does not match with the provided type.</li>
+</ul>
+
+<p>Example of use:</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='attribute'>#[<span class='ident'>macro_use</span>]</span> <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>wayland_client</span>;
+
+<span class='kw'>use</span> <span class='ident'>wayland_client</span>::<span class='ident'>wayland</span>::<span class='ident'>get_display</span>;
+<span class='kw'>use</span> <span class='ident'>wayland_client</span>::<span class='ident'>wayland</span>::<span class='ident'>compositor</span>::<span class='ident'>WlCompositor</span>;
+<span class='kw'>use</span> <span class='ident'>wayland_client</span>::<span class='ident'>wayland</span>::<span class='ident'>shell</span>::<span class='ident'>WlShell</span>;
+
+<span class='macro'>wayland_env</span><span class='macro'>!</span>(<span class='ident'>WaylandEnv</span>,
+    <span class='ident'>compositor</span>: <span class='ident'>WlCompositor</span>,
+    <span class='ident'>shell</span>: <span class='ident'>WlShell</span>
+);
+
+<span class='kw'>fn</span> <span class='ident'>main</span>() {
+    <span class='kw'>let</span> <span class='ident'>display</span> <span class='op'>=</span> <span class='ident'>get_display</span>().<span class='ident'>expect</span>(<span class='string'>&quot;Unable to connect to waylans server.&quot;</span>);
+    <span class='kw'>let</span> (<span class='ident'>env</span>, <span class='ident'>iter</span>) <span class='op'>=</span> <span class='ident'>WaylandEnv</span>::<span class='ident'>init</span>(<span class='ident'>display</span>);
+    <span class='kw'>let</span> <span class='ident'>shell</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>env</span>.<span class='ident'>shell</span> {
+        <span class='prelude-val'>Some</span>((<span class='kw-2'>ref</span> <span class='ident'>comp</span>, <span class='ident'>version</span>)) <span class='kw'>if</span> <span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='number'>2</span> <span class='op'>=&gt;</span> <span class='ident'>comp</span>,
+        _ <span class='op'>=&gt;</span> <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;This app requires the wayland interface wl_shell of version &gt;= 2.&quot;</span>)
+    };
+    <span class='comment'>// etc...</span>
+}</pre>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Camera` struct in crate `client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Camera">
+
+    <title>client::Camera - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>client</a></p><script>window.sidebarCurrent = {name: 'Camera', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>client</a>::<wbr><a class='struct' href=''>Camera</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-21' class='srclink' href='../src/client/client/src/camera.rs.html#5-13' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Camera {
+    pub position: <a class='type' href='../base/math/type.Point3f.html' title='base::math::Point3f'>Point3f</a>,
+    pub theta: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>,
+    pub phi: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>,
+    pub aspect_ratio: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>,
+    // some fields omitted
+}</pre><h2 class='fields'>Fields</h2><span id='structfield.position' class='structfield'><code>position: <a class='type' href='../base/math/type.Point3f.html' title='base::math::Point3f'>Point3f</a></code>
+                           </span><span class='stab '></span><span id='structfield.theta' class='structfield'><code>theta: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a></code>
+                           </span><span class='stab '></span><span id='structfield.phi' class='structfield'><code>phi: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a></code>
+                           </span><span class='stab '></span><span id='structfield.aspect_ratio' class='structfield'><code>aspect_ratio: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a></code>
+                           </span><span class='stab '></span><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../client/struct.Camera.html' title='client::Camera'>Camera</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-27' class='srclink' href='../src/client/client/src/camera.rs.html#15-173' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(aspect_ratio: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>) -&gt; <a class='struct' href='../client/struct.Camera.html' title='client::Camera'>Camera</a></code></h4>
+<div class='docblock'><p>Create new Camera with given aspect ratio</p>
+</div><h4 id='method.new_from_vector' class='method'><code>fn <a href='#method.new_from_vector' class='fnname'>new_from_vector</a>(pos: <a class='type' href='../base/math/type.Point3f.html' title='base::math::Point3f'>Point3f</a>, look: <a class='type' href='../base/math/type.Vector3f.html' title='base::math::Vector3f'>Vector3f</a>, aspect_ratio: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>) -&gt; Self</code></h4>
+<div class='docblock'><p>returns a camera based on a vector to look at</p>
+</div><h4 id='method.proj_matrix' class='method'><code>fn <a href='#method.proj_matrix' class='fnname'>proj_matrix</a>(&amp;self) -&gt; <a class='struct' href='../cgmath/matrix/struct.Matrix4.html' title='cgmath::matrix::Matrix4'>Matrix4</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt;</code></h4>
+<div class='docblock'><p>Returns the projection matrix</p>
+</div><h4 id='method.set_proj_matrix' class='method'><code>fn <a href='#method.set_proj_matrix' class='fnname'>set_proj_matrix</a>(&amp;mut self, proj: <a class='struct' href='../cgmath/matrix/struct.Matrix4.html' title='cgmath::matrix::Matrix4'>Matrix4</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt;)</code></h4>
+<h4 id='method.view_matrix' class='method'><code>fn <a href='#method.view_matrix' class='fnname'>view_matrix</a>(&amp;self) -&gt; <a class='struct' href='../cgmath/matrix/struct.Matrix4.html' title='cgmath::matrix::Matrix4'>Matrix4</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt;</code></h4>
+<div class='docblock'><p>Returns view matrix</p>
+</div><h4 id='method.get_look_at_point' class='method'><code>fn <a href='#method.get_look_at_point' class='fnname'>get_look_at_point</a>(&amp;self) -&gt; <a class='type' href='../base/math/type.Point3f.html' title='base::math::Point3f'>Point3f</a></code></h4>
+<div class='docblock'><p>Calculates the look_at_point by adding the current position to the
+look_at_vector</p>
+</div><h4 id='method.get_look_at_vector' class='method'><code>fn <a href='#method.get_look_at_vector' class='fnname'>get_look_at_vector</a>(&amp;self) -&gt; <a class='type' href='../base/math/type.Vector3f.html' title='base::math::Vector3f'>Vector3f</a></code></h4>
+<div class='docblock'><p>Calculates the look_at_vector by using theta and phi on the unit sphere</p>
+</div><h4 id='method.move_by' class='method'><code>fn <a href='#method.move_by' class='fnname'>move_by</a>(&amp;mut self, pos_diff: <a class='type' href='../base/math/type.Vector3f.html' title='base::math::Vector3f'>Vector3f</a>)</code></h4>
+<div class='docblock'><p>Internal function to move the position of the camera
+Will be called by the other functions (move_forwars etc)</p>
+</div><h4 id='method.move_forward' class='method'><code>fn <a href='#method.move_forward' class='fnname'>move_forward</a>(&amp;mut self, factor: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h4>
+<div class='docblock'><p>Method to call when <strong>forward movement</strong> is needed
+<code>factor</code> is a factor to scale the movement speed
+<code>factor</code> has to be positive for foward movement</p>
+</div><h4 id='method.move_backward' class='method'><code>fn <a href='#method.move_backward' class='fnname'>move_backward</a>(&amp;mut self, factor: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h4>
+<div class='docblock'><p>Method to call when <strong>backward movement</strong> is needed
+<code>factor</code> is a factor to scale the movement speed
+<code>factor</code> has to be positive for backward movement</p>
+</div><h4 id='method.move_left' class='method'><code>fn <a href='#method.move_left' class='fnname'>move_left</a>(&amp;mut self, factor: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h4>
+<div class='docblock'><p>Method to call when <strong>left movement</strong> is needed
+<code>factor</code> is a factor to scale the movement speed
+<code>factor</code> has to be positive for left movement</p>
+</div><h4 id='method.move_right' class='method'><code>fn <a href='#method.move_right' class='fnname'>move_right</a>(&amp;mut self, factor: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h4>
+<div class='docblock'><p>Method to call when <strong>right movement</strong> is needed
+<code>factor</code> is a factor to scale the movement speed
+<code>factor</code> has to be positive for right movement</p>
+</div><h4 id='method.move_up' class='method'><code>fn <a href='#method.move_up' class='fnname'>move_up</a>(&amp;mut self, factor: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h4>
+<div class='docblock'><p>Method to call when <strong>upward movement</strong> is needed
+<code>factor</code> is a factor to scale the movement speed
+<code>factor</code> has to be positive for upward movement</p>
+</div><h4 id='method.move_down' class='method'><code>fn <a href='#method.move_down' class='fnname'>move_down</a>(&amp;mut self, factor: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h4>
+<div class='docblock'><p>Method to call when <strong>downward movement</strong> is needed
+<code>factor</code> is a factor to scale the movement speed
+<code>factor</code> has to be positive for downward movement</p>
+</div><h4 id='method.change_dir' class='method'><code>fn <a href='#method.change_dir' class='fnname'>change_dir</a>(&amp;mut self, theta_diff: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, phi_diff: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</code></h4>
+<div class='docblock'><p>Changes <code>theta</code> and <code>phi</code> to essentially change the direction the
+camera looks</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../client/struct.Camera.html' title='client::Camera'>Camera</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-12' class='srclink' href='../src/client/client/src/camera.rs.html#4' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../client/struct.Camera.html' title='client::Camera'>Camera</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-13' class='srclink' href='../src/client/client/src/camera.rs.html#4' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../client/struct.Camera.html' title='client::Camera'>Camera</a></code></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

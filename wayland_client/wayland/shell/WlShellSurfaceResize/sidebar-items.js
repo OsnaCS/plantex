@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["Bottom",""],["BottomLeft",""],["BottomRight",""],["Left",""],["None",""],["Right",""],["Top",""],["TopLeft",""],["TopRight",""]],"struct":[["WlShellSurfaceResize",""]]});

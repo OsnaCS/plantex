@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WorldManager` struct in crate `client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WorldManager">
+
+    <title>client::WorldManager - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>client</a></p><script>window.sidebarCurrent = {name: 'WorldManager', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>client</a>::<wbr><a class='struct' href=''>WorldManager</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-1626' class='srclink' href='../src/client/client/src/world_manager.rs.html#15-19' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct WorldManager {
+    // some fields omitted
+}</pre><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../client/struct.WorldManager.html' title='client::WorldManager'>WorldManager</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-1637' class='srclink' href='../src/client/client/src/world_manager.rs.html#30-212' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(provider: <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='trait' href='../base/world/provider/trait.ChunkProvider.html' title='base::world::provider::ChunkProvider'>ChunkProvider</a>&gt;, game_context: <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;<a class='struct' href='../client/struct.GameContext.html' title='client::GameContext'>GameContext</a>&gt;) -&gt; Self</code></h4>
+<h4 id='method.get_world' class='method'><code>fn <a href='#method.get_world' class='fnname'>get_world</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/core/cell/struct.Ref.html' title='core::cell::Ref'>Ref</a>&lt;<a class='struct' href='../base/world/world/struct.World.html' title='base::world::world::World'>World</a>&gt;</code></h4>
+<div class='docblock'><p>Returns an immutable reference to the world.</p>
+
+<p><em>Note</em>: since the world manager uses a <code>RefCell</code> to save the world, a
+<code>Ref</code> is returned. But thanks to deref coercions you can use it like a
+standard reference.</p>
+</div><h4 id='method.mut_world' class='method'><code>fn <a href='#method.mut_world' class='fnname'>mut_world</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/core/cell/struct.RefMut.html' title='core::cell::RefMut'>RefMut</a>&lt;<a class='struct' href='../base/world/world/struct.World.html' title='base::world::world::World'>World</a>&gt;</code></h4>
+<h4 id='method.get_view' class='method'><code>fn <a href='#method.get_view' class='fnname'>get_view</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/core/cell/struct.Ref.html' title='core::cell::Ref'>Ref</a>&lt;WorldView&gt;</code></h4>
+<div class='docblock'><p>Returns an immutable reference to the world view.</p>
+</div><h4 id='method.get_mut_view' class='method'><code>fn <a href='#method.get_mut_view' class='fnname'>get_mut_view</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/core/cell/struct.RefMut.html' title='core::cell::RefMut'>RefMut</a>&lt;WorldView&gt;</code></h4>
+<div class='docblock'><p>Returns an mutable reference to the world view.</p>
+</div><h4 id='method.get_context' class='method'><code>fn <a href='#method.get_context' class='fnname'>get_context</a>(&amp;self) -&gt; &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;<a class='struct' href='../client/struct.GameContext.html' title='client::GameContext'>GameContext</a>&gt;</code></h4>
+<h4 id='method.update_world' class='method'><code>fn <a href='#method.update_world' class='fnname'>update_world</a>(&amp;self, player_pos: <a class='type' href='../base/math/type.Point3f.html' title='base::math::Point3f'>Point3f</a>)</code></h4>
+<div class='docblock'><p>Applies all queued updated to the actual world. Notably, all generated
+chunks are added.</p>
+</div><h4 id='method.recalculate_chunk' class='method'><code>fn <a href='#method.recalculate_chunk' class='fnname'>recalculate_chunk</a>(&amp;mut self, pos: <a class='struct' href='../base/math/axial_point/struct.AxialPoint.html' title='base::math::axial_point::AxialPoint'>AxialPoint</a>)</code></h4>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../client/struct.WorldManager.html' title='client::WorldManager'>WorldManager</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-1620' class='srclink' href='../src/client/client/src/world_manager.rs.html#14' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../client/struct.WorldManager.html' title='client::WorldManager'>WorldManager</a></code></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

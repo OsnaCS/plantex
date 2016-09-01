@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Chunk","Represents one part of the game world."],["ChunkPillars",""]]});

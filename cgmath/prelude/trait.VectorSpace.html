@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `VectorSpace` trait in crate `cgmath`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, VectorSpace">
+
+    <title>cgmath::prelude::VectorSpace - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>cgmath</a>::<wbr><a href='index.html'>prelude</a></p><script>window.sidebarCurrent = {name: 'VectorSpace', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content trait">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>cgmath</a>::<wbr><a href='index.html'>prelude</a>::<wbr><a class='trait' href=''>VectorSpace</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-281' class='srclink' href='../../src/cgmath/structure.rs.html#154-167' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait VectorSpace: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> <span class='where'>where Self: <a class='trait' href='../../cgmath/prelude/trait.Zero.html' title='cgmath::prelude::Zero'>Zero</a>, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Add.html' title='core::ops::Add'>Add</a>&lt;Self,&nbsp;Output=Self&gt;, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Sub.html' title='core::ops::Sub'>Sub</a>&lt;Self,&nbsp;Output=Self&gt;, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Mul.html' title='core::ops::Mul'>Mul</a>&lt;Self::Scalar,&nbsp;Output=Self&gt;, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Div.html' title='core::ops::Div'>Div</a>&lt;Self::Scalar,&nbsp;Output=Self&gt;, Self: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html' title='core::ops::Rem'>Rem</a>&lt;Self::Scalar,&nbsp;Output=Self&gt;</span> {
+    type <a href='#associatedtype.Scalar' class='type'>Scalar</a>: <a class='trait' href='../../cgmath/trait.BaseNum.html' title='cgmath::BaseNum'>BaseNum</a>;
+}</pre><div class='docblock'><p>Vectors that can be <a href="http://mathworld.wolfram.com/VectorAddition.html">added</a>
+together and <a href="https://en.wikipedia.org/wiki/Scalar_multiplication">multiplied</a>
+by scalars.</p>
+
+<p>Examples include vectors, matrices, and quaternions.</p>
+
+<h1 id='required-operators' class='section-header'><a href='#required-operators'>Required operators</a></h1>
+<h2 id='vector-addition' class='section-header'><a href='#vector-addition'>Vector addition</a></h2>
+<p>Vectors can be added, subtracted, or negated via the following traits:</p>
+
+<ul>
+<li><code>Add&lt;Output = Self&gt;</code></li>
+<li><code>Sub&lt;Output = Self&gt;</code></li>
+<li><code>Neg&lt;Output = Self&gt;</code></li>
+</ul>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>Vector3</span>;
+
+<span class='kw'>let</span> <span class='ident'>velocity0</span> <span class='op'>=</span> <span class='ident'>Vector3</span>::<span class='ident'>new</span>(<span class='number'>1</span>, <span class='number'>2</span>, <span class='number'>0</span>);
+<span class='kw'>let</span> <span class='ident'>velocity1</span> <span class='op'>=</span> <span class='ident'>Vector3</span>::<span class='ident'>new</span>(<span class='number'>1</span>, <span class='number'>1</span>, <span class='number'>0</span>);
+
+<span class='kw'>let</span> <span class='ident'>total_velocity</span> <span class='op'>=</span> <span class='ident'>velocity0</span> <span class='op'>+</span> <span class='ident'>velocity1</span>;
+<span class='kw'>let</span> <span class='ident'>velocity_diff</span> <span class='op'>=</span> <span class='ident'>velocity1</span> <span class='op'>-</span> <span class='ident'>velocity0</span>;
+<span class='kw'>let</span> <span class='ident'>reversed_velocity0</span> <span class='op'>=</span> <span class='op'>-</span><span class='ident'>velocity0</span>;</pre>
+
+<p>Vector spaces are also required to implement the additive identity trait,
+<code>Zero</code>. Adding this to another vector should have no effect:</p>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>prelude</span>::<span class='op'>*</span>;
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>Vector2</span>;
+
+<span class='kw'>let</span> <span class='ident'>v</span> <span class='op'>=</span> <span class='ident'>Vector2</span>::<span class='ident'>new</span>(<span class='number'>1</span>, <span class='number'>2</span>);
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>v</span> <span class='op'>+</span> <span class='ident'>Vector2</span>::<span class='ident'>zero</span>(), <span class='ident'>v</span>);</pre>
+
+<h2 id='scalar-multiplication' class='section-header'><a href='#scalar-multiplication'>Scalar multiplication</a></h2>
+<p>Vectors can be multiplied or divided by their associated scalars via the
+following traits:</p>
+
+<ul>
+<li><code>Mul&lt;Self::Scalar, Output = Self&gt;</code></li>
+<li><code>Div&lt;Self::Scalar, Output = Self&gt;</code></li>
+<li><code>Rem&lt;Self::Scalar, Output = Self&gt;</code></li>
+</ul>
+
+<pre class='rust rust-example-rendered'>
+<span class='kw'>use</span> <span class='ident'>cgmath</span>::<span class='ident'>Vector2</span>;
+
+<span class='kw'>let</span> <span class='ident'>translation</span> <span class='op'>=</span> <span class='ident'>Vector2</span>::<span class='ident'>new</span>(<span class='number'>3.0</span>, <span class='number'>4.0</span>);
+<span class='kw'>let</span> <span class='ident'>scale_factor</span> <span class='op'>=</span> <span class='number'>2.0</span>;
+
+<span class='kw'>let</span> <span class='ident'>upscaled_translation</span> <span class='op'>=</span> <span class='ident'>translation</span> <span class='op'>*</span> <span class='ident'>scale_factor</span>;
+<span class='kw'>let</span> <span class='ident'>downscaled_translation</span> <span class='op'>=</span> <span class='ident'>translation</span> <span class='op'>/</span> <span class='ident'>scale_factor</span>;</pre>
+</div>
+            <h2 id='associated-types'>Associated Types</h2>
+            <div class='methods'>
+        <h3 id='associatedtype.Scalar' class='method stab '><code>type <a href='#associatedtype.Scalar' class='type'>Scalar</a>: <a class='trait' href='../../cgmath/trait.BaseNum.html' title='cgmath::BaseNum'>BaseNum</a></code></h3><div class='docblock'><p>The associated scalar.</p>
+</div></div>
+        <h2 id='implementors'>Implementors</h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><code>impl&lt;S:&nbsp;<a class='trait' href='../../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; VectorSpace for <a class='struct' href='../../cgmath/struct.Matrix2.html' title='cgmath::Matrix2'>Matrix2</a>&lt;S&gt;</code></li>
+<li><code>impl&lt;S:&nbsp;<a class='trait' href='../../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; VectorSpace for <a class='struct' href='../../cgmath/struct.Matrix3.html' title='cgmath::Matrix3'>Matrix3</a>&lt;S&gt;</code></li>
+<li><code>impl&lt;S:&nbsp;<a class='trait' href='../../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; VectorSpace for <a class='struct' href='../../cgmath/struct.Matrix4.html' title='cgmath::Matrix4'>Matrix4</a>&lt;S&gt;</code></li>
+<li><code>impl&lt;S:&nbsp;<a class='trait' href='../../cgmath/trait.BaseFloat.html' title='cgmath::BaseFloat'>BaseFloat</a>&gt; VectorSpace for <a class='struct' href='../../cgmath/struct.Quaternion.html' title='cgmath::Quaternion'>Quaternion</a>&lt;S&gt;</code></li>
+<li><code>impl&lt;S:&nbsp;<a class='trait' href='../../cgmath/trait.BaseNum.html' title='cgmath::BaseNum'>BaseNum</a>&gt; VectorSpace for <a class='struct' href='../../cgmath/struct.Vector1.html' title='cgmath::Vector1'>Vector1</a>&lt;S&gt;</code></li>
+<li><code>impl&lt;S:&nbsp;<a class='trait' href='../../cgmath/trait.BaseNum.html' title='cgmath::BaseNum'>BaseNum</a>&gt; VectorSpace for <a class='struct' href='../../cgmath/struct.Vector2.html' title='cgmath::Vector2'>Vector2</a>&lt;S&gt;</code></li>
+<li><code>impl&lt;S:&nbsp;<a class='trait' href='../../cgmath/trait.BaseNum.html' title='cgmath::BaseNum'>BaseNum</a>&gt; VectorSpace for <a class='struct' href='../../cgmath/struct.Vector3.html' title='cgmath::Vector3'>Vector3</a>&lt;S&gt;</code></li>
+<li><code>impl&lt;S:&nbsp;<a class='trait' href='../../cgmath/trait.BaseNum.html' title='cgmath::BaseNum'>BaseNum</a>&gt; VectorSpace for <a class='struct' href='../../cgmath/struct.Vector4.html' title='cgmath::Vector4'>Vector4</a>&lt;S&gt;</code></li>
+</ul><script type="text/javascript" async
+                         src="../../implementors/cgmath/prelude/trait.VectorSpace.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "cgmath";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

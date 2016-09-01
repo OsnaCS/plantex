@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WlEglSurface` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WlEglSurface">
+
+    <title>wayland_client::egl::WlEglSurface - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>wayland_client</a>::<wbr><a href='index.html'>egl</a></p><script>window.sidebarCurrent = {name: 'WlEglSurface', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>wayland_client</a>::<wbr><a href='index.html'>egl</a>::<wbr><a class='struct' href=''>WlEglSurface</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-3130' class='srclink' href='../../src/wayland_client/egl.rs.html#19-22' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct WlEglSurface {
+    // some fields omitted
+}</pre><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../../wayland_client/egl/struct.WlEglSurface.html' title='wayland_client::egl::WlEglSurface'>WlEglSurface</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-3133' class='srclink' href='../../src/wayland_client/egl.rs.html#24-62' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(surface: <a class='struct' href='../../wayland_client/wayland/compositor/struct.WlSurface.html' title='wayland_client::wayland::compositor::WlSurface'>WlSurface</a>, width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) -&gt; <a class='struct' href='../../wayland_client/egl/struct.WlEglSurface.html' title='wayland_client::egl::WlEglSurface'>WlEglSurface</a></code></h4>
+<h4 id='method.destroy' class='method'><code>fn <a href='#method.destroy' class='fnname'>destroy</a>(self) -&gt; <a class='struct' href='../../wayland_client/wayland/compositor/struct.WlSurface.html' title='wayland_client::wayland::compositor::WlSurface'>WlSurface</a></code></h4>
+<h4 id='method.get_size' class='method'><code>fn <a href='#method.get_size' class='fnname'>get_size</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>)</a></code></h4>
+<h4 id='method.resize' class='method'><code>fn <a href='#method.resize' class='fnname'>resize</a>(&amp;self, width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, dx: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, dy: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<h4 id='method.egl_surface_ptr' class='method'><code>fn <a href='#method.egl_surface_ptr' class='fnname'>egl_surface_ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const </a><a class='enum' href='https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html' title='std::os::raw::c_void'>c_void</a></code></h4>
+<h4 id='method.egl_surfaceptr' class='method'><code>unsafe fn <a href='#method.egl_surfaceptr' class='fnname'>egl_surfaceptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut </a><a class='enum' href='https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html' title='std::os::raw::c_void'>c_void</a></code></h4>
+<div class='docblock'><p>DEPRECATED</p>
+</div></div><h2 id='deref-methods'>Methods from <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a>&lt;Target=<a class='struct' href='../../wayland_client/wayland/compositor/struct.WlSurface.html' title='wayland_client::wayland::compositor::WlSurface'>WlSurface</a>&gt;</h2><div class='impl-items'><h4 id='method.destroy-1' class='method'><code>fn <a href='#method.destroy-1' class='fnname'>destroy</a>(self)</code></h4>
+<div class='docblock'><p>delete surface</p>
+
+<p>Deletes the surface and invalidates its object ID.</p>
+</div><h4 id='method.attach' class='method'><code>fn <a href='#method.attach' class='fnname'>attach</a>(&amp;self, buffer: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../../wayland_client/wayland/shm/struct.WlBuffer.html' title='wayland_client::wayland::shm::WlBuffer'>WlBuffer</a>&gt;, x: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, y: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<div class='docblock'><p>set the surface contents</p>
+
+<p>Set a buffer as the content of this surface.</p>
+
+<p>The new size of the surface is calculated based on the buffer
+size transformed by the inverse buffer_transform and the
+inverse buffer_scale. This means that the supplied buffer
+must be an integer multiple of the buffer_scale.</p>
+
+<p>The x and y arguments specify the location of the new pending
+buffer&#39;s upper left corner, relative to the current buffer&#39;s upper
+left corner, in surface local coordinates. In other words, the
+x and y, combined with the new surface size define in which
+directions the surface&#39;s size changes.</p>
+
+<p>Surface contents are double-buffered state, see wl_surface.commit.</p>
+
+<p>The initial surface contents are void; there is no content.
+wl_surface.attach assigns the given wl_buffer as the pending
+wl_buffer. wl_surface.commit makes the pending wl_buffer the new
+surface contents, and the size of the surface becomes the size
+calculated from the wl_buffer, as described above. After commit,
+there is no pending buffer until the next attach.</p>
+
+<p>Committing a pending wl_buffer allows the compositor to read the
+pixels in the wl_buffer. The compositor may access the pixels at
+any time after the wl_surface.commit request. When the compositor
+will not access the pixels anymore, it will send the
+wl_buffer.release event. Only after receiving wl_buffer.release,
+the client may re-use the wl_buffer. A wl_buffer that has been
+attached and then replaced by another attach instead of committed
+will not receive a release event, and is not used by the
+compositor.</p>
+
+<p>Destroying the wl_buffer after wl_buffer.release does not change
+the surface contents. However, if the client destroys the
+wl_buffer before receiving the wl_buffer.release event, the surface
+contents become undefined immediately.</p>
+
+<p>If wl_surface.attach is sent with a NULL wl_buffer, the
+following wl_surface.commit will remove the surface content.</p>
+</div><h4 id='method.damage' class='method'><code>fn <a href='#method.damage' class='fnname'>damage</a>(&amp;self, x: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, y: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<div class='docblock'><p>mark part of the surface damaged</p>
+
+<p>This request is used to describe the regions where the pending
+buffer is different from the current surface contents, and where
+the surface therefore needs to be repainted. The pending buffer
+must be set by wl_surface.attach before sending damage. The
+compositor ignores the parts of the damage that fall outside of
+the surface.</p>
+
+<p>Damage is double-buffered state, see wl_surface.commit.</p>
+
+<p>The damage rectangle is specified in surface local coordinates.</p>
+
+<p>The initial value for pending damage is empty: no damage.
+wl_surface.damage adds pending damage: the new pending damage
+is the union of old pending damage and the given rectangle.</p>
+
+<p>wl_surface.commit assigns pending damage as the current damage,
+and clears pending damage. The server will clear the current
+damage as it repaints the surface.</p>
+</div><h4 id='method.frame' class='method'><code>fn <a href='#method.frame' class='fnname'>frame</a>(&amp;self) -&gt; <a class='struct' href='../../wayland_client/wayland/struct.WlCallback.html' title='wayland_client::wayland::WlCallback'>WlCallback</a></code></h4>
+<div class='docblock'><p>request a frame throttling hint</p>
+
+<p>Request a notification when it is a good time start drawing a new
+frame, by creating a frame callback. This is useful for throttling
+redrawing operations, and driving animations.</p>
+
+<p>When a client is animating on a wl_surface, it can use the &#39;frame&#39;
+request to get notified when it is a good time to draw and commit the
+next frame of animation. If the client commits an update earlier than
+that, it is likely that some updates will not make it to the display,
+and the client is wasting resources by drawing too often.</p>
+
+<p>The frame request will take effect on the next wl_surface.commit.
+The notification will only be posted for one frame unless
+requested again. For a wl_surface, the notifications are posted in
+the order the frame requests were committed.</p>
+
+<p>The server must send the notifications so that a client
+will not send excessive updates, while still allowing
+the highest possible update rate for clients that wait for the reply
+before drawing again. The server should give some time for the client
+to draw and commit after sending the frame callback events to let them
+hit the next output refresh.</p>
+
+<p>A server should avoid signalling the frame callbacks if the
+surface is not visible in any way, e.g. the surface is off-screen,
+or completely obscured by other opaque surfaces.</p>
+
+<p>The object returned by this request will be destroyed by the
+compositor after the callback is fired and as such the client must not
+attempt to use it after that point.</p>
+
+<p>The callback_data passed in the callback is the current time, in
+milliseconds, with an undefined base.</p>
+</div><h4 id='method.set_opaque_region' class='method'><code>fn <a href='#method.set_opaque_region' class='fnname'>set_opaque_region</a>(&amp;self, region: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../../wayland_client/wayland/compositor/struct.WlRegion.html' title='wayland_client::wayland::compositor::WlRegion'>WlRegion</a>&gt;)</code></h4>
+<div class='docblock'><p>set opaque region</p>
+
+<p>This request sets the region of the surface that contains
+opaque content.</p>
+
+<p>The opaque region is an optimization hint for the compositor
+that lets it optimize out redrawing of content behind opaque
+regions.  Setting an opaque region is not required for correct
+behaviour, but marking transparent content as opaque will result
+in repaint artifacts.</p>
+
+<p>The opaque region is specified in surface local coordinates.</p>
+
+<p>The compositor ignores the parts of the opaque region that fall
+outside of the surface.</p>
+
+<p>Opaque region is double-buffered state, see wl_surface.commit.</p>
+
+<p>wl_surface.set_opaque_region changes the pending opaque region.
+wl_surface.commit copies the pending region to the current region.
+Otherwise, the pending and current regions are never changed.</p>
+
+<p>The initial value for opaque region is empty. Setting the pending
+opaque region has copy semantics, and the wl_region object can be
+destroyed immediately. A NULL wl_region causes the pending opaque
+region to be set to empty.</p>
+</div><h4 id='method.set_input_region' class='method'><code>fn <a href='#method.set_input_region' class='fnname'>set_input_region</a>(&amp;self, region: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='struct' href='../../wayland_client/wayland/compositor/struct.WlRegion.html' title='wayland_client::wayland::compositor::WlRegion'>WlRegion</a>&gt;)</code></h4>
+<div class='docblock'><p>set input region</p>
+
+<p>This request sets the region of the surface that can receive
+pointer and touch events.</p>
+
+<p>Input events happening outside of this region will try the next
+surface in the server surface stack. The compositor ignores the
+parts of the input region that fall outside of the surface.</p>
+
+<p>The input region is specified in surface local coordinates.</p>
+
+<p>Input region is double-buffered state, see wl_surface.commit.</p>
+
+<p>wl_surface.set_input_region changes the pending input region.
+wl_surface.commit copies the pending region to the current region.
+Otherwise the pending and current regions are never changed,
+except cursor and icon surfaces are special cases, see
+wl_pointer.set_cursor and wl_data_device.start_drag.</p>
+
+<p>The initial value for input region is infinite. That means the
+whole surface will accept input. Setting the pending input region
+has copy semantics, and the wl_region object can be destroyed
+immediately. A NULL wl_region causes the input region to be set
+to infinite.</p>
+</div><h4 id='method.commit' class='method'><code>fn <a href='#method.commit' class='fnname'>commit</a>(&amp;self)</code></h4>
+<div class='docblock'><p>commit pending surface state</p>
+
+<p>Surface state (input, opaque, and damage regions, attached buffers,
+etc.) is double-buffered. Protocol requests modify the pending
+state, as opposed to current state in use by the compositor. Commit
+request atomically applies all pending state, replacing the current
+state. After commit, the new pending state is as documented for each
+related request.</p>
+
+<p>On commit, a pending wl_buffer is applied first, all other state
+second. This means that all coordinates in double-buffered state are
+relative to the new wl_buffer coming into use, except for
+wl_surface.attach itself. If there is no pending wl_buffer, the
+coordinates are relative to the current surface contents.</p>
+
+<p>All requests that need a commit to become effective are documented
+to affect double-buffered state.</p>
+
+<p>Other interfaces may add further double-buffered surface state.</p>
+</div><h4 id='method.set_buffer_transform' class='method'><code>fn <a href='#method.set_buffer_transform' class='fnname'>set_buffer_transform</a>(&amp;self, transform: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<div class='docblock'><p>sets the buffer transformation</p>
+
+<p>This request sets an optional transformation on how the compositor
+interprets the contents of the buffer attached to the surface. The
+accepted values for the transform parameter are the values for
+wl_output.transform.</p>
+
+<p>Buffer transform is double-buffered state, see wl_surface.commit.</p>
+
+<p>A newly created surface has its buffer transformation set to normal.</p>
+
+<p>wl_surface.set_buffer_transform changes the pending buffer
+transformation. wl_surface.commit copies the pending buffer
+transformation to the current one. Otherwise, the pending and current
+values are never changed.</p>
+
+<p>The purpose of this request is to allow clients to render content
+according to the output transform, thus permiting the compositor to
+use certain optimizations even if the display is rotated. Using
+hardware overlays and scanning out a client buffer for fullscreen
+surfaces are examples of such optimizations. Those optimizations are
+highly dependent on the compositor implementation, so the use of this
+request should be considered on a case-by-case basis.</p>
+
+<p>Note that if the transform value includes 90 or 270 degree rotation,
+the width of the buffer will become the surface height and the height
+of the buffer will become the surface width.</p>
+
+<p>If transform is not one of the values from the
+wl_output.transform enum the invalid_transform protocol error
+is raised.</p>
+
+<p>Requires interface version <code>&gt;= 2</code>.</p>
+</div><h4 id='method.set_buffer_scale' class='method'><code>fn <a href='#method.set_buffer_scale' class='fnname'>set_buffer_scale</a>(&amp;self, scale: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<div class='docblock'><p>sets the buffer scaling factor</p>
+
+<p>This request sets an optional scaling factor on how the compositor
+interprets the contents of the buffer attached to the window.</p>
+
+<p>Buffer scale is double-buffered state, see wl_surface.commit.</p>
+
+<p>A newly created surface has its buffer scale set to 1.</p>
+
+<p>wl_surface.set_buffer_scale changes the pending buffer scale.
+wl_surface.commit copies the pending buffer scale to the current one.
+Otherwise, the pending and current values are never changed.</p>
+
+<p>The purpose of this request is to allow clients to supply higher
+resolution buffer data for use on high resolution outputs. Its
+intended that you pick the same buffer scale as the scale of the
+output that the surface is displayed on.This means the compositor
+can avoid scaling when rendering the surface on that output.</p>
+
+<p>Note that if the scale is larger than 1, then you have to attach
+a buffer that is larger (by a factor of scale in each dimension)
+than the desired surface size.</p>
+
+<p>If scale is not positive the invalid_scale protocol error is
+raised.</p>
+
+<p>Requires interface version <code>&gt;= 3</code>.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Send.html' title='core::marker::Send'>Send</a> for <a class='struct' href='../../wayland_client/egl/struct.WlEglSurface.html' title='wayland_client::egl::WlEglSurface'>WlEglSurface</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-3128' class='srclink' href='../../src/wayland_client/egl.rs.html#16' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html' title='core::marker::Sync'>Sync</a> for <a class='struct' href='../../wayland_client/egl/struct.WlEglSurface.html' title='wayland_client::egl::WlEglSurface'>WlEglSurface</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-3129' class='srclink' href='../../src/wayland_client/egl.rs.html#17' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../../wayland_client/egl/struct.WlEglSurface.html' title='wayland_client::egl::WlEglSurface'>WlEglSurface</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-3156' class='srclink' href='../../src/wayland_client/egl.rs.html#64-68' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
+<div class='docblock'><p>A method called when the value goes out of scope. <a href="https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop">Read more</a></p>
+</div></div><h3 class='impl'><span class='in-band'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a> for <a class='struct' href='../../wayland_client/egl/struct.WlEglSurface.html' title='wayland_client::egl::WlEglSurface'>WlEglSurface</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-3159' class='srclink' href='../../src/wayland_client/egl.rs.html#70-75' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Target' class='type'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html#associatedtype.Target' class='type'>Target</a> = <a class='struct' href='../../wayland_client/wayland/compositor/struct.WlSurface.html' title='wayland_client::wayland::compositor::WlSurface'>WlSurface</a></code></h4>
+<div class='docblock'><p>The resulting type after dereferencing</p>
+</div><h4 id='method.deref' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html#tymethod.deref' class='fnname'>deref</a>(&amp;self) -&gt; &amp;<a class='struct' href='../../wayland_client/wayland/compositor/struct.WlSurface.html' title='wayland_client::wayland::compositor::WlSurface'>WlSurface</a></code></h4>
+<div class='docblock'><p>The method called to dereference a value</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "wayland_client";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>
