@@ -28,6 +28,14 @@ $ cargo build --release
 
 After the compilation has finished, you can run the game by either executing the binary in `./target/release/` or just `cargo run --release --bin plantex`. 
 
+### Play the game/controls
+
+You can move with `WASD` and move faster by pressing `Shift`. To look around, click inside the window to capture the mouse; afterwards you can use the mouse to rotate the camera. Click again to uncapture the mouse.
+
+When starting the game you are controlling a ghost that can fly around freely. To toggle between ghost and player press `G`. Pressing `Space` produces an upward motion (jumping when player, increasing altitude when ghost). Pressing `Ctrl` produces a downward motion.
+
+You can quickly exit the game with `ESC` and accelerate the time in the game by pressing `+`.
+
 ## Images
 
 ![next to a rain forest](http://i.imgur.com/MqHlejR.jpg)
