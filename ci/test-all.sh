@@ -5,7 +5,7 @@
 # Exit script on the first error
 set -o errexit -o nounset
 
-export RUSTFLAGS="--deny warnings"
+export RUSTFLAGS="--deny warnings --deny missing-docs"
 
 # Build the main crate which depends on all others
 echo ""
