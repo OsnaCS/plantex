@@ -4,10 +4,18 @@ cache: cargo
 sudo: false
 git:
   depth: 1
+# addons:
+#   apt:
+#     packages:
+#       - gcc-
+#       - g++-6
+#       - libstdc++6
 before_script:
   - |
       export PATH=$HOME/.local/bin:$HOME/.cargo/bin:$PATH &&
       ci/install-tools.sh
+  - |
+      ci/install-glslangValidator.sh
 script:
   - ci/run-all.sh
 after_success:
