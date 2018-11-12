@@ -12,6 +12,4 @@ log = "0.3.6"
 num-traits = "0.1.33"
 rand = "0.3.14"
 rustc-serialize = "0.3.19"
-
-[dependencies.noise]
-git = "https://github.com/bjz/noise-rs"
+noise = "0.3"
