@@ -9,10 +9,8 @@ extern crate num_traits;
 pub extern crate noise;
 #[macro_use]
 extern crate log;
-extern crate rustc_serialize;
 
 pub mod gen;
 pub mod math;
 pub mod prop;
 pub mod world;
-pub mod msg;
