@@ -5,8 +5,6 @@
 # Exit script on the first error
 set -o errexit -o nounset
 
-export RUSTFLAGS="--deny warnings"
-
 # Build the main crate which depends on all others
 echo ""
 echo "=== Building Plantex ==============="
