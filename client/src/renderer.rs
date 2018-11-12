@@ -714,8 +714,8 @@ fn initialize_luminosity(facade: &GlutinFacade) -> Vec<Texture2d> {
         lum.push(Texture2d::empty_with_format(facade,
                                               UncompressedFloatFormat::F32,
                                               MipmapsOption::NoMipmap,
-                                              (2u32).pow((9 - i)),
-                                              (2u32).pow((9 - i)))
+                                              (2u32).pow(9 - i),
+                                              (2u32).pow(9 - i))
             .unwrap());
     }
     lum
