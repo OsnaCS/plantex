@@ -12,7 +12,6 @@ use std::cmp;
 ///
 /// [hex-blog]: http://www.redblobgames.com/grids/hexagons/#coordinates
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
-#[repr(C, packed)]
 pub struct AxialVector {
     pub q: AxialType,
     pub r: AxialType,

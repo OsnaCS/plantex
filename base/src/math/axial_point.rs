@@ -10,7 +10,6 @@ use super::AxialVector;
 ///
 /// [hex-blog]: http://www.redblobgames.com/grids/hexagons/#coordinates
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
-#[repr(C, packed)]
 pub struct AxialPoint {
     pub q: AxialType,
     pub r: AxialType,
