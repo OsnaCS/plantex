@@ -3,6 +3,7 @@ authors = ["Lukas Kalbertodt <lukas.kalbertodt@gmail.com>"]
 license = "MIT/Apache-2.0"
 name = "plantex"
 version = "0.1.0"
+edition = "2018"
 
 [[bin]]
 name = "plantex"

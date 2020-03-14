@@ -40,8 +40,8 @@ pub struct Game {
 impl Game {
     pub fn new(config: Config, server: SocketAddr) -> Result<Self, Box<Error>> {
         info!("connecting to {}", server);
-        let server = try!(TcpStream::connect(server));
-        let facade = try!(create_context(&config));
+        let server = TcpStream::connect(server)?;
+        let facade = create_context(&config)?;
         let context = Rc::new(GameContext::new(facade, config.clone()));
         let world_manager = WorldManager::new(create_chunk_provider(context.get_config()),
                                               context.clone());
@@ -115,12 +115,12 @@ impl Game {
                 }
             }
 
-            try!(self.renderer.render(&*self.world_manager.get_view(),
-                                      &self.control_switcher.get_camera(),
-                                      &self.daytime,
-                                      &self.sun,
-                                      &mut self.weather,
-                                      &self.sky_view));
+            self.renderer.render(&*self.world_manager.get_view(),
+                                 &self.control_switcher.get_camera(),
+                                 &self.daytime,
+                                 &self.sun,
+                                 &mut self.weather,
+                                 &self.sky_view)?;
 
             let event_resp = self.event_manager
                 .poll_events(vec![&mut CloseHandler,

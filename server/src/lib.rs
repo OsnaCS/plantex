@@ -11,7 +11,7 @@ use std::io;
 /// Starts a Plantex server listening for connections on the given
 /// `TcpListener`.
 pub fn start_server(listener: TcpListener) -> io::Result<()> {
-    info!("starting server on {}", try!(listener.local_addr()));
+    info!("starting server on {}", listener.local_addr()?);
 
     let server = Server::new(listener);
     server.run()

@@ -93,13 +93,13 @@ seed = 42
 highlight_pillar = true
             "#;
 
-            let mut f = try!(File::create("config.toml"));
+            let mut f = File::create("config.toml")?;
 
-            try!(f.write_all(&toml.to_string().into_bytes()));
+            f.write_all(&toml.to_string().into_bytes())?;
         };
 
-        let t_conf = try!(config_toml(conf, &matches));
-        let conf_final = try!(config_command(t_conf, &matches));
+        let t_conf = config_toml(conf, &matches)?;
+        let conf_final = config_command(t_conf, &matches)?;
 
         debug!("final config: {:?}", conf_final);
         Ok(conf_final)
@@ -143,11 +143,11 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
 
     // only proceed if toml-file exists
     if Path::new(name).exists() {
-        let mut f = try!(File::open(name));
+        let mut f = File::open(name)?;
         let mut s = String::new();
 
         // read file content as string
-        try!(f.read_to_string(&mut s));
+        f.read_to_string(&mut s)?;
 
         let value: Value = match s.parse() {
             Ok(n) => n,

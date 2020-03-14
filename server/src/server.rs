@@ -92,7 +92,7 @@ impl Server {
 
     fn handle_new_player(&mut self, id: usize) {
         self.with_player(id, |player| {
-            info!("client connected from {}", try!(player.conn.peer_addr()));
+            info!("client connected from {}", player.conn.peer_addr()?);
             Ok(())
         })
     }
