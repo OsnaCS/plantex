@@ -42,7 +42,7 @@ use game::Game;
 use std::net::SocketAddr;
 use std::error::Error;
 
-pub fn start_game(config: Config, server: SocketAddr) -> Result<(), Box<Error>> {
+pub fn start_game(config: Config, server: SocketAddr) -> Result<(), Box<dyn Error>> {
     let game = Game::new(config, server)?;
     game.run()
 }

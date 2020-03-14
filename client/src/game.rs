@@ -38,7 +38,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(config: Config, server: SocketAddr) -> Result<Self, Box<Error>> {
+    pub fn new(config: Config, server: SocketAddr) -> Result<Self, Box<dyn Error>> {
         info!("connecting to {}", server);
         let server = TcpStream::connect(server)?;
         let facade = create_context(&config)?;
@@ -64,7 +64,7 @@ impl Game {
     /// Main game function: contains the main render loop and owns all important
     /// components. This function should remain rather small, all heavy lifting
     /// should be done in other functions.
-    pub fn run(mut self) -> Result<(), Box<Error>> {
+    pub fn run(mut self) -> Result<(), Box<dyn Error>> {
         let mut frames = 0;
         let mut next_fps_measure = Instant::now() + Duration::from_secs(1);
         let mut time_prev = Instant::now();
@@ -191,13 +191,13 @@ fn get_pillar_section_at_position(pillar: &HexPillar, pos_z: f32) -> Option<&Pil
     None
 }
 
-fn create_chunk_provider(config: &Config) -> Box<ChunkProvider> {
+fn create_chunk_provider(config: &Config) -> Box<dyn ChunkProvider> {
     Box::new(WorldGenerator::with_seed(config.seed))
 }
 
 /// Creates the OpenGL context and prints useful information about the
 /// success or failure of said action.
-fn create_context(config: &Config) -> Result<GlutinFacade, Box<Error>> {
+fn create_context(config: &Config) -> Result<GlutinFacade, Box<dyn Error>> {
 
     // initialize window builder
     let mut window_builder = glutin::WindowBuilder::new();

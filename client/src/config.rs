@@ -33,7 +33,7 @@ impl Config {
     /// 1. loads default config
     /// 2. Overrides from toml config file
     /// 3. Overrides from command line
-    pub fn load_config() -> Result<Config, Box<StdError>> {
+    pub fn load_config() -> Result<Config, Box<dyn StdError>> {
         let matches = App::new("Plantex")
             .version(env!("CARGO_PKG_VERSION"))
             .about("Game about Plants!")
@@ -125,7 +125,7 @@ impl Default for Config {
 /// read configuration from toml-file
 /// overwrite default values with toml-file values
 /// return updated config
-fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Config, Box<StdError>> {
+fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Config, Box<dyn StdError>> {
 
     // default name for toml-file
     let mut name = "config.toml";
@@ -284,7 +284,7 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
 /// read configuration from command line
 /// overwrite config values with command line values
 /// return updated config
-fn config_command(mut toml_config: Config, matches: &ArgMatches) -> Result<Config, Box<StdError>> {
+fn config_command(mut toml_config: Config, matches: &ArgMatches) -> Result<Config, Box<dyn StdError>> {
 
     // resolution
     if let Some(res) = matches.value_of("Resolution") {

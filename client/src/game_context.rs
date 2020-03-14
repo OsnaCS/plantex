@@ -31,7 +31,7 @@ impl GameContext {
     /// Loads vertex and fragment shader automatically to prevent recompiling
     /// the application
     /// everytime a shader is changed.
-    pub fn load_program(&self, shader: &str) -> Result<Program, Box<Error>> {
+    pub fn load_program(&self, shader: &str) -> Result<Program, Box<dyn Error>> {
         fn load_if_present(path: &str) -> Result<String, io::Error> {
             let mut f = File::open(path)?;
             let mut buf = String::new();

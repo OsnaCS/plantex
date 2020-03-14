@@ -23,7 +23,7 @@ impl EventManager {
         EventManager { facade: facade }
     }
 
-    pub fn poll_events(&self, mut handlers: Vec<&mut EventHandler>) -> EventResponse {
+    pub fn poll_events(&self, mut handlers: Vec<&mut dyn EventHandler>) -> EventResponse {
 
         for ev in self.facade.poll_events() {
             for i in 0..handlers.len() {

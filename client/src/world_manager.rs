@@ -28,7 +28,7 @@ struct Shared {
 }
 
 impl WorldManager {
-    pub fn new(provider: Box<ChunkProvider>, game_context: Rc<GameContext>) -> Self {
+    pub fn new(provider: Box<dyn ChunkProvider>, game_context: Rc<GameContext>) -> Self {
         // Create two channels to send chunk positions and receive chunks.
         let (chunk_request_sender, chunk_request_recv) = channel();
         let (chunk_sender, chunk_recv) = channel();
@@ -212,7 +212,7 @@ impl WorldManager {
 }
 
 
-fn worker_thread(provider: Box<ChunkProvider>,
+fn worker_thread(provider: Box<dyn ChunkProvider>,
                  commands: Receiver<ChunkIndex>,
                  chunks: Sender<(ChunkIndex, Chunk)>) {
     loop {

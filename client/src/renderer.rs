@@ -217,7 +217,7 @@ impl Renderer {
                          world_view: &WorldView,
                          sun_pos: Point3f,
                          camera: Point3f)
-                         -> Result<Matrix4<f32>, Box<Error>> {
+                         -> Result<Matrix4<f32>, Box<dyn Error>> {
         let mut shadow_target = SimpleFrameBuffer::with_depth_buffer(self.context
                                                                               .get_facade(),
                                                                           &self.shadow_map,
@@ -311,7 +311,7 @@ impl Renderer {
                   sun: &Sun,
                   weather: &mut Weather,
                   sky_view: &SkyView)
-                  -> Result<(), Box<Error>> {
+                  -> Result<(), Box<dyn Error>> {
         // info!("------------ {:?}", daytime.get_sky_light());
         // ===================================================================
         // set up frustum
@@ -518,7 +518,7 @@ impl Renderer {
     //                         Brightness Adaption
     // ===================================================================
 
-    fn adapt_brightness(&self) -> Result<f32, Box<Error>> {
+    fn adapt_brightness(&self) -> Result<f32, Box<dyn Error>> {
 
         let mut rel_luminance_buffer = SimpleFrameBuffer::new(self.context.get_facade(),
                                                                    self.lum_relative_tex
@@ -597,7 +597,7 @@ impl Renderer {
     }
 
 
-    fn bloom(&mut self) -> Result<(), Box<Error>> {
+    fn bloom(&mut self) -> Result<(), Box<dyn Error>> {
         // =======================  light texture  ===========================
         // create texture containing only bright areas, everything else will be black
 
