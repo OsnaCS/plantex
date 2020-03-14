@@ -6,9 +6,9 @@
 
 #![allow(illegal_floating_point_literal_pattern)]
 
-pub extern crate rand;
-extern crate num_traits;
 pub extern crate noise;
+extern crate num_traits;
+pub extern crate rand;
 #[macro_use]
 extern crate log;
 

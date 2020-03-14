@@ -1,11 +1,13 @@
-use std::fmt;
-use world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS};
 use super::{AxialType, DefaultFloat, Vector2f};
-use math::cgmath::{VectorSpace, Zero};
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Rem,
-               RemAssign, Sub, SubAssign};
 use math::cgmath::prelude::{Array, MetricSpace};
+use math::cgmath::{VectorSpace, Zero};
 use std::cmp;
+use std::fmt;
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Rem, RemAssign, Sub,
+    SubAssign,
+};
+use world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS};
 
 /// A 2-dimensional vector in axial coordinates. See [here][hex-blog] for more
 /// information.
@@ -56,10 +58,7 @@ impl AxialVector {
 }
 impl fmt::Debug for AxialVector {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_tuple("")
-            .field(&self.q)
-            .field(&self.r)
-            .finish()
+        f.debug_tuple("").field(&self.q).field(&self.r).finish()
     }
 }
 // ********************* Basic Arithmetic (OPS) *********************
@@ -85,7 +84,6 @@ impl AddAssign<AxialVector> for AxialVector {
     fn add_assign(&mut self, arg2: AxialVector) {
         self.r += arg2.r;
         self.q += arg2.q;
-
     }
 }
 impl Sub<AxialVector> for AxialVector {
@@ -116,7 +114,6 @@ impl MulAssign<AxialType> for AxialVector {
     fn mul_assign(&mut self, arg2: AxialType) {
         self.r *= arg2;
         self.q *= arg2;
-
     }
 }
 impl Div<AxialType> for AxialVector {

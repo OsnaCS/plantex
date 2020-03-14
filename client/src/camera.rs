@@ -31,8 +31,8 @@ impl Camera {
             look_phi = 2.0 * consts::PI - look_phi;
         }
 
-        let look_theta = (consts::PI / 2.0) -
-                         ((look.z) / ((look.x * look.x + look.y * look.y).sqrt())).atan();
+        let look_theta =
+            (consts::PI / 2.0) - ((look.z) / ((look.x * look.x + look.y * look.y).sqrt())).atan();
 
         Camera {
             position: pos,
@@ -65,9 +65,11 @@ impl Camera {
 
     /// Calculates the look_at_vector by using theta and phi on the unit sphere
     pub fn get_look_at_vector(&self) -> Vector3f {
-        Vector3f::new(self.theta.sin() * self.phi.cos(),
-                      self.theta.sin() * self.phi.sin(),
-                      self.theta.cos())
+        Vector3f::new(
+            self.theta.sin() * self.phi.cos(),
+            self.theta.sin() * self.phi.sin(),
+            self.theta.cos(),
+        )
     }
 
     /// Internal function to move the position of the camera
@@ -132,7 +134,6 @@ impl Camera {
         move_dir *= factor;
         self.move_by(move_dir);
     }
-
 
     /// Method to call when **upward movement** is needed
 

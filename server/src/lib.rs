@@ -4,9 +4,9 @@ extern crate log;
 mod server;
 
 use server::Server;
+use std::io;
 use std::net::{SocketAddr, TcpListener};
 use std::thread;
-use std::io;
 
 /// Starts a Plantex server listening for connections on the given
 /// `TcpListener`.

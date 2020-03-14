@@ -1,28 +1,28 @@
-use base::world::ChunkProvider;
-use ghost::Ghost;
-use event_manager::{CloseHandler, EventManager, EventResponse};
-use glium::backend::glutin_backend::GlutinFacade;
-use glium::{self, DisplayBuild, glutin};
+use super::weather::Weather;
+use super::DayTime;
 use super::Renderer;
 use super::{Config, GameContext, WorldManager};
-use config::WindowMode;
 use base::gen::WorldGenerator;
-use std::time::{Duration, Instant};
-use std::rc::Rc;
-use std::net::{SocketAddr, TcpStream};
-use std::error::Error;
+use base::math::*;
+use base::world;
+use base::world::ChunkProvider;
+use base::world::HexPillar;
+use base::world::PillarIndex;
+use base::world::PillarSection;
 use base::world::World;
 use camera::Camera;
-use base::world::PillarSection;
-use base::world;
-use base::math::*;
-use base::world::PillarIndex;
-use view::{SkyView, Sun};
-use super::DayTime;
-use super::weather::Weather;
-use player::Player;
+use config::WindowMode;
 use control_switcher::ControlSwitcher;
-use base::world::HexPillar;
+use event_manager::{CloseHandler, EventManager, EventResponse};
+use ghost::Ghost;
+use glium::backend::glutin_backend::GlutinFacade;
+use glium::{self, glutin, DisplayBuild};
+use player::Player;
+use std::error::Error;
+use std::net::{SocketAddr, TcpStream};
+use std::rc::Rc;
+use std::time::{Duration, Instant};
+use view::{SkyView, Sun};
 
 pub struct Game {
     renderer: Renderer,
@@ -43,8 +43,8 @@ impl Game {
         let server = TcpStream::connect(server)?;
         let facade = create_context(&config)?;
         let context = Rc::new(GameContext::new(facade, config.clone()));
-        let world_manager = WorldManager::new(create_chunk_provider(context.get_config()),
-                                              context.clone());
+        let world_manager =
+            WorldManager::new(create_chunk_provider(context.get_config()), context.clone());
         let world_weather = Weather::new(context.clone());
 
         Ok(Game {
@@ -56,8 +56,10 @@ impl Game {
             sky_view: SkyView::new(context.clone()),
             daytime: DayTime::default(),
             weather: world_weather,
-            control_switcher: ControlSwitcher::new(Player::new(context.clone(), world_manager),
-                                                   Ghost::new(context.clone())),
+            control_switcher: ControlSwitcher::new(
+                Player::new(context.clone(), world_manager),
+                Ghost::new(context.clone()),
+            ),
         })
     }
 
@@ -75,32 +77,41 @@ impl Game {
         info!("| |   | | (_| | | | | ||  __/>  < ");
         info!("\\_|   |_|\\__,_|_| |_|\\__\\___/_/\\_\\");
         loop {
-            self.world_manager.update_world(self.control_switcher.get_camera().position);
-
+            self.world_manager
+                .update_world(self.control_switcher.get_camera().position);
 
             let time_now = Instant::now();
             let duration_delta = time_now.duration_since(time_prev);
             // delta in seconds
-            let delta = ((duration_delta.subsec_nanos() / 1_000) as f32) / 1_000_000.0 +
-                        duration_delta.as_secs() as f32;
+            let delta = ((duration_delta.subsec_nanos() / 1_000) as f32) / 1_000_000.0
+                + duration_delta.as_secs() as f32;
             time_prev = Instant::now();
 
-            self.weather.update(&self.control_switcher.get_camera(),
-                                delta,
-                                &self.world_manager,
-                                &self.daytime);
-            self.world_manager.update_world(self.control_switcher.get_camera().position);
-
+            self.weather.update(
+                &self.control_switcher.get_camera(),
+                delta,
+                &self.world_manager,
+                &self.daytime,
+            );
+            self.world_manager
+                .update_world(self.control_switcher.get_camera().position);
 
             self.daytime.update(delta);
             self.sky_view.update(self.daytime.get_sun_position());
             self.sun.update(self.daytime.get_sun_position());
 
             // Check for pillar outline highlight switch
-            if self.world_manager.get_context().get_config().highlight_pillar {
+            if self
+                .world_manager
+                .get_context()
+                .get_config()
+                .highlight_pillar
+            {
                 // Display Outline of Hexagon looking at
-                let vec = get_pillarsectionpos_looking_at(&self.world_manager.get_world(),
-                                                          self.control_switcher.get_camera());
+                let vec = get_pillarsectionpos_looking_at(
+                    &self.world_manager.get_world(),
+                    self.control_switcher.get_camera(),
+                );
                 match vec {
                     Some(n) => {
                         // self.remove_hexagon_at(n.1, n.0.z);
@@ -115,17 +126,20 @@ impl Game {
                 }
             }
 
-            self.renderer.render(&*self.world_manager.get_view(),
-                                 &self.control_switcher.get_camera(),
-                                 &self.daytime,
-                                 &self.sun,
-                                 &mut self.weather,
-                                 &self.sky_view)?;
+            self.renderer.render(
+                &*self.world_manager.get_view(),
+                &self.control_switcher.get_camera(),
+                &self.daytime,
+                &self.sun,
+                &mut self.weather,
+                &self.sky_view,
+            )?;
 
-            let event_resp = self.event_manager
-                .poll_events(vec![&mut CloseHandler,
-                                  &mut self.control_switcher,
-                                  &mut self.daytime]);
+            let event_resp = self.event_manager.poll_events(vec![
+                &mut CloseHandler,
+                &mut self.control_switcher,
+                &mut self.daytime,
+            ]);
             if event_resp == EventResponse::Quit {
                 break;
             }
@@ -144,16 +158,18 @@ impl Game {
     }
 }
 
-fn get_pillarsectionpos_looking_at(world: &World,
-                                   cam: Camera)
-                                   -> Option<(Vector3f, AxialPoint, f32)> {
+fn get_pillarsectionpos_looking_at(
+    world: &World,
+    cam: Camera,
+) -> Option<(Vector3f, AxialPoint, f32)> {
     let cam_pos = cam.position;
     let mut look_vec = cam.get_look_at_vector().normalize();
     let view_distance = 12.0;
 
     let mut step = 0.0;
-    while (look_vec.x * look_vec.x + look_vec.y * look_vec.y + look_vec.z * look_vec.z).sqrt() <=
-          view_distance {
+    while (look_vec.x * look_vec.x + look_vec.y * look_vec.y + look_vec.z * look_vec.z).sqrt()
+        <= view_distance
+    {
         step += 0.0005;
         look_vec = cam.get_look_at_vector().normalize() * step;
 
@@ -172,9 +188,11 @@ fn get_pillarsectionpos_looking_at(world: &World,
 
         match final_pos {
             Some(_) => {
-                return Some((Vector3f::new(ax_point.to_real().x, ax_point.to_real().y, height),
-                             ax_point,
-                             height));
+                return Some((
+                    Vector3f::new(ax_point.to_real().x, ax_point.to_real().y, height),
+                    ax_point,
+                    height,
+                ));
             }
             None => {}
         };
@@ -198,7 +216,6 @@ fn create_chunk_provider(config: &Config) -> Box<dyn ChunkProvider> {
 /// Creates the OpenGL context and prints useful information about the
 /// success or failure of said action.
 fn create_context(config: &Config) -> Result<GlutinFacade, Box<dyn Error>> {
-
     // initialize window builder
     let mut window_builder = glutin::WindowBuilder::new();
     // check for window mode and set params
@@ -234,16 +251,28 @@ fn create_context(config: &Config) -> Result<GlutinFacade, Box<dyn Error>> {
             info!("OpenGL context was successfully built");
 
             let glium::Version(api, major, minor) = *context.get_opengl_version();
-            info!("Version of context: {} {}.{}",
-                  if api == glium::Api::Gl { "OpenGL" } else { "OpenGL ES" },
-                  major,
-                  minor);
+            info!(
+                "Version of context: {} {}.{}",
+                if api == glium::Api::Gl {
+                    "OpenGL"
+                } else {
+                    "OpenGL ES"
+                },
+                major,
+                minor
+            );
 
             let glium::Version(api, major, minor) = context.get_supported_glsl_version();
-            info!("Supported GLSL version: {} {}.{}",
-                  if api == glium::Api::Gl { "GLSL" } else { "GLSL ES" },
-                  major,
-                  minor);
+            info!(
+                "Supported GLSL version: {} {}.{}",
+                if api == glium::Api::Gl {
+                    "GLSL"
+                } else {
+                    "GLSL ES"
+                },
+                major,
+                minor
+            );
 
             if let Some(mem) = context.get_free_video_memory().map(|mem| mem as u64) {
                 let (mem, unit) = match () {

@@ -5,8 +5,8 @@ extern crate env_logger;
 extern crate log;
 extern crate server;
 
-use std::io::{self, Write};
 use log::LogLevelFilter;
+use std::io::{self, Write};
 
 fn main() {
     // Initialize logger (by default error, warning and info logs are shown)
@@ -35,9 +35,11 @@ fn main() {
     if res.is_err() {
         // Maybe the user disabled all logs, so we mention that the logs
         // contain information about the error.
-        writeln!(io::stderr(),
-                 "An error occured! Check logs for more information!")
-            .expect("write to stderr failed");
+        writeln!(
+            io::stderr(),
+            "An error occured! Check logs for more information!"
+        )
+        .expect("write to stderr failed");
         std::process::exit(1);
     }
 }

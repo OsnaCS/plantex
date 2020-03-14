@@ -14,35 +14,35 @@ extern crate log;
 
 mod camera;
 mod config;
+mod control_switcher;
+pub mod daytime;
+mod event_manager;
+mod frustum;
 mod game;
 mod game_context;
 mod ghost;
+mod player;
 mod renderer;
+pub mod util;
+pub mod view;
 mod weather;
 mod world;
 mod world_manager;
-mod event_manager;
-mod frustum;
-pub mod view;
-pub mod util;
-pub mod daytime;
-mod player;
-mod control_switcher;
 
-pub use daytime::*;
 pub use camera::Camera;
 pub use config::Config;
+pub use daytime::*;
 pub use event_manager::*;
+pub use frustum::Frustum;
+pub use frustum::SimpleCull;
+pub use frustum::LOCATION;
 pub use game_context::GameContext;
 pub use renderer::Renderer;
 pub use world_manager::WorldManager;
-pub use frustum::Frustum;
-pub use frustum::LOCATION;
-pub use frustum::SimpleCull;
 
 use game::Game;
-use std::net::SocketAddr;
 use std::error::Error;
+use std::net::SocketAddr;
 
 pub fn start_game(config: Config, server: SocketAddr) -> Result<(), Box<dyn Error>> {
     let game = Game::new(config, server)?;

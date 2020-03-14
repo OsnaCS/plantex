@@ -3,8 +3,8 @@ extern crate server;
 extern crate log;
 extern crate env_logger;
 
-use std::net::TcpListener;
 use log::LogLevelFilter;
+use std::net::TcpListener;
 
 fn main() {
     // Initialize logger (by default error, warning and info logs are shown)

@@ -6,11 +6,11 @@ extern crate fnv;
 pub mod plant;
 pub mod world;
 
-pub use self::world::WorldGenerator;
 pub use self::plant::PlantGenerator;
+pub use self::world::WorldGenerator;
 
-use rand::{SeedableRng, XorShiftRng};
 use self::fnv::FnvHasher;
+use rand::{SeedableRng, XorShiftRng};
 use std::hash::{Hash, Hasher};
 
 pub type Random = XorShiftRng;

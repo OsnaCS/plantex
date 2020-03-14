@@ -1,10 +1,10 @@
+use super::Config;
 use glium::backend::glutin_backend::GlutinFacade;
 use glium::program;
 use glium::Program;
-use super::Config;
+use std::error::Error;
 use std::fs::File;
 use std::io::{self, Read};
-use std::error::Error;
 
 #[derive(Clone)]
 pub struct GameContext {

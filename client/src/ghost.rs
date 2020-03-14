@@ -1,6 +1,6 @@
 use super::camera::*;
-use super::GameContext;
 use super::event_manager::*;
+use super::GameContext;
 use glium::glutin::{CursorState, ElementState, Event, MouseButton, VirtualKeyCode};
 use std::rc::Rc;
 
@@ -20,8 +20,6 @@ pub struct Ghost {
 // Speed per second
 const DEFAULT_SPEED: f32 = 12.0;
 const SHIFT_SPEED: f32 = 60.0;
-
-
 
 impl Ghost {
     pub fn new(context: Rc<GameContext>) -> Self {
@@ -68,7 +66,6 @@ impl Ghost {
         self.cam = cam;
     }
 }
-
 
 /// **Implements Controls**
 /// *W => FORWARD
@@ -147,7 +144,8 @@ impl EventHandler for Ghost {
                 if !self.mouselock {
                     self.mouselock = true;
                     if let Some(window) = self.context.get_facade().get_window() {
-                        window.set_cursor_state(CursorState::Hide)
+                        window
+                            .set_cursor_state(CursorState::Hide)
                             .expect("failed to set cursor state");
                     } else {
                         warn!("Failed to obtain window from facade");
@@ -156,7 +154,8 @@ impl EventHandler for Ghost {
                     self.mouselock = false;
 
                     if let Some(window) = self.context.get_facade().get_window() {
-                        window.set_cursor_state(CursorState::Normal)
+                        window
+                            .set_cursor_state(CursorState::Normal)
                             .expect("failed to set cursor state");
                     } else {
                         warn!("Failed to obtain window from facade");
@@ -176,8 +175,10 @@ impl EventHandler for Ghost {
                             let middle_y = (middle.1 as i32) / 2;
                             let x_diff = x - middle_x;
                             let y_diff = y - middle_y;
-                            self.cam.change_dir(y_diff as f32 / 300.0, -x_diff as f32 / 300.0);
-                            window.set_cursor_position(middle_x as i32, middle_y as i32)
+                            self.cam
+                                .change_dir(y_diff as f32 / 300.0, -x_diff as f32 / 300.0);
+                            window
+                                .set_cursor_position(middle_x as i32, middle_y as i32)
                                 .expect("setting cursor position failed");
                         }
                     }

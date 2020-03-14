@@ -1,15 +1,15 @@
 extern crate clap;
-extern crate toml;
 extern crate regex;
+extern crate toml;
 
-use base::math::*;
 use self::clap::{App, Arg, ArgMatches};
 use self::regex::Regex;
+use self::toml::Value;
+use base::math::*;
 use std::error::Error as StdError;
-use std::path::Path;
 use std::fs::File;
 use std::io::{Read, Write};
-use self::toml::Value;
+use std::path::Path;
 use std::string::String;
 
 #[derive(Clone, Debug)]
@@ -37,41 +37,59 @@ impl Config {
         let matches = App::new("Plantex")
             .version(env!("CARGO_PKG_VERSION"))
             .about("Game about Plants!")
-            .arg(Arg::with_name("Resolution")
-                .help("(e.g. =1280x720) 'Sets Resolution to new value'")
-                .takes_value(true)
-                .long("resolution"))
-            .arg(Arg::with_name("WindowMode")
-                .help("[Windowed, FullScreen] 'Sets WindowMode'")
-                .takes_value(true)
-                .long("windowmode"))
-            .arg(Arg::with_name("Tessellation")
-                .help("[on/off]")
-                .takes_value(true)
-                .long("tessellation"))
-            .arg(Arg::with_name("Bloom")
-                .help("[on/off]")
-                .takes_value(true)
-                .long("bloom"))
-            .arg(Arg::with_name("Vsync")
-                .help("[on/off]")
-                .takes_value(true)
-                .long("vsync"))
-            .arg(Arg::with_name("HighlightPillar")
-                .help("[on/off]")
-                .takes_value(true)
-                .long("highlight"))
-            .arg(Arg::with_name("Seed")
-                .help("'Takes a specified seed to generate map'")
-                .takes_value(true)
-                .long("seed"))
-            .arg(Arg::with_name("File")
-                .help("Takes config file")
-                .takes_value(true)
-                .long("config-file"))
-            .arg(Arg::with_name("Write_Config_File")
-                .help("'Writes Config File with default values'")
-                .long("write-config"))
+            .arg(
+                Arg::with_name("Resolution")
+                    .help("(e.g. =1280x720) 'Sets Resolution to new value'")
+                    .takes_value(true)
+                    .long("resolution"),
+            )
+            .arg(
+                Arg::with_name("WindowMode")
+                    .help("[Windowed, FullScreen] 'Sets WindowMode'")
+                    .takes_value(true)
+                    .long("windowmode"),
+            )
+            .arg(
+                Arg::with_name("Tessellation")
+                    .help("[on/off]")
+                    .takes_value(true)
+                    .long("tessellation"),
+            )
+            .arg(
+                Arg::with_name("Bloom")
+                    .help("[on/off]")
+                    .takes_value(true)
+                    .long("bloom"),
+            )
+            .arg(
+                Arg::with_name("Vsync")
+                    .help("[on/off]")
+                    .takes_value(true)
+                    .long("vsync"),
+            )
+            .arg(
+                Arg::with_name("HighlightPillar")
+                    .help("[on/off]")
+                    .takes_value(true)
+                    .long("highlight"),
+            )
+            .arg(
+                Arg::with_name("Seed")
+                    .help("'Takes a specified seed to generate map'")
+                    .takes_value(true)
+                    .long("seed"),
+            )
+            .arg(
+                Arg::with_name("File")
+                    .help("Takes config file")
+                    .takes_value(true)
+                    .long("config-file"),
+            )
+            .arg(
+                Arg::with_name("Write_Config_File")
+                    .help("'Writes Config File with default values'")
+                    .long("write-config"),
+            )
             .get_matches();
 
         let conf = Config::default();
@@ -125,8 +143,10 @@ impl Default for Config {
 /// read configuration from toml-file
 /// overwrite default values with toml-file values
 /// return updated config
-fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Config, Box<dyn StdError>> {
-
+fn config_toml(
+    mut default_config: Config,
+    matches: &ArgMatches,
+) -> Result<Config, Box<dyn StdError>> {
     // default name for toml-file
     let mut name = "config.toml";
 
@@ -154,7 +174,6 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
             _ => return Err("corrupted config file".into()),
         };
 
-
         // Resolution Width
         let mut res_toml = match value.lookup("Graphic.resolution_width") {
             Some(n) => n,
@@ -171,7 +190,6 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
 
             None => return Err("resolution_width in config file has no integer".into()),
         };
-
 
         // Resolution height
         res_toml = match value.lookup("Graphic.resolution_height") {
@@ -192,7 +210,6 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
 
         default_config.resolution = Dimension2::new(int_res_width, int_res_height);
 
-
         // Window mode
         let window = match value.lookup("Graphic.windowmode") {
             Some(n) => n,
@@ -200,16 +217,13 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
         };
 
         match window.as_str() {
-            Some(n) => {
-                match n {
-                    "Windowed" => default_config.window_mode = WindowMode::Windowed,
-                    "FullScreen" => default_config.window_mode = WindowMode::FullScreen,
-                    _ => return Err("invalid Window Mode in config file".into()),
-                }
-            }
+            Some(n) => match n {
+                "Windowed" => default_config.window_mode = WindowMode::Windowed,
+                "FullScreen" => default_config.window_mode = WindowMode::FullScreen,
+                _ => return Err("invalid Window Mode in config file".into()),
+            },
             _ => return Err("invalid Window Mode in config file".into()),
         }
-
 
         // Tessellation
         let tessellation = match value.lookup("Graphic.tessellation") {
@@ -222,7 +236,6 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
             None => return Err("tessellation value in config file is invalid".into()),
         };
 
-
         // Bloom
         let bloom = match value.lookup("Graphic.bloom") {
             Some(n) => n,
@@ -233,7 +246,6 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
             Some(n) => default_config.bloom = n,
             None => return Err("bloom value in config file is invalid".into()),
         };
-
 
         // Vsync
         let sync = match value.lookup("Graphic.vsync") {
@@ -257,7 +269,6 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
             None => return Err("highlight value in config file is invalid".into()),
         };
 
-
         // world seed
         let seed = match value.lookup("Game_settings.seed") {
             Some(n) => n,
@@ -274,9 +285,7 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
             }
             None => return Err("seed in config file is invalid".into()),
         };
-
     }
-
 
     Ok(default_config)
 }
@@ -284,12 +293,13 @@ fn config_toml(mut default_config: Config, matches: &ArgMatches) -> Result<Confi
 /// read configuration from command line
 /// overwrite config values with command line values
 /// return updated config
-fn config_command(mut toml_config: Config, matches: &ArgMatches) -> Result<Config, Box<dyn StdError>> {
-
+fn config_command(
+    mut toml_config: Config,
+    matches: &ArgMatches,
+) -> Result<Config, Box<dyn StdError>> {
     // resolution
     if let Some(res) = matches.value_of("Resolution") {
         let reg_res = Regex::new(r"^([1-9]\d{1,4})x([1-9]\d{1,4})").unwrap();
-
 
         if reg_res.is_match(res) {
             for cap in reg_res.captures_iter(res) {

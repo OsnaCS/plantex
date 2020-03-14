@@ -1,6 +1,6 @@
 use glium::Program;
-use GameContext;
 use std::rc::Rc;
+use GameContext;
 
 pub struct PlantRenderer {
     program: Program,

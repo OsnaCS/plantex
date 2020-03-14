@@ -1,23 +1,23 @@
-use base::world::{self, Chunk, ChunkIndex};
-use base::prop::Plant;
 use base::math::*;
+use base::prop::Plant;
+use base::world::{self, Chunk, ChunkIndex};
 use glium::backend::Facade;
-use glium::{self, DepthTest, DrawParameters, LinearBlendingFactor};
 use glium::draw_parameters::BlendingFunction;
 use glium::texture::Texture2d;
+use glium::{self, DepthTest, DrawParameters, LinearBlendingFactor};
 use Camera;
 // use SimpleCull;
 use std::collections::HashMap;
 use std::rc::Rc;
+use util::ToArr;
 use view::PlantRenderer;
 use world::ChunkRenderer;
 use world::HexagonOutline;
-use GameContext;
-use util::ToArr;
 use DayTime;
+use GameContext;
 
-pub use world::chunk_view::ChunkView;
 pub use view::PlantView;
+pub use world::chunk_view::ChunkView;
 
 /// Graphical representation of the `base::World`.
 pub struct WorldView {
@@ -48,14 +48,18 @@ impl WorldView {
     }
 
     pub fn refresh_chunk<F: Facade>(&mut self, chunk_pos: ChunkIndex, chunk: &Chunk, facade: &F) {
-        self.chunks.insert(chunk_pos,
-                           ChunkView::from_chunk(chunk,
-                                                 AxialPoint::new(chunk_pos.0.q *
-                                                                 (1 * world::CHUNK_SIZE as i32),
-                                                                 chunk_pos.0.r *
-                                                                 (1 * world::CHUNK_SIZE as i32)),
-                                                 self.chunk_renderer.clone(),
-                                                 facade));
+        self.chunks.insert(
+            chunk_pos,
+            ChunkView::from_chunk(
+                chunk,
+                AxialPoint::new(
+                    chunk_pos.0.q * (1 * world::CHUNK_SIZE as i32),
+                    chunk_pos.0.r * (1 * world::CHUNK_SIZE as i32),
+                ),
+                self.chunk_renderer.clone(),
+                facade,
+            ),
+        );
 
         for (pillar_pos, pillar) in chunk.pillars() {
             for prop in pillar.props() {
@@ -67,16 +71,21 @@ impl WorldView {
 
                 self.plant_views
                     .entry(plant_index)
-                    .or_insert(PlantView::from_plant(plant, self.plant_renderer.clone(), facade))
-                    .add_instance_from_pos(chunk_pos,
-                                           Point3f::new(real_chunk_pos.x + real_pos.x,
-                                                        real_chunk_pos.y + real_pos.y,
-                                                        prop.baseline.units() as f32 *
-                                                        world::PILLAR_STEP_HEIGHT));
+                    .or_insert(PlantView::from_plant(
+                        plant,
+                        self.plant_renderer.clone(),
+                        facade,
+                    ))
+                    .add_instance_from_pos(
+                        chunk_pos,
+                        Point3f::new(
+                            real_chunk_pos.x + real_pos.x,
+                            real_chunk_pos.y + real_pos.y,
+                            prop.baseline.units() as f32 * world::PILLAR_STEP_HEIGHT,
+                        ),
+                    );
             }
         }
-
-
     }
 
     pub fn get_chunk_view(&self, index: &ChunkIndex) -> Option<&ChunkView> {
@@ -97,7 +106,8 @@ impl WorldView {
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
         let mut chunk_list: Vec<_> = self.chunks.values().collect();
         chunk_list.sort_by_key(|chunk_view| {
-            chunk_view.offset()
+            chunk_view
+                .offset()
                 .to_real()
                 .distance2(Point2f::new(camera.position.x, camera.position.y)) as u32
         });
@@ -109,30 +119,34 @@ impl WorldView {
         for plantview in self.plant_views.values() {
             plantview.draw_shadow(surface, camera);
         }
-
     }
 
-    pub fn draw<S: glium::Surface>(&self,
-                                   surface: &mut S,
-                                   camera: &Camera,
-                                   shadow_map: &Texture2d,
-                                   depth_view_proj: &Matrix4<f32>,
-                                   daytime: &DayTime,
-                                   sun_dir: Vector3f) {
+    pub fn draw<S: glium::Surface>(
+        &self,
+        surface: &mut S,
+        camera: &Camera,
+        shadow_map: &Texture2d,
+        depth_view_proj: &Matrix4<f32>,
+        daytime: &DayTime,
+        sun_dir: Vector3f,
+    ) {
         let mut chunk_list: Vec<_> = self.chunks.values().collect();
         chunk_list.sort_by_key(|chunk_view| {
-            chunk_view.offset()
+            chunk_view
+                .offset()
                 .to_real()
                 .distance2(Point2f::new(camera.position.x, camera.position.y)) as u32
         });
 
         for chunkview in &chunk_list {
-            chunkview.draw(surface,
-                           camera,
-                           shadow_map,
-                           depth_view_proj,
-                           daytime,
-                           sun_dir);
+            chunkview.draw(
+                surface,
+                camera,
+                shadow_map,
+                depth_view_proj,
+                daytime,
+                sun_dir,
+            );
         }
         if self.outline.display {
             // Draw outline
@@ -158,22 +172,26 @@ impl WorldView {
                 view_matrix: camera.view_matrix().to_arr()
             };
 
-            surface.draw(self.outline.vertices(),
-                      self.outline.indices(),
-                      self.outline.program(),
-                      &outline_uniforms,
-                      &outline_params)
+            surface
+                .draw(
+                    self.outline.vertices(),
+                    self.outline.indices(),
+                    self.outline.program(),
+                    &outline_uniforms,
+                    &outline_params,
+                )
                 .unwrap();
         }
 
-
         for plantview in self.plant_views.values() {
-            plantview.draw(surface,
-                           camera,
-                           shadow_map,
-                           depth_view_proj,
-                           daytime,
-                           sun_dir);
+            plantview.draw(
+                surface,
+                camera,
+                shadow_map,
+                depth_view_proj,
+                daytime,
+                sun_dir,
+            );
         }
     }
 }

@@ -1,10 +1,10 @@
 //! Types and constants to represent a game world.
 //!
-use std::fmt;
 use math;
+use std::fmt;
 
-pub mod ground;
 pub mod chunk;
+pub mod ground;
 mod hex_pillar;
 mod provider;
 mod world;

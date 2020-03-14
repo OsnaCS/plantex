@@ -1,5 +1,5 @@
-use base::noise::{PermutationTable, open_simplex2};
 use base::gen::seeded_rng;
+use base::noise::{open_simplex2, PermutationTable};
 use base::rand::Rand;
 use base::world::ground::GroundMaterial;
 
@@ -30,22 +30,29 @@ pub fn create_texture_maps(ground: GroundMaterial) -> (Vec<Vec<f32>>, Vec<Vec<(f
     // if long.7 or long.8 equals 0.0 then is not open_simplex2 called
     for i in 0..256 {
         for j in 0..256 {
-            let e = ((open_simplex2::<f32>(&table, &[(i as f32) * long.0, (j as f32) * long.1]) +
-                      1.0) / 2.0) +
-                    if long.6 > 0.2 {
-                long.6 *
-                ((open_simplex2::<f32>(&table, &[(i as f32) * long.2, (j as f32) * long.3]) +
-                  1.0) / 2.0)
-            } else {
-                long.6
-            } +
-                    if long.7 > 0.2 {
-                long.7 *
-                ((open_simplex2::<f32>(&table, &[(i as f32) * long.4, (j as f32) * long.5]) +
-                  1.0) / 2.0)
-            } else {
-                long.7
-            };
+            let e = ((open_simplex2::<f32>(&table, &[(i as f32) * long.0, (j as f32) * long.1])
+                + 1.0)
+                / 2.0)
+                + if long.6 > 0.2 {
+                    long.6
+                        * ((open_simplex2::<f32>(
+                            &table,
+                            &[(i as f32) * long.2, (j as f32) * long.3],
+                        ) + 1.0)
+                            / 2.0)
+                } else {
+                    long.6
+                }
+                + if long.7 > 0.2 {
+                    long.7
+                        * ((open_simplex2::<f32>(
+                            &table,
+                            &[(i as f32) * long.4, (j as f32) * long.5],
+                        ) + 1.0)
+                            / 2.0)
+                } else {
+                    long.7
+                };
             height_map[i].push(e.powf(long.8));
             tex_map[i].push((e, e, e));
         }

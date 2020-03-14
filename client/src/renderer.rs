@@ -1,26 +1,25 @@
-use base::math::*;
-use world::WorldView;
-use glium::Surface;
-use super::{Camera, GameContext, SimpleCull};
-use view::Sun;
-use view::SkyView;
-use std::rc::Rc;
-use std::error::Error;
-use std::env;
-use DayTime;
 use super::weather::Weather;
+use super::{Camera, GameContext, SimpleCull};
+use base::math::*;
+use glium;
+use glium::backend::glutin_backend::GlutinFacade;
+use glium::backend::Facade;
+use glium::draw_parameters::DrawParameters;
+use glium::framebuffer::SimpleFrameBuffer;
+use glium::framebuffer::ToColorAttachment;
+use glium::index::PrimitiveType;
 use glium::texture::texture2d::Texture2d;
 use glium::texture::{DepthFormat, DepthTexture2d, MipmapsOption, UncompressedFloatFormat};
-use glium::framebuffer::SimpleFrameBuffer;
-use glium::{Blend, BlendingFunction, IndexBuffer, LinearBlendingFactor, Program, VertexBuffer};
-use glium::index::PrimitiveType;
-use glium::backend::Facade;
-use glium::framebuffer::ToColorAttachment;
-use glium::backend::glutin_backend::GlutinFacade;
-use glium;
 use glium::uniforms::{MagnifySamplerFilter, SamplerWrapFunction};
-use glium::draw_parameters::DrawParameters;
-
+use glium::Surface;
+use glium::{Blend, BlendingFunction, IndexBuffer, LinearBlendingFactor, Program, VertexBuffer};
+use std::env;
+use std::error::Error;
+use std::rc::Rc;
+use view::SkyView;
+use view::Sun;
+use world::WorldView;
+use DayTime;
 
 // ===================================================================
 //                       CONFIGURATION VALUES
@@ -33,7 +32,6 @@ const SHADOW_ORTHO_WIDTH: f32 = 100.0;
 const SHADOW_ORTHO_HEIGHT: f32 = 100.0;
 const SHADOW_ORTHO_NEAR: f32 = 100.0;
 const SHADOW_ORTHO_FAR: f32 = 600.0;
-
 
 // ===========================  BLOOM  ===============================
 // Bloom state
@@ -53,22 +51,22 @@ const EXPOSURE_THRESHOLD: f32 = 0.2;
 
 // The following values define how well you can adapt to brightness / darkness.
 // The adaption of the eye is clamped between these values.
-const EYE_OPEN: f32 = 2.0;  //increase to allow to see better in the dark       DEFAULT:3.2
-const EYE_CLOSED: f32 = 0.1;  //decrease to allow to see brighter areas better  DEFAULT:0.8
+const EYE_OPEN: f32 = 2.0; //increase to allow to see better in the dark       DEFAULT:3.2
+const EYE_CLOSED: f32 = 0.1; //decrease to allow to see brighter areas better  DEFAULT:0.8
 
 // The following values define how much the exposure value will be drawn to
 // a given ("optimal") value.
-const OPTIMAL_EXPOSURE: f32 = 0.7;  // optimal Value that exposure should reach.    DEFAULT: 0.5
-const WE_WANT_OPTIMAL: f32 = 0.2;  // Agressiveness of exposure correction in [0;1] DEFAULT: 0.7
+const OPTIMAL_EXPOSURE: f32 = 0.7; // optimal Value that exposure should reach.    DEFAULT: 0.5
+const WE_WANT_OPTIMAL: f32 = 0.2; // Agressiveness of exposure correction in [0;1] DEFAULT: 0.7
 
 // Speed of eye adaption. Lower values result in longer time needed
 // to adapt to different light conditions. Set to 1 to test without adaption
 // effect.
-const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.25;  //adaption speed from bright to dark DEFAULT:0.25
+const ADAPTION_SPEED_BRIGHT_DARK: f32 = 0.25; //adaption speed from bright to dark DEFAULT:0.25
 const ADAPTION_SPEED_DARK_BRIGHT: f32 = 0.06; //adaption speed from dark to bright  DEFAULT:0.06
 
 // increase to make darks less bright, decrease to darken nights
-const DARKNESS_CORRECTION: f32 = 4.0;   //Default: 4.0
+const DARKNESS_CORRECTION: f32 = 4.0; //Default: 4.0
 
 pub struct Renderer {
     context: Rc<GameContext>,
@@ -124,36 +122,44 @@ pub struct Renderer {
 
 impl Renderer {
     pub fn new(context: Rc<GameContext>) -> Self {
-
         // FIXME The index buffer is useless, switch to using `NoIndices` and
         // `TriangleStrip`
-        let ibuf = IndexBuffer::new(context.get_facade(),
-                                    PrimitiveType::TrianglesList,
-                                    &[0u16, 1, 2, 0, 2, 3])
-            .unwrap();
+        let ibuf = IndexBuffer::new(
+            context.get_facade(),
+            PrimitiveType::TrianglesList,
+            &[0u16, 1, 2, 0, 2, 3],
+        )
+        .unwrap();
 
+        let shadow_map = Texture2d::empty_with_format(
+            context.get_facade(),
+            UncompressedFloatFormat::F32F32,
+            MipmapsOption::NoMipmap,
+            SHADOW_MAP_SIZE,
+            SHADOW_MAP_SIZE,
+        )
+        .unwrap();
 
-        let shadow_map = Texture2d::empty_with_format(context.get_facade(),
-                                                      UncompressedFloatFormat::F32F32,
-                                                      MipmapsOption::NoMipmap,
-                                                      SHADOW_MAP_SIZE,
-                                                      SHADOW_MAP_SIZE)
-            .unwrap();
+        let shadow_horz_blur = Texture2d::empty_with_format(
+            context.get_facade(),
+            UncompressedFloatFormat::F32F32,
+            MipmapsOption::NoMipmap,
+            SHADOW_MAP_SIZE,
+            SHADOW_MAP_SIZE,
+        )
+        .unwrap();
 
-        let shadow_horz_blur = Texture2d::empty_with_format(context.get_facade(),
-                                                            UncompressedFloatFormat::F32F32,
-                                                            MipmapsOption::NoMipmap,
-                                                            SHADOW_MAP_SIZE,
-                                                            SHADOW_MAP_SIZE)
-            .unwrap();
-
-        let shadow_motion_blur = Texture2d::empty_with_format(context.get_facade(),
-                                                              UncompressedFloatFormat::F32F32,
-                                                              MipmapsOption::NoMipmap,
-                                                              SHADOW_MAP_SIZE,
-                                                              SHADOW_MAP_SIZE)
-            .unwrap();
-        shadow_motion_blur.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+        let shadow_motion_blur = Texture2d::empty_with_format(
+            context.get_facade(),
+            UncompressedFloatFormat::F32F32,
+            MipmapsOption::NoMipmap,
+            SHADOW_MAP_SIZE,
+            SHADOW_MAP_SIZE,
+        )
+        .unwrap();
+        shadow_motion_blur
+            .as_surface()
+            .clear_color(0.0, 0.0, 0.0, 0.0);
 
         let shadow_depth =
             DepthTexture2d::empty(context.get_facade(), SHADOW_MAP_SIZE, SHADOW_MAP_SIZE).unwrap();
@@ -162,7 +168,6 @@ impl Renderer {
 
         let last_lum = 2.0;
         let exposure = 2.0;
-
 
         let tonemapping_program = context.load_program("tonemapping").unwrap();
         let bloom_filter_program = context.load_program("bloom_filter").unwrap();
@@ -213,65 +218,74 @@ impl Renderer {
     /// perspective of the sun, whose position is `sun_pos`.
     ///
     /// Returns the MVP matrix used.
-    fn render_shadow_map(&mut self,
-                         world_view: &WorldView,
-                         sun_pos: Point3f,
-                         camera: Point3f)
-                         -> Result<Matrix4<f32>, Box<dyn Error>> {
-        let mut shadow_target = SimpleFrameBuffer::with_depth_buffer(self.context
-                                                                              .get_facade(),
-                                                                          &self.shadow_map,
-                                                                          &self.shadow_depth)?;
+    fn render_shadow_map(
+        &mut self,
+        world_view: &WorldView,
+        sun_pos: Point3f,
+        camera: Point3f,
+    ) -> Result<Matrix4<f32>, Box<dyn Error>> {
+        let mut shadow_target = SimpleFrameBuffer::with_depth_buffer(
+            self.context.get_facade(),
+            &self.shadow_map,
+            &self.shadow_depth,
+        )?;
         shadow_target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
         // Render the world from the perspective of the sun.
         let mut cam_pos = camera.to_vec();
         cam_pos.z = 70.0;
-        let mut sun_cam = Camera::new_from_vector(sun_pos + cam_pos,
-                                                  -sun_pos.to_vec(),
-                                                  SHADOW_ORTHO_WIDTH / SHADOW_ORTHO_HEIGHT);
+        let mut sun_cam = Camera::new_from_vector(
+            sun_pos + cam_pos,
+            -sun_pos.to_vec(),
+            SHADOW_ORTHO_WIDTH / SHADOW_ORTHO_HEIGHT,
+        );
         // Set an orthographic projection matrix.
-        sun_cam.set_proj_matrix(ortho(-SHADOW_ORTHO_WIDTH / 2.0,
-                                      SHADOW_ORTHO_WIDTH / 2.0,
-                                      -SHADOW_ORTHO_HEIGHT / 2.0,
-                                      SHADOW_ORTHO_HEIGHT / 2.0,
-                                      SHADOW_ORTHO_NEAR,
-                                      SHADOW_ORTHO_FAR));
+        sun_cam.set_proj_matrix(ortho(
+            -SHADOW_ORTHO_WIDTH / 2.0,
+            SHADOW_ORTHO_WIDTH / 2.0,
+            -SHADOW_ORTHO_HEIGHT / 2.0,
+            SHADOW_ORTHO_HEIGHT / 2.0,
+            SHADOW_ORTHO_NEAR,
+            SHADOW_ORTHO_FAR,
+        ));
         world_view.draw_shadow(&mut shadow_target, &sun_cam);
 
         // Blur the shadow map to get soft shadows
 
         // Blur in horizontal direction into a new frame buffer:
-        let mut blur_horz_buffer = SimpleFrameBuffer::new(self.context.get_facade(),
-                                                               self.shadow_horz_blur
-                                                                   .to_color_attachment())?;
+        let mut blur_horz_buffer = SimpleFrameBuffer::new(
+            self.context.get_facade(),
+            self.shadow_horz_blur.to_color_attachment(),
+        )?;
 
         for _ in 0..2 {
             blur_horz_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
-
-            blur_horz_buffer.draw(&self.quad_vertex_buffer,
-                                       &self.quad_index_buffer,
-                                       &self.bloom_blur_program,
-                                       &uniform! {
-                                            image: self.shadow_map.sampled()
-                                              .wrap_function(SamplerWrapFunction::Clamp),
-                                            horizontal: true,
-                                        },
-                                       &Default::default())?;
+            blur_horz_buffer.draw(
+                &self.quad_vertex_buffer,
+                &self.quad_index_buffer,
+                &self.bloom_blur_program,
+                &uniform! {
+                    image: self.shadow_map.sampled()
+                      .wrap_function(SamplerWrapFunction::Clamp),
+                    horizontal: true,
+                },
+                &Default::default(),
+            )?;
 
             // ...then blur in vertical direction into the normal shadow map
-            shadow_target.draw(&self.quad_vertex_buffer,
-                                    &self.quad_index_buffer,
-                                    &self.bloom_blur_program,
-                                    &uniform! {
-                                        image: self.shadow_horz_blur.sampled()
-                                          .wrap_function(SamplerWrapFunction::Clamp),
-                                        horizontal: false,
-                                    },
-                                    &Default::default())?;
+            shadow_target.draw(
+                &self.quad_vertex_buffer,
+                &self.quad_index_buffer,
+                &self.bloom_blur_program,
+                &uniform! {
+                    image: self.shadow_horz_blur.sampled()
+                      .wrap_function(SamplerWrapFunction::Clamp),
+                    horizontal: false,
+                },
+                &Default::default(),
+            )?;
         }
-
 
         // Blend the motion blur texture over the whole scene
         let uniforms = uniform! {
@@ -289,34 +303,39 @@ impl Renderer {
             ..Default::default()
         };
 
-        shadow_target.draw(&self.quad_vertex_buffer,
-                                &self.quad_index_buffer,
-                                &self.shadow_blend_program,
-                                &uniforms,
-                                &params)?;
-
+        shadow_target.draw(
+            &self.quad_vertex_buffer,
+            &self.quad_index_buffer,
+            &self.shadow_blend_program,
+            &uniforms,
+            &params,
+        )?;
 
         // Copy final shadow map to motion blur texture
-        shadow_target.fill(&self.shadow_motion_blur.as_surface(),
-                           MagnifySamplerFilter::Nearest);
+        shadow_target.fill(
+            &self.shadow_motion_blur.as_surface(),
+            MagnifySamplerFilter::Nearest,
+        );
 
         Ok(sun_cam.proj_matrix() * sun_cam.view_matrix())
     }
 
     /// Is called once every main loop iteration
-    pub fn render(&mut self,
-                  world_view: &WorldView,
-                  camera: &Camera,
-                  daytime: &DayTime,
-                  sun: &Sun,
-                  weather: &mut Weather,
-                  sky_view: &SkyView)
-                  -> Result<(), Box<dyn Error>> {
+    pub fn render(
+        &mut self,
+        world_view: &WorldView,
+        camera: &Camera,
+        daytime: &DayTime,
+        sun: &Sun,
+        weather: &mut Weather,
+        sky_view: &SkyView,
+    ) -> Result<(), Box<dyn Error>> {
         // info!("------------ {:?}", daytime.get_sky_light());
         // ===================================================================
         // set up frustum
         // ===================================================================
-        self.frustum.set_up(camera.position, camera.get_look_at_vector(), 80.);
+        self.frustum
+            .set_up(camera.position, camera.get_look_at_vector(), 80.);
 
         // ===================================================================
         // check dimensions
@@ -335,57 +354,60 @@ impl Renderer {
         // Rendering into HDR framebuffer
         // ===================================================================
         {
-            let mut hdr_buffer = SimpleFrameBuffer::with_depth_buffer(self.context
-                                                                               .get_facade(),
-                                                                           &self.quad_tex,
-                                                                           &self.depth_texture)?;
+            let mut hdr_buffer = SimpleFrameBuffer::with_depth_buffer(
+                self.context.get_facade(),
+                &self.quad_tex,
+                &self.depth_texture,
+            )?;
             hdr_buffer.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
 
             if self.shadow_debug {
                 let mut target = self.context.get_facade().draw();
                 target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
-                target.draw(&self.quad_vertex_buffer,
-                                 &self.quad_index_buffer,
-                                 &self.shadow_debug_program,
-                                 &uniform!{
-                          decal_texture: &self.shadow_map,
-                      },
-                                 &Default::default())?;
+                target.draw(
+                    &self.quad_vertex_buffer,
+                    &self.quad_index_buffer,
+                    &self.shadow_debug_program,
+                    &uniform! {
+                        decal_texture: &self.shadow_map,
+                    },
+                    &Default::default(),
+                )?;
                 target.finish()?;
                 return Ok(());
             }
 
             let sun_dir = (-sun.position().to_vec()).normalize();
-            world_view.draw(&mut hdr_buffer,
-                            camera,
-                            &self.shadow_map,
-                            &depth_mvp,
-                            daytime,
-                            sun_dir);
+            world_view.draw(
+                &mut hdr_buffer,
+                camera,
+                &self.shadow_map,
+                &depth_mvp,
+                daytime,
+                sun_dir,
+            );
             sky_view.draw_skydome(&mut hdr_buffer, camera, daytime);
 
             sun.draw_sun(&mut hdr_buffer, camera);
             weather.draw(&mut hdr_buffer, camera);
-
         }
         // ===================================================================
         //                      Brightness Adaption Calls
         // ===================================================================
 
-
         let adapt = self.adapt_brightness()?;
         self.last_lum = adapt;
         if adapt >= self.last_lum {
-            self.last_lum = (1.0 - ADAPTION_SPEED_DARK_BRIGHT) * self.last_lum +
-                            ADAPTION_SPEED_DARK_BRIGHT * adapt;
+            self.last_lum = (1.0 - ADAPTION_SPEED_DARK_BRIGHT) * self.last_lum
+                + ADAPTION_SPEED_DARK_BRIGHT * adapt;
         } else {
-            self.last_lum = (1.0 - ADAPTION_SPEED_BRIGHT_DARK) * self.last_lum +
-                            ADAPTION_SPEED_BRIGHT_DARK * adapt
+            self.last_lum = (1.0 - ADAPTION_SPEED_BRIGHT_DARK) * self.last_lum
+                + ADAPTION_SPEED_BRIGHT_DARK * adapt
         }
         // debug!("last_lum {}", self.last_lum);
 
-        self.exposure = (1.0 - WE_WANT_OPTIMAL) * self.last_lum +
-                        WE_WANT_OPTIMAL * OPTIMAL_EXPOSURE;
+        self.exposure =
+            (1.0 - WE_WANT_OPTIMAL) * self.last_lum + WE_WANT_OPTIMAL * OPTIMAL_EXPOSURE;
         // self.exposure = self.exposure.sqrt();
         // info!("exp: {}", self.exposure);
 
@@ -401,7 +423,6 @@ impl Renderer {
         //                                 Tonemapping
         // ===================================================================
 
-
         let decal_texture = match (self.context.get_config().bloom, BLOOM_STATE) {
             (false, _) | (_, 0) => &self.quad_tex,
             (_, 2) => &self.bloom_vert_tex,
@@ -413,15 +434,16 @@ impl Renderer {
             exposure: self.exposure,
         };
 
-
         let mut target = self.context.get_facade().draw();
         target.clear_color_and_depth((0.0, 0.0, 0.0, 1.0), 1.0);
 
-        target.draw(&self.quad_vertex_buffer,
-                         &self.quad_index_buffer,
-                         &self.tonemapping_program,
-                         &uniforms,
-                         &Default::default())?;
+        target.draw(
+            &self.quad_vertex_buffer,
+            &self.quad_index_buffer,
+            &self.tonemapping_program,
+            &uniforms,
+            &Default::default(),
+        )?;
 
         target.finish()?;
 
@@ -429,145 +451,157 @@ impl Renderer {
     }
 
     fn create_vertex_buf<F: Facade>(facade: &F) -> VertexBuffer<Vertex> {
-
-        VertexBuffer::new(facade,
-                          &[Vertex {
-                                in_position: [-1.0, -1.0, 0.0, 1.0],
-                                in_texcoord: [0.0, 0.0],
-                            },
-                            Vertex {
-                                in_position: [1.0, -1.0, 0.0, 1.0],
-                                in_texcoord: [1.0, 0.0],
-                            },
-                            Vertex {
-                                in_position: [1.0, 1.0, 0.0, 1.0],
-                                in_texcoord: [1.0, 1.0],
-                            },
-                            Vertex {
-                                in_position: [-1.0, 1.0, 0.0, 1.0],
-                                in_texcoord: [0.0, 1.0],
-                            }])
-            .unwrap()
+        VertexBuffer::new(
+            facade,
+            &[
+                Vertex {
+                    in_position: [-1.0, -1.0, 0.0, 1.0],
+                    in_texcoord: [0.0, 0.0],
+                },
+                Vertex {
+                    in_position: [1.0, -1.0, 0.0, 1.0],
+                    in_texcoord: [1.0, 0.0],
+                },
+                Vertex {
+                    in_position: [1.0, 1.0, 0.0, 1.0],
+                    in_texcoord: [1.0, 1.0],
+                },
+                Vertex {
+                    in_position: [-1.0, 1.0, 0.0, 1.0],
+                    in_texcoord: [0.0, 1.0],
+                },
+            ],
+        )
+        .unwrap()
     }
 
     // render update is called when a dimensions resize of the facade occures
     // recreates the 2D textures
     fn render_update(&mut self) {
         self.resolution = self.context.get_facade().get_framebuffer_dimensions();
-        info!("time to resize framebuffer with dimensions {},{}",
-              self.resolution.0,
-              self.resolution.1);
+        info!(
+            "time to resize framebuffer with dimensions {},{}",
+            self.resolution.0, self.resolution.1
+        );
 
         let ffff = UncompressedFloatFormat::F32F32F32F32;
-        self.quad_tex = Texture2d::empty_with_format(self.context.get_facade(),
-                                                     ffff,
-                                                     MipmapsOption::NoMipmap,
-                                                     self.resolution.0,
-                                                     self.resolution.1)
-            .unwrap();
+        self.quad_tex = Texture2d::empty_with_format(
+            self.context.get_facade(),
+            ffff,
+            MipmapsOption::NoMipmap,
+            self.resolution.0,
+            self.resolution.1,
+        )
+        .unwrap();
 
-        self.depth_texture = DepthTexture2d::empty_with_format(self.context.get_facade(),
-                                                               DepthFormat::F32,
-                                                               MipmapsOption::NoMipmap,
-                                                               self.resolution.0,
-                                                               self.resolution.1)
-            .unwrap();
+        self.depth_texture = DepthTexture2d::empty_with_format(
+            self.context.get_facade(),
+            DepthFormat::F32,
+            MipmapsOption::NoMipmap,
+            self.resolution.0,
+            self.resolution.1,
+        )
+        .unwrap();
 
+        self.bloom_filter_tex = Texture2d::empty_with_format(
+            self.context.get_facade(),
+            ffff,
+            MipmapsOption::NoMipmap,
+            self.resolution.0,
+            self.resolution.1,
+        )
+        .unwrap();
 
-        self.bloom_filter_tex = Texture2d::empty_with_format(self.context.get_facade(),
-                                                             ffff,
-                                                             MipmapsOption::NoMipmap,
-                                                             self.resolution.0,
-                                                             self.resolution.1)
-            .unwrap();
+        self.bloom_horz_tex = Texture2d::empty_with_format(
+            self.context.get_facade(),
+            ffff,
+            MipmapsOption::NoMipmap,
+            (self.resolution.0) / BLUR_TEXTURE_DIVISOR,
+            (self.resolution.1) / BLUR_TEXTURE_DIVISOR,
+        )
+        .unwrap();
 
+        self.bloom_vert_tex = Texture2d::empty_with_format(
+            self.context.get_facade(),
+            ffff,
+            MipmapsOption::NoMipmap,
+            (self.resolution.0) / BLUR_TEXTURE_DIVISOR,
+            (self.resolution.1) / BLUR_TEXTURE_DIVISOR,
+        )
+        .unwrap();
 
-        self.bloom_horz_tex =
-            Texture2d::empty_with_format(self.context.get_facade(),
-                                         ffff,
-                                         MipmapsOption::NoMipmap,
-                                         (self.resolution.0) / BLUR_TEXTURE_DIVISOR,
-                                         (self.resolution.1) / BLUR_TEXTURE_DIVISOR)
-                .unwrap();
+        self.bloom_blend_tex = Texture2d::empty_with_format(
+            self.context.get_facade(),
+            ffff,
+            MipmapsOption::NoMipmap,
+            self.resolution.0,
+            self.resolution.1,
+        )
+        .unwrap();
 
-        self.bloom_vert_tex =
-            Texture2d::empty_with_format(self.context.get_facade(),
-                                         ffff,
-                                         MipmapsOption::NoMipmap,
-                                         (self.resolution.0) / BLUR_TEXTURE_DIVISOR,
-                                         (self.resolution.1) / BLUR_TEXTURE_DIVISOR)
-                .unwrap();
-
-        self.bloom_blend_tex = Texture2d::empty_with_format(self.context.get_facade(),
-                                                            ffff,
-                                                            MipmapsOption::NoMipmap,
-                                                            self.resolution.0,
-                                                            self.resolution.1)
-            .unwrap();
-
-        self.lum_relative_tex = Texture2d::empty_with_format(self.context.get_facade(),
-                                                             UncompressedFloatFormat::F32,
-                                                             MipmapsOption::NoMipmap,
-                                                             512,
-                                                             512)
-            .unwrap();
+        self.lum_relative_tex = Texture2d::empty_with_format(
+            self.context.get_facade(),
+            UncompressedFloatFormat::F32,
+            MipmapsOption::NoMipmap,
+            512,
+            512,
+        )
+        .unwrap();
     }
-
 
     // ===================================================================
     //                         Brightness Adaption
     // ===================================================================
 
     fn adapt_brightness(&self) -> Result<f32, Box<dyn Error>> {
+        let mut rel_luminance_buffer = SimpleFrameBuffer::new(
+            self.context.get_facade(),
+            self.lum_relative_tex.to_color_attachment(),
+        )?;
 
-        let mut rel_luminance_buffer = SimpleFrameBuffer::new(self.context.get_facade(),
-                                                                   self.lum_relative_tex
-                                                                       .to_color_attachment())?;
-
-        let uniforms = uniform!{
+        let uniforms = uniform! {
             image: &self.quad_tex,
         };
 
-
-
-        rel_luminance_buffer.draw(&self.quad_vertex_buffer,
-                                       &self.quad_index_buffer,
-                                       &self.relative_luminance_program,
-                                       &uniforms,
-                                       &Default::default())?;
-
-
+        rel_luminance_buffer.draw(
+            &self.quad_vertex_buffer,
+            &self.quad_index_buffer,
+            &self.relative_luminance_program,
+            &uniforms,
+            &Default::default(),
+        )?;
 
         let mut adaption_buffers: Vec<SimpleFrameBuffer> = Vec::with_capacity(10);
 
         let mut image = &self.lum_relative_tex;
 
         for i in 0..9 {
-            adaption_buffers.push(SimpleFrameBuffer::new(self.context.get_facade(),
-                                                              self.lum_texs[i]
-                                                                  .to_color_attachment())?);
-
+            adaption_buffers.push(SimpleFrameBuffer::new(
+                self.context.get_facade(),
+                self.lum_texs[i].to_color_attachment(),
+            )?);
 
             if i != 0 {
                 image = &self.lum_texs[i - 1];
             }
 
-            let uniforms = uniform!{
+            let uniforms = uniform! {
                 image: image,
             };
 
-            adaption_buffers[i].draw(&self.quad_vertex_buffer,
-                                          &self.quad_index_buffer,
-                                          &self.adaption_shrink_program,
-                                          &uniforms,
-                                          &Default::default())?;
-
+            adaption_buffers[i].draw(
+                &self.quad_vertex_buffer,
+                &self.quad_index_buffer,
+                &self.adaption_shrink_program,
+                &uniforms,
+                &Default::default(),
+            )?;
         }
-
 
         // Read only pixel in the lowest level texture from lum_texs.
         // never change a working system.
-        let buf: Vec<Vec<f32>> = self.lum_texs
+        let buf: Vec<Vec<f32>> = self
+            .lum_texs
             .last()
             .unwrap()
             .main_level()
@@ -596,7 +630,6 @@ impl Renderer {
         Ok(adapted_luminance)
     }
 
-
     fn bloom(&mut self) -> Result<(), Box<dyn Error>> {
         // =======================  light texture  ===========================
         // create texture containing only bright areas, everything else will be black
@@ -606,31 +639,35 @@ impl Renderer {
             bloom_threshhold: self.exposure / EXPOSURE_THRESHOLD,
         };
 
-        let mut bloom_buffer = SimpleFrameBuffer::new(self.context.get_facade(),
-                                                           self.bloom_filter_tex
-                                                               .to_color_attachment())?;
+        let mut bloom_buffer = SimpleFrameBuffer::new(
+            self.context.get_facade(),
+            self.bloom_filter_tex.to_color_attachment(),
+        )?;
 
         bloom_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
-
-        bloom_buffer.draw(&self.quad_vertex_buffer,
-                               &self.quad_index_buffer,
-                               &self.bloom_filter_program,
-                               &uniforms,
-                               &Default::default())?;
+        bloom_buffer.draw(
+            &self.quad_vertex_buffer,
+            &self.quad_index_buffer,
+            &self.bloom_filter_program,
+            &uniforms,
+            &Default::default(),
+        )?;
 
         // ============================  blur  ===============================
         // ping pong blur between the horizontal and the vertical blur buffer.
 
-        let mut bloom_blur_horz_buffer = SimpleFrameBuffer::new(self.context.get_facade(),
-                                                                     self.bloom_horz_tex
-                                                                         .to_color_attachment())?;
+        let mut bloom_blur_horz_buffer = SimpleFrameBuffer::new(
+            self.context.get_facade(),
+            self.bloom_horz_tex.to_color_attachment(),
+        )?;
 
         bloom_blur_horz_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
-        let mut bloom_blur_vert_buffer = SimpleFrameBuffer::new(self.context.get_facade(),
-                                                                     self.bloom_vert_tex
-                                                                         .to_color_attachment())?;
+        let mut bloom_blur_vert_buffer = SimpleFrameBuffer::new(
+            self.context.get_facade(),
+            self.bloom_vert_tex.to_color_attachment(),
+        )?;
         bloom_blur_vert_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
         let mut uniforms_horz_blur = uniform! {
             //for the first iteration: Use the bloom quad texture as source of light map,
@@ -644,21 +681,25 @@ impl Renderer {
         };
 
         let mut first_iteration = true; //to know when we need to switch uniforms_horz_blur
-        let mut horizontal = true;      //to switch between horizontal and vertical blur
+        let mut horizontal = true; //to switch between horizontal and vertical blur
 
         for _ in 0..BLOOM_ITERATION {
             if horizontal {
-                bloom_blur_horz_buffer.draw(&self.quad_vertex_buffer,
-                                                 &self.quad_index_buffer,
-                                                 &self.bloom_blur_program,
-                                                 &uniforms_horz_blur,
-                                                 &Default::default())?;
+                bloom_blur_horz_buffer.draw(
+                    &self.quad_vertex_buffer,
+                    &self.quad_index_buffer,
+                    &self.bloom_blur_program,
+                    &uniforms_horz_blur,
+                    &Default::default(),
+                )?;
             } else {
-                bloom_blur_vert_buffer.draw(&self.quad_vertex_buffer,
-                                                 &self.quad_index_buffer,
-                                                 &self.bloom_blur_program,
-                                                 &uniforms_vert_blur,
-                                                 &Default::default())?;
+                bloom_blur_vert_buffer.draw(
+                    &self.quad_vertex_buffer,
+                    &self.quad_index_buffer,
+                    &self.bloom_blur_program,
+                    &uniforms_vert_blur,
+                    &Default::default(),
+                )?;
             }
             if first_iteration {
                 uniforms_horz_blur = uniform! {
@@ -673,9 +714,10 @@ impl Renderer {
 
         // ==========================  blending  =============================
 
-        let mut bloom_blend_buffer = SimpleFrameBuffer::new(self.context.get_facade(),
-                                                                 self.bloom_blend_tex
-                                                                     .to_color_attachment())?;
+        let mut bloom_blend_buffer = SimpleFrameBuffer::new(
+            self.context.get_facade(),
+            self.bloom_blend_tex.to_color_attachment(),
+        )?;
 
         bloom_blend_buffer.clear_color(0.0, 0.0, 0.0, 1.0);
 
@@ -685,11 +727,13 @@ impl Renderer {
             world_tex: self.quad_tex.sampled().wrap_function(SamplerWrapFunction::Clamp),
         };
 
-        bloom_blend_buffer.draw(&self.quad_vertex_buffer,
-                                     &self.quad_index_buffer,
-                                     &self.bloom_blend_program,
-                                     &uniforms,
-                                     &Default::default())?;
+        bloom_blend_buffer.draw(
+            &self.quad_vertex_buffer,
+            &self.quad_index_buffer,
+            &self.bloom_blend_program,
+            &uniforms,
+            &Default::default(),
+        )?;
 
         Ok(())
     }
@@ -707,16 +751,19 @@ implement_vertex!(Vertex, in_position, in_texcoord);
 //                  Brightness Adaption Data Structures
 // ===================================================================
 
-
 fn initialize_luminosity(facade: &GlutinFacade) -> Vec<Texture2d> {
     let mut lum = Vec::with_capacity(10);
     for i in 0..9 {
-        lum.push(Texture2d::empty_with_format(facade,
-                                              UncompressedFloatFormat::F32,
-                                              MipmapsOption::NoMipmap,
-                                              (2u32).pow(9 - i),
-                                              (2u32).pow(9 - i))
-            .unwrap());
+        lum.push(
+            Texture2d::empty_with_format(
+                facade,
+                UncompressedFloatFormat::F32,
+                MipmapsOption::NoMipmap,
+                (2u32).pow(9 - i),
+                (2u32).pow(9 - i),
+            )
+            .unwrap(),
+        );
     }
     lum
 }

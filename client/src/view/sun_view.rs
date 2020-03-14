@@ -1,12 +1,11 @@
-use std::rc::Rc;
-use glium::{self, DrawParameters, IndexBuffer, Program, VertexBuffer};
-use glium::index::PrimitiveType;
-use GameContext;
-use Camera;
-use glium::draw_parameters::DepthTest;
-use util::ToArr;
 use base::math::*;
-
+use glium::draw_parameters::DepthTest;
+use glium::index::PrimitiveType;
+use glium::{self, DrawParameters, IndexBuffer, Program, VertexBuffer};
+use std::rc::Rc;
+use util::ToArr;
+use Camera;
+use GameContext;
 
 pub struct Sun {
     vertex_buffer: VertexBuffer<Vertex>,
@@ -20,20 +19,34 @@ const SUN_SIZE: f32 = 15.0;
 impl Sun {
     pub fn new(context: Rc<GameContext>) -> Self {
         let raw_vertex_buffer = vec![
-            Vertex { i_position: [SUN_SIZE, SUN_SIZE, 0.0], i_unit_coords: [1.0, 1.0, 0.0]},
-            Vertex { i_position: [-SUN_SIZE, -SUN_SIZE, 0.0], i_unit_coords: [-1.0, -1.0, 0.0]},
-            Vertex { i_position: [-SUN_SIZE, SUN_SIZE, 0.0], i_unit_coords: [-1.0, 1.0, 0.0]},
-            Vertex { i_position: [SUN_SIZE, -SUN_SIZE, 0.0], i_unit_coords: [1.0, -1.0, 0.0]},
-];
+            Vertex {
+                i_position: [SUN_SIZE, SUN_SIZE, 0.0],
+                i_unit_coords: [1.0, 1.0, 0.0],
+            },
+            Vertex {
+                i_position: [-SUN_SIZE, -SUN_SIZE, 0.0],
+                i_unit_coords: [-1.0, -1.0, 0.0],
+            },
+            Vertex {
+                i_position: [-SUN_SIZE, SUN_SIZE, 0.0],
+                i_unit_coords: [-1.0, 1.0, 0.0],
+            },
+            Vertex {
+                i_position: [SUN_SIZE, -SUN_SIZE, 0.0],
+                i_unit_coords: [1.0, -1.0, 0.0],
+            },
+        ];
 
         let vbuf = VertexBuffer::new(context.get_facade(), &raw_vertex_buffer).unwrap();
 
         let raw_index_buffer = [2, 1, 0, 3]; //TrianglesStrip
 
-        let ibuf = IndexBuffer::new(context.get_facade(),
-                                    PrimitiveType::TriangleStrip,
-                                    &raw_index_buffer)
-            .unwrap();
+        let ibuf = IndexBuffer::new(
+            context.get_facade(),
+            PrimitiveType::TriangleStrip,
+            &raw_index_buffer,
+        )
+        .unwrap();
 
         Sun {
             vertex_buffer: vbuf,
@@ -60,11 +73,14 @@ impl Sun {
             ..Default::default()
         };
 
-        surface.draw(&self.vertex_buffer,
-                  &self.index_buffer,
-                  &self.program,
-                  &uniforms,
-                  &params)
+        surface
+            .draw(
+                &self.vertex_buffer,
+                &self.index_buffer,
+                &self.program,
+                &uniforms,
+                &params,
+            )
             .unwrap();
     }
 

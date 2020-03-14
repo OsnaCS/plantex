@@ -24,13 +24,11 @@ impl EventManager {
     }
 
     pub fn poll_events(&self, mut handlers: Vec<&mut dyn EventHandler>) -> EventResponse {
-
         for ev in self.facade.poll_events() {
             for i in 0..handlers.len() {
                 let response = handlers[i].handle_event(&ev);
                 match response {
-                    EventResponse::NotHandled |
-                    EventResponse::Continue => (),
+                    EventResponse::NotHandled | EventResponse::Continue => (),
                     EventResponse::Break => break,
                     EventResponse::Quit => return EventResponse::Quit,
                 }

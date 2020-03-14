@@ -6,13 +6,13 @@ extern crate cgmath;
 
 mod axial_point;
 mod axial_vector;
+pub mod billboard;
 mod dimension;
 mod random;
-pub mod billboard;
 
-pub use self::cgmath::*;
-pub use self::axial_vector::*;
 pub use self::axial_point::*;
+pub use self::axial_vector::*;
+pub use self::cgmath::*;
 pub use self::dimension::*;
 pub use self::random::*;
 

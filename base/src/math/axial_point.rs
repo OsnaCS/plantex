@@ -1,10 +1,10 @@
-use std::fmt;
-use std::cmp::{max, min};
-use world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS};
-use super::{AxialType, DefaultFloat, Point2f};
-use std::ops::{Add, Div, Index, IndexMut, Mul, Rem, Sub};
-use math::cgmath::{Array, EuclideanSpace, MetricSpace};
 use super::AxialVector;
+use super::{AxialType, DefaultFloat, Point2f};
+use math::cgmath::{Array, EuclideanSpace, MetricSpace};
+use std::cmp::{max, min};
+use std::fmt;
+use std::ops::{Add, Div, Index, IndexMut, Mul, Rem, Sub};
+use world::{HEX_INNER_RADIUS, HEX_OUTER_RADIUS};
 /// A 2-dimensional point in axial coordinates. See [here][hex-blog] for more
 /// information.
 ///
@@ -67,7 +67,10 @@ impl AxialPoint {
             rs = -rq - rr;
         }
 
-        AxialPoint { q: -rs as AxialType, r: rr as AxialType}
+        AxialPoint {
+            q: -rs as AxialType,
+            r: rr as AxialType,
+        }
     }
 
     /// Returns the `s` component of corresponding cube coordinates. In cube
@@ -79,10 +82,7 @@ impl AxialPoint {
 }
 impl fmt::Debug for AxialPoint {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.debug_tuple("")
-            .field(&self.q)
-            .field(&self.r)
-            .finish()
+        f.debug_tuple("").field(&self.q).field(&self.r).finish()
     }
 }
 /// ********************Basic Arithmetics************
@@ -174,8 +174,8 @@ impl Array for AxialPoint {
 impl MetricSpace for AxialPoint {
     type Metric = f32;
     fn distance2(self, other: AxialPoint) -> Self::Metric {
-        (((self.q - other.q) * (self.q - other.q)) +
-         ((self.r - other.r) * (self.r - other.r))) as f32
+        (((self.q - other.q) * (self.q - other.q)) + ((self.r - other.r) * (self.r - other.r)))
+            as f32
     }
 }
 /// ******************* EuclideanSpace**********************
