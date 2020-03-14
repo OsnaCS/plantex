@@ -197,7 +197,7 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
         let offset = offset * 3;
         let segment_indices = [0, 1, 3, 4, 3, 1, 1, 2, 4, 5, 4, 2, 2, 0, 5, 3, 5, 0];
 
-        indices.extend(segment_indices.into_iter().map(|i| i + offset + old_index_offset));
+        indices.extend(segment_indices.iter().map(|i| i + offset + old_index_offset));
     }
 
     let vert_len = vertices.len() as u32;
