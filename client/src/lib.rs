@@ -2,6 +2,8 @@
 //! graphics and input handling.
 //!
 
+#![allow(illegal_floating_point_literal_pattern)]
+
 extern crate base;
 extern crate rand;
 #[macro_use]

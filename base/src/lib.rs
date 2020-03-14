@@ -4,6 +4,8 @@
 //!   defines a few own type
 //! - the world module is all about saving and managing the game world
 
+#![allow(illegal_floating_point_literal_pattern)]
+
 pub extern crate rand;
 extern crate num_traits;
 pub extern crate noise;
