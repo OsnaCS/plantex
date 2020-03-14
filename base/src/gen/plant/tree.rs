@@ -219,7 +219,7 @@ impl PlantType {
                     leaf_depth: 1,
                     height_branchlength_dependence: {
                         fn f(height: f32) -> f32 {
-                            (1.0 - 0.125 * height)
+                            1.0 - 0.125 * height
                         }
                         f
                     },
