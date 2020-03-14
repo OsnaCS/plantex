@@ -4,6 +4,7 @@ license = "MIT/Apache-2.0"
 name = "plantex"
 version = "0.1.0"
 edition = "2018"
+default-run = "plantex"
 
 [[bin]]
 name = "plantex"
