@@ -49,15 +49,15 @@ impl Biome {
 
     pub fn from_climate(temperature: f32, humidity: f32) -> Biome {
         match (temperature, humidity) {
-            (0.0...0.2, 0.0...0.2) => Biome::Stone,
-            (0.0...0.2, 0.2...0.4) => Biome::Snow,
-            (0.0...0.2, 0.4...1.0) => Biome::Snow,
-            (0.2...0.4, 0.0...0.2) => Biome::GrassLand,
-            (0.2...0.4, 0.2...0.4) => Biome::GrassLand,
-            (0.2...0.4, 0.4...1.0) => Biome::Forest,
-            (0.4...1.0, 0.0...0.2) => Biome::Desert,
-            (0.4...1.0, 0.2...0.4) => Biome::Savanna,
-            (0.4...1.0, 0.4...1.0) => Biome::RainForest,
+            (0.0..=0.2, 0.0..=0.2) => Biome::Stone,
+            (0.0..=0.2, 0.2..=0.4) => Biome::Snow,
+            (0.0..=0.2, 0.4..=1.0) => Biome::Snow,
+            (0.2..=0.4, 0.0..=0.2) => Biome::GrassLand,
+            (0.2..=0.4, 0.2..=0.4) => Biome::GrassLand,
+            (0.2..=0.4, 0.4..=1.0) => Biome::Forest,
+            (0.4..=1.0, 0.0..=0.2) => Biome::Desert,
+            (0.4..=1.0, 0.2..=0.4) => Biome::Savanna,
+            (0.4..=1.0, 0.4..=1.0) => Biome::RainForest,
             _ => Biome::Debug,
         }
     }

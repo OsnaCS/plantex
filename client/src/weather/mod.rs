@@ -303,9 +303,9 @@ impl Weather {
                         self.form = Form::Rain;
                         self.last_biome = biome::Biome::GrassLand;
                         self.strength = match chance {
-                            0.0...5.0 => Strength::Weak,
-                            5.0...8.0 => Strength::Medium,
-                            8.0...10.0 => Strength::Heavy,
+                            0.0..=5.0 => Strength::Weak,
+                            5.0..=8.0 => Strength::Medium,
+                            8.0..=10.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
@@ -319,9 +319,9 @@ impl Weather {
                         self.form = Form::Rain;
                         self.last_biome = biome::Biome::Desert;
                         self.strength = match chance {
-                            0.0...1.0 => Strength::Weak,
-                            1.0...2.0 => Strength::Medium,
-                            2.0...4.0 => Strength::Heavy,
+                            0.0..=1.0 => Strength::Weak,
+                            1.0..=2.0 => Strength::Medium,
+                            2.0..=4.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
@@ -335,9 +335,9 @@ impl Weather {
                         self.form = Form::Snow;
                         self.last_biome = biome::Biome::Snow;
                         self.strength = match chance {
-                            0.0...20.0 => Strength::Weak,
-                            20.0...50.0 => Strength::Medium,
-                            50.0...75.0 => Strength::Heavy,
+                            0.0..=20.0 => Strength::Weak,
+                            20.0..=50.0 => Strength::Medium,
+                            50.0..=75.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
@@ -351,9 +351,9 @@ impl Weather {
                         self.form = Form::Pollen;
                         self.last_biome = biome::Biome::Forest;
                         self.strength = match chance {
-                            0.0...15.0 => Strength::Weak,
-                            15.0...35.0 => Strength::Medium,
-                            35.0...65.0 => Strength::Heavy,
+                            0.0..=15.0 => Strength::Weak,
+                            15.0..=35.0 => Strength::Medium,
+                            35.0..=65.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
@@ -367,9 +367,9 @@ impl Weather {
                         self.form = Form::Rain;
                         self.last_biome = biome::Biome::RainForest;
                         self.strength = match chance {
-                            0.0...21.0 => Strength::Weak,
-                            21.0...51.0 => Strength::Medium,
-                            51.0...81.0 => Strength::Heavy,
+                            0.0..=21.0 => Strength::Weak,
+                            21.0..=51.0 => Strength::Medium,
+                            51.0..=81.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
@@ -383,9 +383,9 @@ impl Weather {
                         self.form = Form::Pollen;
                         self.last_biome = biome::Biome::Savanna;
                         self.strength = match chance {
-                            0.0...5.0 => Strength::Weak,
-                            5.0...7.0 => Strength::Medium,
-                            7.0...9.0 => Strength::Heavy,
+                            0.0..=5.0 => Strength::Weak,
+                            5.0..=7.0 => Strength::Medium,
+                            7.0..=9.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
@@ -399,9 +399,9 @@ impl Weather {
                         self.form = Form::Rain;
                         self.last_biome = biome::Biome::Stone;
                         self.strength = match chance {
-                            0.0...7.0 => Strength::Weak,
-                            7.0...12.0 => Strength::Medium,
-                            12.0...17.0 => Strength::Heavy,
+                            0.0..=7.0 => Strength::Weak,
+                            7.0..=12.0 => Strength::Medium,
+                            12.0..=17.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
