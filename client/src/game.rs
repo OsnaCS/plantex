@@ -224,7 +224,9 @@ fn create_context(events_loop: &glutin::EventsLoop, config: &Config) -> Result<D
         // TODO: if we add a fullscreen window mode
         // FullScreenWindow => (),
         WindowMode::FullScreen => {
-            window_builder = window_builder.with_fullscreen(glutin::get_primary_monitor());
+            window_builder = window_builder.with_fullscreen(
+                Some(events_loop.get_primary_monitor())
+            );
             window_builder = window_builder.with_decorations(false);
         }
     }
