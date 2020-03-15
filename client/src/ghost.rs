@@ -226,12 +226,12 @@ impl EventHandler for Ghost {
                 EventResponse::Continue
             }
 
-            WindowEvent::MouseMoved { position: (x, y), .. } => {
+            WindowEvent::CursorMoved { position: (x, y), .. } => {
                 if self.mouselock {
                     let window = self.context.get_facade().gl_window();
                     // Possibility of mouse being outside of window without it resetting to the
                     // middle?
-                    if let Some(middle) = window.get_inner_size_pixels() {
+                    if let Some(middle) = window.get_inner_size() {
                         let middle_x = (middle.0 as f64) / 2.0;
                         let middle_y = (middle.1 as f64) / 2.0;
                         let x_diff = x - middle_x;
