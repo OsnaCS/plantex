@@ -233,7 +233,7 @@ fn create_context(events_loop: &glutin::EventsLoop, config: &Config) -> Result<D
     // set title, resolution & create glium context
     window_builder = window_builder.with_title(config.window_title.clone());
     window_builder =
-        window_builder.with_dimensions(config.resolution.width, config.resolution.height);
+        window_builder.with_dimensions((config.resolution.width, config.resolution.height).into());
 
     let context_builder = glutin::ContextBuilder::new()
         .with_depth_buffer(24)

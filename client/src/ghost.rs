@@ -1,7 +1,10 @@
 use super::camera::*;
 use super::event_manager::*;
 use super::GameContext;
-use glium::glutin::{CursorState, ElementState, Event, MouseButton, VirtualKeyCode, WindowEvent, KeyboardInput};
+use glium::glutin::{
+    ElementState, Event, MouseButton, VirtualKeyCode, WindowEvent, KeyboardInput,
+    dpi::LogicalPosition,
+};
 use std::rc::Rc;
 
 pub struct Ghost {
@@ -206,40 +209,26 @@ impl EventHandler for Ghost {
                 EventResponse::Continue
             }
             WindowEvent::MouseInput { state: ElementState::Pressed, button: MouseButton::Left, .. } => {
-                if !self.mouselock {
-                    self.mouselock = true;
-                    self.context
-                        .get_facade()
-                        .gl_window()
-                        .set_cursor_state(CursorState::Hide)
-                        .expect("failed to set cursor state");
-                } else if self.mouselock {
-                    self.mouselock = false;
-
-                    self.context
-                        .get_facade()
-                        .gl_window()
-                        .set_cursor_state(CursorState::Normal)
-                        .expect("failed to set cursor state");
-                }
+                self.mouselock = !self.mouselock;
+                self.context.get_facade().gl_window().hide_cursor(self.mouselock);
 
                 EventResponse::Continue
             }
 
-            WindowEvent::CursorMoved { position: (x, y), .. } => {
+            WindowEvent::CursorMoved { position: LogicalPosition { x, y }, .. } => {
                 if self.mouselock {
                     let window = self.context.get_facade().gl_window();
                     // Possibility of mouse being outside of window without it resetting to the
                     // middle?
                     if let Some(middle) = window.get_inner_size() {
-                        let middle_x = (middle.0 as f64) / 2.0;
-                        let middle_y = (middle.1 as f64) / 2.0;
+                        let middle_x = middle.width / 2.0;
+                        let middle_y = middle.height / 2.0;
                         let x_diff = x - middle_x;
                         let y_diff = y - middle_y;
                         self.cam
                             .change_dir(y_diff as f32 / 300.0, -x_diff as f32 / 300.0);
                         window
-                            .set_cursor_position(middle_x as i32, middle_y as i32)
+                            .set_cursor_position((middle_x as i32, middle_y as i32).into())
                             .expect("setting cursor position failed");
                     }
                 }

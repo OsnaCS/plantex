@@ -61,7 +61,7 @@ impl EventHandler for CloseHandler {
         };
 
         match e {
-            WindowEvent::Closed
+            WindowEvent::CloseRequested
             | WindowEvent::KeyboardInput {
                 input: KeyboardInput { virtual_keycode: Some(VirtualKeyCode::Escape), .. },
                 ..
