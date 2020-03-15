@@ -1,6 +1,6 @@
 use super::Config;
-use glium::backend::glutin_backend::GlutinFacade;
 use glium::program;
+use glium::Display;
 use glium::Program;
 use std::error::Error;
 use std::fs::File;
@@ -8,19 +8,19 @@ use std::io::{self, Read};
 
 #[derive(Clone)]
 pub struct GameContext {
-    facade: GlutinFacade,
+    facade: Display,
     config: Config, // TODO: we might want to wrap it into `Rc` (performance)
 }
 
 impl GameContext {
-    pub fn new(facade: GlutinFacade, config: Config) -> Self {
+    pub fn new(facade: Display, config: Config) -> Self {
         GameContext {
             facade: facade,
             config: config,
         }
     }
 
-    pub fn get_facade(&self) -> &GlutinFacade {
+    pub fn get_facade(&self) -> &Display {
         &self.facade
     }
 

@@ -1,6 +1,6 @@
 use super::event_manager::*;
 use base::math::*;
-use glium::glutin::{ElementState, Event, VirtualKeyCode};
+use glium::glutin::{ElementState, Event, VirtualKeyCode, WindowEvent, KeyboardInput};
 use std::f32::consts;
 
 #[derive(Debug)]
@@ -178,12 +178,25 @@ impl DayTime {
 /// Handler to speed up time with use of '+' key
 impl EventHandler for DayTime {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
-        match *e {
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::Add)) => {
+        let input = match e {
+            Event::WindowEvent { event: WindowEvent::KeyboardInput { input, .. }, .. } => input,
+            _ => return EventResponse::NotHandled,
+        };
+
+        match input {
+            KeyboardInput {
+                state: ElementState::Pressed,
+                virtual_keycode: Some(VirtualKeyCode::Add),
+                ..
+            } => {
                 self.speed = PLUS_TIME_SPEED;
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::Add)) => {
+            KeyboardInput {
+                state: ElementState::Released,
+                virtual_keycode: Some(VirtualKeyCode::Add),
+                ..
+            } => {
                 self.speed = DEFAULT_TIME_SPEED;
                 EventResponse::Continue
             }

@@ -2,8 +2,8 @@ use super::weather::Weather;
 use super::{Camera, GameContext, SimpleCull};
 use base::math::*;
 use glium;
-use glium::backend::glutin_backend::GlutinFacade;
 use glium::backend::Facade;
+use glium::Display;
 use glium::draw_parameters::DrawParameters;
 use glium::framebuffer::SimpleFrameBuffer;
 use glium::framebuffer::ToColorAttachment;
@@ -751,7 +751,7 @@ implement_vertex!(Vertex, in_position, in_texcoord);
 //                  Brightness Adaption Data Structures
 // ===================================================================
 
-fn initialize_luminosity(facade: &GlutinFacade) -> Vec<Texture2d> {
+fn initialize_luminosity(facade: &Display) -> Vec<Texture2d> {
     let mut lum = Vec::with_capacity(10);
     for i in 0..9 {
         lum.push(

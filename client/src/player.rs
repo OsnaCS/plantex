@@ -3,7 +3,7 @@ use super::event_manager::*;
 use super::world_manager::*;
 use base::math::*;
 use base::world::*;
-use glium::glutin::{CursorState, ElementState, Event, MouseButton, VirtualKeyCode};
+use glium::glutin::{CursorState, ElementState, Event, MouseButton, VirtualKeyCode, WindowEvent, KeyboardInput};
 use std::f32;
 use std::rc::Rc;
 use GameContext;
@@ -357,109 +357,173 @@ impl Player {
 /// `EventHandler` for the `Player`
 impl EventHandler for Player {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
-        match *e {
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::W)) => {
+        let e = match e {
+            Event::WindowEvent { event, .. } => event,
+            _ => return EventResponse::NotHandled,
+        };
+
+        match e {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Pressed,
+                virtual_keycode: Some(VirtualKeyCode::W),
+                ..
+            }, .. } => {
                 self.acceleration.x = 60.5;
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::W)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Released,
+                virtual_keycode: Some(VirtualKeyCode::W),
+                ..
+            }, .. } => {
                 self.acceleration.x = 0.0;
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::S)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Pressed,
+                virtual_keycode: Some(VirtualKeyCode::S),
+                ..
+            }, .. } => {
                 self.acceleration.x = -50.0;
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::S)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Released,
+                virtual_keycode: Some(VirtualKeyCode::S),
+                ..
+            }, .. } => {
                 self.acceleration.x = 0.0;
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::A)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Pressed,
+                virtual_keycode: Some(VirtualKeyCode::A),
+                ..
+            }, .. } => {
                 self.acceleration.y = -50.0;
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::A)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Released,
+                virtual_keycode: Some(VirtualKeyCode::A),
+                ..
+            }, .. } => {
                 self.acceleration.y = 0.0;
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::D)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Pressed,
+                virtual_keycode: Some(VirtualKeyCode::D),
+                ..
+            }, .. } => {
                 self.acceleration.y = 50.0;
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::D)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Released,
+                virtual_keycode: Some(VirtualKeyCode::D),
+                ..
+            }, .. } => {
                 self.acceleration.y = 0.0;
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::Space)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Pressed,
+                virtual_keycode: Some(VirtualKeyCode::Space),
+                ..
+            }, .. } => {
                 if self.velocity.z == 0.0 {
                     self.velocity.z = 0.7;
                 }
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::Space)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Released,
+                virtual_keycode: Some(VirtualKeyCode::Space),
+                ..
+            }, .. } => {
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::LControl)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Pressed,
+                virtual_keycode: Some(VirtualKeyCode::LControl),
+                ..
+            }, .. } => {
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::LControl)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Released,
+                virtual_keycode: Some(VirtualKeyCode::LControl),
+                ..
+            }, .. } => {
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::LShift)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Pressed,
+                virtual_keycode: Some(VirtualKeyCode::LShift),
+                ..
+            }, .. } => {
                 self.shift_speed = 2.0;
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::LShift)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Released,
+                virtual_keycode: Some(VirtualKeyCode::LShift),
+                ..
+            }, .. } => {
                 self.shift_speed = 1.0;
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::F)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Pressed,
+                virtual_keycode: Some(VirtualKeyCode::F),
+                ..
+            }, .. } => {
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::F)) => {
+            WindowEvent::KeyboardInput { input: KeyboardInput {
+                state: ElementState::Released,
+                virtual_keycode: Some(VirtualKeyCode::F),
+                ..
+            }, .. } => {
                 EventResponse::Continue
             }
-            Event::MouseInput(ElementState::Pressed, MouseButton::Left) => {
+            WindowEvent::MouseInput { state: ElementState::Pressed, button: MouseButton::Left, .. } => {
                 if !self.mouselock {
                     self.mouselock = true;
-                    if let Some(window) = self.context.get_facade().get_window() {
-                        window
-                            .set_cursor_state(CursorState::Hide)
-                            .expect("failed to set cursor state");
-                    } else {
-                        warn!("Failed to obtain window from facade");
-                    }
+                    self.context
+                        .get_facade()
+                        .gl_window()
+                        .set_cursor_state(CursorState::Hide)
+                        .expect("failed to set cursor state");
                 } else if self.mouselock {
                     self.mouselock = false;
 
-                    if let Some(window) = self.context.get_facade().get_window() {
-                        window
-                            .set_cursor_state(CursorState::Normal)
-                            .expect("failed to set cursor state");
-                    } else {
-                        warn!("Failed to obtain window from facade");
-                    }
+                    self.context
+                        .get_facade()
+                        .gl_window()
+                        .set_cursor_state(CursorState::Normal)
+                        .expect("failed to set cursor state");
                 }
 
                 EventResponse::Continue
             }
 
-            Event::MouseMoved(x, y) => {
+            WindowEvent::MouseMoved{ position: (x, y), .. } => {
                 if self.mouselock {
-                    if let Some(window) = self.context.get_facade().get_window() {
-                        // Possibility of mouse being outside of window without it resetting to the
-                        // middle?
-                        if let Some(middle) = window.get_inner_size_pixels() {
-                            let middle_x = (middle.0 as i32) / 2;
-                            let middle_y = (middle.1 as i32) / 2;
-                            let x_diff = x - middle_x;
-                            let y_diff = y - middle_y;
-                            self.cam
-                                .change_dir(y_diff as f32 / 300.0, -x_diff as f32 / 300.0);
-                            window
-                                .set_cursor_position(middle_x as i32, middle_y as i32)
-                                .expect("setting cursor position failed");
-                        }
+                    let window = self.context.get_facade().gl_window();
+                    // Possibility of mouse being outside of window without it resetting to the
+                    // middle?
+                    if let Some(middle) = window.get_inner_size_pixels() {
+                        let middle_x = (middle.0 as f64) / 2.0;
+                        let middle_y = (middle.1 as f64) / 2.0;
+                        let x_diff = x - middle_x;
+                        let y_diff = y - middle_y;
+                        self.cam
+                            .change_dir(y_diff as f32 / 300.0, -x_diff as f32 / 300.0);
+                        window
+                            .set_cursor_position(middle_x as i32, middle_y as i32)
+                            .expect("setting cursor position failed");
                     }
                 }
                 EventResponse::Continue

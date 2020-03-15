@@ -15,8 +15,7 @@ use config::WindowMode;
 use control_switcher::ControlSwitcher;
 use event_manager::{CloseHandler, EventManager, EventResponse};
 use ghost::Ghost;
-use glium::backend::glutin_backend::GlutinFacade;
-use glium::{self, glutin, DisplayBuild};
+use glium::{self, glutin, Display};
 use player::Player;
 use std::error::Error;
 use std::net::{SocketAddr, TcpStream};
@@ -41,7 +40,8 @@ impl Game {
     pub fn new(config: Config, server: SocketAddr) -> Result<Self, Box<dyn Error>> {
         info!("connecting to {}", server);
         let server = TcpStream::connect(server)?;
-        let facade = create_context(&config)?;
+        let events_loop = glutin::EventsLoop::new();
+        let facade = create_context(&events_loop, &config)?;
         let context = Rc::new(GameContext::new(facade, config.clone()));
         let world_manager =
             WorldManager::new(create_chunk_provider(context.get_config()), context.clone());
@@ -49,7 +49,7 @@ impl Game {
 
         Ok(Game {
             renderer: Renderer::new(context.clone()),
-            event_manager: EventManager::new(context.get_facade().clone()),
+            event_manager: EventManager::new(events_loop),
             world_manager: world_manager.clone(),
             server: server,
             sun: Sun::new(context.clone()),
@@ -215,7 +215,7 @@ fn create_chunk_provider(config: &Config) -> Box<dyn ChunkProvider> {
 
 /// Creates the OpenGL context and prints useful information about the
 /// success or failure of said action.
-fn create_context(config: &Config) -> Result<GlutinFacade, Box<dyn Error>> {
+fn create_context(events_loop: &glutin::EventsLoop, config: &Config) -> Result<Display, Box<dyn Error>> {
     // initialize window builder
     let mut window_builder = glutin::WindowBuilder::new();
     // check for window mode and set params
@@ -228,15 +228,17 @@ fn create_context(config: &Config) -> Result<GlutinFacade, Box<dyn Error>> {
             window_builder = window_builder.with_decorations(false);
         }
     }
-    // check for vsync
-    if config.vsync {
-        window_builder = window_builder.with_vsync();
-    }
     // set title, resolution & create glium context
     window_builder = window_builder.with_title(config.window_title.clone());
     window_builder =
         window_builder.with_dimensions(config.resolution.width, config.resolution.height);
-    let context = window_builder.with_depth_buffer(24).build_glium();
+
+    let context_builder = glutin::ContextBuilder::new()
+        .with_depth_buffer(24)
+        .with_vsync(config.vsync);
+
+
+    let context = glium::Display::new(window_builder, context_builder, &events_loop);
 
     match context {
         Err(e) => {

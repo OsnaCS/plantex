@@ -1,7 +1,7 @@
 use super::camera::*;
 use super::event_manager::*;
 use ghost::Ghost;
-use glium::glutin::{ElementState, Event, VirtualKeyCode};
+use glium::glutin::{ElementState, Event, VirtualKeyCode, WindowEvent, KeyboardInput};
 use player::Player;
 
 /// Switch between `ghost` and `player` cameras with `G` key
@@ -54,7 +54,17 @@ impl ControlSwitcher {
 impl EventHandler for ControlSwitcher {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
         match *e {
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::G)) => {
+            Event::WindowEvent {
+                event: WindowEvent::KeyboardInput {
+                    input: KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::G),
+                        ..
+                    },
+                    ..
+                },
+                ..
+            } => {
                 self.switch_cam();
                 EventResponse::Continue
             }
