@@ -2,8 +2,8 @@ use super::camera::*;
 use super::event_manager::*;
 use super::GameContext;
 use glium::glutin::{
-    ElementState, Event, MouseButton, VirtualKeyCode, WindowEvent, KeyboardInput,
-    dpi::LogicalPosition,
+    dpi::LogicalPosition, ElementState, Event, KeyboardInput, MouseButton, VirtualKeyCode,
+    WindowEvent,
 };
 use std::rc::Rc;
 
@@ -89,133 +89,201 @@ impl EventHandler for Ghost {
         };
 
         match e {
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Pressed,
-                virtual_keycode: Some(VirtualKeyCode::W),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::W),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.forward = true;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Released,
-                virtual_keycode: Some(VirtualKeyCode::W),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Released,
+                        virtual_keycode: Some(VirtualKeyCode::W),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.forward = false;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Pressed,
-                virtual_keycode: Some(VirtualKeyCode::S),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::S),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.backward = true;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Released,
-                virtual_keycode: Some(VirtualKeyCode::S),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Released,
+                        virtual_keycode: Some(VirtualKeyCode::S),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.backward = false;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Pressed,
-                virtual_keycode: Some(VirtualKeyCode::A),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::A),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.left = true;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Released,
-                virtual_keycode: Some(VirtualKeyCode::A),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Released,
+                        virtual_keycode: Some(VirtualKeyCode::A),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.left = false;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Pressed,
-                virtual_keycode: Some(VirtualKeyCode::D),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::D),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.right = true;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Released,
-                virtual_keycode: Some(VirtualKeyCode::D),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Released,
+                        virtual_keycode: Some(VirtualKeyCode::D),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.right = false;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Pressed,
-                virtual_keycode: Some(VirtualKeyCode::Space),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::Space),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.up = true;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Released,
-                virtual_keycode: Some(VirtualKeyCode::Space),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Released,
+                        virtual_keycode: Some(VirtualKeyCode::Space),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.up = false;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Pressed,
-                virtual_keycode: Some(VirtualKeyCode::LControl),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::LControl),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.down = true;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Released,
-                virtual_keycode: Some(VirtualKeyCode::LControl),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Released,
+                        virtual_keycode: Some(VirtualKeyCode::LControl),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.down = false;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Pressed,
-                virtual_keycode: Some(VirtualKeyCode::LShift),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::LShift),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.speed = SHIFT_SPEED;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Released,
-                virtual_keycode: Some(VirtualKeyCode::LShift),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Released,
+                        virtual_keycode: Some(VirtualKeyCode::LShift),
+                        ..
+                    },
                 ..
-            }, .. } => {
+            } => {
                 self.speed = DEFAULT_SPEED;
                 EventResponse::Continue
             }
-            WindowEvent::KeyboardInput { input: KeyboardInput {
-                state: ElementState::Released,
-                virtual_keycode: Some(VirtualKeyCode::G),
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Released,
+                        virtual_keycode: Some(VirtualKeyCode::G),
+                        ..
+                    },
                 ..
-            }, .. } => {
-                EventResponse::Continue
-            }
-            WindowEvent::MouseInput { state: ElementState::Pressed, button: MouseButton::Left, .. } => {
+            } => EventResponse::Continue,
+            WindowEvent::MouseInput {
+                state: ElementState::Pressed,
+                button: MouseButton::Left,
+                ..
+            } => {
                 self.mouselock = !self.mouselock;
-                self.context.get_facade().gl_window().hide_cursor(self.mouselock);
+                self.context
+                    .get_facade()
+                    .gl_window()
+                    .hide_cursor(self.mouselock);
 
                 EventResponse::Continue
             }
 
-            WindowEvent::CursorMoved { position: LogicalPosition { x, y }, .. } => {
+            WindowEvent::CursorMoved {
+                position: LogicalPosition { x, y },
+                ..
+            } => {
                 if self.mouselock {
                     let window = self.context.get_facade().gl_window();
                     // Possibility of mouse being outside of window without it resetting to the

@@ -215,7 +215,10 @@ fn create_chunk_provider(config: &Config) -> Box<dyn ChunkProvider> {
 
 /// Creates the OpenGL context and prints useful information about the
 /// success or failure of said action.
-fn create_context(events_loop: &glutin::EventsLoop, config: &Config) -> Result<Display, Box<dyn Error>> {
+fn create_context(
+    events_loop: &glutin::EventsLoop,
+    config: &Config,
+) -> Result<Display, Box<dyn Error>> {
     // initialize window builder
     let mut window_builder = glutin::WindowBuilder::new();
     // check for window mode and set params
@@ -224,9 +227,8 @@ fn create_context(events_loop: &glutin::EventsLoop, config: &Config) -> Result<D
         // TODO: if we add a fullscreen window mode
         // FullScreenWindow => (),
         WindowMode::FullScreen => {
-            window_builder = window_builder.with_fullscreen(
-                Some(events_loop.get_primary_monitor())
-            );
+            window_builder =
+                window_builder.with_fullscreen(Some(events_loop.get_primary_monitor()));
             window_builder = window_builder.with_decorations(false);
         }
     }
@@ -238,7 +240,6 @@ fn create_context(events_loop: &glutin::EventsLoop, config: &Config) -> Result<D
     let context_builder = glutin::ContextBuilder::new()
         .with_depth_buffer(24)
         .with_vsync(config.vsync);
-
 
     let context = glium::Display::new(window_builder, context_builder, &events_loop);
 

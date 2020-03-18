@@ -1,4 +1,4 @@
-use glium::glutin::{Event, EventsLoop, VirtualKeyCode, WindowEvent, KeyboardInput};
+use glium::glutin::{Event, EventsLoop, KeyboardInput, VirtualKeyCode, WindowEvent};
 
 /// Every event receiver has to return a response for each event received.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -35,7 +35,11 @@ impl EventManager {
             }
         });
 
-        if quit { EventResponse::Quit } else { EventResponse::NotHandled }
+        if quit {
+            EventResponse::Quit
+        } else {
+            EventResponse::NotHandled
+        }
     }
 }
 
@@ -63,10 +67,13 @@ impl EventHandler for CloseHandler {
         match e {
             WindowEvent::CloseRequested
             | WindowEvent::KeyboardInput {
-                input: KeyboardInput { virtual_keycode: Some(VirtualKeyCode::Escape), .. },
+                input:
+                    KeyboardInput {
+                        virtual_keycode: Some(VirtualKeyCode::Escape),
+                        ..
+                    },
                 ..
-             }
-                => EventResponse::Quit,
+            } => EventResponse::Quit,
             _ => EventResponse::NotHandled,
         }
     }

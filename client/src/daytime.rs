@@ -1,6 +1,6 @@
 use super::event_manager::*;
 use base::math::*;
-use glium::glutin::{ElementState, Event, VirtualKeyCode, WindowEvent, KeyboardInput};
+use glium::glutin::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent};
 use std::f32::consts;
 
 #[derive(Debug)]
@@ -179,7 +179,10 @@ impl DayTime {
 impl EventHandler for DayTime {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
         let input = match e {
-            Event::WindowEvent { event: WindowEvent::KeyboardInput { input, .. }, .. } => input,
+            Event::WindowEvent {
+                event: WindowEvent::KeyboardInput { input, .. },
+                ..
+            } => input,
             _ => return EventResponse::NotHandled,
         };
 
