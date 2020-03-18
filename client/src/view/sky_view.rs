@@ -1,18 +1,16 @@
-use std::rc::Rc;
-use glium::{self, DrawParameters, IndexBuffer, Program, VertexBuffer};
-use glium::index::PrimitiveType;
-use GameContext;
-use Camera;
-use glium::draw_parameters::DepthTest;
-use util::ToArr;
-use base::math::*;
-use noise::{PermutationTable, open_simplex2};
-use rand::Rand;
 use base::gen::seeded_rng;
+use base::math::*;
+use glium::draw_parameters::DepthTest;
+use glium::index::PrimitiveType;
 use glium::texture::Texture2d;
+use glium::{self, DrawParameters, IndexBuffer, Program, VertexBuffer};
+use noise::{open_simplex2, PermutationTable};
+use rand::Rand;
+use std::rc::Rc;
+use util::ToArr;
+use Camera;
 use DayTime;
-
-
+use GameContext;
 
 pub struct SkyView {
     vertex_buffer: VertexBuffer<Vertex>,
@@ -27,17 +25,35 @@ impl SkyView {
         const SKYDOME_SIZE: f32 = 500.0;
         let raw_vertex_buffer = vec![
             // a: part of xy-plane
-            Vertex { i_position: [0.0, -SKYDOME_SIZE, 0.0], i_unit_coords: [0.0, -1.0, 0.0]},
+            Vertex {
+                i_position: [0.0, -SKYDOME_SIZE, 0.0],
+                i_unit_coords: [0.0, -1.0, 0.0],
+            },
             // b: part of xy-plane
-            Vertex { i_position: [SKYDOME_SIZE, 0.0, 0.0], i_unit_coords: [1.0, 0.0, 0.0]},
+            Vertex {
+                i_position: [SKYDOME_SIZE, 0.0, 0.0],
+                i_unit_coords: [1.0, 0.0, 0.0],
+            },
             // c: part of xy-plane
-            Vertex { i_position: [0.0, SKYDOME_SIZE, 0.0], i_unit_coords: [0.0, 1.0, 0.0]},
+            Vertex {
+                i_position: [0.0, SKYDOME_SIZE, 0.0],
+                i_unit_coords: [0.0, 1.0, 0.0],
+            },
             // d: part of xy-plane
-            Vertex { i_position: [-SKYDOME_SIZE, 0.0, 0.0], i_unit_coords: [-1.0, 0.0, 0.0]},
+            Vertex {
+                i_position: [-SKYDOME_SIZE, 0.0, 0.0],
+                i_unit_coords: [-1.0, 0.0, 0.0],
+            },
             // e: peak of lower hemisphere
-            Vertex { i_position: [0.0, 0.0, -SKYDOME_SIZE], i_unit_coords: [0.0, 0.0, -1.0]},
+            Vertex {
+                i_position: [0.0, 0.0, -SKYDOME_SIZE],
+                i_unit_coords: [0.0, 0.0, -1.0],
+            },
             // f: peak of upper hemisphere
-            Vertex { i_position: [0.0, 0.0, SKYDOME_SIZE], i_unit_coords: [0.0, 0.0, 1.0]},
+            Vertex {
+                i_position: [0.0, 0.0, SKYDOME_SIZE],
+                i_unit_coords: [0.0, 0.0, 1.0],
+            },
         ];
 
         let vbuf = VertexBuffer::new(context.get_facade(), &raw_vertex_buffer).unwrap();
@@ -46,17 +62,19 @@ impl SkyView {
         // Index-Buffer corresponds to the planes of the octaeder
         // [a, b, e] [b, c, e] [c, d, e] [d, a, e] [b, a, f] [a, d, f] [d, c, f] [c, b,
         // f]
-        let raw_index_buffer = [0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4, 1, 0, 5, 0, 3, 5, 3, 2, 5, 2,
-                                1, 5]; //TrianglesList
-        let ibuf = IndexBuffer::new(context.get_facade(),
-                                    PrimitiveType::TrianglesList,
-                                    &raw_index_buffer)
-            .unwrap();
+        let raw_index_buffer = [
+            0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4, 1, 0, 5, 0, 3, 5, 3, 2, 5, 2, 1, 5,
+        ]; //TrianglesList
+        let ibuf = IndexBuffer::new(
+            context.get_facade(),
+            PrimitiveType::TrianglesList,
+            &raw_index_buffer,
+        )
+        .unwrap();
 
         let seed = 54342354434;
         let mut star_rng = seeded_rng(seed, 0, ());
         let star_table = PermutationTable::rand(&mut star_rng);
-
 
         // values between 0 and 0.5
         const TEX_SIZE: usize = 2048;
@@ -64,9 +82,11 @@ impl SkyView {
 
         for i in 0..TEX_SIZE {
             for j in 0..TEX_SIZE * 2 {
-                v[i].push((open_simplex2::<f32>(&star_table,
-                                                &[(i as f32) * 0.1, (j as f32) * 0.1]) +
-                           0.6) / 2.0);
+                v[i].push(
+                    (open_simplex2::<f32>(&star_table, &[(i as f32) * 0.1, (j as f32) * 0.1])
+                        + 0.6)
+                        / 2.0,
+                );
             }
         }
 
@@ -79,11 +99,12 @@ impl SkyView {
         }
     }
 
-    pub fn draw_skydome<S: glium::Surface>(&self,
-                                           surface: &mut S,
-                                           camera: &Camera,
-                                           daytime: &DayTime) {
-
+    pub fn draw_skydome<S: glium::Surface>(
+        &self,
+        surface: &mut S,
+        camera: &Camera,
+        daytime: &DayTime,
+    ) {
         let pos = Point3::new(0.0, 0.0, 0.0);
 
         // skydome-octaeder position is set to camera position
@@ -107,11 +128,14 @@ impl SkyView {
             ..Default::default()
         };
 
-        surface.draw(&self.vertex_buffer,
-                  &self.index_buffer,
-                  &self.program,
-                  &uniforms,
-                  &params)
+        surface
+            .draw(
+                &self.vertex_buffer,
+                &self.index_buffer,
+                &self.program,
+                &uniforms,
+                &params,
+            )
             .unwrap();
     }
 

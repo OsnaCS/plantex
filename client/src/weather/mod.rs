@@ -1,17 +1,17 @@
 extern crate rand;
 
-use glium::{self, DrawParameters, LinearBlendingFactor, Program, VertexBuffer};
-use glium::draw_parameters::{BlendingFunction, DepthTest};
 use super::camera::Camera;
-use util::ToArr;
-use base::math::*;
 use base::gen::world::biome;
+use base::math::*;
 use base::world::PillarIndex;
-use GameContext;
-use DayTime;
-use std::rc::Rc;
-use std::f32::consts::PI;
+use glium::draw_parameters::{BlendingFunction, DepthTest};
+use glium::{self, DrawParameters, LinearBlendingFactor, Program, VertexBuffer};
 use std::f32;
+use std::f32::consts::PI;
+use std::rc::Rc;
+use util::ToArr;
+use DayTime;
+use GameContext;
 
 const BOX_SIZE: f32 = 20.0;
 
@@ -81,9 +81,11 @@ impl Particle {
         }
 
         Particle {
-            position: Point3::new(cam_pos.x + radius * Rad::sin(angle),
-                                  cam_pos.y + radius * Rad::cos(angle),
-                                  cam_pos.z + (BOX_SIZE * rand::random::<f32>() + 0.5)),
+            position: Point3::new(
+                cam_pos.x + radius * Rad::sin(angle),
+                cam_pos.y + radius * Rad::cos(angle),
+                cam_pos.z + (BOX_SIZE * rand::random::<f32>() + 0.5),
+            ),
             velocity: velocity,
             trans_x: rand::random::<f32>() * PI * 2.0,
             trans_y: rand::random::<f32>() * PI * 2.0,
@@ -101,11 +103,14 @@ impl Particle {
         let relevant_pos = Point2f::new(self.position.x, self.position.y);
         let pillar_index = PillarIndex(AxialPoint::from_real(relevant_pos));
 
-        let vec_len = world.pillar_at(pillar_index)
+        let vec_len = world
+            .pillar_at(pillar_index)
             .map(|pillar| pillar.sections().len())
             .unwrap_or(0);
 
-        let pillar_vec = world.pillar_at(pillar_index).map(|pillar| pillar.sections());
+        let pillar_vec = world
+            .pillar_at(pillar_index)
+            .map(|pillar| pillar.sections());
 
         if pillar_vec.is_some() {
             let new_pillar_vec = pillar_vec.unwrap();
@@ -116,8 +121,9 @@ impl Particle {
             } else {
                 for i in 0..vec_len {
                     if i != vec_len - 1 {
-                        if new_pillar_vec[i].top.to_real() < self.position.z &&
-                           self.position.z < new_pillar_vec[i + 1].bottom.to_real() {
+                        if new_pillar_vec[i].top.to_real() < self.position.z
+                            && self.position.z < new_pillar_vec[i + 1].bottom.to_real()
+                        {
                             height = new_pillar_vec[i].top.to_real();
                             above = new_pillar_vec[i + 1].bottom.to_real();
                             break;
@@ -136,7 +142,6 @@ impl Particle {
         !(self.position.z > height && above == f32::INFINITY)
     }
 }
-
 
 pub struct Weather {
     particles: Vec<Particle>,
@@ -166,10 +171,20 @@ impl Weather {
         let camera = Camera::new(context.get_config().resolution.aspect_ratio());
         let sections = glium::VertexBuffer::new(context.get_facade(), &[]).unwrap();
 
-        let buffer = vec![Vertex { point: [1.0, 1.0, 0.0] },
-                          Vertex { point: [-1.0, 1.0, 0.0] },
-                          Vertex { point: [1.0, -1.0, 0.0] },
-                          Vertex { point: [-1.0, -1.0, 0.0] }];
+        let buffer = vec![
+            Vertex {
+                point: [1.0, 1.0, 0.0],
+            },
+            Vertex {
+                point: [-1.0, 1.0, 0.0],
+            },
+            Vertex {
+                point: [1.0, -1.0, 0.0],
+            },
+            Vertex {
+                point: [-1.0, -1.0, 0.0],
+            },
+        ];
         let vertex_buffer = glium::VertexBuffer::new(context.get_facade(), &buffer).unwrap();
 
         Weather {
@@ -223,47 +238,56 @@ impl Weather {
             Form::Snow => {
                 color = Vector4f::new(0.7, 0.7, 0.7, 1.0);
 
-                scaling = Matrix4::from_cols(Vector4f::new(0.05, 0.0, 0.0, 0.0),
-                                             Vector4f::new(0.0, 0.05, 0.0, 0.0),
-                                             Vector4f::new(0.0, 0.0, 0.05, 0.0),
-                                             Vector4f::new(0.0, 0.0, 0.0, 1.0));
+                scaling = Matrix4::from_cols(
+                    Vector4f::new(0.05, 0.0, 0.0, 0.0),
+                    Vector4f::new(0.0, 0.05, 0.0, 0.0),
+                    Vector4f::new(0.0, 0.0, 0.05, 0.0),
+                    Vector4f::new(0.0, 0.0, 0.0, 1.0),
+                );
             }
             Form::Rain => {
                 color = Vector4f::new(0.35, 0.43, 0.47, 1.0);
 
-                scaling = Matrix4::from_cols(Vector4f::new(0.01, 0.0, 0.0, 0.0),
-                                             Vector4f::new(0.0, 0.05, 0.0, 0.0),
-                                             Vector4f::new(0.0, 0.0, 0.5, 0.0),
-                                             Vector4f::new(0.0, 0.0, 0.0, 1.0));
+                scaling = Matrix4::from_cols(
+                    Vector4f::new(0.01, 0.0, 0.0, 0.0),
+                    Vector4f::new(0.0, 0.05, 0.0, 0.0),
+                    Vector4f::new(0.0, 0.0, 0.5, 0.0),
+                    Vector4f::new(0.0, 0.0, 0.0, 1.0),
+                );
             }
             Form::Pollen => {
                 color = Vector4f::new(0.5, 0.5, 0.5, 1.0);
 
-                scaling = Matrix4::from_cols(Vector4f::new(0.05, 0.0, 0.0, 0.0),
-                                             Vector4f::new(0.0, 0.05, 0.0, 0.0),
-                                             Vector4f::new(0.0, 0.0, 0.05, 0.0),
-                                             Vector4f::new(0.0, 0.0, 0.0, 1.0));
+                scaling = Matrix4::from_cols(
+                    Vector4f::new(0.05, 0.0, 0.0, 0.0),
+                    Vector4f::new(0.0, 0.05, 0.0, 0.0),
+                    Vector4f::new(0.0, 0.0, 0.05, 0.0),
+                    Vector4f::new(0.0, 0.0, 0.0, 1.0),
+                );
             }
         };
 
         debug!("sky: {:?}", self.sky_light);
         debug!("sun: {:?}", self.sun_color);
 
-        let uniforms = uniform!{
-                form: self.form as i32,
-                view_matrix: view.to_arr(),
-                proj_matrix: camera.proj_matrix().to_arr(),
-                scaling_matrix: scaling.to_arr(),
-                color: color.to_arr(),
-                sky_light: self.sky_light.to_arr(),
-                sun_color: self.sun_color.to_arr(),
-            };
+        let uniforms = uniform! {
+            form: self.form as i32,
+            view_matrix: view.to_arr(),
+            proj_matrix: camera.proj_matrix().to_arr(),
+            scaling_matrix: scaling.to_arr(),
+            color: color.to_arr(),
+            sky_light: self.sky_light.to_arr(),
+            sun_color: self.sun_color.to_arr(),
+        };
 
-        surface.draw((&self.vertex_buffer, self.actual_buf.per_instance().unwrap()),
-                  &self.indices,
-                  &self.program,
-                  &uniforms,
-                  &params)
+        surface
+            .draw(
+                (&self.vertex_buffer, self.actual_buf.per_instance().unwrap()),
+                &self.indices,
+                &self.program,
+                &uniforms,
+                &params,
+            )
             .unwrap();
     }
 
@@ -272,12 +296,13 @@ impl Weather {
     /// particles that are in the back of the player or in caves. Also
     /// responsible for setting the
     /// apropriate weather.
-    pub fn update(&mut self,
-                  camera: &Camera,
-                  delta: f32,
-                  world_manager: &super::WorldManager,
-                  daytime: &DayTime) {
-
+    pub fn update(
+        &mut self,
+        camera: &Camera,
+        delta: f32,
+        world_manager: &super::WorldManager,
+        daytime: &DayTime,
+    ) {
         self.sun_color = daytime.get_sun_color();
         self.sky_light = daytime.get_sky_light();
 
@@ -295,113 +320,120 @@ impl Weather {
                 let chance = rand::random::<f32>() * 100.0;
                 match *biome {
                     biome::Biome::GrassLand => {
-                        if (self.form == Form::Pollen || self.form == Form::Snow) &&
-                           self.particles.len() > 0 {
+                        if (self.form == Form::Pollen || self.form == Form::Snow)
+                            && self.particles.len() > 0
+                        {
                             self.change = true;
                             return;
                         }
                         self.form = Form::Rain;
                         self.last_biome = biome::Biome::GrassLand;
                         self.strength = match chance {
-                            0.0...5.0 => Strength::Weak,
-                            5.0...8.0 => Strength::Medium,
-                            8.0...10.0 => Strength::Heavy,
+                            0.0..=5.0 => Strength::Weak,
+                            5.0..=8.0 => Strength::Medium,
+                            8.0..=10.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
 
                     biome::Biome::Desert => {
-                        if (self.form == Form::Pollen || self.form == Form::Snow) &&
-                           self.particles.len() > 0 {
+                        if (self.form == Form::Pollen || self.form == Form::Snow)
+                            && self.particles.len() > 0
+                        {
                             self.change = true;
                             return;
                         }
                         self.form = Form::Rain;
                         self.last_biome = biome::Biome::Desert;
                         self.strength = match chance {
-                            0.0...1.0 => Strength::Weak,
-                            1.0...2.0 => Strength::Medium,
-                            2.0...4.0 => Strength::Heavy,
+                            0.0..=1.0 => Strength::Weak,
+                            1.0..=2.0 => Strength::Medium,
+                            2.0..=4.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
 
                     biome::Biome::Snow => {
-                        if (self.form == Form::Pollen || self.form == Form::Rain) &&
-                           self.particles.len() > 0 {
+                        if (self.form == Form::Pollen || self.form == Form::Rain)
+                            && self.particles.len() > 0
+                        {
                             self.change = true;
                             return;
                         }
                         self.form = Form::Snow;
                         self.last_biome = biome::Biome::Snow;
                         self.strength = match chance {
-                            0.0...20.0 => Strength::Weak,
-                            20.0...50.0 => Strength::Medium,
-                            50.0...75.0 => Strength::Heavy,
+                            0.0..=20.0 => Strength::Weak,
+                            20.0..=50.0 => Strength::Medium,
+                            50.0..=75.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
 
                     biome::Biome::Forest => {
-                        if (self.form == Form::Rain || self.form == Form::Snow) &&
-                           self.particles.len() > 0 {
+                        if (self.form == Form::Rain || self.form == Form::Snow)
+                            && self.particles.len() > 0
+                        {
                             self.change = true;
                             return;
                         }
                         self.form = Form::Pollen;
                         self.last_biome = biome::Biome::Forest;
                         self.strength = match chance {
-                            0.0...15.0 => Strength::Weak,
-                            15.0...35.0 => Strength::Medium,
-                            35.0...65.0 => Strength::Heavy,
+                            0.0..=15.0 => Strength::Weak,
+                            15.0..=35.0 => Strength::Medium,
+                            35.0..=65.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
 
                     biome::Biome::RainForest => {
-                        if (self.form == Form::Pollen || self.form == Form::Snow) &&
-                           self.particles.len() > 0 {
+                        if (self.form == Form::Pollen || self.form == Form::Snow)
+                            && self.particles.len() > 0
+                        {
                             self.change = true;
                             return;
                         }
                         self.form = Form::Rain;
                         self.last_biome = biome::Biome::RainForest;
                         self.strength = match chance {
-                            0.0...21.0 => Strength::Weak,
-                            21.0...51.0 => Strength::Medium,
-                            51.0...81.0 => Strength::Heavy,
+                            0.0..=21.0 => Strength::Weak,
+                            21.0..=51.0 => Strength::Medium,
+                            51.0..=81.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
 
                     biome::Biome::Savanna => {
-                        if (self.form == Form::Rain || self.form == Form::Snow) &&
-                           self.particles.len() > 0 {
+                        if (self.form == Form::Rain || self.form == Form::Snow)
+                            && self.particles.len() > 0
+                        {
                             self.change = true;
                             return;
                         }
                         self.form = Form::Pollen;
                         self.last_biome = biome::Biome::Savanna;
                         self.strength = match chance {
-                            0.0...5.0 => Strength::Weak,
-                            5.0...7.0 => Strength::Medium,
-                            7.0...9.0 => Strength::Heavy,
+                            0.0..=5.0 => Strength::Weak,
+                            5.0..=7.0 => Strength::Medium,
+                            7.0..=9.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
 
                     biome::Biome::Stone => {
-                        if (self.form == Form::Pollen || self.form == Form::Snow) &&
-                           self.particles.len() > 0 {
+                        if (self.form == Form::Pollen || self.form == Form::Snow)
+                            && self.particles.len() > 0
+                        {
                             self.change = true;
                             return;
                         }
                         self.form = Form::Rain;
                         self.last_biome = biome::Biome::Stone;
                         self.strength = match chance {
-                            0.0...7.0 => Strength::Weak,
-                            7.0...12.0 => Strength::Medium,
-                            12.0...17.0 => Strength::Heavy,
+                            0.0..=7.0 => Strength::Weak,
+                            7.0..=12.0 => Strength::Medium,
+                            12.0..=17.0 => Strength::Heavy,
                             _ => Strength::None,
                         };
                     }
@@ -457,15 +489,14 @@ impl Weather {
             }
 
             match self.form {
-
                 Form::Snow => {
                     particle.position.z -= particle.velocity * 3.0 * delta;
-                    particle.position.x += (particle.trans_x.sin() * 0.05 +
-                                            (self.wind.x * self.wind_speed) * delta) *
-                                           0.5;
-                    particle.position.y += (particle.trans_y.cos() * 0.05 +
-                                            (self.wind.y * self.wind_speed) * delta) *
-                                           0.5;
+                    particle.position.x += (particle.trans_x.sin() * 0.05
+                        + (self.wind.x * self.wind_speed) * delta)
+                        * 0.5;
+                    particle.position.y += (particle.trans_y.cos() * 0.05
+                        + (self.wind.y * self.wind_speed) * delta)
+                        * 0.5;
                     particle.trans_y += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_x += PI * 0.005 * (rand::random::<f32>() - 0.5);
                 }
@@ -473,8 +504,8 @@ impl Weather {
                 Form::Rain => {
                     particle.position.x += ((self.wind.x * self.wind_speed) * delta) * 2.0;
                     particle.position.y += ((self.wind.y * self.wind_speed) * delta) * 2.0;
-                    particle.position.z = particle.position.z -
-                                          ((particle.velocity + 0.5) * 50.0 * delta)
+                    particle.position.z =
+                        particle.position.z - ((particle.velocity + 0.5) * 50.0 * delta)
                 }
 
                 Form::Pollen => {
@@ -488,7 +519,6 @@ impl Weather {
                     particle.trans_x += PI * 0.005 * (rand::random::<f32>() - 0.5);
                     particle.trans_z += PI * 0.005 * (rand::random::<f32>() - 0.3);
                 }
-
             }
 
             // moving particles which fell out of box to the other direction of it
@@ -516,16 +546,21 @@ impl Weather {
             }
 
             // prevents drawing the particle if in cave or behind the player
-            if !particle.in_cave(&world_manager) &&
-               ((particle.position - camera.position).dot(camera.get_look_at_vector())) > 0.0 {
+            if !particle.in_cave(&world_manager)
+                && ((particle.position - camera.position).dot(camera.get_look_at_vector())) > 0.0
+            {
                 tmp_instances.push(Instance {
-                    position: [particle.position.x, particle.position.y, particle.position.z],
+                    position: [
+                        particle.position.x,
+                        particle.position.y,
+                        particle.position.z,
+                    ],
                 })
             }
         }
         // create vertex buffer from left particles
-        let vertex_buffer = glium::VertexBuffer::new(self.context.get_facade(), &tmp_instances)
-            .unwrap();
+        let vertex_buffer =
+            glium::VertexBuffer::new(self.context.get_facade(), &tmp_instances).unwrap();
         self.actual_buf = vertex_buffer;
 
         // if all particles are deleted allow new weather

@@ -1,8 +1,8 @@
-use player::Player;
-use ghost::Ghost;
 use super::camera::*;
 use super::event_manager::*;
-use glium::glutin::{ElementState, Event, VirtualKeyCode};
+use ghost::Ghost;
+use glium::glutin::{ElementState, Event, VirtualKeyCode, WindowEvent, KeyboardInput};
+use player::Player;
 
 /// Switch between `ghost` and `player` cameras with `G` key
 pub struct ControlSwitcher {
@@ -10,7 +10,6 @@ pub struct ControlSwitcher {
     ghost: Ghost,
     is_ghost: bool,
 }
-
 
 impl ControlSwitcher {
     pub fn new(player: Player, ghost: Ghost) -> Self {
@@ -22,7 +21,11 @@ impl ControlSwitcher {
     }
     /// Return current `Camera`
     pub fn get_camera(&self) -> Camera {
-        if self.is_ghost { self.ghost.get_camera() } else { self.player.get_camera() }
+        if self.is_ghost {
+            self.ghost.get_camera()
+        } else {
+            self.player.get_camera()
+        }
     }
 
     /// Run camera `update` function
@@ -44,7 +47,6 @@ impl ControlSwitcher {
             self.ghost.set_camera(self.player.get_camera());
             self.is_ghost = true;
         }
-
     }
 }
 
@@ -52,8 +54,17 @@ impl ControlSwitcher {
 impl EventHandler for ControlSwitcher {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
         match *e {
-
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::G)) => {
+            Event::WindowEvent {
+                event: WindowEvent::KeyboardInput {
+                    input: KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::G),
+                        ..
+                    },
+                    ..
+                },
+                ..
+            } => {
                 self.switch_cam();
                 EventResponse::Continue
             }

@@ -1,14 +1,14 @@
 //! Procedurally generating the game world.
 pub mod biome;
 
-use world::{Chunk, ChunkIndex, ChunkProvider, HeightType, HexPillar};
-use world::{CHUNK_SIZE, GroundMaterial, PILLAR_STEP_HEIGHT, PillarSection, Prop};
-use rand::{Rand, Rng};
-use gen::{PlantGenerator, seeded_rng};
-use noise::{PermutationTable, open_simplex2, open_simplex3};
-use gen::world::biome::Biome;
-use prop::plant::Plant;
 use gen::plant::tree::PlantType;
+use gen::world::biome::Biome;
+use gen::{seeded_rng, PlantGenerator};
+use noise::{open_simplex2, open_simplex3, PermutationTable};
+use prop::plant::Plant;
+use rand::{Rand, Rng};
+use world::{Chunk, ChunkIndex, ChunkProvider, HeightType, HexPillar};
+use world::{GroundMaterial, PillarSection, Prop, CHUNK_SIZE, PILLAR_STEP_HEIGHT};
 
 /// Land "fill noise" scaling in x, y, and z direction.
 const LAND_NOISE_SCALE: (f32, f32, f32) = (0.03, 0.03, 0.05);
@@ -62,7 +62,6 @@ impl ChunkProvider for WorldGenerator {
         let mut fill = [[[false; WORLDGEN_HEIGHT]; CHUNK_SIZE as usize]; CHUNK_SIZE as usize];
 
         Some(Chunk::with_pillars(index, |pos| {
-
             let real_pos = pos.to_real();
             let x = real_pos.x;
             let y = real_pos.y;
@@ -70,23 +69,27 @@ impl ChunkProvider for WorldGenerator {
             let rel_pos = pos - index.0 * CHUNK_SIZE as i32;
 
             // noises
-            let mut temperature_noise = (open_simplex2::<f32>(&self.temperature_table,
-                                                              &[(x as f32) * 0.0015,
-                                                                (y as f32) * 0.0015]) +
-                                         0.6) / 2.0;
-            temperature_noise += 0.035 *
-                                 open_simplex2::<f32>(&self.temperature_table,
-                                                      &[(x as f32) * 0.15, (y as f32) * 0.15]);
+            let mut temperature_noise = (open_simplex2::<f32>(
+                &self.temperature_table,
+                &[(x as f32) * 0.0015, (y as f32) * 0.0015],
+            ) + 0.6)
+                / 2.0;
+            temperature_noise += 0.035
+                * open_simplex2::<f32>(
+                    &self.temperature_table,
+                    &[(x as f32) * 0.15, (y as f32) * 0.15],
+                );
 
-
-            let mut humidity_noise = (open_simplex2::<f32>(&self.humidity_table,
-                                                           &[(x as f32) * 0.0015,
-                                                             (y as f32) * 0.0015]) +
-                                      0.6) / 2.0;
-            humidity_noise += 0.035 *
-                              open_simplex2::<f32>(&self.humidity_table,
-                                                   &[(x as f32) * 0.15, (y as f32) * 0.15]);
-
+            let mut humidity_noise = (open_simplex2::<f32>(
+                &self.humidity_table,
+                &[(x as f32) * 0.0015, (y as f32) * 0.0015],
+            ) + 0.6)
+                / 2.0;
+            humidity_noise += 0.035
+                * open_simplex2::<f32>(
+                    &self.humidity_table,
+                    &[(x as f32) * 0.15, (y as f32) * 0.15],
+                );
 
             let current_biome = Biome::from_climate(temperature_noise, humidity_noise);
 
@@ -97,10 +100,14 @@ impl ChunkProvider for WorldGenerator {
                 }
 
                 let z = i as f32 * PILLAR_STEP_HEIGHT;
-                let fill_noise = open_simplex3::<f32>(&self.terrain_table,
-                                                      &[x * LAND_NOISE_SCALE.0,
-                                                        y * LAND_NOISE_SCALE.1,
-                                                        z * LAND_NOISE_SCALE.2]);
+                let fill_noise = open_simplex3::<f32>(
+                    &self.terrain_table,
+                    &[
+                        x * LAND_NOISE_SCALE.0,
+                        y * LAND_NOISE_SCALE.1,
+                        z * LAND_NOISE_SCALE.2,
+                    ],
+                );
 
                 // The noise is (theoretically) in the range -1..1
                 // Map the noise to a range of 0..1
@@ -124,8 +131,8 @@ impl ChunkProvider for WorldGenerator {
                 let thresh_steepness: f32 =
                     WorldGenerator::steepness_from_temperature(temperature_noise);
 
-                let sig_thresh = 1.0 /
-                                 (1.0 + f32::exp(-thresh_steepness * (height_pct - THRESH_MID)));
+                let sig_thresh =
+                    1.0 / (1.0 + f32::exp(-thresh_steepness * (height_pct - THRESH_MID)));
 
                 let threshold = (sig_thresh + MIN_THRESH) / (1.0 + MIN_THRESH);
 
@@ -142,16 +149,17 @@ impl ChunkProvider for WorldGenerator {
                 let material = current_biome.material();
 
                 match (height, column[i]) {
-
                     (Some(h), true) => {
                         // Next one's still solid, increase section height
                         height = Some(h + 1);
                     }
                     (Some(h), false) => {
                         // Create a section of height `h` and start over
-                        sections.push(PillarSection::new(material,
-                                                         HeightType::from_units(low),
-                                                         HeightType::from_units(low + h)));
+                        sections.push(PillarSection::new(
+                            material,
+                            HeightType::from_units(low),
+                            HeightType::from_units(low + h),
+                        ));
                         height = None;
                     }
                     (None, true) => {
@@ -164,16 +172,18 @@ impl ChunkProvider for WorldGenerator {
 
             if let Some(h) = height {
                 // Create the topmost pillar
-                sections.push(PillarSection::new(GroundMaterial::Dirt,
-                                                 HeightType::from_units(low),
-                                                 HeightType::from_units(low + h)));
+                sections.push(PillarSection::new(
+                    GroundMaterial::Dirt,
+                    HeightType::from_units(low),
+                    HeightType::from_units(low + h),
+                ));
             }
 
             let mut props = Vec::new();
 
             // plants
-            let plant_noise = open_simplex2::<f32>(&self.plant_table,
-                                                   &[(x as f32) * 0.25, (y as f32) * 0.25]);
+            let plant_noise =
+                open_simplex2::<f32>(&self.plant_table, &[(x as f32) * 0.25, (y as f32) * 0.25]);
 
             if plant_noise > current_biome.plant_threshold() {
                 let mut rng = super::seeded_rng(self.seed, "TREE", (pos.q, pos.r));
@@ -195,7 +205,6 @@ impl ChunkProvider for WorldGenerator {
                 let plant_instance = rng.gen_range(0, 5);
                 let plant_index = 8 * plant_instance + type_index;
 
-
                 //     // put the tree at the highest position
                 let height = match sections.last() {
                     Some(section) => section.top,
@@ -208,12 +217,13 @@ impl ChunkProvider for WorldGenerator {
                     // all over the world
                     plant_index: plant_index as usize,
                 });
-
             }
 
-            HexPillar::new(sections,
-                           props,
-                           Biome::from_climate(temperature_noise, humidity_noise))
+            HexPillar::new(
+                sections,
+                props,
+                Biome::from_climate(temperature_noise, humidity_noise),
+            )
         }))
     }
 

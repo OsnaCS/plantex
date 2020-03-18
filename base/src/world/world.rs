@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use super::{Chunk, ChunkIndex, HexPillar, PillarIndex};
 use math::*;
+use std::collections::HashMap;
 
 /// Represents a whole game world consisting of multiple `Chunk`s.
 ///
@@ -14,7 +14,9 @@ pub struct World {
 impl World {
     /// Creates an empty world without any chunks.
     pub fn empty() -> Self {
-        World { chunks: HashMap::new() }
+        World {
+            chunks: HashMap::new(),
+        }
     }
 
     /// Inserts the given chunk into the world and replaces the chunk that
@@ -61,11 +63,11 @@ impl World {
             &chunk[inner_pos]
         });
 
-
         if out.is_none() {
-            debug!("chunk {:?} is not loaded (position request {:?})",
-                   chunk_pos,
-                   pos);
+            debug!(
+                "chunk {:?} is not loaded (position request {:?})",
+                chunk_pos, pos
+            );
         }
         out
     }
@@ -98,19 +100,21 @@ impl World {
             &mut chunk[inner_pos]
         });
 
-
         if out.is_none() {
-            debug!("chunk {:?} is not loaded (position request {:?})",
-                   chunk_pos,
-                   pos);
+            debug!(
+                "chunk {:?} is not loaded (position request {:?})",
+                chunk_pos, pos
+            );
         }
         out
     }
 
     /// Returns the chunk in which the given pillar exists.
     pub fn chunk_from_pillar(&self, pos: PillarIndex) -> Option<&Chunk> {
-        let tmp = AxialPoint::new(pos.0.q / (super::CHUNK_SIZE as i32),
-                                  pos.0.r / (super::CHUNK_SIZE as i32));
+        let tmp = AxialPoint::new(
+            pos.0.q / (super::CHUNK_SIZE as i32),
+            pos.0.r / (super::CHUNK_SIZE as i32),
+        );
         let chunk_pos = ChunkIndex(tmp);
         self.chunk_at(chunk_pos)
     }

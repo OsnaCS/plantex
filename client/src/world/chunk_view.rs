@@ -1,18 +1,9 @@
 use base::math::*;
 use base::world::ground::GroundMaterial;
 use base::world::{
-    Chunk,
-    CHUNK_SIZE,
-    ChunkIndex,
-    HeightType,
-    HEX_OUTER_RADIUS,
-    HexPillar,
+    Chunk, ChunkIndex, HeightType, HexPillar, PillarSection, World, CHUNK_SIZE, HEX_OUTER_RADIUS,
     PILLAR_STEP_HEIGHT,
-    PillarSection,
-    World,
 };
-use Camera;
-use DayTime;
 use glium::backend::Facade;
 use glium::draw_parameters::{BackfaceCullingMode, DepthTest};
 use glium::index::PrimitiveType;
@@ -23,6 +14,8 @@ use glium::{self, DrawParameters, IndexBuffer, VertexBuffer};
 use std::rc::Rc;
 use util::ToArr;
 use world::ChunkRenderer;
+use Camera;
+use DayTime;
 
 /// Graphical representation of the `base::Chunk`.
 pub struct ChunkView {
@@ -35,20 +28,20 @@ pub struct ChunkView {
 impl ChunkView {
     /// Creates the graphical representation of given chunk at the given chunk
     /// offset
-    pub fn from_chunk<F: Facade>(chunk: &Chunk,
-                                 offset: AxialPoint,
-                                 chunk_renderer: Rc<ChunkRenderer>,
-                                 facade: &F)
-                                 -> Self {
+    pub fn from_chunk<F: Facade>(
+        chunk: &Chunk,
+        offset: AxialPoint,
+        chunk_renderer: Rc<ChunkRenderer>,
+        facade: &F,
+    ) -> Self {
         let (raw_buf, raw_indices) = get_vertices(chunk);
 
         ChunkView {
             offset: offset,
             renderer: chunk_renderer,
             vertex_buf: VertexBuffer::new(facade, &raw_buf).unwrap(),
-            index_buf: IndexBuffer::new(facade,
-                                      PrimitiveType::TrianglesList,
-                                      &raw_indices).unwrap(),
+            index_buf: IndexBuffer::new(facade, PrimitiveType::TrianglesList, &raw_indices)
+                .unwrap(),
         }
     }
 
@@ -75,12 +68,15 @@ impl ChunkView {
             ..Default::default()
         };
 
-        surface.draw(
-            &self.vertex_buf,
-            &self.index_buf,
-            self.renderer.shadow_program(),
-            &uniforms,
-            &params).unwrap();
+        surface
+            .draw(
+                &self.vertex_buf,
+                &self.index_buf,
+                self.renderer.shadow_program(),
+                &uniforms,
+                &params,
+            )
+            .unwrap();
     }
 
     pub fn update<F: Facade>(&mut self, facade: &F, world: &World) {
@@ -88,26 +84,25 @@ impl ChunkView {
         let (vbuf, ibuf) = get_vertices(&chunk);
 
         self.vertex_buf = VertexBuffer::new(facade, &vbuf).unwrap();
-        self.index_buf = IndexBuffer::new(facade,
-                                  PrimitiveType::TrianglesList,
-                                  &ibuf).unwrap();
-
+        self.index_buf = IndexBuffer::new(facade, PrimitiveType::TrianglesList, &ibuf).unwrap();
     }
 
-    pub fn draw<S: glium::Surface>(&self,
-                                   surface: &mut S,
-                                   camera: &Camera,
-                                   shadow_map: &Texture2d,
-                                   depth_view_proj: &Matrix4<f32>,
-                                   daytime: &DayTime,
-                                   sun_dir: Vector3f) {
+    pub fn draw<S: glium::Surface>(
+        &self,
+        surface: &mut S,
+        camera: &Camera,
+        shadow_map: &Texture2d,
+        depth_view_proj: &Matrix4<f32>,
+        daytime: &DayTime,
+        sun_dir: Vector3f,
+    ) {
         let real_off = self.offset.to_real();
-        let look_at2 = Vector2::new(camera.get_look_at_vector().x, camera.get_look_at_vector().y)
-            .normalize();
+        let look_at2 =
+            Vector2::new(camera.get_look_at_vector().x, camera.get_look_at_vector().y).normalize();
         let pos2 = Point2::new(camera.position.x, camera.position.y);
 
-        let player_to_chunk = real_off -
-                              (pos2 + -look_at2 * CHUNK_SIZE.into() * HEX_OUTER_RADIUS * 2.8);
+        let player_to_chunk =
+            real_off - (pos2 + -look_at2 * CHUNK_SIZE.into() * HEX_OUTER_RADIUS * 2.8);
         if camera.get_look_at_vector().z.abs() < 0.6 && dot(player_to_chunk, look_at2) < 0.0 {
             return;
         }
@@ -160,15 +155,17 @@ impl ChunkView {
             ..Default::default()
         };
 
-        surface.draw(
-            &self.vertex_buf,
-            &self.index_buf,
-            self.renderer.program(),
-            &uniforms,
-            &params).unwrap();
+        surface
+            .draw(
+                &self.vertex_buf,
+                &self.index_buf,
+                self.renderer.program(),
+                &uniforms,
+                &params,
+            )
+            .unwrap();
     }
 }
-
 
 /// Vertex type used to render chunks (or hex pillars).
 #[derive(Debug, Copy, Clone)]
@@ -181,7 +178,15 @@ pub struct Vertex {
     pub ground: i32,
 }
 
-implement_vertex!(Vertex, position, normal, radius, tex_coords, material_color, ground);
+implement_vertex!(
+    Vertex,
+    position,
+    normal,
+    radius,
+    tex_coords,
+    material_color,
+    ground
+);
 
 // ============================================================================
 // ===== functions and types for vertex and index buffer creation
@@ -223,12 +228,24 @@ implement_vertex!(Vertex, position, normal, radius, tex_coords, material_color, 
 /// the corners have the following coordinates. To get real world positions
 /// multiply these values with `HEX_OUTER_RADIUS`.
 const NORM_CORNERS: &'static [Vector2f] = &[
-    Vector2f { x: -SQRT_3 / 2.0, y:  0.5 }, // 0: top-left
-    Vector2f { x:  0.0,          y:  1.0 }, // 1: top
-    Vector2f { x:  SQRT_3 / 2.0, y:  0.5 }, // 2: top-right
-    Vector2f { x:  SQRT_3 / 2.0, y: -0.5 }, // 3: bottom-right
-    Vector2f { x:  0.0,          y: -1.0 }, // 4: bottom
-    Vector2f { x: -SQRT_3 / 2.0, y: -0.5 }, // 5: bottom left
+    Vector2f {
+        x: -SQRT_3 / 2.0,
+        y: 0.5,
+    }, // 0: top-left
+    Vector2f { x: 0.0, y: 1.0 }, // 1: top
+    Vector2f {
+        x: SQRT_3 / 2.0,
+        y: 0.5,
+    }, // 2: top-right
+    Vector2f {
+        x: SQRT_3 / 2.0,
+        y: -0.5,
+    }, // 3: bottom-right
+    Vector2f { x: 0.0, y: -1.0 }, // 4: bottom
+    Vector2f {
+        x: -SQRT_3 / 2.0,
+        y: -0.5,
+    }, // 5: bottom left
 ];
 
 /// Groups together two corner coordinates of a specific edge.
@@ -243,31 +260,40 @@ const EDGE_CORNERS_TO_NEIGHBOR: &'static [(Vector2f, Vector2f)] = &[
 
 /// Normal vectors pointing to the edges of the hexagon. To get real world
 /// positions, multiply these values with `HEX_INNER_RADIUS`.
-const EDGE_NORMALS: &'static [Vector2f] = & [
-    Vector2f { x: -0.5, y:  SQRT_3 / 2.0 }, // 0: top-left
-    Vector2f { x:  0.5, y:  SQRT_3 / 2.0 }, // 1: top-right
-    Vector2f { x:  1.0, y:  0.0          }, // 2: right
-    Vector2f { x:  0.5, y: -SQRT_3 / 2.0 }, // 3: bottom-right
-    Vector2f { x: -0.5, y: -SQRT_3 / 2.0 }, // 4: bottom-left
-    Vector2f { x: -1.0, y:  0.0          }, // 5: left
+const EDGE_NORMALS: &'static [Vector2f] = &[
+    Vector2f {
+        x: -0.5,
+        y: SQRT_3 / 2.0,
+    }, // 0: top-left
+    Vector2f {
+        x: 0.5,
+        y: SQRT_3 / 2.0,
+    }, // 1: top-right
+    Vector2f { x: 1.0, y: 0.0 }, // 2: right
+    Vector2f {
+        x: 0.5,
+        y: -SQRT_3 / 2.0,
+    }, // 3: bottom-right
+    Vector2f {
+        x: -0.5,
+        y: -SQRT_3 / 2.0,
+    }, // 4: bottom-left
+    Vector2f { x: -1.0, y: 0.0 }, // 5: left
 ];
 
 /// UV texture coordinates for all corners
 const CORNER_UV: &'static [[f32; 2]] = &[
     [1.0 - (0.5 - SQRT_3 / 4.0), 0.25],
     [1.0 - (0.5 - SQRT_3 / 4.0), 0.75],
-    [                       0.5, 1.0 ],
-    [      (0.5 - SQRT_3 / 4.0), 0.75],
-    [      (0.5 - SQRT_3 / 4.0), 0.25],
-    [                       0.5, 0.0 ],
+    [0.5, 1.0],
+    [(0.5 - SQRT_3 / 4.0), 0.75],
+    [(0.5 - SQRT_3 / 4.0), 0.25],
+    [0.5, 0.0],
 ];
 
 /// We add faces for sides to neighbors in these directions.
-const SIDE_PROPAGATION_NEIGHBORS: &'static [EdgeDir] = &[
-    EdgeDir::BottomRight,
-    EdgeDir::Right,
-    EdgeDir::TopRight,
-];
+const SIDE_PROPAGATION_NEIGHBORS: &'static [EdgeDir] =
+    &[EdgeDir::BottomRight, EdgeDir::Right, EdgeDir::TopRight];
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 enum EdgeDir {
@@ -295,12 +321,12 @@ impl EdgeDir {
     /// The corresponding vector for the direction.
     fn axial_vec(&self) -> AxialVector {
         match *self {
-            EdgeDir::TopLeft        => AxialVector::new( 0,  1),
-            EdgeDir::TopRight       => AxialVector::new( 1,  1),
-            EdgeDir::Right          => AxialVector::new( 1,  0),
-            EdgeDir::BottomRight    => AxialVector::new( 0, -1),
-            EdgeDir::BottomLeft     => AxialVector::new(-1, -1),
-            EdgeDir::Left           => AxialVector::new(-1,  0),
+            EdgeDir::TopLeft => AxialVector::new(0, 1),
+            EdgeDir::TopRight => AxialVector::new(1, 1),
+            EdgeDir::Right => AxialVector::new(1, 0),
+            EdgeDir::BottomRight => AxialVector::new(0, -1),
+            EdgeDir::BottomLeft => AxialVector::new(-1, -1),
+            EdgeDir::Left => AxialVector::new(-1, 0),
         }
     }
 }
@@ -364,7 +390,7 @@ fn add_top_and_bottom_face(
     pos: AxialPoint,
     pillar: &HexPillar,
     vertices: &mut Vec<Vertex>,
-    indices: &mut Vec<u32>
+    indices: &mut Vec<u32>,
 ) {
     for sec in pillar.sections() {
         let ground = sec.ground.get_id();
@@ -372,7 +398,7 @@ fn add_top_and_bottom_face(
         // Add top and bottom face
         let face_props = [
             (sec.top, [0.0, 0.0, 1.0], false),
-            (sec.bottom, [0.0, 0.0, -1.0], true)
+            (sec.bottom, [0.0, 0.0, -1.0], true),
         ];
 
         for &(height, normal, rev) in &face_props {
@@ -394,9 +420,11 @@ fn add_top_and_bottom_face(
             });
 
             // Iterate over all corners with position and uv coordinates
-            let iter = NORM_CORNERS.iter()
+            let iter = NORM_CORNERS
+                .iter()
                 .map(|c| c * HEX_OUTER_RADIUS)
-                .zip(CORNER_UV).enumerate();
+                .zip(CORNER_UV)
+                .enumerate();
             for (i, (corner, &uv)) in iter {
                 let i = i as u32;
                 let pos2d = pos.to_real() + corner;
@@ -445,8 +473,7 @@ fn add_outer_shell(
         // Check if this neighbor is outside of the current chunk. If yes, we
         // need to add sides, otherwise we skip it.
         let neighbor_pos = pos + neighbor.axial_vec();
-        let is_outer =
-            neighbor_pos.q >= CHUNK_SIZE.into()
+        let is_outer = neighbor_pos.q >= CHUNK_SIZE.into()
             || neighbor_pos.r >= CHUNK_SIZE.into()
             || neighbor_pos.q < 0
             || neighbor_pos.r < 0;
@@ -454,14 +481,7 @@ fn add_outer_shell(
         if is_outer {
             for sec in pillar.sections() {
                 add_side(
-                    sec.bottom,
-                    sec.top,
-                    sec.ground,
-                    false,
-                    neighbor,
-                    pos,
-                    vertices,
-                    indices,
+                    sec.bottom, sec.top, sec.ground, false, neighbor, pos, vertices, indices,
                 );
             }
         }
@@ -485,10 +505,8 @@ fn connect_pillars(
 
     // If b isn't even inside this chunk, we will skip it. `add_outer_shell`
     // will repair those holes.
-    let skip = b_pos.q >= CHUNK_SIZE.into()
-        || b_pos.r >= CHUNK_SIZE.into()
-        || b_pos.q < 0
-        || b_pos.r < 0;
+    let skip =
+        b_pos.q >= CHUNK_SIZE.into() || b_pos.r >= CHUNK_SIZE.into() || b_pos.q < 0 || b_pos.r < 0;
     if skip {
         return;
     }
@@ -567,20 +585,14 @@ fn connect_pillars(
 
         fn next(&mut self) -> Option<Self::Item> {
             // Determine the next height that would be yielded from a/b.
-            let next_a = self.a.get(self.a_idx).map(|sec| {
-                if self.within_a {
-                    sec.top
-                } else {
-                    sec.bottom
-                }
-            });
-            let next_b = self.b.get(self.b_idx).map(|sec| {
-                if self.within_b {
-                    sec.top
-                } else {
-                    sec.bottom
-                }
-            });
+            let next_a =
+                self.a
+                    .get(self.a_idx)
+                    .map(|sec| if self.within_a { sec.top } else { sec.bottom });
+            let next_b =
+                self.b
+                    .get(self.b_idx)
+                    .map(|sec| if self.within_b { sec.top } else { sec.bottom });
 
             // If both pillars can still yield height points, choose the one
             // with the smaller height. Otherwise choose the one thats
@@ -635,11 +647,14 @@ fn connect_pillars(
         type Item = (I::Item, I::Item);
 
         fn next(&mut self) -> Option<Self::Item> {
-            self.original.next().map(|first| (
-                first,
-                self.original.next()
-                    .expect("original iterator yielded an odd number of items"),
-            ))
+            self.original.next().map(|first| {
+                (
+                    first,
+                    self.original
+                        .next()
+                        .expect("original iterator yielded an odd number of items"),
+                )
+            })
         }
     }
 
@@ -648,11 +663,11 @@ fn connect_pillars(
     // rather complicated map function. This third and final iterator yields
     // the final data required to add a side.
     let raw_intervals = PairUp {
-        original: IntervalPoints::new(a.sections(), b.sections())
+        original: IntervalPoints::new(a.sections(), b.sections()),
     };
 
     let sides = raw_intervals.map(|(lower, upper)| {
-        let (l_height, l_pillar,          _ , l_sec_b_idx, l_is_top) = lower;
+        let (l_height, l_pillar, _, l_sec_b_idx, l_is_top) = lower;
         let (u_height, u_pillar, u_sec_a_idx, u_sec_b_idx, u_is_top) = upper;
 
         let (pillar, sec_idx, normal_to_a) = match ((l_pillar, l_is_top), (u_pillar, u_is_top)) {
@@ -660,9 +675,9 @@ fn connect_pillars(
             // same type: the height list is sorted and there should be a top
             // in between two bottoms of one pillar.
             ((Pillar::A, false), (Pillar::A, false)) => unreachable!(),
-            ((Pillar::A,  true), (Pillar::A,  true)) => unreachable!(),
+            ((Pillar::A, true), (Pillar::A, true)) => unreachable!(),
             ((Pillar::B, false), (Pillar::B, false)) => unreachable!(),
-            ((Pillar::B,  true), (Pillar::B,  true)) => unreachable!(),
+            ((Pillar::B, true), (Pillar::B, true)) => unreachable!(),
 
             // These are the cases where both interval points are from the same
             // pillar. This means that either the two sections do not intersect
@@ -704,8 +719,8 @@ fn connect_pillars(
             // Cases [1] and [3] are possible, case [2] is not: the iterator
             // always pairs up two consecutive height values (which are sorted)
             // and thus it's impossible to get such a pair.
-            ((Pillar::B,  true), (Pillar::A,  true)) => (Pillar::A, u_sec_a_idx, false),
-            ((Pillar::A, false), (Pillar::B,  true)) => unreachable!(),
+            ((Pillar::B, true), (Pillar::A, true)) => (Pillar::A, u_sec_a_idx, false),
+            ((Pillar::A, false), (Pillar::B, true)) => unreachable!(),
             ((Pillar::B, false), (Pillar::A, false)) => (Pillar::B, l_sec_b_idx, true),
 
             //      +---
@@ -717,8 +732,8 @@ fn connect_pillars(
             // ---+
             //
             // The same as above but with a and b switched.
-            ((Pillar::A,  true), (Pillar::B,  true)) => (Pillar::B, l_sec_b_idx, true),
-            ((Pillar::B, false), (Pillar::A,  true)) => unreachable!(),
+            ((Pillar::A, true), (Pillar::B, true)) => (Pillar::B, l_sec_b_idx, true),
+            ((Pillar::B, false), (Pillar::A, true)) => unreachable!(),
             ((Pillar::A, false), (Pillar::B, false)) => (Pillar::A, u_sec_a_idx, false),
 
             // ---+
@@ -771,7 +786,7 @@ fn add_side(
 ) {
     let prev_len = vertices.len() as u32;
     let (ca, cb) = EDGE_CORNERS_TO_NEIGHBOR[dir.idx()];
-    let normal = EDGE_NORMALS[dir.idx()] * if normal_to_a { -1.0 } else  { 1.0 };
+    let normal = EDGE_NORMALS[dir.idx()] * if normal_to_a { -1.0 } else { 1.0 };
     let corner_cw = [
         (offset.to_real() + ca * HEX_OUTER_RADIUS, 0.25),
         (offset.to_real() + cb * HEX_OUTER_RADIUS, 0.75),
@@ -796,13 +811,21 @@ fn add_side(
 
     if normal_to_a {
         indices.extend_from_slice(&[
-            prev_len, prev_len + 2, prev_len + 1,
-            prev_len + 3, prev_len + 1, prev_len + 2,
+            prev_len,
+            prev_len + 2,
+            prev_len + 1,
+            prev_len + 3,
+            prev_len + 1,
+            prev_len + 2,
         ]);
     } else {
         indices.extend_from_slice(&[
-            prev_len, prev_len + 1, prev_len + 2,
-            prev_len + 3, prev_len + 2, prev_len + 1,
+            prev_len,
+            prev_len + 1,
+            prev_len + 2,
+            prev_len + 3,
+            prev_len + 2,
+            prev_len + 1,
         ]);
     };
 }

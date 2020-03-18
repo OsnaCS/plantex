@@ -48,7 +48,6 @@ impl<T: BaseNum + NumCast> Dimension2<T> {
     }
 }
 
-
 #[test]
 fn test_area() {
     let test1 = Dimension2::new(3, 5);

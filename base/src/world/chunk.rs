@@ -1,7 +1,7 @@
-use super::{CHUNK_SIZE, ChunkIndex, HexPillar, PillarIndexComponent};
-use std::ops;
+use super::{ChunkIndex, HexPillar, PillarIndexComponent, CHUNK_SIZE};
 use math::*;
 use std::iter::Iterator;
+use std::ops;
 
 /// Represents one part of the game world.
 ///
@@ -30,8 +30,8 @@ impl<'a> Iterator for ChunkPillars<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.i < CHUNK_SIZE * CHUNK_SIZE {
-            let axial = AxialVector::new((self.i % CHUNK_SIZE).into(),
-                                         (self.i / CHUNK_SIZE).into());
+            let axial =
+                AxialVector::new((self.i % CHUNK_SIZE).into(), (self.i / CHUNK_SIZE).into());
             let item = (axial, &self.pillars[self.i as usize]);
             self.i += 1;
             Some(item)
@@ -79,7 +79,8 @@ impl Chunk {
     /// Calls the given closure with all pillar positions
     /// that are contained in a `Chunk`
     pub fn for_pillars_positions<F>(mut func: F)
-        where F: FnMut(AxialPoint)
+    where
+        F: FnMut(AxialPoint),
     {
         for q in 0..CHUNK_SIZE {
             for r in 0..CHUNK_SIZE {
@@ -91,7 +92,8 @@ impl Chunk {
 
     /// Creates a `Chunk` using individual pillars returned by a closure
     pub fn with_pillars<F>(chunk_index: ChunkIndex, mut func: F) -> Chunk
-        where F: FnMut(AxialPoint) -> HexPillar
+    where
+        F: FnMut(AxialPoint) -> HexPillar,
     {
         let mut hec = Vec::new();
         let start_q = CHUNK_SIZE as i32 * chunk_index.0.q;
@@ -112,9 +114,11 @@ impl ops::Index<AxialPoint> for Chunk {
 
     fn index(&self, pos: AxialPoint) -> &Self::Output {
         self.get(pos).unwrap_or_else(|| {
-            panic!("Index out of Bounds length is: {} index was {:?}",
-                   self.pillars.len(),
-                   pos)
+            panic!(
+                "Index out of Bounds length is: {} index was {:?}",
+                self.pillars.len(),
+                pos
+            )
         })
     }
 }
@@ -124,4 +128,3 @@ impl ops::IndexMut<AxialPoint> for Chunk {
         self.get_mut(pos).unwrap()
     }
 }
-

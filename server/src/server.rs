@@ -1,7 +1,7 @@
-use std::net::{TcpListener, TcpStream};
 use std::io;
+use std::net::{TcpListener, TcpStream};
+use std::sync::mpsc::{channel, Receiver, TryRecvError};
 use std::thread;
-use std::sync::mpsc::{Receiver, TryRecvError, channel};
 use std::time::Duration;
 
 /// A player connected to the server.
@@ -26,14 +26,12 @@ impl Server {
             .spawn(move || {
                 for conn in listener.incoming() {
                     match conn {
-                        Ok(conn) => {
-                            match sender.send(conn) {
-                                Ok(_) => {}
-                                Err(e) => {
-                                    error!("tcp listener exiting: {}", e);
-                                }
+                        Ok(conn) => match sender.send(conn) {
+                            Ok(_) => {}
+                            Err(e) => {
+                                error!("tcp listener exiting: {}", e);
                             }
-                        }
+                        },
                         Err(e) => {
                             error!("failed to accept client connection: {}", e);
                         }
@@ -78,7 +76,8 @@ impl Server {
     ///
     /// If the closure returns `Err`, the player will be disconnected.
     fn with_player<F>(&mut self, id: usize, f: F)
-        where F: FnOnce(&mut Player) -> io::Result<()>
+    where
+        F: FnOnce(&mut Player) -> io::Result<()>,
     {
         match f(&mut self.players[id]) {
             Ok(()) => return,
@@ -92,7 +91,7 @@ impl Server {
 
     fn handle_new_player(&mut self, id: usize) {
         self.with_player(id, |player| {
-            info!("client connected from {}", try!(player.conn.peer_addr()));
+            info!("client connected from {}", player.conn.peer_addr()?);
             Ok(())
         })
     }

@@ -1,7 +1,7 @@
 use super::event_manager::*;
-use glium::glutin::{ElementState, Event, VirtualKeyCode};
-use std::f32::consts;
 use base::math::*;
+use glium::glutin::{ElementState, Event, VirtualKeyCode, WindowEvent, KeyboardInput};
+use std::f32::consts;
 
 #[derive(Debug)]
 pub struct DayTime {
@@ -17,7 +17,6 @@ pub struct DayTime {
 const DEFAULT_TIME_SPEED: f32 = 1.0;
 const PLUS_TIME_SPEED: f32 = 100.0;
 
-
 impl Default for DayTime {
     fn default() -> DayTime {
         DayTime {
@@ -32,7 +31,6 @@ impl Default for DayTime {
 // 360 == Mittag
 const DAY_LENGTH: f32 = 720.0;
 const YEAR_LENGTH: u32 = 12;
-
 
 // lengthens the day by a static offset
 const DAY_LENGTHER: f32 = 0.0;
@@ -111,10 +109,10 @@ impl DayTime {
     /// `YEAR_LENGTH` defines the length of a year in `DAY_LENGTH`s
     pub fn update(&mut self, delta: f32) {
         // Output of Time
-        debug!("Year: {} Day: {} Time: {}",
-               self.time_year,
-               self.time_day,
-               self.time_on_day);
+        debug!(
+            "Year: {} Day: {} Time: {}",
+            self.time_year, self.time_day, self.time_on_day
+        );
 
         // Checks if one day has passed
         self.time_on_day += delta * self.speed;
@@ -126,14 +124,11 @@ impl DayTime {
                 self.time_year += 1;
             }
         }
-
     }
-
 
     /// returns the position of the sun corresponding to time
     /// only mid summer
     pub fn get_sun_position(&self) -> Point3f {
-
         let half_year = YEAR_LENGTH as f32 / 2.0;
         let half_day = DAY_LENGTH as f32 / 2.0;
 
@@ -163,11 +158,13 @@ impl DayTime {
         // returns sun position in cartesian coordinates
         // uses `YEAR_LENGTH` and the current day of the year (month) to influence the
         // path the sun moves on
-        let pos =
-            Vector3f::new(theta.sin() * phi.cos(),
-                          theta.sin() * phi.sin() + month_diff / (0.75 * YEAR_LENGTH as f32),
-                          theta.cos() - month_diff / (0.75 * YEAR_LENGTH as f32) + DAY_LENGTHER)
-                .normalize() * SUN_DISTANCE;
+        let pos = Vector3f::new(
+            theta.sin() * phi.cos(),
+            theta.sin() * phi.sin() + month_diff / (0.75 * YEAR_LENGTH as f32),
+            theta.cos() - month_diff / (0.75 * YEAR_LENGTH as f32) + DAY_LENGTHER,
+        )
+        .normalize()
+            * SUN_DISTANCE;
 
         Point3f::new(pos.x, pos.y, pos.z)
     }
@@ -181,17 +178,29 @@ impl DayTime {
 /// Handler to speed up time with use of '+' key
 impl EventHandler for DayTime {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
-        match *e {
-            Event::KeyboardInput(ElementState::Pressed, _, Some(VirtualKeyCode::Add)) => {
+        let input = match e {
+            Event::WindowEvent { event: WindowEvent::KeyboardInput { input, .. }, .. } => input,
+            _ => return EventResponse::NotHandled,
+        };
+
+        match input {
+            KeyboardInput {
+                state: ElementState::Pressed,
+                virtual_keycode: Some(VirtualKeyCode::Add),
+                ..
+            } => {
                 self.speed = PLUS_TIME_SPEED;
                 EventResponse::Continue
             }
-            Event::KeyboardInput(ElementState::Released, _, Some(VirtualKeyCode::Add)) => {
+            KeyboardInput {
+                state: ElementState::Released,
+                virtual_keycode: Some(VirtualKeyCode::Add),
+                ..
+            } => {
                 self.speed = DEFAULT_TIME_SPEED;
                 EventResponse::Continue
             }
             _ => EventResponse::NotHandled,
         }
-
     }
 }

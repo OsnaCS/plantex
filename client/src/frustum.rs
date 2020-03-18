@@ -29,7 +29,11 @@ impl Plane {
     // use setPoint3fs for right initialization
     pub fn new() -> Plane {
         Plane {
-            points: [Point3f::new(0., 0., 0.), Point3f::new(1., 1., 1.), Point3f::new(3., 2., 2.)],
+            points: [
+                Point3f::new(0., 0., 0.),
+                Point3f::new(1., 1., 1.),
+                Point3f::new(3., 2., 2.),
+            ],
             d: 0.,
             normal: Vector3f::new(0., 1., -1.),
         }
@@ -56,8 +60,9 @@ impl Plane {
         let xz = z - x;
 
         self.normal = xy.cross(xz).normalize();
-        self.d = -(self.normal.x * self.points[0].x + self.normal.y * self.points[0].y +
-                   self.normal.z * self.points[0].z);
+        self.d = -(self.normal.x * self.points[0].x
+            + self.normal.y * self.points[0].y
+            + self.normal.z * self.points[0].z);
     }
 
     pub fn distance(&self, p: &Point3f) -> f32 {
@@ -85,8 +90,14 @@ impl Frustum {
     // initialization stuff contains dummys use
     // set_cam_internals and set_cam_def to initialize the frustum
     pub fn new() -> Frustum {
-        let ps =
-            [Plane::new(), Plane::new(), Plane::new(), Plane::new(), Plane::new(), Plane::new()];
+        let ps = [
+            Plane::new(),
+            Plane::new(),
+            Plane::new(),
+            Plane::new(),
+            Plane::new(),
+            Plane::new(),
+        ];
         Frustum {
             planes: ps,
             angle: 0.0,
@@ -125,9 +136,7 @@ impl Frustum {
         let y = (z.cross(x)).normalize();
 
         // calc center of [insert near/far plane joke here]
-        let c = {
-            |x: f32| (camera_pos - z) * (x)
-        };
+        let c = { |x: f32| (camera_pos - z) * (x) };
 
         let nc = c(self.near);
         let fc = c(self.far);

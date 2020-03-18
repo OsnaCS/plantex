@@ -1,14 +1,14 @@
+use super::normal_converter;
+use super::tex_generator;
+use base::math::*;
 use base::world;
-use std::f32::consts;
-use glium::{IndexBuffer, Program, VertexBuffer};
+use base::world::ground::GroundMaterial;
 use glium::index::PrimitiveType;
 use glium::texture::Texture2d;
-use GameContext;
+use glium::{IndexBuffer, Program, VertexBuffer};
+use std::f32::consts;
 use std::rc::Rc;
-use super::tex_generator;
-use super::normal_converter;
-use base::world::ground::GroundMaterial;
-use base::math::*;
+use GameContext;
 
 pub struct ChunkRenderer {
     /// Chunk shader
@@ -53,24 +53,36 @@ impl ChunkRenderer {
             noise_mulch: Texture2d::new(context.get_facade(), mulch.1).unwrap(),
 
             // Creating a sampler2D from the heightmap
-            normal_sand: Texture2d::new(context.get_facade(),
-                                        normal_converter::convert(sand.0, 1.0))
-                .unwrap(),
-            normal_snow: Texture2d::new(context.get_facade(),
-                                        normal_converter::convert(snow.0, 1.0))
-                .unwrap(),
-            normal_grass: Texture2d::new(context.get_facade(),
-                                         normal_converter::convert(grass.0, 1.0))
-                .unwrap(),
-            normal_stone: Texture2d::new(context.get_facade(),
-                                         normal_converter::convert(stone.0, 1.0))
-                .unwrap(),
-            normal_dirt: Texture2d::new(context.get_facade(),
-                                        normal_converter::convert(dirt.0, 1.0))
-                .unwrap(),
-            normal_mulch: Texture2d::new(context.get_facade(),
-                                         normal_converter::convert(mulch.0, 1.0))
-                .unwrap(),
+            normal_sand: Texture2d::new(
+                context.get_facade(),
+                normal_converter::convert(sand.0, 1.0),
+            )
+            .unwrap(),
+            normal_snow: Texture2d::new(
+                context.get_facade(),
+                normal_converter::convert(snow.0, 1.0),
+            )
+            .unwrap(),
+            normal_grass: Texture2d::new(
+                context.get_facade(),
+                normal_converter::convert(grass.0, 1.0),
+            )
+            .unwrap(),
+            normal_stone: Texture2d::new(
+                context.get_facade(),
+                normal_converter::convert(stone.0, 1.0),
+            )
+            .unwrap(),
+            normal_dirt: Texture2d::new(
+                context.get_facade(),
+                normal_converter::convert(dirt.0, 1.0),
+            )
+            .unwrap(),
+            normal_mulch: Texture2d::new(
+                context.get_facade(),
+                normal_converter::convert(mulch.0, 1.0),
+            )
+            .unwrap(),
             outline: HexagonOutline::new(context),
         }
     }
@@ -143,8 +155,6 @@ pub struct OutlineVertex {
 
 implement_vertex!(OutlineVertex, position, normal, tex_coords);
 
-
-
 /// Calculates one Point-coordinates of a Hexagon
 fn hex_corner(size: f32, i: i32) -> (f32, f32) {
     let angle_deg = 60.0 * (i as f32) + 30.0;
@@ -190,24 +200,26 @@ fn get_top_hexagon_model(vertices: &mut Vec<OutlineVertex>, indices: &mut Vec<u3
         tex_coords: [0.5, 0.5],
     });
 
-    indices.append(&mut vec![cur_len + 0,
-                             cur_len + 6,
-                             cur_len + 1,
-                             cur_len + 5,
-                             cur_len + 6,
-                             cur_len + 0,
-                             cur_len + 4,
-                             cur_len + 6,
-                             cur_len + 5,
-                             cur_len + 3,
-                             cur_len + 6,
-                             cur_len + 4,
-                             cur_len + 2,
-                             cur_len + 6,
-                             cur_len + 3,
-                             cur_len + 1,
-                             cur_len + 6,
-                             cur_len + 2]);
+    indices.append(&mut vec![
+        cur_len + 0,
+        cur_len + 6,
+        cur_len + 1,
+        cur_len + 5,
+        cur_len + 6,
+        cur_len + 0,
+        cur_len + 4,
+        cur_len + 6,
+        cur_len + 5,
+        cur_len + 3,
+        cur_len + 6,
+        cur_len + 4,
+        cur_len + 2,
+        cur_len + 6,
+        cur_len + 3,
+        cur_len + 1,
+        cur_len + 6,
+        cur_len + 2,
+    ]);
 }
 
 /// Calculates the bottom face of the Hexagon and the normals
@@ -231,31 +243,35 @@ fn get_bottom_hexagon_model(vertices: &mut Vec<OutlineVertex>, indices: &mut Vec
         tex_coords: [0.5, 0.5],
     });
 
-    indices.append(&mut vec![cur_len + 1,
-                             cur_len + 6,
-                             cur_len + 0,
-                             cur_len + 0,
-                             cur_len + 6,
-                             cur_len + 5,
-                             cur_len + 5,
-                             cur_len + 6,
-                             cur_len + 4,
-                             cur_len + 4,
-                             cur_len + 6,
-                             cur_len + 3,
-                             cur_len + 3,
-                             cur_len + 6,
-                             cur_len + 2,
-                             cur_len + 2,
-                             cur_len + 6,
-                             cur_len + 1]);
+    indices.append(&mut vec![
+        cur_len + 1,
+        cur_len + 6,
+        cur_len + 0,
+        cur_len + 0,
+        cur_len + 6,
+        cur_len + 5,
+        cur_len + 5,
+        cur_len + 6,
+        cur_len + 4,
+        cur_len + 4,
+        cur_len + 6,
+        cur_len + 3,
+        cur_len + 3,
+        cur_len + 6,
+        cur_len + 2,
+        cur_len + 2,
+        cur_len + 6,
+        cur_len + 1,
+    ]);
 }
 
 /// Calculates the sides of the Hexagon and normals
-fn get_side_hexagon_model(ind1: i32,
-                          ind2: i32,
-                          vertices: &mut Vec<OutlineVertex>,
-                          indices: &mut Vec<u32>) {
+fn get_side_hexagon_model(
+    ind1: i32,
+    ind2: i32,
+    vertices: &mut Vec<OutlineVertex>,
+    indices: &mut Vec<u32>,
+) {
     let cur_len = vertices.len() as u32;
     let (x1, y1) = hex_corner(world::HEX_OUTER_RADIUS, ind1);
     let (x2, y2) = hex_corner(world::HEX_OUTER_RADIUS, ind2);
@@ -283,10 +299,12 @@ fn get_side_hexagon_model(ind1: i32,
         tex_coords: [1.0, 0.0],
     });
 
-    indices.append(&mut vec![cur_len + 0,
-                             cur_len + 2,
-                             cur_len + 1,
-                             cur_len + 1,
-                             cur_len + 2,
-                             cur_len + 3]);
+    indices.append(&mut vec![
+        cur_len + 0,
+        cur_len + 2,
+        cur_len + 1,
+        cur_len + 1,
+        cur_len + 2,
+        cur_len + 3,
+    ]);
 }

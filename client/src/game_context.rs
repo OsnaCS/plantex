@@ -1,26 +1,26 @@
-use glium::backend::glutin_backend::GlutinFacade;
-use glium::program;
-use glium::Program;
 use super::Config;
+use glium::program;
+use glium::Display;
+use glium::Program;
+use std::error::Error;
 use std::fs::File;
 use std::io::{self, Read};
-use std::error::Error;
 
 #[derive(Clone)]
 pub struct GameContext {
-    facade: GlutinFacade,
+    facade: Display,
     config: Config, // TODO: we might want to wrap it into `Rc` (performance)
 }
 
 impl GameContext {
-    pub fn new(facade: GlutinFacade, config: Config) -> Self {
+    pub fn new(facade: Display, config: Config) -> Self {
         GameContext {
             facade: facade,
             config: config,
         }
     }
 
-    pub fn get_facade(&self) -> &GlutinFacade {
+    pub fn get_facade(&self) -> &Display {
         &self.facade
     }
 
@@ -31,21 +31,21 @@ impl GameContext {
     /// Loads vertex and fragment shader automatically to prevent recompiling
     /// the application
     /// everytime a shader is changed.
-    pub fn load_program(&self, shader: &str) -> Result<Program, Box<Error>> {
+    pub fn load_program(&self, shader: &str) -> Result<Program, Box<dyn Error>> {
         fn load_if_present(path: &str) -> Result<String, io::Error> {
-            let mut f = try!(File::open(path));
+            let mut f = File::open(path)?;
             let mut buf = String::new();
-            try!(f.read_to_string(&mut buf));
+            f.read_to_string(&mut buf)?;
             Ok(buf)
         }
 
-        let mut vert = try!(File::open(&format!("client/shader/{}.vert", shader)));
-        let mut frag = try!(File::open(&format!("client/shader/{}.frag", shader)));
+        let mut vert = File::open(&format!("client/shader/{}.vert", shader))?;
+        let mut frag = File::open(&format!("client/shader/{}.frag", shader))?;
 
         let mut vert_buf = String::new();
         let mut frag_buf = String::new();
-        try!(vert.read_to_string(&mut vert_buf));
-        try!(frag.read_to_string(&mut frag_buf));
+        vert.read_to_string(&mut vert_buf)?;
+        frag.read_to_string(&mut frag_buf)?;
 
         let (tcs, tes);
         if self.config.tessellation {
@@ -69,7 +69,7 @@ impl GameContext {
         if let Err(ref e) = prog {
             warn!("failed to compile program '{}':\n{}", shader, e);
         }
-        Ok(try!(prog))
+        Ok(prog?)
     }
 
     // TODO: `load_post_processing_program` which loads a default vertex shader

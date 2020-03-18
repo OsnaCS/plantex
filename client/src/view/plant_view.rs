@@ -1,18 +1,18 @@
+use super::PlantRenderer;
+use base::gen::seeded_rng;
+use base::math::*;
+use base::prop::plant::ControlPoint;
+use base::prop::plant::{Plant, Tree};
+use base::world::ChunkIndex;
 use glium::backend::Facade;
-use glium::{self, BackfaceCullingMode, DepthTest, DrawParameters, IndexBuffer, VertexBuffer};
 use glium::index::PrimitiveType;
 use glium::texture::Texture2d;
 use glium::uniforms::SamplerWrapFunction;
-use Camera;
-use util::ToArr;
+use glium::{self, BackfaceCullingMode, DepthTest, DrawParameters, IndexBuffer, VertexBuffer};
 use std::collections::HashMap;
-use base::math::*;
-use base::world::ChunkIndex;
-use base::gen::seeded_rng;
-use base::prop::plant::{Plant, Tree};
 use std::rc::Rc;
-use super::PlantRenderer;
-use base::prop::plant::ControlPoint;
+use util::ToArr;
+use Camera;
 use DayTime;
 
 /// Graphical representation of a 'base::Plant'
@@ -37,9 +37,17 @@ impl PlantView {
         let mut indices = Vec::new();
         let mut vertices = Vec::new();
         match *plant {
-            Plant::Tree(Tree { ref branches, trunk_color, leaf_color }) => {
+            Plant::Tree(Tree {
+                ref branches,
+                trunk_color,
+                leaf_color,
+            }) => {
                 for branch in branches {
-                    let color = if branch.is_trunk { trunk_color } else { leaf_color };
+                    let color = if branch.is_trunk {
+                        trunk_color
+                    } else {
+                        leaf_color
+                    };
                     gen_branch_buffer(&branch.points, &mut vertices, &mut indices, color);
                 }
             }
@@ -49,10 +57,14 @@ impl PlantView {
             vertices: VertexBuffer::new(facade, &vertices).unwrap(),
             instances: HashMap::new(),
             instance_buf: VertexBuffer::new(facade, &[]).unwrap(),
-            indices: IndexBuffer::new(facade,
-                                      PrimitiveType::Patches { vertices_per_patch: 3 },
-                                      &indices)
-                .unwrap(),
+            indices: IndexBuffer::new(
+                facade,
+                PrimitiveType::Patches {
+                    vertices_per_patch: 3,
+                },
+                &indices,
+            )
+            .unwrap(),
             shadow_indices: IndexBuffer::new(facade, PrimitiveType::TrianglesList, &indices)
                 .unwrap(),
             renderer: renderer,
@@ -63,7 +75,9 @@ impl PlantView {
         self.instances
             .entry(chunk_pos)
             .or_insert(Vec::new())
-            .push(Instance { offset: pos.to_arr() });
+            .push(Instance {
+                offset: pos.to_arr(),
+            });
 
         self.update_instance_buffer();
     }
@@ -81,8 +95,8 @@ impl PlantView {
                 tmp_instances.push(*inst);
             }
         }
-        self.instance_buf = VertexBuffer::new(self.renderer.context().get_facade(), &tmp_instances)
-            .unwrap();
+        self.instance_buf =
+            VertexBuffer::new(self.renderer.context().get_facade(), &tmp_instances).unwrap();
     }
 
     pub fn draw_shadow<S: glium::Surface>(&self, surface: &mut S, camera: &Camera) {
@@ -103,21 +117,26 @@ impl PlantView {
             ..Default::default()
         };
 
-        surface.draw((&self.vertices, self.instance_buf.per_instance().unwrap()),
-                  &self.shadow_indices,
-                  &self.renderer.shadow_program(),
-                  &uniforms,
-                  &params)
+        surface
+            .draw(
+                (&self.vertices, self.instance_buf.per_instance().unwrap()),
+                &self.shadow_indices,
+                &self.renderer.shadow_program(),
+                &uniforms,
+                &params,
+            )
             .unwrap();
     }
 
-    pub fn draw<S: glium::Surface>(&self,
-                                   surface: &mut S,
-                                   camera: &Camera,
-                                   shadow_map: &Texture2d,
-                                   depth_view_proj: &Matrix4<f32>,
-                                   daytime: &DayTime,
-                                   sun_dir: Vector3f) {
+    pub fn draw<S: glium::Surface>(
+        &self,
+        surface: &mut S,
+        camera: &Camera,
+        shadow_map: &Texture2d,
+        depth_view_proj: &Matrix4<f32>,
+        daytime: &DayTime,
+        sun_dir: Vector3f,
+    ) {
         let uniforms = uniform! {
             proj_matrix: camera.proj_matrix().to_arr(),
             view_matrix: camera.view_matrix().to_arr(),
@@ -145,11 +164,14 @@ impl PlantView {
             &self.shadow_indices
         };
 
-        surface.draw((&self.vertices, self.instance_buf.per_instance().unwrap()),
-                  indices,
-                  &self.renderer.program(),
-                  &uniforms,
-                  &params)
+        surface
+            .draw(
+                (&self.vertices, self.instance_buf.per_instance().unwrap()),
+                indices,
+                &self.renderer.program(),
+                &uniforms,
+                &params,
+            )
             .unwrap();
     }
 }
@@ -165,10 +187,12 @@ pub struct Vertex {
 implement_vertex!(Vertex, position, color, normal);
 
 /// generates VertexBuffer and IndexBuffer for Plants
-fn gen_branch_buffer(old_cps: &[ControlPoint],
-                     vertices: &mut Vec<Vertex>,
-                     indices: &mut Vec<u32>,
-                     color: Vector3f) {
+fn gen_branch_buffer(
+    old_cps: &[ControlPoint],
+    vertices: &mut Vec<Vertex>,
+    indices: &mut Vec<u32>,
+    color: Vector3f,
+) {
     let old_index_offset = vertices.len() as u32;
     let cps = {
         let mut cps = vec![old_cps[0]];
@@ -192,12 +216,15 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
         }
     }
 
-
     for offset in 0..(old_cps.len() as u32) - 1 {
         let offset = offset * 3;
         let segment_indices = [0, 1, 3, 4, 3, 1, 1, 2, 4, 5, 4, 2, 2, 0, 5, 3, 5, 0];
 
-        indices.extend(segment_indices.into_iter().map(|i| i + offset + old_index_offset));
+        indices.extend(
+            segment_indices
+                .iter()
+                .map(|i| i + offset + old_index_offset),
+        );
     }
 
     let vert_len = vertices.len() as u32;
@@ -206,9 +233,11 @@ fn gen_branch_buffer(old_cps: &[ControlPoint],
 
 /// generates 3 normalized vectors perpendicular to the given vector
 fn get_points_from_vector(vector: Vector3f) -> [Vector3f; 3] {
-    let ortho = random_vec_with_angle(&mut seeded_rng(0x2651aa465abded, (), ()),
-                                      vector.normalize(),
-                                      90.0);
+    let ortho = random_vec_with_angle(
+        &mut seeded_rng(0x2651aa465abded, (), ()),
+        vector.normalize(),
+        90.0,
+    );
     let rot = Basis3::from_axis_angle(vector.normalize(), Deg::new(120.0).into());
     let v0 = rot.rotate_vector(ortho);
     let v1 = rot.rotate_vector(v0);

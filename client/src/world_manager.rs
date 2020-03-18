@@ -1,15 +1,15 @@
-use base::world::{Chunk, ChunkProvider, World};
 use super::GameContext;
-use std::collections::{HashMap, HashSet};
-use std::rc::Rc;
-use std::mem::replace;
-use std::thread;
-use std::cell::{Ref, RefCell};
-use std::sync::mpsc::{Receiver, Sender, TryRecvError, channel};
-use base::world::{CHUNK_SIZE, ChunkIndex};
 use base::math::*;
-use world::WorldView;
+use base::world::{Chunk, ChunkProvider, World};
+use base::world::{ChunkIndex, CHUNK_SIZE};
 use std::cell::RefMut;
+use std::cell::{Ref, RefCell};
+use std::collections::{HashMap, HashSet};
+use std::mem::replace;
+use std::rc::Rc;
+use std::sync::mpsc::{channel, Receiver, Sender, TryRecvError};
+use std::thread;
+use world::WorldView;
 
 #[derive(Clone)]
 pub struct WorldManager {
@@ -28,7 +28,7 @@ struct Shared {
 }
 
 impl WorldManager {
-    pub fn new(provider: Box<ChunkProvider>, game_context: Rc<GameContext>) -> Self {
+    pub fn new(provider: Box<dyn ChunkProvider>, game_context: Rc<GameContext>) -> Self {
         // Create two channels to send chunk positions and receive chunks.
         let (chunk_request_sender, chunk_request_recv) = channel();
         let (chunk_sender, chunk_recv) = channel();
@@ -70,12 +70,14 @@ impl WorldManager {
         let radius = load_distance as i32;
 
         let is_chunk_in_range = |chunk_pos: AxialPoint| {
-            let chunk_center = chunk_pos * CHUNK_SIZE as i32 +
-                               AxialVector::new(CHUNK_SIZE as i32 / 2, CHUNK_SIZE as i32 / 2);
-            let player_center = player_chunk * CHUNK_SIZE as i32 +
-                                AxialVector::new(CHUNK_SIZE as i32 / 2, CHUNK_SIZE as i32 / 2);
-            (chunk_center - player_center).to_real().distance(Vector2f::zero()) <
-            load_distance * CHUNK_SIZE as f32
+            let chunk_center = chunk_pos * CHUNK_SIZE as i32
+                + AxialVector::new(CHUNK_SIZE as i32 / 2, CHUNK_SIZE as i32 / 2);
+            let player_center = player_chunk * CHUNK_SIZE as i32
+                + AxialVector::new(CHUNK_SIZE as i32 / 2, CHUNK_SIZE as i32 / 2);
+            (chunk_center - player_center)
+                .to_real()
+                .distance(Vector2f::zero())
+                < load_distance * CHUNK_SIZE as f32
         };
 
         // Load new range
@@ -111,7 +113,6 @@ impl WorldManager {
         shared.world.chunks = new_chunks;
     }
 
-
     /// Returns an immutable reference to the world.
     ///
     /// *Note*: since the world manager uses a `RefCell` to save the world, a
@@ -143,15 +144,18 @@ impl WorldManager {
     /// around `pos`.
     fn load_world_around(&self, pos: Point2f) {
         let axial_pos = AxialPoint::from_real(pos);
-        let chunk_pos = AxialPoint::new(axial_pos.q / CHUNK_SIZE as i32,
-                                        axial_pos.r / CHUNK_SIZE as i32);
+        let chunk_pos = AxialPoint::new(
+            axial_pos.q / CHUNK_SIZE as i32,
+            axial_pos.r / CHUNK_SIZE as i32,
+        );
 
         let mut shared = self.shared.borrow_mut();
         if shared.player_chunk.0 != chunk_pos {
             shared.player_chunk = ChunkIndex(chunk_pos);
-            debug!("player moved to chunk {:?} (player at {:?})",
-                   chunk_pos,
-                   pos);
+            debug!(
+                "player moved to chunk {:?} (player at {:?})",
+                chunk_pos, pos
+            );
             drop(shared);
 
             self.update_player_chunk();
@@ -182,7 +186,9 @@ impl WorldManager {
             };
 
             changed = true;
-            shared.world_view.refresh_chunk(pos, &chunk, self.context.get_facade());
+            shared
+                .world_view
+                .refresh_chunk(pos, &chunk, self.context.get_facade());
 
             shared.sent_requests.remove(&pos);
             let res = shared.world.add_chunk(pos, chunk);
@@ -205,16 +211,19 @@ impl WorldManager {
         let chunk_pos = AxialPoint::new(pos.q / CHUNK_SIZE as i32, pos.r / CHUNK_SIZE as i32);
         let index = ChunkIndex(chunk_pos);
 
-        shared.world_view.refresh_chunk(index,
-                                        shared.world.chunk_at(index).unwrap(),
-                                        self.context.get_facade());
+        shared.world_view.refresh_chunk(
+            index,
+            shared.world.chunk_at(index).unwrap(),
+            self.context.get_facade(),
+        );
     }
 }
 
-
-fn worker_thread(provider: Box<ChunkProvider>,
-                 commands: Receiver<ChunkIndex>,
-                 chunks: Sender<(ChunkIndex, Chunk)>) {
+fn worker_thread(
+    provider: Box<dyn ChunkProvider>,
+    commands: Receiver<ChunkIndex>,
+    chunks: Sender<(ChunkIndex, Chunk)>,
+) {
     loop {
         let requested_chunk = match commands.recv() {
             Err(_) => {
@@ -224,19 +233,25 @@ fn worker_thread(provider: Box<ChunkProvider>,
             Ok(index) => index,
         };
 
-        debug!("chunk provider thread: received request to generate chunk {:?}",
-               requested_chunk.0);
+        debug!(
+            "chunk provider thread: received request to generate chunk {:?}",
+            requested_chunk.0
+        );
 
         match provider.load_chunk(requested_chunk) {
             Some(chunk) => {
-                debug!("chunk provider thread: chunk at {:?} successfully loaded",
-                       requested_chunk);
-                chunks.send((requested_chunk, chunk)).expect("main thread has hung up");
+                debug!(
+                    "chunk provider thread: chunk at {:?} successfully loaded",
+                    requested_chunk
+                );
+                chunks
+                    .send((requested_chunk, chunk))
+                    .expect("main thread has hung up");
             }
-            None => {
-                warn!("chunk provider thread: failed to load chunk at {:?}",
-                      requested_chunk)
-            }
+            None => warn!(
+                "chunk provider thread: failed to load chunk at {:?}",
+                requested_chunk
+            ),
         }
     }
 

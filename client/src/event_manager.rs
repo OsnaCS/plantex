@@ -1,5 +1,4 @@
-use glium::backend::glutin_backend::GlutinFacade;
-use glium::glutin::{Event, VirtualKeyCode};
+use glium::glutin::{Event, EventsLoop, VirtualKeyCode, WindowEvent, KeyboardInput};
 
 /// Every event receiver has to return a response for each event received.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -15,29 +14,28 @@ pub enum EventResponse {
 }
 
 pub struct EventManager {
-    facade: GlutinFacade,
+    events_loop: EventsLoop,
 }
 
 impl EventManager {
-    pub fn new(facade: GlutinFacade) -> Self {
-        EventManager { facade: facade }
+    pub fn new(events_loop: EventsLoop) -> Self {
+        EventManager { events_loop }
     }
 
-    pub fn poll_events(&self, mut handlers: Vec<&mut EventHandler>) -> EventResponse {
-
-        for ev in self.facade.poll_events() {
+    pub fn poll_events(&mut self, mut handlers: Vec<&mut dyn EventHandler>) -> EventResponse {
+        let mut quit = false;
+        self.events_loop.poll_events(|ev| {
             for i in 0..handlers.len() {
                 let response = handlers[i].handle_event(&ev);
                 match response {
-                    EventResponse::NotHandled |
-                    EventResponse::Continue => (),
+                    EventResponse::NotHandled | EventResponse::Continue => (),
                     EventResponse::Break => break,
-                    EventResponse::Quit => return EventResponse::Quit,
+                    EventResponse::Quit => quit = true,
                 }
             }
-        }
-        // Just for the sake of return value
-        EventResponse::NotHandled
+        });
+
+        if quit { EventResponse::Quit } else { EventResponse::NotHandled }
     }
 }
 
@@ -57,9 +55,18 @@ pub struct CloseHandler;
 /// *pressing 'Escape'
 impl EventHandler for CloseHandler {
     fn handle_event(&mut self, e: &Event) -> EventResponse {
-        match *e {
-            Event::Closed => EventResponse::Quit,
-            Event::KeyboardInput(_, _, Some(VirtualKeyCode::Escape)) => EventResponse::Quit,
+        let e = match e {
+            Event::WindowEvent { event, .. } => event,
+            _ => return EventResponse::NotHandled,
+        };
+
+        match e {
+            WindowEvent::CloseRequested
+            | WindowEvent::KeyboardInput {
+                input: KeyboardInput { virtual_keycode: Some(VirtualKeyCode::Escape), .. },
+                ..
+             }
+                => EventResponse::Quit,
             _ => EventResponse::NotHandled,
         }
     }

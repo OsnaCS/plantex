@@ -11,7 +11,7 @@ clap = "2"
 toml = "0.1"
 regex = "0.1"
 rand = "0.3"
-glium = "0.15"
+glium = "0.23"
 noise = "0.3"
 
 [dependencies.base]
