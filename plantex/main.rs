@@ -12,7 +12,7 @@ fn main() {
     // Initialize logger (by default error, warning and info logs are shown)
     env_logger::LogBuilder::new()
         .filter(None, LogLevelFilter::Info)
-        .parse(&std::env::var("RUST_LOG").unwrap_or("".into()))
+        .parse(&std::env::var("RUST_LOG").unwrap_or_else(|_| "".into()))
         .init()
         .expect("logger initialization failed");
 
@@ -24,7 +24,7 @@ fn main() {
     let conf = match client::Config::load_config() {
         Ok(v) => v,
         Err(e) => {
-            writeln!(io::stderr(), "{}", e).unwrap();
+            eprintln!("{}", e);
             return;
         }
     };

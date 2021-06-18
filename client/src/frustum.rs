@@ -15,8 +15,8 @@ pub enum LOCATION {
 }
 
 // f64 for high accuracy #makef64greatagain
-const ANG2RAD: f64 = (PI / 180.);
-const RAD2ANG: f64 = (180. / PI);
+const ANG2RAD: f64 = PI / 180.;
+const RAD2ANG: f64 = 180. / PI;
 
 struct Plane {
     points: [Point3f; 3],
